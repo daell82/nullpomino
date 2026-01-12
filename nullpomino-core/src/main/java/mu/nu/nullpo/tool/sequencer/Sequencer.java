@@ -35,15 +35,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -61,12 +62,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.util.CustomProperties;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
@@ -74,23 +76,22 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 /**
  * NullpoMino Sequence Viewer (Original from NullpoUE build 010210 by Zircean)
  */
+@Log4j
 public class Sequencer extends JFrame implements ActionListener {
+
 	/** Serial Version UID */
 	private static final long serialVersionUID = 1L;
 
-	/** Log */
-	static final Logger log = Logger.getLogger(Sequencer.class);
-
 	/** Config File */
-	public CustomProperties propConfig;
+	protected CustomProperties propConfig;
 
 	/** Default language file */
-	public CustomProperties propLangDefault;
+	protected CustomProperties propLangDefault;
 
 	/** UI Language File */
-	public CustomProperties propLang;
+	protected CustomProperties propLang;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/** Rand-seed textfield */
 	private JTextField txtfldSeed;
 
@@ -101,10 +102,10 @@ public class Sequencer extends JFrame implements ActionListener {
 	private JTextField txtfldSeqOffset;
 
 	/** Randomizer combobox */
-	private JComboBox comboboxRandomizer;
+	private JComboBox<String> comboboxRandomizer;
 
 	/** Randomizer list */
-	private Vector<String> vectorRandomizer;
+	private List<String> vectorRandomizer;
 
 	/** Generate button */
 	private JButton btnGenerate;
@@ -112,7 +113,7 @@ public class Sequencer extends JFrame implements ActionListener {
 	/** Generated Sequence textarea */
 	private JTextArea txtareaSequence;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/** Generated Sequence */
 	private int[] sequence;
 
@@ -124,7 +125,6 @@ public class Sequencer extends JFrame implements ActionListener {
 	 */
 	public Sequencer() {
 		init();
-
 		setVisible(true);
 	}
 
@@ -133,43 +133,28 @@ public class Sequencer extends JFrame implements ActionListener {
 	 */
 	private void init() {
 		// Load config file
-		propConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
-			propConfig.load(in);
-			in.close();
-		} catch(IOException e) {}
+		propConfig = CustomProperties.load("config/setting/swing.cfg");
 
 		// Load UI Language file
-		propLangDefault = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/sequencer_default.properties");
-			propLangDefault.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Couldn't load default UI language file", e);
-		}
+		propLangDefault = CustomProperties.load("config/lang/sequencer_default.properties");
 
-		propLang = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/sequencer_" + Locale.getDefault().getCountry() + ".properties");
-			propLang.load(in);
-			in.close();
-		} catch(IOException e) {}
+		propLang = CustomProperties.load("config/lang/sequencer_" + Locale.getDefault().getCountry() + ".properties");
 
 		// Set Look&Feel
-		if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+		if (propConfig.getProperty("option.usenativelookandfeel", true)) {
 			try {
 				UIManager.getInstalledLookAndFeels();
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch(Exception e) {
+			} catch (Exception e) {
 				log.warn("Failed to set native look&feel", e);
 			}
 		}
 
 		// Initialize enabled pieces
 		nextPieceEnable = new boolean[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_STANDARD_COUNT; i++) nextPieceEnable[i] = true;
+		for (int i = 0; i < Piece.PIECE_STANDARD_COUNT; i++) {
+			nextPieceEnable[i] = true;
+		}
 
 		setTitle(getUIText("Title_Sequencer"));
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -199,7 +184,6 @@ public class Sequencer extends JFrame implements ActionListener {
 		miNew.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.CTRL_DOWN_MASK));
 		miNew.setActionCommand("New");
 		miNew.addActionListener(this);
-		//mFile.add(miNew);
 
 		// Open
 		JMenuItem miOpen = new JMenuItem(getUIText("JMenuItem_Open"));
@@ -285,7 +269,7 @@ public class Sequencer extends JFrame implements ActionListener {
 		pRandomizer.add(lRandomizer);
 
 		vectorRandomizer = getTextFileVector("config/list/randomizer.lst");
-		comboboxRandomizer = new JComboBox(createShortStringVector(vectorRandomizer));
+		comboboxRandomizer = new JComboBox<>(createShortStringVector(vectorRandomizer));
 		comboboxRandomizer.setPreferredSize(new Dimension(200, 30));
 		comboboxRandomizer.setSelectedIndex(0);
 		pRandomizer.add(comboboxRandomizer);
@@ -301,88 +285,68 @@ public class Sequencer extends JFrame implements ActionListener {
 		pGenerate.add(btnGenerate);
 
 		// Sequence
-		txtareaSequence = new JTextArea(10,37);
+		txtareaSequence = new JTextArea(10, 37);
 		txtareaSequence.setLineWrap(true);
 		txtareaSequence.setEditable(false);
 
-		JScrollPane pSequence = new JScrollPane(txtareaSequence,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		JScrollPane pSequence = new JScrollPane(txtareaSequence, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		getContentPane().add(pSequence);
 
 	}
 
-	public Vector<String> getTextFileVector(String filename) {
-		Vector<String> vec = new Vector<String>();
-
+	public List<String> getTextFileVector(String filename) {
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename));
-
-			while(true) {
-				String str = in.readLine();
-				if((str == null) || (str.length() <= 0)) break;
-				vec.add(str);
-			}
-		} catch (IOException e) {}
-
-		return vec;
-	}
-
-	public Vector<String> createShortStringVector(Vector<String> vecSrc) {
-		Vector<String> vec = new Vector<String>();
-
-		for(int i = 0; i < vecSrc.size(); i++) {
-			vec.add(createShortString(vecSrc.get(i)));
+			return Files.readAllLines(Paths.get(filename));
+		} catch (IOException ioe) {
+			log.error("Failed to read file", ioe);
 		}
-
-		return vec;
+		return Collections.emptyList();
 	}
 
-	public String createShortString(String str) {
+	private String[] createShortStringVector(List<String> vecSrc) {
+		return vecSrc.stream().map(this::createShortString).toArray(_ -> new String[vecSrc.size()]);
+	}
+
+	private String createShortString(String str) {
 		int last = str.lastIndexOf('.');
-
-		String newStr = "";
-		if(last != -1) {
-			newStr = str.substring(last + 1);
-		} else {
-			newStr = str;
-		}
-		return newStr;
+		return last == -1 ? str : str.substring(last + 1);
 	}
 
 	public void readReplayToUI(CustomProperties prop, int playerID) {
-		txtfldSeed.setText(String.valueOf(Long.parseLong(prop.getProperty(
-			playerID+".replay.randSeed", "0"),16)));
-		comboboxRandomizer.setSelectedItem(createShortString(prop.getProperty(
-			playerID+".ruleopt.strRandomizer",null)));
+		txtfldSeed.setText(String.valueOf(Long.parseLong(prop.getProperty(playerID + ".replay.randSeed", "0"), 16)));
+		comboboxRandomizer
+				.setSelectedItem(createShortString(prop.getProperty(playerID + ".ruleopt.strRandomizer", null)));
 	}
 
 	public CustomProperties load(String filename) throws IOException {
 		log.info("Loading replay file from " + filename);
 		CustomProperties prop = new CustomProperties();
-
-		FileInputStream in = new FileInputStream(filename);
-		prop.load(in);
-		in.close();
-
+		try (var in = new FileInputStream(filename)) {
+			prop.load(in);
+		}
 		return prop;
 	}
 
 	public void save(String filename) throws IOException {
 		log.info("Saving piece sequence file to " + filename);
-		BufferedWriter out = new BufferedWriter(new FileWriter(filename));
-		out.write("# NullpoMino Piece Sequence"); out.newLine();
-		out.write(txtareaSequence.getText());
-		out.close();
+		try (var out = new BufferedWriter(new FileWriter(filename))) {
+			out.write("# NullpoMino Piece Sequence");
+			out.newLine();
+			out.write(txtareaSequence.getText());
+		}
 	}
 
 	/**
 	 * Get translated text from UI Language file
+	 *
 	 * @param str Text
-	 * @return Translated text (If translated text is NOT available, it will return str itself)
+	 * @return Translated text (If translated text is NOT available, it will return
+	 *         str itself)
 	 */
 	public String getUIText(String str) {
 		String result = propLang.getProperty(str);
-		if(result == null) {
+		if (result == null) {
 			result = propLangDefault.getProperty(str, str);
 		}
 		return result;
@@ -390,6 +354,7 @@ public class Sequencer extends JFrame implements ActionListener {
 
 	/**
 	 * Get int value from a JTextField
+	 *
 	 * @param txtfld JTextField
 	 * @return An int value from JTextField (If fails, it will return zero)
 	 */
@@ -398,13 +363,15 @@ public class Sequencer extends JFrame implements ActionListener {
 
 		try {
 			v = Integer.parseInt(txtfld.getText());
-		} catch(Exception e) {}
+		} catch (Exception e) {
+		}
 
 		return v;
 	}
 
 	/**
 	 * Get long value from a JTextField
+	 *
 	 * @param txtfld JTextField
 	 * @return A long value from JTextField (If fails, it will return zero)
 	 */
@@ -413,7 +380,8 @@ public class Sequencer extends JFrame implements ActionListener {
 
 		try {
 			v = Long.parseLong(txtfld.getText());
-		} catch(Exception e) {}
+		} catch (Exception e) {
+		}
 
 		return v;
 	}
@@ -426,7 +394,7 @@ public class Sequencer extends JFrame implements ActionListener {
 
 		try {
 			randomizerClass = Class.forName(name);
-			randomizerObject = (Randomizer) randomizerClass.newInstance();
+			randomizerObject = (Randomizer) randomizerClass.getConstructor().newInstance();
 			randomizerObject.setState(nextPieceEnable, getLongTextField(txtfldSeed));
 			sequence = new int[getIntTextField(txtfldSeqLength)];
 			for (int i = 0; i < getIntTextField(txtfldSeqOffset); i++) {
@@ -435,17 +403,23 @@ public class Sequencer extends JFrame implements ActionListener {
 			for (int i = 0; i < sequence.length; i++) {
 				sequence[i] = randomizerObject.next();
 			}
-		} catch(Exception e) {
+		} catch (Exception e) {
 			log.error("Randomizer class " + name + " load failed", e);
 		}
 	}
 
 	public void display() {
-		if (!txtareaSequence.getText().equals("")) txtareaSequence.setText("");
+		if (!txtareaSequence.getText().equals("")) {
+			txtareaSequence.setText("");
+		}
 		for (int i = 1; i <= sequence.length; i++) {
-			txtareaSequence.append(getUIText("PieceName"+sequence[i-1]));
-			if (i % 5 == 0) txtareaSequence.append(" ");
-			if (i % 60 == 0) txtareaSequence.append("\n");
+			txtareaSequence.append(getUIText("PieceName" + sequence[i - 1]));
+			if (i % 5 == 0) {
+				txtareaSequence.append(" ");
+			}
+			if (i % 60 == 0) {
+				txtareaSequence.append("\n");
+			}
 		}
 	}
 
@@ -458,15 +432,16 @@ public class Sequencer extends JFrame implements ActionListener {
 		sequence = null;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand() == "New") {
+		if (e.getActionCommand() == "New") {
 			// New
-		} else if(e.getActionCommand() == "Open") {
+		} else if (e.getActionCommand() == "Open") {
 			// Open
 			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/replay");
 			c.setFileFilter(new FileFilterREP());
 
-			if(c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = c.getSelectedFile();
 				CustomProperties prop = new CustomProperties();
 
@@ -474,45 +449,47 @@ public class Sequencer extends JFrame implements ActionListener {
 					prop = load(file.getPath());
 				} catch (IOException e2) {
 					log.error("Failed to load replay data", e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e2, getUIText("Title_FileLoadFailed"),
-												  JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed") + "\n" + e2,
+							getUIText("Title_FileLoadFailed"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
-				readReplayToUI(prop,0);
+				readReplayToUI(prop, 0);
 			}
-		} else if((e.getActionCommand() == "Save")) {
+		} else if (e.getActionCommand() == "Save") {
 			// Save
 			generate();
 			display();
 			JFileChooser c = new JFileChooser(System.getProperty("user.dir"));
 			c.setFileFilter(new FileFilterTXT());
 
-			if(c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = c.getSelectedFile();
 				String filename = file.getPath();
-				if(!filename.endsWith(".txt")) filename = filename + ".txt";
+				if (!filename.endsWith(".txt")) {
+					filename = filename + ".txt";
+				}
 
 				try {
 					save(filename);
 				} catch (Exception e2) {
 					log.error("Failed to save sequence data", e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-												  JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
+							getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 			}
-		} else if(e.getActionCommand() == "Reset") {
+		} else if (e.getActionCommand() == "Reset") {
 			// Reset
 			reset();
-		} else if(e.getActionCommand() == "Set piece enable") {
+		} else if (e.getActionCommand() == "Set piece enable") {
 			// Set piece enable
 			setPieceEnable();
-		} else if(e.getActionCommand() == "Generate") {
+		} else if (e.getActionCommand() == "Generate") {
 			// Generate
 			generate();
 			display();
-		} else if(e.getActionCommand() == "Exit") {
+		} else if (e.getActionCommand() == "Exit") {
 			// Exit
 			dispose();
 		}
@@ -520,22 +497,19 @@ public class Sequencer extends JFrame implements ActionListener {
 
 	public void setPieceEnable() {
 		final JFrame setPieceEnableFrame = new JFrame(getUIText("Title_SetPieceEnable"));
-		setPieceEnableFrame.getContentPane().setLayout(new GridLayout(0,2,10,10));
+		setPieceEnableFrame.getContentPane().setLayout(new GridLayout(0, 2, 10, 10));
 		final JCheckBox[] chkboxEnable = new JCheckBox[Piece.PIECE_COUNT];
 		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
-			chkboxEnable[i] = new JCheckBox("Piece "+getUIText("PieceName"+i));
+			chkboxEnable[i] = new JCheckBox("Piece " + getUIText("PieceName" + i));
 			chkboxEnable[i].setSelected(nextPieceEnable[i]);
 			setPieceEnableFrame.getContentPane().add(chkboxEnable[i]);
 		}
-		if (Piece.PIECE_COUNT % 2 == 0) setPieceEnableFrame.getContentPane().add(new JLabel(""));
 		final JButton btnConfirm = new JButton(getUIText("Button_Confirm"));
-		btnConfirm.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				for (int i = 0; i < Piece.PIECE_COUNT; i++) {
-					nextPieceEnable[i] = chkboxEnable[i].isSelected();
-				}
-				setPieceEnableFrame.dispose();
+		btnConfirm.addActionListener(_ -> {
+			for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+				nextPieceEnable[i] = chkboxEnable[i].isSelected();
 			}
+			setPieceEnableFrame.dispose();
 		});
 		setPieceEnableFrame.getContentPane().add(btnConfirm);
 		setPieceEnableFrame.pack();
@@ -549,11 +523,10 @@ public class Sequencer extends JFrame implements ActionListener {
 	}
 
 	protected class FileFilterREP extends FileFilter {
+
 		@Override
 		public boolean accept(File f) {
-			if(f.isDirectory()) return true;
-			if(f.getName().endsWith(".rep")) return true;
-			return false;
+			return f.isDirectory() || f.getName().endsWith(".rep");
 		}
 
 		@Override
@@ -565,9 +538,7 @@ public class Sequencer extends JFrame implements ActionListener {
 	protected class FileFilterTXT extends FileFilter {
 		@Override
 		public boolean accept(File f) {
-			if(f.isDirectory()) return true;
-			if(f.getName().endsWith(".txt")) return true;
-			return false;
+			return f.isDirectory() || f.getName().endsWith(".txt");
 		}
 
 		@Override

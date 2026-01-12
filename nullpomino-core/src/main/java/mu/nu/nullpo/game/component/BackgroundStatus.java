@@ -34,6 +34,7 @@ import java.io.Serializable;
  * BackgroundImage state
  */
 public class BackgroundStatus implements Serializable {
+
 	/** Serial version ID */
 	private static final long serialVersionUID = 2159669210087818385L;
 
@@ -61,6 +62,7 @@ public class BackgroundStatus implements Serializable {
 
 	/**
 	 * Copy constructor
+	 *
 	 * @param b Copy source
 	 */
 	public BackgroundStatus(BackgroundStatus b) {
@@ -80,6 +82,7 @@ public class BackgroundStatus implements Serializable {
 
 	/**
 	 * Copy from a different BackgroundStatus
+	 *
 	 * @param b Copy source
 	 */
 	public void copy(BackgroundStatus b) {
@@ -94,19 +97,17 @@ public class BackgroundStatus implements Serializable {
 	 * Update background fade state
 	 */
 	public void fadeUpdate() {
-		if(fadesw == true) {
-			if(fadecount < 100) {
+		if (fadesw == true) {
+			if (fadecount < 100) {
 				fadecount += 10;
+			} else if (fadestat == false) {
+				bg = fadebg;
+				fadestat = true;
+				fadecount = 0;
 			} else {
-				if(fadestat == false) {
-					bg = fadebg;
-					fadestat = true;
-					fadecount = 0;
-				} else {
-					fadesw = false;
-					fadestat = false;
-					fadecount = 0;
-				}
+				fadesw = false;
+				fadestat = false;
+				fadecount = 0;
 			}
 		}
 	}

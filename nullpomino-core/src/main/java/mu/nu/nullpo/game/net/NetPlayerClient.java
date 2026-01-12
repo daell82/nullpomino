@@ -30,11 +30,12 @@ package mu.nu.nullpo.game.net;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 
-import mu.nu.nullpo.game.play.GameManager;
-
 import org.apache.log4j.Logger;
+
+import mu.nu.nullpo.game.play.GameManager;
 
 /**
  * Client(PlayerUse)
@@ -44,10 +45,10 @@ public class NetPlayerClient extends NetBaseClient {
 	static final Logger log = Logger.getLogger(NetPlayerClient.class);
 
 	/** PlayerInformation */
-	protected LinkedList<NetPlayerInfo> playerInfoList = new LinkedList<NetPlayerInfo>();
+	protected List<NetPlayerInfo> playerInfoList = new LinkedList<>();
 
 	/** Room Information */
-	protected LinkedList<NetRoomInfo> roomInfoList = new LinkedList<NetRoomInfo>();
+	protected List<NetRoomInfo> roomInfoList = new LinkedList<>();
 
 	/** OwnPlayerName */
 	protected String playerName;
@@ -76,6 +77,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * Constructor
+	 *
 	 * @param host Destination host
 	 */
 	public NetPlayerClient(String host) {
@@ -84,6 +86,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * Constructor
+	 *
 	 * @param host Destination host
 	 * @param port Destination port number
 	 */
@@ -93,6 +96,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * Constructor
+	 *
 	 * @param host Destination host
 	 * @param port Destination port number
 	 * @param name PlayerOfName
@@ -101,12 +105,13 @@ public class NetPlayerClient extends NetBaseClient {
 		super();
 		this.host = host;
 		this.port = port;
-		this.playerName = name;
-		this.playerTeam = "";
+		playerName = name;
+		playerTeam = "";
 	}
 
 	/**
 	 * Constructor
+	 *
 	 * @param host Destination host
 	 * @param port Destination port number
 	 * @param name PlayerOfName
@@ -116,8 +121,8 @@ public class NetPlayerClient extends NetBaseClient {
 		super();
 		this.host = host;
 		this.port = port;
-		this.playerName = name;
-		this.playerTeam = team;
+		playerName = name;
+		playerTeam = team;
 	}
 
 	/*
@@ -125,53 +130,55 @@ public class NetPlayerClient extends NetBaseClient {
 	 */
 	@Override
 	protected void processPacket(String fullMessage) throws IOException {
-		String[] message = fullMessage.split("\t");	// Tab delimited
+		String[] message = fullMessage.split("\t"); // Tab delimited
 
 		// Connection completion
-		if(message[0].equals("welcome")) {
-			//welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION STRING]\t[PING INTERVAL]\t[DEV BUILD]
+		if (message[0].equals("welcome")) {
+			// welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION
+			// STRING]\t[PING INTERVAL]\t[DEV BUILD]
 			playerCount = Integer.parseInt(message[2]);
 			observerCount = Integer.parseInt(message[3]);
 
-			long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : PING_INTERVAL;
-			if(pingInterval != PING_INTERVAL) {
+			long pingInterval = message.length > 6 ? Long.parseLong(message[6]) : PING_INTERVAL;
+			if (pingInterval != PING_INTERVAL) {
 				startPingTask(pingInterval);
 			}
 
-			send("login\t" + GameManager.getVersionMajor() + "\t" + NetUtil.urlEncode(playerName) + "\t" + Locale.getDefault().getCountry() + "\t" +
-				 NetUtil.urlEncode(playerTeam) + "\t" + GameManager.getVersionMinor() + "\t" + GameManager.isDevBuild() + "\n");
+			send("login\t" + GameManager.getVersionMajor() + "\t" + NetUtil.urlEncode(playerName) + "\t"
+					+ Locale.getDefault().getCountry() + "\t" + NetUtil.urlEncode(playerTeam) + "\t"
+					+ GameManager.getVersionMinor() + "\t" + GameManager.isDevBuild() + "\n");
 		}
 		// PeoplecountUpdate
-		if(message[0].equals("observerupdate")) {
-			//observerupdate\t[PLAYERS]\t[OBSERVERS]
+		if (message[0].equals("observerupdate")) {
+			// observerupdate\t[PLAYERS]\t[OBSERVERS]
 			playerCount = Integer.parseInt(message[1]);
 			observerCount = Integer.parseInt(message[2]);
 		}
 		// Successful login
-		if(message[0].equals("loginsuccess")) {
-			//loginsuccess\t[NAME]\t[UID]
+		if (message[0].equals("loginsuccess")) {
+			// loginsuccess\t[NAME]\t[UID]
 			playerName = NetUtil.urlDecode(message[1]);
 			playerUID = Integer.parseInt(message[2]);
 		}
 		// PlayerList
-		if(message[0].equals("playerlist")) {
-			//playerlist\t[PLAYERS]\t[PLAYERDATA...]
+		if (message[0].equals("playerlist")) {
+			// playerlist\t[PLAYERS]\t[PLAYERDATA...]
 
 			int numPlayers = Integer.parseInt(message[1]);
 
-			for(int i = 0; i < numPlayers; i++) {
+			for (int i = 0; i < numPlayers; i++) {
 				NetPlayerInfo p = new NetPlayerInfo(message[2 + i]);
 				playerInfoList.add(p);
 			}
 		}
 		// PlayerInformation update/A newPlayer
-		if(message[0].equals("playerupdate") || message[0].equals("playernew")) {
-			//playerupdate\t[PLAYERDATA]
+		if (message[0].equals("playerupdate") || message[0].equals("playernew")) {
+			// playerupdate\t[PLAYERDATA]
 
 			NetPlayerInfo p = new NetPlayerInfo(message[1]);
 			NetPlayerInfo p2 = getPlayerInfoByUID(p.uid);
 
-			if(p2 == null) {
+			if (p2 == null) {
 				playerInfoList.add(p);
 			} else {
 				int index = playerInfoList.indexOf(p2);
@@ -179,36 +186,36 @@ public class NetPlayerClient extends NetBaseClient {
 			}
 		}
 		// PlayerCut
-		if(message[0].equals("playerlogout")) {
-			//playerlogout\t[PLAYERDATA]
+		if (message[0].equals("playerlogout")) {
+			// playerlogout\t[PLAYERDATA]
 
 			NetPlayerInfo p = new NetPlayerInfo(message[1]);
 			NetPlayerInfo p2 = getPlayerInfoByUID(p.uid);
 
-			if(p2 != null) {
+			if (p2 != null) {
 				playerInfoList.remove(p2);
 				p2.delete();
 			}
 		}
 		// Room list
-		if(message[0].equals("roomlist")) {
-			//roomlist\t[ROOMS]\t[ROOMDATA...]
+		if (message[0].equals("roomlist")) {
+			// roomlist\t[ROOMS]\t[ROOMDATA...]
 
 			int numRooms = Integer.parseInt(message[1]);
 
-			for(int i = 0; i < numRooms; i++) {
+			for (int i = 0; i < numRooms; i++) {
 				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
 				roomInfoList.add(r);
 			}
 		}
 		// Room information update/New room appearance
-		if(message[0].equals("roomupdate") || message[0].equals("roomcreate")) {
-			//roomupdate\t[ROOMDATA]
+		if (message[0].equals("roomupdate") || message[0].equals("roomcreate")) {
+			// roomupdate\t[ROOMDATA]
 
 			NetRoomInfo r = new NetRoomInfo(message[1]);
 			NetRoomInfo r2 = getRoomInfo(r.roomID);
 
-			if(r2 == null) {
+			if (r2 == null) {
 				roomInfoList.add(r);
 			} else {
 				int index = roomInfoList.indexOf(r2);
@@ -216,29 +223,29 @@ public class NetPlayerClient extends NetBaseClient {
 			}
 		}
 		// Annihilation Room
-		if(message[0].equals("roomdelete")) {
-			//roomdelete\t[ROOMDATA]
+		if (message[0].equals("roomdelete")) {
+			// roomdelete\t[ROOMDATA]
 
 			NetRoomInfo r = new NetRoomInfo(message[1]);
 			NetRoomInfo r2 = getRoomInfo(r.roomID);
 
-			if(r2 != null) {
+			if (r2 != null) {
 				roomInfoList.remove(r2);
 				r2.delete();
 			}
 		}
 		// Participation status change
-		if(message[0].equals("changestatus")) {
+		if (message[0].equals("changestatus")) {
 			NetPlayerInfo p = getPlayerInfoByUID(Integer.parseInt(message[2]));
 
-			if(p != null) {
-				if(message[1].equals("watchonly")) {
+			if (p != null) {
+				if (message[1].equals("watchonly")) {
 					p.seatID = -1;
 					p.queueID = -1;
-				} else if(message[1].equals("joinqueue")) {
+				} else if (message[1].equals("joinqueue")) {
 					p.seatID = -1;
 					p.queueID = Integer.parseInt(message[4]);
-				} else if(message[1].equals("joinseat")) {
+				} else if (message[1].equals("joinseat")) {
 					p.seatID = Integer.parseInt(message[4]);
 					p.queueID = -1;
 				}
@@ -251,14 +258,17 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * DesignatedIDReturns information room
+	 *
 	 * @param roomID RoomID
 	 * @return Room Information(Does not existnull)
 	 */
 	public NetRoomInfo getRoomInfo(int roomID) {
-		if(roomID < 0) return null;
+		if (roomID < 0) {
+			return null;
+		}
 
-		for(NetRoomInfo roomInfo: roomInfoList) {
-			if(roomID == roomInfo.roomID) {
+		for (NetRoomInfo roomInfo : roomInfoList) {
+			if (roomID == roomInfo.roomID) {
 				return roomInfo;
 			}
 		}
@@ -268,12 +278,13 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * SpecifiedNameOfPlayerGet the
+	 *
 	 * @param name Name
 	 * @return SpecifiedNameOfPlayerInformation(There were nonull)
 	 */
 	public NetPlayerInfo getPlayerInfoByName(String name) {
-		for(NetPlayerInfo pInfo: playerInfoList) {
-			if((pInfo != null) && (pInfo.strName == name)) {
+		for (NetPlayerInfo pInfo : playerInfoList) {
+			if (pInfo != null && pInfo.strName == name) {
 				return pInfo;
 			}
 		}
@@ -282,12 +293,13 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * SpecifiedIDOfPlayerGet the
+	 *
 	 * @param uid ID
 	 * @return SpecifiedIDOfPlayerInformation(There were nonull)
 	 */
 	public NetPlayerInfo getPlayerInfoByUID(int uid) {
-		for(NetPlayerInfo pInfo: playerInfoList) {
-			if((pInfo != null) && (pInfo.uid == uid)) {
+		for (NetPlayerInfo pInfo : playerInfoList) {
+			if (pInfo != null && pInfo.uid == uid) {
 				return pInfo;
 			}
 		}
@@ -297,14 +309,14 @@ public class NetPlayerClient extends NetBaseClient {
 	/**
 	 * @return PlayerList of information
 	 */
-	public LinkedList<NetPlayerInfo> getPlayerInfoList() {
+	public List<NetPlayerInfo> getPlayerInfoList() {
 		return playerInfoList;
 	}
 
 	/**
 	 * @return Listing Information Room
 	 */
-	public LinkedList<NetRoomInfo> getRoomInfoList() {
+	public List<NetRoomInfo> getRoomInfoList() {
 		return roomInfoList;
 	}
 
@@ -324,6 +336,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 	/**
 	 * Get your own information
+	 *
 	 * @return Their own information
 	 */
 	public NetPlayerInfo getYourPlayerInfo() {
@@ -336,7 +349,8 @@ public class NetPlayerClient extends NetBaseClient {
 	public int getCurrentRoomID() {
 		try {
 			return getYourPlayerInfo().roomID;
-		} catch (NullPointerException e) {}
+		} catch (NullPointerException e) {
+		}
 		return -1;
 	}
 

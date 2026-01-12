@@ -30,16 +30,21 @@ package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
 
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Setting the rules of the game data
  */
 public class RuleOptions implements Serializable {
+
 	/** Serial version ID */
 	private static final long serialVersionUID = 5781310758989780350L;
 
-	/** Lateral motion counterOrrotation counterExceeded the fixed timeTo disable the reset */
+	/**
+	 * Lateral motion counterOrrotation counterExceeded the fixed timeTo disable the
+	 * reset
+	 */
 	public static final int LOCKRESET_LIMIT_OVER_NORESET = 0;
 
 	/** Lateral motion counterOrrotation counterI fixed the excess is immediately */
@@ -51,10 +56,15 @@ public class RuleOptions implements Serializable {
 	/** Of this ruleName */
 	public String strRuleName;
 
-	/** UseWallkickThe class name of the algorithm (If an empty stringWallkickNot) */
+	/**
+	 * UseWallkickThe class name of the algorithm (If an empty stringWallkickNot)
+	 */
 	public String strWallkick;
 
-	/** The class name of the order of appearance correction algorithm to be used (If an empty string completely random) */
+	/**
+	 * The class name of the order of appearance correction algorithm to be used (If
+	 * an empty string completely random)
+	 */
 	public String strRandomizer;
 
 	/** Game Style */
@@ -87,7 +97,10 @@ public class RuleOptions implements Serializable {
 	/** fieldEmerge from the above */
 	public boolean pieceEnterAboveField;
 
-	/** When the planned site appearance is buriedY-coordinateSlide on theMaximum count */
+	/**
+	 * When the planned site appearance is buriedY-coordinateSlide on theMaximum
+	 * count
+	 */
 	public int pieceEnterMaxDistanceY;
 
 	/** fieldThe width of the */
@@ -120,7 +133,10 @@ public class RuleOptions implements Serializable {
 	/** Can not hold prior continuous use */
 	public boolean holdInitialLimit;
 
-	/** When using the holdBlockThe orientation of the piece back to its initial state */
+	/**
+	 * When using the holdBlockThe orientation of the piece back to its initial
+	 * state
+	 */
 	public boolean holdResetDirection;
 
 	/** You can hold count (-1:Limitless) */
@@ -198,10 +214,16 @@ public class RuleOptions implements Serializable {
 	/** rotation countLimit (-1:Infinite) */
 	public int lockresetLimitRotate;
 
-	/** Lateral motion counterAndrotation counterShare (Lateral motion counterI use only) */
+	/**
+	 * Lateral motion counterAndrotation counterShare (Lateral motion counterI use
+	 * only)
+	 */
 	public boolean lockresetLimitShareCount;
 
-	/** Lateral motion counterOrrotation counterHappens when you exceed the (LOCKRESET_LIMIT_OVER_Begins with a constantcountI use) */
+	/**
+	 * Lateral motion counterOrrotation counterHappens when you exceed the
+	 * (LOCKRESET_LIMIT_OVER_Begins with a constantcountI use)
+	 */
 	public int lockresetLimitOver;
 
 	/** Shining moment fixed frame count */
@@ -216,10 +238,10 @@ public class RuleOptions implements Serializable {
 	/** ARE cancel on move */
 	public boolean areCancelMove;
 
-	/** ARE cancel on rotate*/
+	/** ARE cancel on rotate */
 	public boolean areCancelRotate;
 
-	/** ARE cancel on hold*/
+	/** ARE cancel on hold */
 	public boolean areCancelHold;
 
 	/** Minimum/MaximumARE (-1:Unspecified) */
@@ -266,11 +288,14 @@ public class RuleOptions implements Serializable {
 	/** Charge DAS on blocked move */
 	public boolean dasChargeOnBlockedMove;
 
-	/** Leave DAS charge alone when left/right are not held -- useful with dasRedirectInDelay **/
-   public boolean dasStoreChargeOnNeutral;
+	/**
+	 * Leave DAS charge alone when left/right are not held -- useful with
+	 * dasRedirectInDelay
+	 **/
+	public boolean dasStoreChargeOnNeutral;
 
-   /** Allow direction changes during delays without zeroing DAS charge **/
-   public boolean dasRedirectInDelay;
+	/** Allow direction changes during delays without zeroing DAS charge **/
+	public boolean dasRedirectInDelay;
 
 	/** First frame Can be moved in */
 	public boolean moveFirstFrame;
@@ -284,7 +309,11 @@ public class RuleOptions implements Serializable {
 	/** Simultaneously pressing the left and right permit */
 	public boolean moveLeftAndRightAllow;
 
-	/** Before when I press the left and right simultaneously frame Of input DirectionGive priority to (Preferred to ignore the left and right while holding down the left and press the right) */
+	/**
+	 * Before when I press the left and right simultaneously frame Of input
+	 * DirectionGive priority to (Preferred to ignore the left and right while
+	 * holding down the left and press the right)
+	 */
 	public boolean moveLeftAndRightUsePreviousInput;
 
 	/** Line clearOn afterBlockThe1View the animation step by step fall */
@@ -302,7 +331,10 @@ public class RuleOptions implements Serializable {
 	/** BlockPicture of */
 	public int skin;
 
-	/** ghost Presence or absence of (falseIfMode At theghost A is enabledI hide, even if you) */
+	/**
+	 * ghost Presence or absence of (falseIfMode At theghost A is enabledI hide,
+	 * even if you)
+	 */
 	public boolean ghost;
 
 	/**
@@ -314,6 +346,7 @@ public class RuleOptions implements Serializable {
 
 	/**
 	 * Copy constructor
+	 *
 	 * @param r Copy source
 	 */
 	public RuleOptions(RuleOptions r) {
@@ -338,17 +371,17 @@ public class RuleOptions implements Serializable {
 		pieceSpawnYBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 		pieceColor = new int[Piece.PIECE_COUNT];
-		pieceColor[Piece.PIECE_I] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_L] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_O] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_Z] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_T] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_J] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_S] = Block.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_I1] = Block.BLOCK_COLOR_PURPLE;
-		pieceColor[Piece.PIECE_I2] = Block.BLOCK_COLOR_BLUE;
-		pieceColor[Piece.PIECE_I3] = Block.BLOCK_COLOR_GREEN;
-		pieceColor[Piece.PIECE_L3] = Block.BLOCK_COLOR_ORANGE;
+		pieceColor[Piece.PIECE_I] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_L] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_O] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_Z] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_T] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_J] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_S] = Colors.BLOCK_COLOR_GRAY;
+		pieceColor[Piece.PIECE_I1] = Colors.BLOCK_COLOR_PURPLE;
+		pieceColor[Piece.PIECE_I2] = Colors.BLOCK_COLOR_BLUE;
+		pieceColor[Piece.PIECE_I3] = Colors.BLOCK_COLOR_GREEN;
+		pieceColor[Piece.PIECE_L3] = Colors.BLOCK_COLOR_ORANGE;
 
 		pieceDefaultDirection = new int[Piece.PIECE_COUNT];
 		pieceEnterAboveField = true;
@@ -429,8 +462,8 @@ public class RuleOptions implements Serializable {
 		dasInARELastFrame = true;
 		dasInEndingStart = true;
 		dasChargeOnBlockedMove = false;
-	   dasStoreChargeOnNeutral = false;
-	   dasRedirectInDelay = false;
+		dasStoreChargeOnNeutral = false;
+		dasRedirectInDelay = false;
 
 		moveFirstFrame = true;
 		moveDiagonal = true;
@@ -449,6 +482,7 @@ public class RuleOptions implements Serializable {
 
 	/**
 	 * OtherRuleParamCopy the contents of the
+	 *
 	 * @param r Copy sourceOfRuleParam
 	 */
 	public void copy(RuleOptions r) {
@@ -466,8 +500,8 @@ public class RuleOptions implements Serializable {
 		pieceSpawnYBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 		pieceColor = new int[Piece.PIECE_COUNT];
 		pieceDefaultDirection = new int[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				pieceOffsetX[i][j] = r.pieceOffsetX[i][j];
 				pieceOffsetY[i][j] = r.pieceOffsetY[i][j];
 				pieceSpawnX[i][j] = r.pieceSpawnX[i][j];
@@ -557,7 +591,7 @@ public class RuleOptions implements Serializable {
 		dasInEndingStart = r.dasInEndingStart;
 		dasChargeOnBlockedMove = r.dasChargeOnBlockedMove;
 		dasStoreChargeOnNeutral = r.dasStoreChargeOnNeutral;
-      dasRedirectInDelay = r.dasRedirectInDelay;
+		dasRedirectInDelay = r.dasRedirectInDelay;
 
 		moveFirstFrame = r.moveFirstFrame;
 		moveDiagonal = r.moveDiagonal;
@@ -576,130 +610,315 @@ public class RuleOptions implements Serializable {
 
 	/**
 	 * Compared with other rules, If the sametrueReturns
-	 * @param r Rules to compare
-	 * @param ignoreGraphicsSetting trueIgnore the settings that do not affect the game itself and to
+	 *
+	 * @param r                     Rules to compare
+	 * @param ignoreGraphicsSetting trueIgnore the settings that do not affect the
+	 *                              game itself and to
 	 * @return If compared to the same rulestrue
 	 */
 	public boolean compare(RuleOptions r, boolean ignoreGraphicsSetting) {
-		if((!ignoreGraphicsSetting) && (strRuleName != r.strRuleName)) return false;
-		if(strWallkick != r.strWallkick) return false;
-		if(strRandomizer != r.strRandomizer) return false;
-
-		if(style != r.style) return false;
-
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				if(pieceOffsetX[i][j] != r.pieceOffsetX[i][j]) return false;
-				if(pieceOffsetY[i][j] != r.pieceOffsetY[i][j]) return false;
-				if(pieceSpawnX[i][j] != r.pieceSpawnX[i][j]) return false;
-				if(pieceSpawnY[i][j] != r.pieceSpawnY[i][j]) return false;
-				if(pieceSpawnXBig[i][j] != r.pieceSpawnXBig[i][j]) return false;
-				if(pieceSpawnYBig[i][j] != r.pieceSpawnYBig[i][j]) return false;
-			}
-			if((!ignoreGraphicsSetting) && (pieceColor[i] != r.pieceColor[i])) return false;
-			if(pieceDefaultDirection[i] != r.pieceDefaultDirection[i]) return false;
+		if (!ignoreGraphicsSetting && strRuleName != r.strRuleName) {
+			return false;
 		}
-		if(pieceEnterAboveField != r.pieceEnterAboveField) return false;
-		if(pieceEnterMaxDistanceY != r.pieceEnterMaxDistanceY) return false;
+		if (strWallkick != r.strWallkick) {
+			return false;
+		}
+		if (strRandomizer != r.strRandomizer) {
+			return false;
+		}
 
-		if(fieldWidth != r.fieldWidth) return false;
-		if(fieldHeight != r.fieldHeight) return false;
-		if(fieldHiddenHeight != r.fieldHiddenHeight) return false;
-		if(fieldCeiling != r.fieldCeiling) return false;
-		if(fieldLockoutDeath != r.fieldLockoutDeath) return false;
-		if(fieldPartialLockoutDeath != r.fieldPartialLockoutDeath) return false;
+		if (style != r.style) {
+			return false;
+		}
 
-		if(nextDisplay != r.nextDisplay) return false;
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+				if (pieceOffsetX[i][j] != r.pieceOffsetX[i][j]) {
+					return false;
+				}
+				if (pieceOffsetY[i][j] != r.pieceOffsetY[i][j]) {
+					return false;
+				}
+				if (pieceSpawnX[i][j] != r.pieceSpawnX[i][j]) {
+					return false;
+				}
+				if (pieceSpawnY[i][j] != r.pieceSpawnY[i][j]) {
+					return false;
+				}
+				if (pieceSpawnXBig[i][j] != r.pieceSpawnXBig[i][j]) {
+					return false;
+				}
+				if (pieceSpawnYBig[i][j] != r.pieceSpawnYBig[i][j]) {
+					return false;
+				}
+			}
+			if (!ignoreGraphicsSetting && pieceColor[i] != r.pieceColor[i]) {
+				return false;
+			}
+			if (pieceDefaultDirection[i] != r.pieceDefaultDirection[i]) {
+				return false;
+			}
+		}
+		if (pieceEnterAboveField != r.pieceEnterAboveField) {
+			return false;
+		}
+		if (pieceEnterMaxDistanceY != r.pieceEnterMaxDistanceY) {
+			return false;
+		}
 
-		if(holdEnable != r.holdEnable) return false;
-		if(holdInitial != r.holdInitial) return false;
-		if(holdInitialLimit != r.holdInitialLimit) return false;
-		if(holdResetDirection != r.holdResetDirection) return false;
-		if(holdLimit != r.holdLimit) return false;
+		if (fieldWidth != r.fieldWidth) {
+			return false;
+		}
+		if (fieldHeight != r.fieldHeight) {
+			return false;
+		}
+		if (fieldHiddenHeight != r.fieldHiddenHeight) {
+			return false;
+		}
+		if (fieldCeiling != r.fieldCeiling) {
+			return false;
+		}
+		if (fieldLockoutDeath != r.fieldLockoutDeath) {
+			return false;
+		}
+		if (fieldPartialLockoutDeath != r.fieldPartialLockoutDeath) {
+			return false;
+		}
 
-		if(harddropEnable != r.harddropEnable) return false;
-		if(harddropLock != r.harddropLock) return false;
-		if(harddropLimit != r.harddropLimit) return false;
+		if (nextDisplay != r.nextDisplay) {
+			return false;
+		}
 
-		if(softdropEnable != r.softdropEnable) return false;
-		if(softdropLock != r.softdropLock) return false;
-		if(softdropLimit != r.softdropLimit) return false;
-		if(softdropSurfaceLock != r.softdropSurfaceLock) return false;
-		if(softdropSpeed != r.softdropSpeed) return false;
-		if(softdropMultiplyNativeSpeed != r.softdropMultiplyNativeSpeed) return false;
-		if(softdropGravitySpeedLimit != r.softdropGravitySpeedLimit) return false;
+		if (holdEnable != r.holdEnable) {
+			return false;
+		}
+		if (holdInitial != r.holdInitial) {
+			return false;
+		}
+		if (holdInitialLimit != r.holdInitialLimit) {
+			return false;
+		}
+		if (holdResetDirection != r.holdResetDirection) {
+			return false;
+		}
+		if (holdLimit != r.holdLimit) {
+			return false;
+		}
 
-		if(rotateInitial != r.rotateInitial) return false;
-		if(rotateInitialLimit != r.rotateInitialLimit) return false;
-		if(rotateWallkick != r.rotateWallkick) return false;
-		if(rotateInitialWallkick != r.rotateInitialWallkick) return false;
-		if(rotateMaxUpwardWallkick != r.rotateMaxUpwardWallkick) return false;
-		if(rotateButtonDefaultRight != r.rotateButtonDefaultRight) return false;
-		if(rotateButtonAllowReverse != r.rotateButtonAllowReverse) return false;
-		if(rotateButtonAllowDouble != r.rotateButtonAllowDouble) return false;
+		if (harddropEnable != r.harddropEnable) {
+			return false;
+		}
+		if (harddropLock != r.harddropLock) {
+			return false;
+		}
+		if (harddropLimit != r.harddropLimit) {
+			return false;
+		}
 
-		if(lockresetFall != r.lockresetFall) return false;
-		if(lockresetMove != r.lockresetMove) return false;
-		if(lockresetRotate != r.lockresetRotate) return false;
-		if(lockresetWallkick != r.lockresetWallkick) return false;
-		if(lockresetLimitMove != r.lockresetLimitMove) return false;
-		if(lockresetLimitRotate != r.lockresetLimitRotate) return false;
-		if(lockresetLimitShareCount != r.lockresetLimitShareCount) return false;
-		if(lockresetLimitOver != r.lockresetLimitOver) return false;
+		if (softdropEnable != r.softdropEnable) {
+			return false;
+		}
+		if (softdropLock != r.softdropLock) {
+			return false;
+		}
+		if (softdropLimit != r.softdropLimit) {
+			return false;
+		}
+		if (softdropSurfaceLock != r.softdropSurfaceLock) {
+			return false;
+		}
+		if (softdropSpeed != r.softdropSpeed) {
+			return false;
+		}
+		if (softdropMultiplyNativeSpeed != r.softdropMultiplyNativeSpeed) {
+			return false;
+		}
+		if (softdropGravitySpeedLimit != r.softdropGravitySpeedLimit) {
+			return false;
+		}
 
-		if(lockflash != r.lockflash) return false;
-		if(lockflashOnlyFrame != r.lockflashOnlyFrame) return false;
-		if(lockflashBeforeLineClear != r.lockflashBeforeLineClear) return false;
-		if(areCancelMove != r.areCancelMove) return false;
-		if(areCancelRotate != r.areCancelRotate) return false;
-		if(areCancelHold != r.areCancelHold) return false;
+		if (rotateInitial != r.rotateInitial) {
+			return false;
+		}
+		if (rotateInitialLimit != r.rotateInitialLimit) {
+			return false;
+		}
+		if (rotateWallkick != r.rotateWallkick) {
+			return false;
+		}
+		if (rotateInitialWallkick != r.rotateInitialWallkick) {
+			return false;
+		}
+		if (rotateMaxUpwardWallkick != r.rotateMaxUpwardWallkick) {
+			return false;
+		}
+		if (rotateButtonDefaultRight != r.rotateButtonDefaultRight) {
+			return false;
+		}
+		if (rotateButtonAllowReverse != r.rotateButtonAllowReverse) {
+			return false;
+		}
+		if (rotateButtonAllowDouble != r.rotateButtonAllowDouble) {
+			return false;
+		}
 
-		if(minARE != r.minARE) return false;
-		if(maxARE != r.maxARE) return false;
-		if(minARELine != r.minARELine) return false;
-		if(maxARELine != r.maxARELine) return false;
-		if(minLineDelay != r.minLineDelay) return false;
-		if(maxLineDelay != r.maxLineDelay) return false;
-		if(minLockDelay != r.minLockDelay) return false;
-		if(maxLockDelay != r.maxLockDelay) return false;
-		if(minDAS != r.minDAS) return false;
-		if(maxDAS != r.maxDAS) return false;
+		if (lockresetFall != r.lockresetFall) {
+			return false;
+		}
+		if (lockresetMove != r.lockresetMove) {
+			return false;
+		}
+		if (lockresetRotate != r.lockresetRotate) {
+			return false;
+		}
+		if (lockresetWallkick != r.lockresetWallkick) {
+			return false;
+		}
+		if (lockresetLimitMove != r.lockresetLimitMove) {
+			return false;
+		}
+		if (lockresetLimitRotate != r.lockresetLimitRotate) {
+			return false;
+		}
+		if (lockresetLimitShareCount != r.lockresetLimitShareCount) {
+			return false;
+		}
+		if (lockresetLimitOver != r.lockresetLimitOver) {
+			return false;
+		}
 
-		if(dasDelay != r.dasDelay) return false;
+		if (lockflash != r.lockflash) {
+			return false;
+		}
+		if (lockflashOnlyFrame != r.lockflashOnlyFrame) {
+			return false;
+		}
+		if (lockflashBeforeLineClear != r.lockflashBeforeLineClear) {
+			return false;
+		}
+		if (areCancelMove != r.areCancelMove) {
+			return false;
+		}
+		if (areCancelRotate != r.areCancelRotate) {
+			return false;
+		}
+		if (areCancelHold != r.areCancelHold) {
+			return false;
+		}
 
-		if(shiftLockEnable != r.shiftLockEnable) return false;
+		if (minARE != r.minARE) {
+			return false;
+		}
+		if (maxARE != r.maxARE) {
+			return false;
+		}
+		if (minARELine != r.minARELine) {
+			return false;
+		}
+		if (maxARELine != r.maxARELine) {
+			return false;
+		}
+		if (minLineDelay != r.minLineDelay) {
+			return false;
+		}
+		if (maxLineDelay != r.maxLineDelay) {
+			return false;
+		}
+		if (minLockDelay != r.minLockDelay) {
+			return false;
+		}
+		if (maxLockDelay != r.maxLockDelay) {
+			return false;
+		}
+		if (minDAS != r.minDAS) {
+			return false;
+		}
+		if (maxDAS != r.maxDAS) {
+			return false;
+		}
 
-		if(dasInReady != r.dasInReady) return false;
-		if(dasInMoveFirstFrame != r.dasInMoveFirstFrame) return false;
-		if(dasInLockFlash != r.dasInLockFlash) return false;
-		if(dasInLineClear != r.dasInLineClear) return false;
-		if(dasInARE != r.dasInARE) return false;
-		if(dasInARELastFrame != r.dasInARELastFrame) return false;
-		if(dasInEndingStart != r.dasInEndingStart) return false;
-		if(dasChargeOnBlockedMove != r.dasChargeOnBlockedMove) return false;
-		if(dasStoreChargeOnNeutral != r.dasStoreChargeOnNeutral) return false;
-		if(dasRedirectInDelay != r.dasRedirectInDelay) return false;
+		if (dasDelay != r.dasDelay) {
+			return false;
+		}
 
-		if(moveFirstFrame != r.moveFirstFrame) return false;
-		if(moveDiagonal != r.moveDiagonal) return false;
-		if(moveUpAndDown != r.moveUpAndDown) return false;
-		if(moveLeftAndRightAllow != r.moveLeftAndRightAllow) return false;
-		if(moveLeftAndRightUsePreviousInput != r.moveLeftAndRightUsePreviousInput) return false;
+		if (shiftLockEnable != r.shiftLockEnable) {
+			return false;
+		}
 
-		if((ignoreGraphicsSetting) && (lineFallAnim != r.lineFallAnim)) return false;
-		if(lineCancelMove != r.lineCancelMove) return false;
-		if(lineCancelRotate != r.lineCancelRotate) return false;
-		if(lineCancelHold != r.lineCancelHold) return false;
+		if (dasInReady != r.dasInReady) {
+			return false;
+		}
+		if (dasInMoveFirstFrame != r.dasInMoveFirstFrame) {
+			return false;
+		}
+		if (dasInLockFlash != r.dasInLockFlash) {
+			return false;
+		}
+		if (dasInLineClear != r.dasInLineClear) {
+			return false;
+		}
+		if (dasInARE != r.dasInARE) {
+			return false;
+		}
+		if (dasInARELastFrame != r.dasInARELastFrame) {
+			return false;
+		}
+		if (dasInEndingStart != r.dasInEndingStart) {
+			return false;
+		}
+		if (dasChargeOnBlockedMove != r.dasChargeOnBlockedMove) {
+			return false;
+		}
+		if (dasStoreChargeOnNeutral != r.dasStoreChargeOnNeutral) {
+			return false;
+		}
+		if (dasRedirectInDelay != r.dasRedirectInDelay) {
+			return false;
+		}
 
-		if((ignoreGraphicsSetting) && (skin != r.skin)) return false;
-		if(ghost != r.ghost) return false;
+		if (moveFirstFrame != r.moveFirstFrame) {
+			return false;
+		}
+		if (moveDiagonal != r.moveDiagonal) {
+			return false;
+		}
+		if (moveUpAndDown != r.moveUpAndDown) {
+			return false;
+		}
+		if (moveLeftAndRightAllow != r.moveLeftAndRightAllow) {
+			return false;
+		}
+		if (moveLeftAndRightUsePreviousInput != r.moveLeftAndRightUsePreviousInput) {
+			return false;
+		}
+
+		if (ignoreGraphicsSetting && lineFallAnim != r.lineFallAnim) {
+			return false;
+		}
+		if (lineCancelMove != r.lineCancelMove) {
+			return false;
+		}
+		if (lineCancelRotate != r.lineCancelRotate) {
+			return false;
+		}
+		if (lineCancelHold != r.lineCancelHold) {
+			return false;
+		}
+
+		if (ignoreGraphicsSetting && skin != r.skin) {
+			return false;
+		}
+		if (ghost != r.ghost) {
+			return false;
+		}
 
 		return true;
 	}
 
 	/**
 	 * Stored in the property set
-	 * @param p Property Set
+	 *
+	 * @param p  Property Set
 	 * @param id Player IDOrPresetID
 	 */
 	public void writeProperty(CustomProperties p, int id) {
@@ -709,8 +928,8 @@ public class RuleOptions implements Serializable {
 
 		p.setProperty(id + ".ruleopt.style", style);
 
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				p.setProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
 				p.setProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
 				p.setProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);
@@ -819,7 +1038,8 @@ public class RuleOptions implements Serializable {
 
 	/**
 	 * Read from the property set
-	 * @param p Property Set
+	 *
+	 * @param p  Property Set
 	 * @param id Player IDOrPresetID
 	 */
 	public void readProperty(CustomProperties p, int id) {
@@ -829,17 +1049,20 @@ public class RuleOptions implements Serializable {
 
 		style = p.getProperty(id + ".ruleopt.style", 0);
 
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				pieceOffsetX[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
 				pieceOffsetY[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
 				pieceSpawnX[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);
 				pieceSpawnY[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnY." + i + "." + j, pieceSpawnY[i][j]);
-				pieceSpawnXBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnXBig." + i + "." + j, pieceSpawnXBig[i][j]);
-				pieceSpawnYBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnYBig." + i + "." + j, pieceSpawnYBig[i][j]);
+				pieceSpawnXBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnXBig." + i + "." + j,
+						pieceSpawnXBig[i][j]);
+				pieceSpawnYBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnYBig." + i + "." + j,
+						pieceSpawnYBig[i][j]);
 			}
 			pieceColor[i] = p.getProperty(id + ".ruleopt.pieceColor." + i, pieceColor[i]);
-			pieceDefaultDirection[i] = p.getProperty(id + ".ruleopt.pieceDefaultDirection." + i, pieceDefaultDirection[i]);
+			pieceDefaultDirection[i] = p.getProperty(id + ".ruleopt.pieceDefaultDirection." + i,
+					pieceDefaultDirection[i]);
 		}
 		pieceEnterAboveField = p.getProperty(id + ".ruleopt.pieceEnterAboveField", pieceEnterAboveField);
 		pieceEnterMaxDistanceY = p.getProperty(id + ".ruleopt.pieceEnterMaxDistanceY", pieceEnterMaxDistanceY);
@@ -868,7 +1091,8 @@ public class RuleOptions implements Serializable {
 		softdropLimit = p.getProperty(id + ".ruleopt.softdropLimit", softdropLimit);
 		softdropSurfaceLock = p.getProperty(id + ".ruleopt.softdropSurfaceLock", softdropSurfaceLock);
 		softdropSpeed = p.getProperty(id + ".ruleopt.softdropSpeed", softdropSpeed);
-		softdropMultiplyNativeSpeed = p.getProperty(id + ".ruleopt.softdropMultiplyNativeSpeed", softdropMultiplyNativeSpeed);
+		softdropMultiplyNativeSpeed = p.getProperty(id + ".ruleopt.softdropMultiplyNativeSpeed",
+				softdropMultiplyNativeSpeed);
 		softdropGravitySpeedLimit = p.getProperty(id + ".ruleopt.softdropGravitySpeedLimit", softdropGravitySpeedLimit);
 
 		rotateInitial = p.getProperty(id + ".ruleopt.rotateInitial", rotateInitial);
@@ -925,7 +1149,8 @@ public class RuleOptions implements Serializable {
 		moveDiagonal = p.getProperty(id + ".ruleopt.moveDiagonal", moveDiagonal);
 		moveUpAndDown = p.getProperty(id + ".ruleopt.moveUpAndDown", moveUpAndDown);
 		moveLeftAndRightAllow = p.getProperty(id + ".ruleopt.moveLeftAndRightAllow", moveLeftAndRightAllow);
-		moveLeftAndRightUsePreviousInput = p.getProperty(id + ".ruleopt.moveLeftAndRightUsePreviousInput", moveLeftAndRightUsePreviousInput);
+		moveLeftAndRightUsePreviousInput = p.getProperty(id + ".ruleopt.moveLeftAndRightUsePreviousInput",
+				moveLeftAndRightUsePreviousInput);
 
 		lineFallAnim = p.getProperty(id + ".ruleopt.lineFallAnim", lineFallAnim);
 		lineCancelMove = p.getProperty(id + ".ruleopt.lineCancelMove", lineCancelMove);

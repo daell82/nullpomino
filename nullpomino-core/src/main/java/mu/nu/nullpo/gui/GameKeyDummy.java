@@ -6,9 +6,22 @@ import mu.nu.nullpo.util.CustomProperties;
 public class GameKeyDummy {
 
 	/** Button number constants */
-	public static final int BUTTON_UP = 0, BUTTON_DOWN = 1, BUTTON_LEFT = 2, BUTTON_RIGHT = 3, BUTTON_A = 4, BUTTON_B = 5, BUTTON_C = 6,
-			BUTTON_D = 7, BUTTON_E = 8, BUTTON_F = 9, BUTTON_QUIT = 10, BUTTON_PAUSE = 11, BUTTON_GIVEUP = 12, BUTTON_RETRY = 13,
-			BUTTON_FRAMESTEP = 14, BUTTON_SCREENSHOT = 15;
+	public static final int BUTTON_UP = 0;
+	public static final int BUTTON_DOWN = 1;
+	public static final int BUTTON_LEFT = 2;
+	public static final int BUTTON_RIGHT = 3;
+	public static final int BUTTON_A = 4;
+	public static final int BUTTON_B = 5;
+	public static final int BUTTON_C = 6;
+	public static final int BUTTON_D = 7;
+	public static final int BUTTON_E = 8;
+	public static final int BUTTON_F = 9;
+	public static final int BUTTON_QUIT = 10;
+	public static final int BUTTON_PAUSE = 11;
+	public static final int BUTTON_GIVEUP = 12;
+	public static final int BUTTON_RETRY = 13;
+	public static final int BUTTON_FRAMESTEP = 14;
+	public static final int BUTTON_SCREENSHOT = 15;
 
 	/** Max button number */
 	public static final int MAX_BUTTON = 16;
@@ -43,6 +56,7 @@ public class GameKeyDummy {
 
 	/**
 	 * Player numberWe can specifyConstructor
+	 *
 	 * @param pl Player number
 	 */
 	protected GameKeyDummy(int pl) {
@@ -50,7 +64,9 @@ public class GameKeyDummy {
 		keymapNav = new int[MAX_BUTTON];
 		buttonmap = new int[MAX_BUTTON];
 		joyBorder = 0;
-		for(int i = 0; i < buttonmap.length; i++) buttonmap[i] = -1;
+		for (int i = 0; i < buttonmap.length; i++) {
+			buttonmap[i] = -1;
+		}
 		player = pl;
 		inputstate = new int[MAX_BUTTON];
 		pressstate = new boolean[MAX_BUTTON];
@@ -60,54 +76,61 @@ public class GameKeyDummy {
 	 * Clear button input state
 	 */
 	public void clear() {
-		for(int i = 0; i < MAX_BUTTON; i++) {
+		for (int i = 0; i < MAX_BUTTON; i++) {
 			inputstate[i] = 0;
 		}
 	}
 
 	/**
-	 *  buttonThe1 frame Determines whether or not pressed only
+	 * buttonThe1 frame Determines whether or not pressed only
+	 *
 	 * @param key Button number
 	 * @return Has been pressedtrue
 	 */
 	public boolean isPushKey(int key) {
-		return (inputstate[key] == 1);
+		return inputstate[key] == 1;
 	}
 
 	/**
-	 *  buttonThat determines whether or not pressed
+	 * buttonThat determines whether or not pressed
+	 *
 	 * @param key Button number
 	 * @return Has been pressedtrue
 	 */
 	public boolean isPressKey(int key) {
-		return (inputstate[key] >= 1);
+		return inputstate[key] >= 1;
 	}
 
 	/**
 	 * Menu Determines whether the cursor is moved in
+	 *
 	 * @param key Button number
 	 * @return If the cursor movestrue
 	 */
 	public boolean isMenuRepeatKey(int key) {
-		if((inputstate[key] == 1) || ((inputstate[key] >= 25) && (inputstate[key] % 3 == 0)) || ((inputstate[key] >= 1) && isPressKey(BUTTON_C)))
+		if (inputstate[key] == 1 || inputstate[key] >= 25 && inputstate[key] % 3 == 0
+				|| inputstate[key] >= 1 && isPressKey(BUTTON_C)) {
 			return true;
+		}
 
 		return false;
 	}
 
 	/**
-	 *  buttonI have pressed the timeGet the
+	 * buttonI have pressed the timeGet the
+	 *
 	 * @param key Button number
-	 * @return  buttonI have pressed the time (0If I have not pressed)
+	 * @return buttonI have pressed the time (0If I have not pressed)
 	 */
 	public int getInputState(int key) {
 		return inputstate[key];
 	}
 
 	/**
-	 *  buttonI have pressed the timeForced to change
-	 * @param key Button number
-	 * @param state  buttonI have pressed the time
+	 * buttonI have pressed the timeForced to change
+	 *
+	 * @param key   Button number
+	 * @param state buttonI have pressed the time
 	 */
 	public void setInputState(int key, int state) {
 		inputstate[key] = state;
@@ -115,6 +138,7 @@ public class GameKeyDummy {
 
 	/**
 	 * Load settings
+	 *
 	 * @param prop Property file to read from
 	 */
 	public void loadConfig(CustomProperties prop) {
@@ -155,10 +179,11 @@ public class GameKeyDummy {
 		keymapNav[BUTTON_SCREENSHOT] = prop.getProperty("keynav.p" + player + ".screenshot", keymap[BUTTON_SCREENSHOT]);
 
 		// Joystick
-		//buttonmap[BUTTON_UP] = prop.getProperty("button.p" + player + ".up", 0);
-		//buttonmap[BUTTON_DOWN] = prop.getProperty("button.p" + player + ".down", 0);
-		//buttonmap[BUTTON_LEFT] = prop.getProperty("button.p" + player + ".left", 0);
-		//buttonmap[BUTTON_RIGHT] = prop.getProperty("button.p" + player + ".right", 0);
+		// buttonmap[BUTTON_UP] = prop.getProperty("button.p" + player + ".up", 0);
+		// buttonmap[BUTTON_DOWN] = prop.getProperty("button.p" + player + ".down", 0);
+		// buttonmap[BUTTON_LEFT] = prop.getProperty("button.p" + player + ".left", 0);
+		// buttonmap[BUTTON_RIGHT] = prop.getProperty("button.p" + player + ".right",
+		// 0);
 		buttonmap[BUTTON_A] = prop.getProperty("button.p" + player + ".a", -1);
 		buttonmap[BUTTON_B] = prop.getProperty("button.p" + player + ".b", -1);
 		buttonmap[BUTTON_C] = prop.getProperty("button.p" + player + ".c", -1);
@@ -177,6 +202,7 @@ public class GameKeyDummy {
 
 	/**
 	 * Save settings
+	 *
 	 * @param prop Property file to save to
 	 */
 	public void saveConfig(CustomProperties prop) {
@@ -217,10 +243,10 @@ public class GameKeyDummy {
 		prop.setProperty("keynav.p" + player + ".screenshot", keymapNav[BUTTON_SCREENSHOT]);
 
 		// Joystick
-		//prop.setProperty("button.p" + player + ".up", buttonmap[BUTTON_UP]);
-		//prop.setProperty("button.p" + player + ".down", buttonmap[BUTTON_DOWN]);
-		//prop.setProperty("button.p" + player + ".left", buttonmap[BUTTON_LEFT]);
-		//prop.setProperty("button.p" + player + ".right", buttonmap[BUTTON_RIGHT]);
+		// prop.setProperty("button.p" + player + ".up", buttonmap[BUTTON_UP]);
+		// prop.setProperty("button.p" + player + ".down", buttonmap[BUTTON_DOWN]);
+		// prop.setProperty("button.p" + player + ".left", buttonmap[BUTTON_LEFT]);
+		// prop.setProperty("button.p" + player + ".right", buttonmap[BUTTON_RIGHT]);
 		prop.setProperty("button.p" + player + ".a", buttonmap[BUTTON_A]);
 		prop.setProperty("button.p" + player + ".b", buttonmap[BUTTON_B]);
 		prop.setProperty("button.p" + player + ".c", buttonmap[BUTTON_C]);
@@ -234,23 +260,17 @@ public class GameKeyDummy {
 		prop.setProperty("button.p" + player + ".framestep", buttonmap[BUTTON_FRAMESTEP]);
 		prop.setProperty("button.p" + player + ".screenshot", buttonmap[BUTTON_SCREENSHOT]);
 
-        prop.setProperty("joyBorder.p" + player, joyBorder);
-
+		prop.setProperty("joyBorder.p" + player, joyBorder);
 	}
 
 	/**
 	 * ControllerTo input Conditions are communicated
-	 * @param ctrl  input Conditions are communicatedControllerInstance of
+	 *
+	 * @param ctrl input Conditions are communicatedControllerInstance of
 	 */
 	public void inputStatusUpdate(Controller ctrl) {
-		for(int i = 0; i < Controller.BUTTON_COUNT; i++) {
+		for (int i = 0; i < Controller.BUTTON_COUNT; i++) {
 			ctrl.buttonPress[i] = isPressKey(i);
 		}
 	}
-
-	public static boolean isNavKey(int key) {
-		//return (key >= BUTTON_NAV_UP) && (key <= BUTTON_NAV_CANCEL);
-		return false;
-	}
-
 }

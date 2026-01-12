@@ -19,10 +19,12 @@ public abstract class LimitedHistoryRandomizer extends Randomizer {
 
 	}
 
+	@Override
 	public void init() {
 		firstPiece = true;
 	}
 
+	@Override
 	public int next() {
 		if (firstPiece && !isPieceSZOOnly()) {
 			do {
@@ -32,13 +34,14 @@ public abstract class LimitedHistoryRandomizer extends Randomizer {
 		} else {
 			for (int i = 0; i < numrolls; i++) {
 				id = r.nextInt(pieces.length);
-				if (!(pieces[id] == history[0] || pieces[id] == history[1] || pieces[id] == history[2] || pieces[id] == history[3])) {
+				if (!(pieces[id] == history[0] || pieces[id] == history[1] || pieces[id] == history[2]
+						|| pieces[id] == history[3])) {
 					break;
 				}
 			}
 		}
 		for (int i = 3; i > 0; i--) {
-			history[i] = history[i-1];
+			history[i] = history[i - 1];
 		}
 		history[0] = pieces[id];
 		return pieces[id];

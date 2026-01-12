@@ -15,15 +15,18 @@ public abstract class ResourceHolder {
 
 	/** Number of gem block clear effects */
 	public static final int PERASE_MAX = 7;
-	
+
 	/** Block sticky flag */
 	public static List<Boolean> blockStickyFlagList;
-	
+
 	public abstract AbstractImage getImgNormalBlock(int skin);
+
 	public abstract AbstractImage getImgSmallBlock(int skin);
+
 	public abstract AbstractImage getImgBigBlock(int skin);
+
 	public abstract int getImgBlockListSize();
-	
+
 	public boolean getBlockIsSticky(int skin) {
 		return skin >= 0 && skin < getImgBlockListSize() && blockStickyFlagList.get(skin);
 	}

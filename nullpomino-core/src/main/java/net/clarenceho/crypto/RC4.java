@@ -34,216 +34,205 @@
 package net.clarenceho.crypto;
 
 /**
- * This is a simple implementation of the RC4 (tm) encryption algorithm.  The
- * author implemented this class for some simple applications
- * that don't need/want/require the Sun's JCE framework.
+ * This is a simple implementation of the RC4 (tm) encryption algorithm. The
+ * author implemented this class for some simple applications that don't
+ * need/want/require the Sun's JCE framework.
  * <p>
- * But if you are looking for encryption algorithms for a
- * full-blown application,
- * it would be better to stick with Sun's JCE framework.  You can find
- * a *free* JCE implementation with RC4 (tm) at
- * Cryptix (http://www.cryptix.org/).
+ * But if you are looking for encryption algorithms for a full-blown
+ * application, it would be better to stick with Sun's JCE framework. You can
+ * find a *free* JCE implementation with RC4 (tm) at Cryptix
+ * (http://www.cryptix.org/).
  * <p>
- * Note that RC4 (tm) is a trademark of RSA Data Security, Inc.
- * Also, if you are within USA, you may need to acquire licenses from
- * RSA to use RC4.
- * Please check your local law.  The author is not
- * responsible for any illegal use of this code.
+ * Note that RC4 (tm) is a trademark of RSA Data Security, Inc. Also, if you are
+ * within USA, you may need to acquire licenses from RSA to use RC4. Please
+ * check your local law. The author is not responsible for any illegal use of
+ * this code.
  * <p>
- * @author  Clarence Ho
+ *
+ * @author Clarence Ho
  */
 public class RC4 {
 
-    private byte state[] = new byte[256];
-    private int x;
-    private int y;
+	private byte[] state = new byte[256];
+	private int x;
+	private int y;
 
-    /**
-     * Initializes the class with a string key. The length
-     * of a normal key should be between 1 and 2048 bits.  But
-     * this method doens't check the length at all.
-     *
-     * @param key   the encryption/decryption key
-     */
-    public RC4(String key) throws NullPointerException {
-        this(key.getBytes());
-    }
+	/**
+	 * Initializes the class with a string key. The length of a normal key should be
+	 * between 1 and 2048 bits. But this method doens't check the length at all.
+	 *
+	 * @param key the encryption/decryption key
+	 */
+	public RC4(String key) throws NullPointerException {
+		this(key.getBytes());
+	}
 
-    /**
-     * Initializes the class with a byte array key.  The length
-     * of a normal key should be between 1 and 2048 bits.  But
-     * this method doens't check the length at all.
-     *
-     * @param key   the encryption/decryption key
-     */
-    public RC4(byte[] key) throws NullPointerException {
+	/**
+	 * Initializes the class with a byte array key. The length of a normal key
+	 * should be between 1 and 2048 bits. But this method doens't check the length
+	 * at all.
+	 *
+	 * @param key the encryption/decryption key
+	 */
+	public RC4(byte[] key) throws NullPointerException {
 
-        for (int i=0; i < 256; i++) {
-            state[i] = (byte)i;
-        }
+		for (int i = 0; i < 256; i++) {
+			state[i] = (byte) i;
+		}
+		x = 0;
+		y = 0;
+		int index1 = 0;
+		int index2 = 0;
+		byte tmp;
 
-        x = 0;
-        y = 0;
+		if (key == null || key.length == 0) {
+			throw new NullPointerException();
+		}
 
-        int index1 = 0;
-        int index2 = 0;
+		for (int i = 0; i < 256; i++) {
+			index2 = (key[index1] & 0xff) + (state[i] & 0xff) + index2 & 0xff;
 
-        byte tmp;
+			tmp = state[i];
+			state[i] = state[index2];
+			state[index2] = tmp;
 
-        if (key == null || key.length == 0) {
-            throw new NullPointerException();
-        }
+			index1 = (index1 + 1) % key.length;
+		}
 
-        for (int i=0; i < 256; i++) {
+	}
 
-            index2 = ((key[index1] & 0xff) + (state[i] & 0xff) + index2) & 0xff;
+	/**
+	 * RC4 encryption/decryption.
+	 *
+	 * @param data the data to be encrypted/decrypted
+	 * @return the result of the encryption/decryption
+	 */
+	public byte[] rc4(String data) {
 
-            tmp = state[i];
-            state[i] = state[index2];
-            state[index2] = tmp;
+		if (data == null) {
+			return new byte[0];
+		}
 
-            index1 = (index1 + 1) % key.length;
-        }
+		byte[] tmp = data.getBytes();
 
+		this.rc4(tmp);
 
+		return tmp;
+	}
 
-    }
+	/**
+	 * RC4 encryption/decryption.
+	 *
+	 * @param buf the data to be encrypted/decrypted
+	 * @return the result of the encryption/decryption
+	 */
+	public byte[] rc4(byte[] buf) {
 
-    /**
-     * RC4 encryption/decryption.
-     *
-     * @param data  the data to be encrypted/decrypted
-     * @return the result of the encryption/decryption
-     */
-    public byte[] rc4(String data) {
+		// int lx = this.x;
+		// int ly = this.y;
 
-        if (data == null) {
-            return null;
-        }
+		int xorIndex;
+		byte tmp;
 
-        byte[] tmp = data.getBytes();
+		if (buf == null) {
+			return null;
+		}
 
-        this.rc4(tmp);
+		byte[] result = new byte[buf.length];
 
-        return tmp;
-    }
+		for (int i = 0; i < buf.length; i++) {
 
-    /**
-     * RC4 encryption/decryption.
-     *
-     * @param buf  the data to be encrypted/decrypted
-     * @return the result of the encryption/decryption
-     */
-    public byte[] rc4(byte[] buf) {
+			x = x + 1 & 0xff;
+			y = (state[x] & 0xff) + y & 0xff;
 
-        //int lx = this.x;
-        //int ly = this.y;
+			tmp = state[x];
+			state[x] = state[y];
+			state[y] = tmp;
 
-        int xorIndex;
-        byte tmp;
+			xorIndex = (state[x] & 0xff) + (state[y] & 0xff) & 0xff;
+			result[i] = (byte) (buf[i] ^ state[xorIndex]);
+		}
 
-        if (buf == null) {
-            return null;
-        }
+		// this.x = lx;
+		// this.y = ly;
 
-        byte[] result = new byte[buf.length];
+		return result;
+	}
 
-        for (int i=0; i < buf.length; i++) {
+	// ***** BEGIN HACKED CODE *****
+	/**
+	 * Initializes the class with a string key. The length of a normal key should be
+	 * between 1 and 2048 bits. But this method doens't check the length at all.
+	 *
+	 * @param key the encryption/decryption key
+	 */
+	public RC4(char[] key) throws NullPointerException {
 
-            x = (x + 1) & 0xff;
-            y = ((state[x] & 0xff) + y) & 0xff;
+		for (int i = 0; i < 256; i++) {
+			state[i] = (byte) i;
+		}
 
-            tmp = state[x];
-            state[x] = state[y];
-            state[y] = tmp;
+		x = 0;
+		y = 0;
 
-            xorIndex = ((state[x] &0xff) + (state[y] & 0xff)) & 0xff;
-            result[i] = (byte)(buf[i] ^ state[xorIndex]);
-        }
+		int index1 = 0;
+		int index2 = 0;
 
-        //this.x = lx;
-        //this.y = ly;
+		byte tmp;
 
-        return result;
-    }
+		if (key == null || key.length == 0) {
+			throw new NullPointerException();
+		}
 
-    // ***** BEGIN HACKED CODE *****
-    /**
-     * Initializes the class with a string key. The length
-     * of a normal key should be between 1 and 2048 bits.  But
-     * this method doens't check the length at all.
-     *
-     * @param key   the encryption/decryption key
-     */
-    public RC4(char[] key) throws NullPointerException {
+		for (int i = 0; i < 256; i++) {
 
-        for (int i=0; i < 256; i++) {
-            state[i] = (byte)i;
-        }
+			index2 = (key[index1] & 0xff) + (state[i] & 0xff) + index2 & 0xff;
 
-        x = 0;
-        y = 0;
+			tmp = state[i];
+			state[i] = state[index2];
+			state[index2] = tmp;
 
-        int index1 = 0;
-        int index2 = 0;
+			index1 = (index1 + 1) % key.length;
+		}
 
-        byte tmp;
+	}
 
-        if (key == null || key.length == 0) {
-            throw new NullPointerException();
-        }
+	/**
+	 * RC4 encryption/decryption.
+	 *
+	 * @param buf the data to be encrypted/decrypted
+	 * @return the result of the encryption/decryption
+	 */
+	public byte[] rc4(char[] buf) {
 
-        for (int i=0; i < 256; i++) {
+		// int lx = this.x;
+		// int ly = this.y;
 
-            index2 = ((key[index1] & 0xff) + (state[i] & 0xff) + index2) & 0xff;
+		int xorIndex;
+		byte tmp;
 
-            tmp = state[i];
-            state[i] = state[index2];
-            state[index2] = tmp;
+		if (buf == null) {
+			return null;
+		}
 
-            index1 = (index1 + 1) % key.length;
-        }
+		byte[] result = new byte[buf.length];
 
+		for (int i = 0; i < buf.length; i++) {
 
+			x = x + 1 & 0xff;
+			y = (state[x] & 0xff) + y & 0xff;
 
-    }
+			tmp = state[x];
+			state[x] = state[y];
+			state[y] = tmp;
 
-    /**
-     * RC4 encryption/decryption.
-     *
-     * @param buf  the data to be encrypted/decrypted
-     * @return the result of the encryption/decryption
-     */
-    public byte[] rc4(char[] buf) {
+			xorIndex = (state[x] & 0xff) + (state[y] & 0xff) & 0xff;
+			result[i] = (byte) (buf[i] ^ state[xorIndex]);
+		}
 
-        //int lx = this.x;
-        //int ly = this.y;
+		// this.x = lx;
+		// this.y = ly;
 
-        int xorIndex;
-        byte tmp;
-
-        if (buf == null) {
-            return null;
-        }
-
-        byte[] result = new byte[buf.length];
-
-        for (int i=0; i < buf.length; i++) {
-
-            x = (x + 1) & 0xff;
-            y = ((state[x] & 0xff) + y) & 0xff;
-
-            tmp = state[x];
-            state[x] = state[y];
-            state[y] = tmp;
-
-            xorIndex = ((state[x] &0xff) + (state[y] & 0xff)) & 0xff;
-            result[i] = (byte)(buf[i] ^ state[xorIndex]);
-        }
-
-        //this.x = lx;
-        //this.y = ly;
-
-        return result;
-    }
+		return result;
+	}
 }

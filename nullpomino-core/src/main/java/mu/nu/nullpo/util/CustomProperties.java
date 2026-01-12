@@ -30,25 +30,50 @@ package mu.nu.nullpo.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Properties;
+
+import lombok.extern.log4j.Log4j;
 
 /**
  * StringSet of properties that can be stored in non-
  */
+@Log4j
 public class CustomProperties extends Properties {
 	/**
 	 * Serial version
 	 */
 	private static final long serialVersionUID = 2L;
 
+	public static CustomProperties load(String filename) {
+		return load(new File(filename));
+	}
+
+	public static CustomProperties load(File file) {
+		CustomProperties result = new CustomProperties();
+		if (!file.exists() || !file.canRead()) {
+			return result;
+		}
+		try (var in = new FileInputStream(file)) {
+			result.load(in);
+		} catch (IOException ioe) {
+			log.error("failed to load properties from " + file.getPath(), ioe);
+		}
+		return result;
+	}
+
 	/**
 	 * byteSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, byte value) {
 		return setProperty(key, String.valueOf(value));
@@ -56,9 +81,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * shortSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, short value) {
 		return setProperty(key, String.valueOf(value));
@@ -66,9 +93,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * intSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, int value) {
 		return setProperty(key, String.valueOf(value));
@@ -76,9 +105,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * longSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, long value) {
 		return setProperty(key, String.valueOf(value));
@@ -86,9 +117,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * floatSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, float value) {
 		return setProperty(key, String.valueOf(value));
@@ -96,9 +129,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * doubleSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, double value) {
 		return setProperty(key, String.valueOf(value));
@@ -106,9 +141,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * charSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, char value) {
 		return setProperty(key, String.valueOf(value));
@@ -116,9 +153,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * booleanSet the properties of the type
-	 * @param key Key
+	 *
+	 * @param key   Key
 	 * @param value keyVariable that corresponds to thecount
-	 * @return The previous value of the specified key in the property list. If you do not have it null
+	 * @return The previous value of the specified key in the property list. If you
+	 *         do not have it null
 	 */
 	public synchronized Object setProperty(String key, boolean value) {
 		return setProperty(key, String.valueOf(value));
@@ -126,9 +165,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * byteGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public byte getProperty(String key, byte defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -136,7 +177,7 @@ public class CustomProperties extends Properties {
 		byte result;
 		try {
 			result = Byte.parseByte(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -145,9 +186,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * shortGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public short getProperty(String key, short defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -155,7 +198,7 @@ public class CustomProperties extends Properties {
 		short result;
 		try {
 			result = Short.parseShort(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -164,9 +207,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * intGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public int getProperty(String key, int defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -174,7 +219,7 @@ public class CustomProperties extends Properties {
 		int result;
 		try {
 			result = Integer.parseInt(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -183,9 +228,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * longGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public long getProperty(String key, long defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -193,7 +240,7 @@ public class CustomProperties extends Properties {
 		long result;
 		try {
 			result = Long.parseLong(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -202,9 +249,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * floatGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public float getProperty(String key, float defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -212,7 +261,7 @@ public class CustomProperties extends Properties {
 		float result;
 		try {
 			result = Float.parseFloat(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -221,9 +270,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * doubleGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public double getProperty(String key, double defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -231,7 +282,7 @@ public class CustomProperties extends Properties {
 		double result;
 		try {
 			result = Double.parseDouble(str);
-		} catch(NumberFormatException e) {
+		} catch (NumberFormatException _) {
 			result = defaultValue;
 		}
 
@@ -240,9 +291,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * charGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Integer that corresponds to the specified keycount (Not founddefaultValue)
+	 * @return Integer that corresponds to the specified keycount (Not
+	 *         founddefaultValue)
 	 */
 	public char getProperty(String key, char defaultValue) {
 		String str = getProperty(key, String.valueOf(defaultValue));
@@ -250,7 +303,7 @@ public class CustomProperties extends Properties {
 		char result;
 		try {
 			result = str.charAt(0);
-		} catch(Exception e) {
+		} catch (Exception _) {
 			result = defaultValue;
 		}
 
@@ -259,9 +312,11 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * booleanGets a property of type
-	 * @param key Key
+	 *
+	 * @param key          Key
 	 * @param defaultValue keyStrange that I return if it can not find thecount
-	 * @return Corresponding to the specified keybooleanType variablecount (Not founddefaultValue)
+	 * @return Corresponding to the specified keybooleanType variablecount (Not
+	 *         founddefaultValue)
 	 */
 	public boolean getProperty(String key, boolean defaultValue) {
 		String str = getProperty(key, Boolean.toString(defaultValue));
@@ -270,6 +325,7 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * Converted to a string this property set(URLEncoderEncoded)
+	 *
 	 * @param comments Identifying comment
 	 * @return URLEncoderProperty string sets that are encoded in
 	 */
@@ -279,9 +335,7 @@ public class CustomProperties extends Properties {
 		try {
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			store(out, comments);
-			result = URLEncoder.encode(out.toString("UTF-8"), "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 not supported", e);
+			result = URLEncoder.encode(out.toString(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -291,16 +345,15 @@ public class CustomProperties extends Properties {
 
 	/**
 	 * encode(String)I encodedStringRestore the property set from
+	 *
 	 * @param source encode(String)I encodedString
 	 * @return The successtrue
 	 */
 	public boolean decode(String source) {
 		try {
-			String decodedString = URLDecoder.decode(source, "UTF-8");
-			ByteArrayInputStream in = new ByteArrayInputStream(decodedString.getBytes("UTF-8"));
+			String decodedString = URLDecoder.decode(source, StandardCharsets.UTF_8);
+			ByteArrayInputStream in = new ByteArrayInputStream(decodedString.getBytes(StandardCharsets.UTF_8));
 			load(in);
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 not supported", e);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;

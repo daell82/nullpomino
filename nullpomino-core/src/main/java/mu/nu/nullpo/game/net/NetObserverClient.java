@@ -59,6 +59,7 @@ public class NetObserverClient extends NetBaseClient {
 
 	/**
 	 * Constructor
+	 * 
 	 * @param host Destination host
 	 */
 	public NetObserverClient(String host) {
@@ -67,6 +68,7 @@ public class NetObserverClient extends NetBaseClient {
 
 	/**
 	 * Constructor
+	 * 
 	 * @param host Destination host
 	 * @param port Destination port number
 	 */
@@ -79,25 +81,27 @@ public class NetObserverClient extends NetBaseClient {
 	 */
 	@Override
 	protected void processPacket(String fullMessage) throws IOException {
-		String[] message = fullMessage.split("\t");	// Tab delimited
+		String[] message = fullMessage.split("\t"); // Tab delimited
 
 		// Connection completion
-		if(message[0].equals("welcome")) {
-			//welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION STRING]\t[PING INTERVAL]\t[DEV BUILD]
+		if (message[0].equals("welcome")) {
+			// welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION
+			// STRING]\t[PING INTERVAL]\t[DEV BUILD]
 			serverVersion = Float.parseFloat(message[1]);
 			playerCount = Integer.parseInt(message[2]);
 			observerCount = Integer.parseInt(message[3]);
 
 			long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : PING_INTERVAL;
-			if(pingInterval != PING_INTERVAL) {
+			if (pingInterval != PING_INTERVAL) {
 				startPingTask(pingInterval);
 			}
 
-			send("observerlogin\t" + GameManager.getVersionMajor() + "\t" + GameManager.getVersionMinor() + "\t" + GameManager.isDevBuild() + "\n");
+			send("observerlogin\t" + GameManager.getVersionMajor() + "\t" + GameManager.getVersionMinor() + "\t"
+					+ GameManager.isDevBuild() + "\n");
 		}
 		// PeoplecountUpdate
-		if(message[0].equals("observerupdate")) {
-			//observerupdate\t[PLAYERS]\t[OBSERVERS]
+		if (message[0].equals("observerupdate")) {
+			// observerupdate\t[PLAYERS]\t[OBSERVERS]
 			playerCount = Integer.parseInt(message[1]);
 			observerCount = Integer.parseInt(message[2]);
 		}

@@ -1,27 +1,78 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>mu.nu.nullpo</groupId>
 	<artifactId>nullpomino-parent</artifactId>
 	<version>7.6.0-SNAPSHOT</version>
+
 	<packaging>pom</packaging>
+
 	<modules>
 		<module>../nullpomino-core</module>
+		<module>../nullpomino-swing</module>
+		<module>../nullpomino-slick</module>
 		<module>../nullpomino-run</module>
 	</modules>
-	
+
+	<properties>
+		<lombok.version>1.18.42</lombok.version>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>ch.qos.reload4j</groupId>
+				<artifactId>reload4j</artifactId>
+				<version>1.2.26</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slick2d</groupId>
+				<artifactId>slick2d-core</artifactId>
+				<version>1.0.2</version>
+				<exclusions>
+					<exclusion>
+						<groupId>javax.jnlp</groupId>
+						<artifactId>jnlp-api</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+	</dependencies>
+
 	<build>
 		<pluginManagement>
 			<plugins>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>3.1</version>
+					<version>3.8.1</version>
 					<configuration>
-						<source>1.8</source>
-						<target>1.8</target>
+						<source>25</source>
+						<target>25</target>
 						<encoding>UTF-8</encoding>
-					</configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>                 
+                    </configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

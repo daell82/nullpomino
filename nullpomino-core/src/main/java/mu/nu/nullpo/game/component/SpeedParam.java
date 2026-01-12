@@ -67,6 +67,7 @@ public class SpeedParam implements Serializable {
 
 	/**
 	 * Copy constructor
+	 * 
 	 * @param s Copy source
 	 */
 	public SpeedParam(SpeedParam s) {
@@ -88,6 +89,7 @@ public class SpeedParam implements Serializable {
 
 	/**
 	 * AnotherSpeedParamCopied from the
+	 * 
 	 * @param s Copy source
 	 */
 	public void copy(SpeedParam s) {

@@ -15,8 +15,9 @@ public class BagBonusRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
-		baglen = pieces.length+1;
+		baglen = pieces.length + 1;
 		bag = new int[baglen];
 		pt = 0;
 		bonus = pieces.length;
@@ -30,17 +31,18 @@ public class BagBonusRandomizer extends Randomizer {
 		bag[bonus] = r.nextInt(pieces.length);
 		for (int i = baglen; i > 1; i--) {
 			int j = r.nextInt(i);
-			int temp = bag[i-1];
-			bag[i-1] = bag[j];
+			int temp = bag[i - 1];
+			bag[i - 1] = bag[j];
 			bag[j] = temp;
-			if (bonus == i-1) {
+			if (bonus == i - 1) {
 				bonus = j;
-			} else if(bonus == j) {
-				bonus = i-1;
+			} else if (bonus == j) {
+				bonus = i - 1;
 			}
 		}
 	}
 
+	@Override
 	public int next() {
 		int id = bag[pt];
 		pt++;

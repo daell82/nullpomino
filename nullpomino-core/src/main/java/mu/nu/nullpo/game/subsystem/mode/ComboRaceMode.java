@@ -32,9 +32,9 @@ import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -49,91 +49,52 @@ public class ComboRaceMode extends NetDummyMode {
 	private static final int RANKING_MAX = 10;
 
 	/** HindranceLinescountConstantcount */
-	private static final int[] GOAL_TABLE = {20, 40, 100, -1};
+	private static final int[] GOAL_TABLE = { 20, 40, 100, -1 };
 
 	/** Most recent scoring event typeConstantcount */
-	private static final int EVENT_NONE = 0,
-							 EVENT_SINGLE = 1,
-							 EVENT_DOUBLE = 2,
-							 EVENT_TRIPLE = 3,
-							 EVENT_FOUR = 4,
-							 EVENT_TSPIN_SINGLE_MINI = 5,
-							 EVENT_TSPIN_SINGLE = 6,
-							 EVENT_TSPIN_DOUBLE = 7,
-							 EVENT_TSPIN_TRIPLE = 8,
-							 EVENT_TSPIN_DOUBLE_MINI = 9;
+	private static final int EVENT_NONE = 0, EVENT_SINGLE = 1, EVENT_DOUBLE = 2, EVENT_TRIPLE = 3, EVENT_FOUR = 4,
+			EVENT_TSPIN_SINGLE_MINI = 5, EVENT_TSPIN_SINGLE = 6, EVENT_TSPIN_DOUBLE = 7, EVENT_TSPIN_TRIPLE = 8,
+			EVENT_TSPIN_DOUBLE_MINI = 9;
 
 	/** Number of starting shapes */
 	private static final int SHAPETYPE_MAX = 9;
 
 	/** Names of starting shapes */
-	private static final String[] SHAPE_NAME_TABLE = {
-		"NONE",
-		"LEFT I",
-		"RIGHT I",
-		"LEFT Z",
-		"RIGHT S",
-		"LEFT S",
-		"RIGHT Z",
-		"LEFT J",
-		"RIGHT L",
-	};
+	private static final String[] SHAPE_NAME_TABLE = { "NONE", "LEFT I", "RIGHT I", "LEFT Z", "RIGHT S", "LEFT S",
+			"RIGHT Z", "LEFT J", "RIGHT L", };
 
 	/** Starting shape table */
-	private static final int[][] SHAPE_TABLE = {
-		{0,0,0,0,0,0,0,0,0,0,0,0},
-		{1,1,1,0,0,0,0,0,0,0,0,0},
-		{0,1,1,1,0,0,0,0,0,0,0,0},
-		{1,1,0,0,1,0,0,0,0,0,0,0},
-		{0,0,1,1,0,0,0,1,0,0,0,0},
-		{1,0,0,0,1,1,0,0,0,0,0,0},
-		{0,0,0,1,0,0,1,1,0,0,0,0},
-		{1,0,0,0,1,0,0,0,1,0,0,0},
-		{0,0,0,1,0,0,0,1,0,0,0,1}
-	};
+	private static final int[][] SHAPE_TABLE = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0 },
+			{ 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0 },
+			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 } };
 
 	/** Starting shape colour */
-	private static final int[] SHAPE_COLOUR_TABLE = {
-		Block.BLOCK_COLOR_NONE,
-		Block.BLOCK_COLOR_CYAN,
-		Block.BLOCK_COLOR_CYAN,
-		Block.BLOCK_COLOR_RED,
-		Block.BLOCK_COLOR_GREEN,
-		Block.BLOCK_COLOR_GREEN,
-		Block.BLOCK_COLOR_RED,
-		Block.BLOCK_COLOR_BLUE,
-		Block.BLOCK_COLOR_ORANGE
-	};
+	private static final int[] SHAPE_COLOUR_TABLE = { Colors.BLOCK_COLOR_NONE, Colors.BLOCK_COLOR_CYAN,
+			Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_GREEN,
+			Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_ORANGE };
 
 	/** Stack colour order */
-	private static final int[] STACK_COLOUR_TABLE = {
-		Block.BLOCK_COLOR_RED,
-		Block.BLOCK_COLOR_ORANGE,
-		Block.BLOCK_COLOR_YELLOW,
-		Block.BLOCK_COLOR_GREEN,
-		Block.BLOCK_COLOR_CYAN,
-		Block.BLOCK_COLOR_BLUE,
-		Block.BLOCK_COLOR_PURPLE,
-	};
-	
+	private static final int[] STACK_COLOUR_TABLE = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
+			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_BLUE,
+			Colors.BLOCK_COLOR_PURPLE, };
+
 	/** Meter colors for really high combos in Endless */
-	private static final int[] METER_COLOUR_TABLE = {
-		GameEngine.METER_COLOR_GREEN,
-		GameEngine.METER_COLOR_YELLOW,
-		GameEngine.METER_COLOR_ORANGE,
-		GameEngine.METER_COLOR_RED,
-		GameEngine.METER_COLOR_PINK,
-		GameEngine.METER_COLOR_PURPLE,
-		GameEngine.METER_COLOR_DARKBLUE,
-		GameEngine.METER_COLOR_BLUE,
-		GameEngine.METER_COLOR_CYAN,
-		GameEngine.METER_COLOR_DARKGREEN,
-	};
-	
+	private static final int[] METER_COLOUR_TABLE = { Colors.METER_COLOR_GREEN, Colors.METER_COLOR_YELLOW,
+			Colors.METER_COLOR_ORANGE, Colors.METER_COLOR_RED, Colors.METER_COLOR_PINK,
+			Colors.METER_COLOR_PURPLE, Colors.METER_COLOR_DARKBLUE, Colors.METER_COLOR_BLUE,
+			Colors.METER_COLOR_CYAN, Colors.METER_COLOR_DARKGREEN, };
 
-	/** EventReceiver object (This receives many game events, can also be used for drawing the fonts.) */
+	/**
+	 * EventReceiver object (This receives many game events, can also be used for
+	 * drawing the fonts.)
+	 */
 
-	/** Elapsed time from last line clear (lastscore is displayed to screen until this reaches to 120) */
+	/**
+	 * Elapsed time from last line clear (lastscore is displayed to screen until
+	 * this reaches to 120)
+	 */
 	private int scgettime;
 
 	/** Most recent scoring event type */
@@ -184,13 +145,18 @@ public class ComboRaceMode extends NetDummyMode {
 	/** Width of combo well */
 	private int comboWidth;
 
-	/** Height difference between ceiling and stack (negative number lowers the stack height) */
+	/**
+	 * Height difference between ceiling and stack (negative number lowers the stack
+	 * height)
+	 */
 	private int ceilingAdjust;
 
 	/** Piece spawns above field if true */
 	private boolean spawnAboveField;
 
-	/** Number of remaining stack lines that need to be added when lines are cleared */
+	/**
+	 * Number of remaining stack lines that need to be added when lines are cleared
+	 */
 	private int remainStack;
 
 	/** Next section lines */
@@ -230,11 +196,11 @@ public class ComboRaceMode extends NetDummyMode {
 		rankingTime = new int[GOAL_TABLE.length][RANKING_MAX];
 		rankingCombo = new int[GOAL_TABLE.length][RANKING_MAX];
 
-		engine.framecolor = GameEngine.FRAME_COLOR_RED;
+		engine.framecolor = Colors.FRAME_COLOR_RED;
 
 		netPlayerInit(engine, playerID);
 
-		if(engine.owner.replayMode == false) {
+		if (engine.owner.replayMode == false) {
 			version = CURRENT_VERSION;
 			presetNumber = engine.owner.modeConfig.getProperty("comborace.presetNumber", 0);
 			loadPreset(engine, engine.owner.modeConfig, -1);
@@ -297,118 +263,182 @@ public class ComboRaceMode extends NetDummyMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// NET: Net Ranking
-		if(netIsNetRankingDisplayMode) {
+		if (netIsNetRankingDisplayMode) {
 			netOnUpdateNetPlayRanking(engine, goaltype);
 		}
 		// Menu
-		else if(engine.owner.replayMode == false) {
+		else if (engine.owner.replayMode == false) {
 			// Configuration changes
 			int change = updateCursor(engine, 15);
 
-			if(change != 0) {
+			if (change != 0) {
 				engine.playSE("change");
 
 				int m = 1;
-				if(engine.ctrl.isPress(Controller.BUTTON_E)) m = 100;
-				if(engine.ctrl.isPress(Controller.BUTTON_F)) m = 1000;
+				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
+					m = 100;
+				}
+				if (engine.ctrl.isPress(Controller.BUTTON_F)) {
+					m = 1000;
+				}
 
-				switch(menuCursor) {
+				switch (menuCursor) {
 				case 0:
 					goaltype += change;
-					if(goaltype < 0) goaltype = GOAL_TABLE.length - 1;
-					if(goaltype > GOAL_TABLE.length - 1) goaltype = 0;
+					if (goaltype < 0) {
+						goaltype = GOAL_TABLE.length - 1;
+					}
+					if (goaltype > GOAL_TABLE.length - 1) {
+						goaltype = 0;
+					}
 					break;
 				case 1:
 					shapetype += change;
-					if(shapetype < 0) shapetype = SHAPETYPE_MAX - 1;
-					if(shapetype > SHAPETYPE_MAX - 1) shapetype = 0;
+					if (shapetype < 0) {
+						shapetype = SHAPETYPE_MAX - 1;
+					}
+					if (shapetype > SHAPETYPE_MAX - 1) {
+						shapetype = 0;
+					}
 					break;
 				case 2:
 					comboColumn += change;
-					if(comboColumn > 10) comboColumn = 1;
-					if(comboColumn < 1) comboColumn = 10;
-					while(comboColumn + comboWidth - 1 > 10) {
+					if (comboColumn > 10) {
+						comboColumn = 1;
+					}
+					if (comboColumn < 1) {
+						comboColumn = 10;
+					}
+					while (comboColumn + comboWidth - 1 > 10) {
 						comboWidth--;
 					}
 					break;
 				case 3:
 					comboWidth += change;
-					if(comboWidth > 10) comboWidth = 1;
-					if(comboWidth < 1) comboWidth = 10;
-					while(comboColumn + comboWidth - 1 > 10) {
+					if (comboWidth > 10) {
+						comboWidth = 1;
+					}
+					if (comboWidth < 1) {
+						comboWidth = 10;
+					}
+					while (comboColumn + comboWidth - 1 > 10) {
 						comboColumn--;
 					}
 					break;
 				case 4:
 					ceilingAdjust += change;
-					if(ceilingAdjust > 10) ceilingAdjust = -10;
-					if(ceilingAdjust < -10) ceilingAdjust = 10;
+					if (ceilingAdjust > 10) {
+						ceilingAdjust = -10;
+					}
+					if (ceilingAdjust < -10) {
+						ceilingAdjust = 10;
+					}
 					break;
 				case 5:
 					spawnAboveField = !spawnAboveField;
 					break;
 				case 6:
 					engine.speed.gravity += change * m;
-					if(engine.speed.gravity < -1) engine.speed.gravity = 99999;
-					if(engine.speed.gravity > 99999) engine.speed.gravity = -1;
+					if (engine.speed.gravity < -1) {
+						engine.speed.gravity = 99999;
+					}
+					if (engine.speed.gravity > 99999) {
+						engine.speed.gravity = -1;
+					}
 					break;
 				case 7:
 					engine.speed.denominator += change * m;
-					if(engine.speed.denominator < -1) engine.speed.denominator = 99999;
-					if(engine.speed.denominator > 99999) engine.speed.denominator = -1;
+					if (engine.speed.denominator < -1) {
+						engine.speed.denominator = 99999;
+					}
+					if (engine.speed.denominator > 99999) {
+						engine.speed.denominator = -1;
+					}
 					break;
 				case 8:
 					engine.speed.are += change;
-					if(engine.speed.are < 0) engine.speed.are = 99;
-					if(engine.speed.are > 99) engine.speed.are = 0;
+					if (engine.speed.are < 0) {
+						engine.speed.are = 99;
+					}
+					if (engine.speed.are > 99) {
+						engine.speed.are = 0;
+					}
 					break;
 				case 9:
 					engine.speed.areLine += change;
-					if(engine.speed.areLine < 0) engine.speed.areLine = 99;
-					if(engine.speed.areLine > 99) engine.speed.areLine = 0;
+					if (engine.speed.areLine < 0) {
+						engine.speed.areLine = 99;
+					}
+					if (engine.speed.areLine > 99) {
+						engine.speed.areLine = 0;
+					}
 					break;
 				case 10:
 					engine.speed.lineDelay += change;
-					if(engine.speed.lineDelay < 0) engine.speed.lineDelay = 99;
-					if(engine.speed.lineDelay > 99) engine.speed.lineDelay = 0;
+					if (engine.speed.lineDelay < 0) {
+						engine.speed.lineDelay = 99;
+					}
+					if (engine.speed.lineDelay > 99) {
+						engine.speed.lineDelay = 0;
+					}
 					break;
 				case 11:
 					engine.speed.lockDelay += change;
-					if(engine.speed.lockDelay < 0) engine.speed.lockDelay = 99;
-					if(engine.speed.lockDelay > 99) engine.speed.lockDelay = 0;
+					if (engine.speed.lockDelay < 0) {
+						engine.speed.lockDelay = 99;
+					}
+					if (engine.speed.lockDelay > 99) {
+						engine.speed.lockDelay = 0;
+					}
 					break;
 				case 12:
 					engine.speed.das += change;
-					if(engine.speed.das < 0) engine.speed.das = 99;
-					if(engine.speed.das > 99) engine.speed.das = 0;
+					if (engine.speed.das < 0) {
+						engine.speed.das = 99;
+					}
+					if (engine.speed.das > 99) {
+						engine.speed.das = 0;
+					}
 					break;
 				case 13:
 					bgmno += change;
-					if(bgmno < 0) bgmno = BGMStatus.BGM_COUNT - 1;
-					if(bgmno > BGMStatus.BGM_COUNT - 1) bgmno = 0;
+					if (bgmno < 0) {
+						bgmno = BGMStatus.BGM_COUNT - 1;
+					}
+					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+						bgmno = 0;
+					}
 					break;
 				case 14:
 				case 15:
 					presetNumber += change;
-					if(presetNumber < 0) presetNumber = 99;
-					if(presetNumber > 99) presetNumber = 0;
+					if (presetNumber < 0) {
+						presetNumber = 99;
+					}
+					if (presetNumber > 99) {
+						presetNumber = 0;
+					}
 					break;
 				}
 
 				// NET: Signal options change
-				if(netIsNetPlay && (netNumSpectators > 0)) netSendOptions(engine);
+				if (netIsNetPlay && netNumSpectators > 0) {
+					netSendOptions(engine);
+				}
 			}
 
 			// Confirm
-			if(engine.ctrl.isPush(Controller.BUTTON_A) && (menuTime >= 5)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
 				engine.playSE("decide");
 
-				if(menuCursor == 14) {
+				if (menuCursor == 14) {
 					loadPreset(engine, owner.modeConfig, presetNumber);
 
 					// NET: Signal options change
-					if(netIsNetPlay && (netNumSpectators > 0)) netSendOptions(engine);
-				} else if(menuCursor == 15) {
+					if (netIsNetPlay && netNumSpectators > 0) {
+						netSendOptions(engine);
+					}
+				} else if (menuCursor == 15) {
 					savePreset(engine, owner.modeConfig, presetNumber);
 					receiver.saveModeConfig(owner.modeConfig);
 				} else {
@@ -417,19 +447,21 @@ public class ComboRaceMode extends NetDummyMode {
 					receiver.saveModeConfig(owner.modeConfig);
 
 					// NET: Signal start of the game
-					if(netIsNetPlay) netLobby.netPlayerClient.send("start1p\n");
+					if (netIsNetPlay) {
+						netLobby.netPlayerClient.send("start1p\n");
+					}
 
 					return false;
 				}
 			}
 
 			// Cancel
-			if(engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
+			if (engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
 				engine.quitflag = true;
 			}
 
 			// NET: Netplay Ranking
-			if(engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && netIsNetRankingViewOK(engine)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && netIsNetRankingViewOK(engine)) {
 				netEnterNetPlayRankingScreen(engine, playerID, goaltype);
 			}
 
@@ -440,7 +472,7 @@ public class ComboRaceMode extends NetDummyMode {
 			menuTime++;
 			menuCursor = -1;
 
-			if(menuTime >= 60) {
+			if (menuTime >= 60) {
 				return false;
 			}
 		}
@@ -453,33 +485,26 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if(netIsNetRankingDisplayMode) {
+		if (netIsNetRankingDisplayMode) {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, receiver);
-		} else if(menuCursor < 6) {
+		} else if (menuCursor < 6) {
 			String strSpawn = spawnAboveField ? "ABOVE" : "BELOW";
 
-			drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-					"GOAL", (GOAL_TABLE[goaltype] == -1) ? "ENDLESS" : String.valueOf(GOAL_TABLE[goaltype]));
-			drawMenu(engine, playerID, receiver, 2, (comboWidth == 4) ? EventReceiver.COLOR_BLUE : EventReceiver.COLOR_WHITE, 1,
+			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GOAL",
+					GOAL_TABLE[goaltype] == -1 ? "ENDLESS" : String.valueOf(GOAL_TABLE[goaltype]));
+			drawMenu(engine, playerID, receiver, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
 					"STARTSHAPE", SHAPE_NAME_TABLE[shapetype]);
-			drawMenu(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE, 2,
-					"COLUMN", String.valueOf(comboColumn),
-					"WIDTH", String.valueOf(comboWidth),
-					"CEILING", String.valueOf(ceilingAdjust),
-					"PIECESPAWN", String.valueOf(strSpawn));
+			drawMenu(engine, playerID, receiver, 4, Colors.FONT_BLUE, 2, "COLUMN", String.valueOf(comboColumn),
+					"WIDTH", String.valueOf(comboWidth), "CEILING", String.valueOf(ceilingAdjust), "PIECESPAWN",
+					String.valueOf(strSpawn));
 		} else {
-			drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 6,
-					"GRAVITY", String.valueOf(engine.speed.gravity),
-					"G-MAX", String.valueOf(engine.speed.denominator),
-					"ARE", String.valueOf(engine.speed.are),
-					"ARE LINE", String.valueOf(engine.speed.areLine),
-					"LINE DELAY", String.valueOf(engine.speed.lineDelay),
-					"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-					"DAS", String.valueOf(engine.speed.das),
-					"BGM", String.valueOf(bgmno));
-			drawMenu(engine, playerID, receiver, 16, EventReceiver.COLOR_GREEN, 14,
-					"LOAD", String.valueOf(presetNumber),
+			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 6, "GRAVITY",
+					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
+					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
+					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
+					String.valueOf(engine.speed.das), "BGM", String.valueOf(bgmno));
+			drawMenu(engine, playerID, receiver, 16, Colors.FONT_GREEN, 14, "LOAD", String.valueOf(presetNumber),
 					"SAVE", String.valueOf(presetNumber));
 		}
 	}
@@ -489,16 +514,16 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if(engine.statc[0] == 0) {
+		if (engine.statc[0] == 0) {
 			engine.createFieldIfNeeded();
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			engine.meterValue = (GOAL_TABLE[goaltype] == -1) ? 0 : receiver.getMeterMax(engine);
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			engine.meterValue = GOAL_TABLE[goaltype] == -1 ? 0 : receiver.getMeterMax(engine);
 
-			if(!netIsWatch) {
+			if (!netIsWatch) {
 				fillStack(engine, goaltype);
 
 				// NET: Send field
-				if(netNumSpectators > 0) {
+				if (netNumSpectators > 0) {
 					netSendField(engine);
 				}
 			}
@@ -507,14 +532,15 @@ public class ComboRaceMode extends NetDummyMode {
 	}
 
 	/**
-	 * This function will be called before the game actually begins (after Ready&Go screen disappears)
+	 * This function will be called before the game actually begins (after Ready&Go
+	 * screen disappears)
 	 */
 	@Override
 	public void startGame(GameEngine engine, int playerID) {
-		if(version <= 0) {
+		if (version <= 0) {
 			engine.big = big;
 		}
-		if(netIsWatch) {
+		if (netIsWatch) {
 			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = bgmno;
@@ -527,6 +553,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 	/**
 	 * Fill the playfield with stack
+	 *
 	 * @param engine GameEngine
 	 * @param height Stack height level number
 	 */
@@ -536,10 +563,10 @@ public class ComboRaceMode extends NetDummyMode {
 		int stackHeight;
 
 		/*
-		 *  set initial stack height and remaining stack lines
-		 *  depending on the goal lines and ceiling height adjustment
+		 * set initial stack height and remaining stack lines depending on the goal
+		 * lines and ceiling height adjustment
 		 */
-		if(GOAL_TABLE[height] > h + ceilingAdjust || GOAL_TABLE[height] == -1) {
+		if (GOAL_TABLE[height] > h + ceilingAdjust || GOAL_TABLE[height] == -1) {
 			stackHeight = h + ceilingAdjust;
 			remainStack = GOAL_TABLE[height] - h - ceilingAdjust;
 		} else {
@@ -548,23 +575,23 @@ public class ComboRaceMode extends NetDummyMode {
 		}
 
 		// fill stack from the bottom to the top
-		for(int y = h - 1; y >= h - stackHeight; y--) {
-			for(int x = 0; x < w; x++) {
-				if(	((x < comboColumn - 1) || (x > comboColumn - 2 + comboWidth))
-					) {
-					engine.field.setBlock(x,y,new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length],engine.getSkin(),
-							Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+		for (int y = h - 1; y >= h - stackHeight; y--) {
+			for (int x = 0; x < w; x++) {
+				if (x < comboColumn - 1 || x > comboColumn - 2 + comboWidth) {
+					engine.field.setBlock(x, y, new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length],
+							engine.getSkin(), Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
 				}
 			}
 			stackColour++;
 		}
 
 		// insert starting shape
-		if(comboWidth == 4) {
-			for(int i = 0; i < 12; i++) {
-				if(SHAPE_TABLE[shapetype][i] == 1) {
-					engine.field.setBlock(i%4 + comboColumn - 1, h - 1 - i/4,new Block(SHAPE_COLOUR_TABLE[shapetype],engine.getSkin(),
-							Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+		if (comboWidth == 4) {
+			for (int i = 0; i < 12; i++) {
+				if (SHAPE_TABLE[shapetype][i] == 1) {
+					engine.field.setBlock(i % 4 + comboColumn - 1, h - 1 - i / 4,
+							new Block(SHAPE_COLOUR_TABLE[shapetype], engine.getSkin(),
+									Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
 				}
 			}
 		}
@@ -575,92 +602,120 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		if(owner.menuOnly) return;
+		if (owner.menuOnly) {
+			return;
+		}
 
-		receiver.drawScoreFont(engine, playerID, 0, 0, "COMBO RACE", EventReceiver.COLOR_RED);
-		if (GOAL_TABLE[goaltype] == -1)
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(ENDLESS GAME)", EventReceiver.COLOR_WHITE);
-		else
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)", EventReceiver.COLOR_WHITE);
+		receiver.drawScoreFont(engine, playerID, 0, 0, "COMBO RACE", Colors.FONT_RED);
+		if (GOAL_TABLE[goaltype] == -1) {
+			receiver.drawScoreFont(engine, playerID, 0, 1, "(ENDLESS GAME)", Colors.FONT_WHITE);
+		} else {
+			receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
+					Colors.FONT_WHITE);
+		}
 
-		if( (engine.stat == GameEngine.Status.SETTING) || ((engine.stat == GameEngine.Status.RESULT) && (owner.replayMode == false)) ) {
-			if(!owner.replayMode && !big && (engine.ai == null)) {
-				receiver.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", EventReceiver.COLOR_BLUE);
+		if (engine.stat == GameEngine.Status.SETTING
+				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
+			if (!owner.replayMode && !big && engine.ai == null) {
+				receiver.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", Colors.FONT_BLUE);
 
-				for(int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW);
-					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingCombo[goaltype][i]), (rankingRank == i));
-					receiver.drawScoreFont(engine, playerID, 9, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]), (rankingRank == i));
+				for (int i = 0; i < RANKING_MAX; i++) {
+					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
+							Colors.FONT_YELLOW);
+					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingCombo[goaltype][i]),
+							rankingRank == i);
+					receiver.drawScoreFont(engine, playerID, 9, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
+							rankingRank == i);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "LINE", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.lines));
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "PIECE", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
 
-			receiver.drawScoreFont(engine, playerID, 0, 15, "TIME", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
 
-			if((lastevent != EVENT_NONE) && (scgettime < 120)) {
+			if (lastevent != EVENT_NONE && scgettime < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece);
 
-				switch(lastevent) {
+				switch (lastevent) {
 				case EVENT_SINGLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", EventReceiver.COLOR_DARKBLUE);
+					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
 				case EVENT_DOUBLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", EventReceiver.COLOR_BLUE);
+					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
 				case EVENT_TRIPLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", EventReceiver.COLOR_GREEN);
+					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
 				case EVENT_FOUR:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+					}
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
+					}
 					break;
 				case EVENT_TSPIN_SINGLE:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
+					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
+					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
+					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
-					if(lastb2b) receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_RED);
-					else receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", EventReceiver.COLOR_ORANGE);
+					if (lastb2b) {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
+					} else {
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
+					}
 					break;
 				}
 
-				if(lastcombo >= 2)
-					receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo - 1) + "COMBO", EventReceiver.COLOR_CYAN);
-			} else if((engine.combo >= 2) && (engine.gameActive)) {
-				receiver.drawMenuFont(engine, playerID, 2, 22, (lastcombo - 1) + "COMBO", EventReceiver.COLOR_CYAN);
-			} else if( ((engine.combo == 0) || (!engine.gameActive)) && (engine.statistics.maxCombo >= 2) ) {
-				receiver.drawMenuFont(engine, playerID, 2, 22, (engine.statistics.maxCombo - 1) + "COMBO", EventReceiver.COLOR_WHITE);
+				if (lastcombo >= 2) {
+					receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+				}
+			} else if (engine.combo >= 2 && engine.gameActive) {
+				receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+			} else if ((engine.combo == 0 || !engine.gameActive) && engine.statistics.maxCombo >= 2) {
+				receiver.drawMenuFont(engine, playerID, 2, 22, engine.statistics.maxCombo - 1 + "COMBO",
+						Colors.FONT_WHITE);
 			}
 		}
 
 		// NET: Number of spectators
 		netDrawSpectatorsCount(engine, 0, 18);
 		// NET: All number of players
-		if(playerID == getPlayers() - 1) {
+		if (playerID == getPlayers() - 1) {
 			netDrawAllPlayersCount(engine);
 			netDrawGameRate(engine);
 		}
@@ -669,45 +724,52 @@ public class ComboRaceMode extends NetDummyMode {
 	}
 
 	/**
-	 * Calculates line-clear score
-	 * (This function will be called even if no lines are cleared)
+	 * Calculates line-clear score (This function will be called even if no lines
+	 * are cleared)
 	 */
 	@Override
 	public void calcScore(GameEngine engine, int playerID, int lines) {
-		//  Attack
-		if(lines > 0) {
+		// Attack
+		if (lines > 0) {
 			scgettime = 0;
 
-			if(engine.tspin) {
+			if (engine.tspin) {
 				// T-Spin 1 line
-				if(lines == 1) {
-					if(engine.tspinmini) {
+				if (lines == 1) {
+					if (engine.tspinmini) {
 						lastevent = EVENT_TSPIN_SINGLE_MINI;
 					} else {
 						lastevent = EVENT_TSPIN_SINGLE;
 					}
 				}
 				// T-Spin 2 lines
-				else if(lines == 2) {
-					if(engine.tspinmini && engine.useAllSpinBonus) {
+				else if (lines == 2) {
+					if (engine.tspinmini && engine.useAllSpinBonus) {
 						lastevent = EVENT_TSPIN_DOUBLE_MINI;
 					} else {
 						lastevent = EVENT_TSPIN_DOUBLE;
 					}
 				}
 				// T-Spin 3 lines
-				else if(lines >= 3) {
+				else if (lines >= 3) {
 					lastevent = EVENT_TSPIN_TRIPLE;
 				}
 			} else {
-				if(lines == 1) {
+				switch (lines) {
+				case 1:
 					lastevent = EVENT_SINGLE;
-				} else if(lines == 2) {
+					break;
+				case 2:
 					lastevent = EVENT_DOUBLE;
-				} else if(lines == 3) {
+					break;
+				case 3:
 					lastevent = EVENT_TRIPLE;
-				} else if(lines >= 4) {
-					lastevent = EVENT_FOUR;
+					break;
+				default:
+					if (lines >= 4) {
+						lastevent = EVENT_FOUR;
+					}
+					break;
 				}
 			}
 
@@ -718,20 +780,22 @@ public class ComboRaceMode extends NetDummyMode {
 			lastcombo = engine.combo;
 
 			// All clear
-			if((lines >= 1) && (engine.field.isEmpty())) {
+			if (lines >= 1 && engine.field.isEmpty()) {
 				engine.playSE("bravo");
 			}
 
 			lastpiece = engine.nowPieceObject.id;
 
 			// add any remaining stack lines
-			if (GOAL_TABLE[goaltype] == -1)
+			if (GOAL_TABLE[goaltype] == -1) {
 				remainStack = Integer.MAX_VALUE;
-			for(int tmplines = 1; tmplines <= lines && remainStack > 0; tmplines++, remainStack--) {
-				for(int x = 0; x < engine.field.getWidth(); x++) {
-					if((x < comboColumn - 1) || (x > comboColumn - 2 + comboWidth)) {
-						engine.field.setBlock(x,-ceilingAdjust-tmplines,new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length],engine.getSkin(),
-								Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+			}
+			for (int tmplines = 1; tmplines <= lines && remainStack > 0; tmplines++, remainStack--) {
+				for (int x = 0; x < engine.field.getWidth(); x++) {
+					if (x < comboColumn - 1 || x > comboColumn - 2 + comboWidth) {
+						engine.field.setBlock(x, -ceilingAdjust - tmplines,
+								new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length], engine.getSkin(),
+										Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
 					}
 				}
 				stackColour++;
@@ -743,35 +807,39 @@ public class ComboRaceMode extends NetDummyMode {
 				engine.meterValue = (engine.statistics.maxCombo - 1) % meterMax;
 				engine.meterColor = METER_COLOUR_TABLE[colorIndex % METER_COLOUR_TABLE.length];
 				engine.meterValueSub = colorIndex > 0 ? meterMax : 0;
-				engine.meterColorSub = METER_COLOUR_TABLE[Math.max(colorIndex-1, 0)  % METER_COLOUR_TABLE.length];
+				engine.meterColorSub = METER_COLOUR_TABLE[Math.max(colorIndex - 1, 0) % METER_COLOUR_TABLE.length];
 			} else {
 				int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
-				engine.meterValue = (remainLines * receiver.getMeterMax(engine)) / GOAL_TABLE[goaltype];
+				engine.meterValue = remainLines * receiver.getMeterMax(engine) / GOAL_TABLE[goaltype];
 
-				if(remainLines <= 30) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-				if(remainLines <= 20) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-				if(remainLines <= 10) engine.meterColor = GameEngine.METER_COLOR_RED;
+				if (remainLines <= 30) {
+					engine.meterColor = Colors.METER_COLOR_YELLOW;
+				}
+				if (remainLines <= 20) {
+					engine.meterColor = Colors.METER_COLOR_ORANGE;
+				}
+				if (remainLines <= 10) {
+					engine.meterColor = Colors.METER_COLOR_RED;
+				}
 
 				// Goal
-				if(engine.statistics.lines >= GOAL_TABLE[goaltype]) {
+				if (engine.statistics.lines >= GOAL_TABLE[goaltype]) {
 					engine.ending = 1;
 					engine.gameEnded();
-				} else if(engine.statistics.lines >= GOAL_TABLE[goaltype] - 5) {
+				} else if (engine.statistics.lines >= GOAL_TABLE[goaltype] - 5) {
 					owner.bgmStatus.fadesw = true;
-				} else if(engine.statistics.lines >= nextseclines) {
+				} else if (engine.statistics.lines >= nextseclines) {
 					owner.backgroundStatus.fadesw = true;
 					owner.backgroundStatus.fadecount = 0;
 					owner.backgroundStatus.fadebg = nextseclines / 10;
 					nextseclines += 10;
 				}
 			}
-		}
-		else if (GOAL_TABLE[goaltype] == -1 && engine.statistics.maxCombo >= 2) {
+		} else if (GOAL_TABLE[goaltype] == -1 && engine.statistics.maxCombo >= 2) {
 			engine.ending = 1;
 			engine.gameEnded();
 			engine.resetStatc();
-			engine.stat = (engine.statistics.maxCombo > 40) ?
-					GameEngine.Status.EXCELLENT : GameEngine.Status.GAMEOVER;
+			engine.stat = engine.statistics.maxCombo > 40 ? GameEngine.Status.EXCELLENT : GameEngine.Status.GAMEOVER;
 		}
 	}
 
@@ -788,22 +856,21 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, EventReceiver.COLOR_CYAN,
-				Statistic.MAXCOMBO, Statistic.TIME);
-		drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
-				Statistic.LINES, Statistic.PIECE, Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, receiver, 16, EventReceiver.COLOR_BLUE, netRankingRank[1]);
+		drawResultStats(engine, playerID, receiver, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
+		drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
+				Statistic.LPM, Statistic.PPS);
+		drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, receiver, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, receiver, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
-		if(netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", EventReceiver.COLOR_ORANGE);
+		if (netIsPB) {
+			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
 		}
 
-		if(netIsNetPlay && (netReplaySendStatus == 1)) {
-			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", EventReceiver.COLOR_PINK);
-		} else if(netIsNetPlay && !netIsWatch && (netReplaySendStatus == 2)) {
-			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", EventReceiver.COLOR_RED);
+		if (netIsNetPlay && netReplaySendStatus == 1) {
+			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
+			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
 		}
 	}
 
@@ -816,16 +883,15 @@ public class ComboRaceMode extends NetDummyMode {
 		savePreset(engine, engine.owner.replayProp, -1);
 
 		// NET: Save name
-		if((netPlayerName != null) && (netPlayerName.length() > 0)) {
+		if (netPlayerName != null && netPlayerName.length() > 0) {
 			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
 		}
 
 		// Update rankings
-		if((owner.replayMode == false) && (!big) && (engine.ai == null)) {
-			updateRanking(engine.statistics.maxCombo - 1,
-					(engine.ending == 0) ? -1 : engine.statistics.time);
+		if (owner.replayMode == false && !big && engine.ai == null) {
+			updateRanking(engine.statistics.maxCombo - 1, engine.ending == 0 ? -1 : engine.statistics.time);
 
-			if(rankingRank != -1) {
+			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 				receiver.saveModeConfig(owner.modeConfig);
 			}
@@ -837,8 +903,8 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < GOAL_TABLE.length; i++) {
-			for(int j = 0; j < RANKING_MAX; j++) {
+		for (int i = 0; i < GOAL_TABLE.length; i++) {
+			for (int j = 0; j < RANKING_MAX; j++) {
 				rankingCombo[i][j] = prop.getProperty("comborace.ranking." + ruleName + "." + i + ".maxcombo." + j, 0);
 				rankingTime[i][j] = prop.getProperty("comborace.ranking." + ruleName + "." + i + ".time." + j, -1);
 			}
@@ -849,8 +915,8 @@ public class ComboRaceMode extends NetDummyMode {
 	 * Save the ranking
 	 */
 	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < GOAL_TABLE.length; i++) {
-			for(int j = 0; j < RANKING_MAX; j++) {
+		for (int i = 0; i < GOAL_TABLE.length; i++) {
+			for (int j = 0; j < RANKING_MAX; j++) {
 				prop.setProperty("comborace.ranking." + ruleName + "." + i + ".maxcombo." + j, rankingCombo[i][j]);
 				prop.setProperty("comborace.ranking." + ruleName + "." + i + ".time." + j, rankingTime[i][j]);
 			}
@@ -863,9 +929,9 @@ public class ComboRaceMode extends NetDummyMode {
 	private void updateRanking(int maxcombo, int time) {
 		rankingRank = checkRanking(maxcombo, time);
 
-		if(rankingRank != -1) {
+		if (rankingRank != -1) {
 			// Shift down ranking entries
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
 				rankingCombo[goaltype][i] = rankingCombo[goaltype][i - 1];
 				rankingTime[goaltype][i] = rankingTime[goaltype][i - 1];
 			}
@@ -877,14 +943,15 @@ public class ComboRaceMode extends NetDummyMode {
 	}
 
 	/**
-	 * This function will check the ranking and returns which place you are. (-1: Out of rank)
+	 * This function will check the ranking and returns which place you are. (-1:
+	 * Out of rank)
 	 */
 	private int checkRanking(int maxcombo, int time) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(maxcombo > rankingCombo[goaltype][i]) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (maxcombo > rankingCombo[goaltype][i]) {
 				return i;
-			} else if ((maxcombo == rankingCombo[goaltype][i]) && (time >= 0) &&
-					((time < rankingTime[goaltype][i]) || (rankingTime[goaltype][i] == -1))) {
+			} else if (maxcombo == rankingCombo[goaltype][i] && time >= 0
+					&& (time < rankingTime[goaltype][i] || rankingTime[goaltype][i] == -1)) {
 				return i;
 			}
 		}
@@ -894,6 +961,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 	/**
 	 * NET: Send various in-game stats (as well as goaltype)
+	 *
 	 * @param engine GameEngine
 	 */
 	@Override
@@ -938,6 +1006,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 	/**
 	 * NET: Send end-of-game stats
+	 *
 	 * @param engine GameEngine
 	 */
 	@Override
@@ -955,6 +1024,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 	/**
 	 * NET: Send game options to all spectators
+	 *
 	 * @param engine GameEngine
 	 */
 	@Override
@@ -963,7 +1033,8 @@ public class ComboRaceMode extends NetDummyMode {
 		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
 		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
 		msg += engine.speed.das + "\t" + bgmno + "\t" + goaltype + "\t" + presetNumber + "\t";
-		msg += shapetype + "\t" + comboColumn + "\t" + comboWidth + "\t" + ceilingAdjust + "\t" + spawnAboveField + "\n";
+		msg += shapetype + "\t" + comboColumn + "\t" + comboWidth + "\t" + ceilingAdjust + "\t" + spawnAboveField
+				+ "\n";
 		netLobby.netPlayerClient.send(msg);
 	}
 
@@ -998,10 +1069,11 @@ public class ComboRaceMode extends NetDummyMode {
 	}
 
 	/**
-	 * NET: It returns true when the current settings doesn't prevent leaderboard screen from showing.
+	 * NET: It returns true when the current settings doesn't prevent leaderboard
+	 * screen from showing.
 	 */
 	@Override
 	protected boolean netIsNetRankingViewOK(GameEngine engine) {
-		return (!big) && (engine.ai == null);
+		return !big && engine.ai == null;
 	}
 }

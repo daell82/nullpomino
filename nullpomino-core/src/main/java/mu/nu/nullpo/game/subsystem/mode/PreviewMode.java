@@ -31,7 +31,7 @@ public class PreviewMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		engine.lives = 1;	// Let's give unlimited lives
+		engine.lives = 1; // Let's give unlimited lives
 		return false;
 	}
 }

@@ -3,9 +3,10 @@ package mu.nu.nullpo.gui.menu;
 public class MenuMenuItem extends MenuItem {
 	@SuppressWarnings("unused")
 	private Menu menu;
+
 	public MenuMenuItem(String name, String description, Menu menu) {
 		super(name, description);
-		this.menu=menu;
+		this.menu = menu;
 	}
 
 	@Override

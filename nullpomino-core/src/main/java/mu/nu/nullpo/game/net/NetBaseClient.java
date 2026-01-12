@@ -31,20 +31,21 @@ package mu.nu.nullpo.game.net;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 /**
  * Client(Basic part)
  */
+@Log4j
 public class NetBaseClient extends Thread {
-	/** Log */
-	static final Logger log = Logger.getLogger(NetBaseClient.class);
 
-	/**  default Port of number */
+	/** default Port of number */
 	public static final int DEFAULT_PORT = 9200;
 
 	/** The size of the read buffer */
@@ -53,7 +54,10 @@ public class NetBaseClient extends Thread {
 	/** Default ping interval (1000=1s) */
 	public static final int PING_INTERVAL = 5 * 1000;
 
-	/** This countOnlypingIf there is no reaction even hit the automatic disconnection */
+	/**
+	 * This countOnlypingIf there is no reaction even hit the automatic
+	 * disconnection
+	 */
 	public static final int PING_AUTO_DISCONNECT_COUNT = 6;
 
 	/** trueThread moves between */
@@ -78,7 +82,7 @@ public class NetBaseClient extends Thread {
 	protected StringBuilder notCompletePacketBuffer;
 
 	/** Interface receiving messages */
-	protected LinkedList<NetMessageListener> listeners = new LinkedList<NetMessageListener>();
+	protected List<NetMessageListener> listeners = new LinkedList<>();
 
 	/** pingHit count(From serverpongReset When a message is received) */
 	protected int pingCount;
@@ -94,27 +98,29 @@ public class NetBaseClient extends Thread {
 	 */
 	public NetBaseClient() {
 		super();
-		this.host = null;
-		this.port = DEFAULT_PORT;
+		host = null;
+		port = DEFAULT_PORT;
 	}
 
 	/**
 	 * Constructor
+	 * 
 	 * @param host Destination host
 	 */
 	public NetBaseClient(String host) {
-		super("NET_"+host);
+		super("NET_" + host);
 		this.host = host;
-		this.port = DEFAULT_PORT;
+		port = DEFAULT_PORT;
 	}
 
 	/**
 	 * Constructor
+	 * 
 	 * @param host Destination host
 	 * @param port Destination port number
 	 */
 	public NetBaseClient(String host, int port) {
-		super("NET_"+host+":"+port);
+		super("NET_" + host + ":" + port);
 		this.host = host;
 		this.port = port;
 	}
@@ -143,24 +149,26 @@ public class NetBaseClient extends Thread {
 			byte[] buf = new byte[BUF_SIZE];
 			int size;
 
-			while( (threadRunning) && ((size = socket.getInputStream().read(buf)) > 0) ) {
-				String message = new String(buf, 0, size, "UTF-8");
-				//log.debug(message);
+			while (threadRunning && (size = socket.getInputStream().read(buf)) > 0) {
+				String message = new String(buf, 0, size, StandardCharsets.UTF_8);
+				// log.debug(message);
 
 				// The various processing depending on the received message
 				StringBuilder packetBuffer = new StringBuilder();
-				if(notCompletePacketBuffer != null) packetBuffer.append(notCompletePacketBuffer);
+				if (notCompletePacketBuffer != null) {
+					packetBuffer.append(notCompletePacketBuffer);
+				}
 				packetBuffer.append(message);
 
 				int index;
-				while((index = packetBuffer.indexOf("\n")) != -1) {
+				while ((index = packetBuffer.indexOf("\n")) != -1) {
 					String msgNow = packetBuffer.substring(0, index);
 					processPacket(msgNow);
-					packetBuffer = packetBuffer.replace(0, index+1, "");
+					packetBuffer = packetBuffer.replace(0, index + 1, "");
 				}
 
 				// If there is an incomplete packet
-				if(packetBuffer.length() > 0) {
+				if (!packetBuffer.isEmpty()) {
 					notCompletePacketBuffer = packetBuffer;
 				} else {
 					notCompletePacketBuffer = null;
@@ -173,12 +181,14 @@ public class NetBaseClient extends Thread {
 			exDisconnectReason = e;
 		}
 
-		if(timerPing != null) timerPing.cancel();
+		if (timerPing != null) {
+			timerPing.cancel();
+		}
 		connectedFlag = false;
 		threadRunning = false;
 
 		// Listener
-		for(int i = 0; i < listeners.size(); i++) {
+		for (int i = 0; i < listeners.size(); i++) {
 			try {
 				listeners.get(i).netOnDisconnect(this, exDisconnectReason);
 			} catch (Exception e2) {
@@ -189,22 +199,23 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * The various processing depending on the received message
+	 * 
 	 * @param fullMessage Received Messages
 	 * @throws IOException If there are any errors
 	 */
 	protected void processPacket(String fullMessage) throws IOException {
-		String[] message = fullMessage.split("\t");	// Tab delimited
+		String[] message = fullMessage.split("\t"); // Tab delimited
 
 		// pingReply
-		if(message[0].equals("pong")) {
-			if(pingCount >= (PING_AUTO_DISCONNECT_COUNT / 2)) {
+		if (message[0].equals("pong")) {
+			if (pingCount >= PING_AUTO_DISCONNECT_COUNT / 2) {
 				log.debug("pong " + pingCount);
 			}
 			pingCount = 0;
 		}
 
 		// ListenerCall
-		for(int i = 0; i < listeners.size(); i++) {
+		for (int i = 0; i < listeners.size(); i++) {
 			try {
 				listeners.get(i).netOnMessage(this, message);
 			} catch (Exception e) {
@@ -215,6 +226,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Send a message to the server
+	 * 
 	 * @param bytes Message to be sent
 	 * @return true if successful
 	 */
@@ -230,6 +242,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Send a message to the server
+	 * 
 	 * @param msg Message to be sent
 	 * @return true if successful
 	 */
@@ -247,7 +260,7 @@ public class NetBaseClient extends Thread {
 	 * @return Regular always And are connectedtrue
 	 */
 	public boolean isConnected() {
-		return (socket == null) ? false : (socket.isConnected() && connectedFlag);
+		return socket != null && socket.isConnected() && connectedFlag;
 	}
 
 	/**
@@ -273,14 +286,18 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * NewNetMessageListenerAdd
+	 * 
 	 * @param l AddNetMessageListener
 	 */
 	public void addListener(NetMessageListener l) {
-		if(!listeners.contains(l)) listeners.add(l);
+		if (!listeners.contains(l)) {
+			listeners.add(l);
+		}
 	}
 
 	/**
 	 * SpecifiedNetMessageListenerDelete the
+	 * 
 	 * @param l RemoveNetMessageListener
 	 * @return Actually been removedtrue, I has not been added originallyfalse
 	 */
@@ -297,12 +314,17 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Start Ping timer task
+	 * 
 	 * @param interval Interval
 	 */
 	public void startPingTask(long interval) {
 		log.debug("Ping interval:" + interval);
-		if(timerPing != null) timerPing.cancel();
-		if(interval <= 0) return;
+		if (timerPing != null) {
+			timerPing.cancel();
+		}
+		if (interval <= 0) {
+			return;
+		}
 		pingCount = 0;
 		taskPing = new PingTask();
 		timerPing = new Timer(true);
@@ -313,7 +335,9 @@ public class NetBaseClient extends Thread {
 	 * Stop the Ping timer task
 	 */
 	public void stopPingTask() {
-		if(timerPing != null) timerPing.cancel();
+		if (timerPing != null) {
+			timerPing.cancel();
+		}
 	}
 
 	/**
@@ -323,27 +347,33 @@ public class NetBaseClient extends Thread {
 		@Override
 		public void run() {
 			try {
-				if(isConnected()) {
-					if(pingCount >= PING_AUTO_DISCONNECT_COUNT) {
+				if (isConnected()) {
+					if (pingCount >= PING_AUTO_DISCONNECT_COUNT) {
 						log.error("Ping timeout");
 						threadRunning = false;
 						connectedFlag = false;
-						if(timerPing != null) timerPing.cancel();
+						if (timerPing != null) {
+							timerPing.cancel();
+						}
 					} else {
 						send("ping\n");
 						pingCount++;
 
-						if(pingCount >= (PING_AUTO_DISCONNECT_COUNT / 2)) {
+						if (pingCount >= PING_AUTO_DISCONNECT_COUNT / 2) {
 							log.debug("Ping " + pingCount + "/" + PING_AUTO_DISCONNECT_COUNT);
 						}
 					}
 				} else {
 					log.info("Ping Timer Cancelled");
-					if(timerPing != null) timerPing.cancel();
+					if (timerPing != null) {
+						timerPing.cancel();
+					}
 				}
 			} catch (Exception e) {
 				log.error("Exception in Ping Timer. Stopping the task.", e);
-				if(timerPing != null) timerPing.cancel();
+				if (timerPing != null) {
+					timerPing.cancel();
+				}
 			}
 		}
 	}

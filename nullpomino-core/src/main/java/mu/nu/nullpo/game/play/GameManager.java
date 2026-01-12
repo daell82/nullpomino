@@ -28,23 +28,21 @@
 */
 package mu.nu.nullpo.game.play;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.BackgroundStatus;
 import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.util.CustomProperties;
 
-import org.apache.log4j.Logger;
-
 /**
  * GameManager: The container of the game
  */
+@Log4j
 public class GameManager {
-	/** Log (Apache log4j) */
-	static Logger log = Logger.getLogger(GameManager.class);
 
 	/** Major version */
-	public static final float VERSION_MAJOR = 7.6f;
+	public static final float VERSION_MAJOR = 8.0f;
 
 	/** Minor version */
 	public static final int VERSION_MINOR = 0;
@@ -70,8 +68,10 @@ public class GameManager {
 	/** true if display menus only (No game screens) */
 	public boolean menuOnly;
 
-	/** EventReceiver: Manages various events, and renders everything to the screen */
-	public EventReceiver receiver;
+	/**
+	 * EventReceiver: Manages various events, and renders everything to the screen
+	 */
+	public final EventReceiver<?> receiver;
 
 	/** BGMStatus: Manages the status of background music */
 	public BGMStatus bgmStatus;
@@ -90,6 +90,7 @@ public class GameManager {
 
 	/**
 	 * Get major version
+	 *
 	 * @return Major version
 	 */
 	public static float getVersionMajor() {
@@ -98,6 +99,7 @@ public class GameManager {
 
 	/**
 	 * Get minor version
+	 *
 	 * @return Minor version
 	 */
 	public static int getVersionMinor() {
@@ -106,6 +108,7 @@ public class GameManager {
 
 	/**
 	 * Get minor version (For compatibility with old replays)
+	 *
 	 * @return Minor version
 	 */
 	public static float getVersionMinorOld() {
@@ -114,6 +117,7 @@ public class GameManager {
 
 	/**
 	 * Get version information as String
+	 *
 	 * @return Version information
 	 */
 	public static String getVersionString() {
@@ -122,6 +126,7 @@ public class GameManager {
 
 	/**
 	 * Is this development build?
+	 *
 	 * @return true if dev build
 	 */
 	public static boolean isDevBuild() {
@@ -130,6 +135,7 @@ public class GameManager {
 
 	/**
 	 * Get build type as string
+	 *
 	 * @return Build type as String
 	 */
 	public static String getBuildTypeString() {
@@ -138,6 +144,7 @@ public class GameManager {
 
 	/**
 	 * Get build type name
+	 *
 	 * @param type Build type (false:Release true:Development)
 	 * @return Build type as String
 	 */
@@ -146,18 +153,11 @@ public class GameManager {
 	}
 
 	/**
-	 * Default constructor
-	 */
-	public GameManager() {
-		log.debug("GameManager constructor called");
-	}
-
-	/**
 	 * Normal constructor
+	 *
 	 * @param receiver EventReceiver
 	 */
-	public GameManager(EventReceiver receiver) {
-		this();
+	public GameManager(EventReceiver<?> receiver) {
 		this.receiver = receiver;
 	}
 
@@ -167,12 +167,9 @@ public class GameManager {
 	public void init() {
 		log.debug("GameManager init()");
 
-		if(receiver == null) receiver = new EventReceiver();
-
 		modeConfig = receiver.loadModeConfig();
-		if(modeConfig == null) modeConfig = new CustomProperties();
 
-		if(replayProp == null) {
+		if (replayProp == null) {
 			replayProp = new CustomProperties();
 			replayMode = false;
 		}
@@ -184,12 +181,14 @@ public class GameManager {
 		backgroundStatus = new BackgroundStatus();
 
 		int players = 1;
-		if(mode != null) {
+		if (mode != null) {
 			mode.modeInit(this);
 			players = mode.getPlayers();
 		}
 		engine = new GameEngine[players];
-		for(int i = 0; i < engine.length; i++) engine[i] = new GameEngine(this, i);
+		for (int i = 0; i < engine.length; i++) {
+			engine[i] = new GameEngine(this, i);
+		}
 	}
 
 	/**
@@ -201,8 +200,12 @@ public class GameManager {
 		menuOnly = false;
 		bgmStatus.reset();
 		backgroundStatus.reset();
-		if(!replayMode) replayProp = new CustomProperties();
-		for(int i = 0; i < engine.length; i++) engine[i].init();
+		if (!replayMode) {
+			replayProp = new CustomProperties();
+		}
+		for (GameEngine element : engine) {
+			element.init();
+		}
 	}
 
 	/**
@@ -212,7 +215,7 @@ public class GameManager {
 		log.debug("GameManager shutdown()");
 
 		try {
-			for(int i = 0; i < engine.length; i++) {
+			for (int i = 0; i < engine.length; i++) {
 				engine[i].shutdown();
 				engine[i] = null;
 			}
@@ -220,7 +223,6 @@ public class GameManager {
 			mode = null;
 			modeConfig = null;
 			replayProp = null;
-			receiver = null;
 			bgmStatus = null;
 			backgroundStatus = null;
 		} catch (Throwable e) {
@@ -230,36 +232,41 @@ public class GameManager {
 
 	/**
 	 * Get number of players
+	 *
 	 * @return Number of players
 	 */
 	public int getPlayers() {
-		return engine.length;
+		return engine != null ? engine.length : 0;
 	}
 
 	/**
 	 * Check if quit flag is true in any GameEngine object
+	 *
 	 * @return true if the game should quit
 	 */
 	public boolean getQuitFlag() {
-		if(engine != null) {
-			for(int i = 0; i < engine.length; i++) {
-				if((engine[i] != null) && (engine[i].quitflag == true))
-					return true;
+		if (engine == null) {
+			return false;
+		}
+		for (GameEngine element : engine) {
+			if (element != null && element.quitflag) {
+				return true;
 			}
 		}
-
 		return false;
 	}
 
 	/**
 	 * Check if at least 1 game is active
+	 *
 	 * @return true if there is a active GameEngine
 	 */
 	public boolean isGameActive() {
-		if(engine != null) {
-			for(int i = 0; i < engine.length; i++) {
-				if((engine[i] != null) && (engine[i].gameActive == true))
+		if (engine != null) {
+			for (GameEngine element : engine) {
+				if (element != null && element.gameActive == true) {
 					return true;
+				}
 			}
 		}
 
@@ -268,13 +275,17 @@ public class GameManager {
 
 	/**
 	 * Get winner ID
-	 * @return Player ID of last survivor. -1 in single player game. -2 in tied game.
+	 *
+	 * @return Player ID of last survivor. -1 in single player game. -2 in tied
+	 *         game.
 	 */
 	public int getWinner() {
-		if(engine.length < 2) return -1;
+		if (engine.length < 2) {
+			return -1;
+		}
 
-		for(int i = 0; i < engine.length; i++) {
-			if(engine[i].stat != GameEngine.Status.GAMEOVER) {
+		for (int i = 0; i < engine.length; i++) {
+			if (engine[i].stat != GameEngine.Status.GAMEOVER) {
 				return i;
 			}
 		}
@@ -286,8 +297,8 @@ public class GameManager {
 	 * Update every GameEngine
 	 */
 	public void updateAll() {
-		for(int i = 0; i < engine.length; i++) {
-			engine[i].update();
+		for (GameEngine element : engine) {
+			element.update();
 		}
 		bgmStatus.fadeUpdate();
 		backgroundStatus.fadeUpdate();
@@ -297,8 +308,8 @@ public class GameManager {
 	 * Dispatches all render events to EventReceiver
 	 */
 	public void renderAll() {
-		for(int i = 0; i < engine.length; i++) {
-			engine[i].render();
+		for (GameEngine element : engine) {
+			element.render();
 		}
 	}
 
@@ -307,8 +318,8 @@ public class GameManager {
 	 */
 	public void saveReplay() {
 		replayProp = new CustomProperties();
-		for(int i = 0; i < engine.length; i++) {
-			engine[i].saveReplay();
+		for (GameEngine element : engine) {
+			element.saveReplay();
 		}
 		receiver.saveReplay(this, replayProp);
 	}

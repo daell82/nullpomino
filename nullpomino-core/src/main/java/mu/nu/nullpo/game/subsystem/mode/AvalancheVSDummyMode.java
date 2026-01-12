@@ -34,9 +34,9 @@ import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -45,27 +45,17 @@ import mu.nu.nullpo.util.GeneralUtil;
  */
 public abstract class AvalancheVSDummyMode extends AbstractMode {
 	/** Enabled piece types */
-	public static final int[] PIECE_ENABLE = {0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0};
+	public static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
 	/** Block colors */
-	public static final int[] BLOCK_COLORS =
-	{
-		Block.BLOCK_COLOR_RED,
-		Block.BLOCK_COLOR_GREEN,
-		Block.BLOCK_COLOR_BLUE,
-		Block.BLOCK_COLOR_YELLOW,
-		Block.BLOCK_COLOR_PURPLE
-	};
+	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_BLUE,
+			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
 
 	/** Fever map files list */
-	public static final String[] FEVER_MAPS =
-	{
-		"Fever", "15th", "15thDS", "7", "Compendium"
-	};
+	public static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Compendium" };
 
 	/** Chain multipliers */
-	public static final int[] CHAIN_POWERS = {
-		4, 12, 24, 33, 50, 101, 169, 254, 341, 428, 538, 648, 763, 876, 990, 999 //Arle
+	public static final int[] CHAIN_POWERS = { 4, 12, 24, 33, 50, 101, 169, 254, 341, 428, 538, 648, 763, 876, 990, 999 // Arle
 	};
 
 	/** Number of players */
@@ -75,26 +65,26 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	public static final int OJAMA_COUNTER_OFF = 0, OJAMA_COUNTER_ON = 1, OJAMA_COUNTER_FEVER = 2;
 
 	/** Names of ojama counter settings */
-	public static final String[] OJAMA_COUNTER_STRING = {"OFF", "ON", "FEVER"};
+	public static final String[] OJAMA_COUNTER_STRING = { "OFF", "ON", "FEVER" };
 
 	/** Zenkeshi setting constants */
 	public static final int ZENKESHI_MODE_OFF = 0, ZENKESHI_MODE_ON = 1, ZENKESHI_MODE_FEVER = 2;
 
 	/** Names of zenkeshi settings */
-	public static final String[] ZENKESHI_TYPE_NAMES = {"OFF", "ON", "FEVER"};
+	public static final String[] ZENKESHI_TYPE_NAMES = { "OFF", "ON", "FEVER" };
 
 	/** Names of outline settings */
-	public static final String[] OUTLINE_TYPE_NAMES = {"NORMAL", "COLOR", "NONE"};
+	public static final String[] OUTLINE_TYPE_NAMES = { "NORMAL", "COLOR", "NONE" };
 
 	/** Names of chain display settings */
-	public static final String[] CHAIN_DISPLAY_NAMES = {"OFF", "YELLOW", "PLAYER", "SIZE"};
+	public static final String[] CHAIN_DISPLAY_NAMES = { "OFF", "YELLOW", "PLAYER", "SIZE" };
 
 	/** Constants for chain display settings */
-	public static final int CHAIN_DISPLAY_NONE = 0, CHAIN_DISPLAY_YELLOW = 1,
-		CHAIN_DISPLAY_PLAYER = 2, CHAIN_DISPLAY_SIZE = 3;
+	public static final int CHAIN_DISPLAY_NONE = 0, CHAIN_DISPLAY_YELLOW = 1, CHAIN_DISPLAY_PLAYER = 2,
+			CHAIN_DISPLAY_SIZE = 3;
 
 	/** Each player's frame color */
-	public static final int[] PLAYER_COLOR_FRAME = {GameEngine.FRAME_COLOR_RED, GameEngine.FRAME_COLOR_BLUE};
+	public static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** Rule settings for countering ojama not yet dropped */
 	protected int[] ojamaCounterMode;
@@ -311,8 +301,9 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	/**
 	 * Read speed presets
+	 *
 	 * @param engine GameEngine
-	 * @param prop Property file to read from
+	 * @param prop   Property file to read from
 	 * @param preset Preset number
 	 */
 	protected void loadPreset(GameEngine engine, CustomProperties prop, int preset, String name) {
@@ -329,8 +320,9 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	/**
 	 * Save speed presets
+	 *
 	 * @param engine GameEngine
-	 * @param prop Property file to save to
+	 * @param prop   Property file to save to
 	 * @param preset Preset number
 	 */
 	protected void savePreset(GameEngine engine, CustomProperties prop, int preset, String name) {
@@ -346,10 +338,11 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	}
 
 	/**
-	 * Load settings not related to speeds
-	 * Note: Subclasses need to load ojamaRate and ojamaHard, since default values vary.
+	 * Load settings not related to speeds Note: Subclasses need to load ojamaRate
+	 * and ojamaHard, since default values vary.
+	 *
 	 * @param engine GameEngine
-	 * @param prop Property file to read from
+	 * @param prop   Property file to read from
 	 */
 	protected void loadOtherSetting(GameEngine engine, CustomProperties prop, String name) {
 		int playerID = engine.playerID;
@@ -368,21 +361,24 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		rensaShibari[playerID] = prop.getProperty("avalanchevs" + name + ".rensaShibari.p" + playerID, 1);
 		zenKeshiType[playerID] = prop.getProperty("avalanchevs" + name + ".zenKeshiType.p" + playerID, 1);
 		outlineType[playerID] = prop.getProperty("avalanchevs" + name + ".outlineType.p" + playerID, 1);
-		dangerColumnDouble[playerID] = prop.getProperty("avalanchevs" + name + ".dangerColumnDouble.p" + playerID, false);
+		dangerColumnDouble[playerID] = prop.getProperty("avalanchevs" + name + ".dangerColumnDouble.p" + playerID,
+				false);
 		dangerColumnShowX[playerID] = prop.getProperty("avalanchevs" + name + ".dangerColumnShowX.p" + playerID, false);
 		chainDisplayType[playerID] = prop.getProperty("avalanchevs" + name + ".chainDisplayType.p" + playerID, 1);
 		newChainPower[playerID] = prop.getProperty("avalanchevs" + name + ".newChainPower.p" + playerID, false);
 		cascadeSlow[playerID] = prop.getProperty("avalanchevs" + name + ".cascadeSlow.p" + playerID, false);
 		bigDisplay = prop.getProperty("avalanchevs" + name + ".bigDisplay", false);
 		engine.colorClearSize = prop.getProperty("avalanchevs" + name + ".clearSize.p" + playerID, 4);
-		if (feverMapSet[playerID] >= 0 && feverMapSet[playerID] < FEVER_MAPS.length)
+		if (feverMapSet[playerID] >= 0 && feverMapSet[playerID] < FEVER_MAPS.length) {
 			loadMapSetFever(engine, playerID, feverMapSet[playerID], true);
+		}
 	}
 
 	/**
 	 * Save settings not related to speeds
+	 *
 	 * @param engine GameEngine
-	 * @param prop Property file to save to
+	 * @param prop   Property file to save to
 	 */
 	protected void saveOtherSetting(GameEngine engine, CustomProperties prop, String name) {
 		int playerID = engine.playerID;
@@ -414,13 +410,14 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	/**
 	 * MapRead
-	 * @param field field
-	 * @param prop Property file to read from
+	 *
+	 * @param field  field
+	 * @param prop   Property file to read from
 	 * @param preset AnyID
 	 */
 	protected void loadMap(Field field, CustomProperties prop, int id) {
 		field.reset();
-		//field.readProperty(prop, id);
+		// field.readProperty(prop, id);
 		field.stringToField(prop.getProperty("map." + id, ""));
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -429,31 +426,33 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	/**
 	 * MapSave
+	 *
 	 * @param field field
-	 * @param prop Property file to save to
-	 * @param id AnyID
+	 * @param prop  Property file to save to
+	 * @param id    AnyID
 	 */
 	protected void saveMap(Field field, CustomProperties prop, int id) {
-		//field.writeProperty(prop, id);
+		// field.writeProperty(prop, id);
 		prop.setProperty("map." + id, field.fieldToString());
 	}
 
 	/**
 	 * For previewMapRead
-	 * @param engine GameEngine
-	 * @param playerID Player number
-	 * @param id MapID
+	 *
+	 * @param engine      GameEngine
+	 * @param playerID    Player number
+	 * @param id          MapID
 	 * @param forceReload trueWhen youMapForce Reload the file
 	 */
 	protected void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
-		if((propMap[playerID] == null) || (forceReload)) {
+		if (propMap[playerID] == null || forceReload) {
 			mapMaxNo[playerID] = 0;
 			propMap[playerID] = receiver.loadProperties("config/map/avalanche/" + mapSet[playerID] + ".map");
 		}
 
-		if((propMap[playerID] == null) && (engine.field != null)) {
+		if (propMap[playerID] == null && engine.field != null) {
 			engine.field.reset();
-		} else if(propMap[playerID] != null) {
+		} else if (propMap[playerID] != null) {
 			mapMaxNo[playerID] = propMap[playerID].getProperty("map.maxMapNumber", 0);
 			engine.createFieldIfNeeded();
 			loadMap(engine.field, propMap[playerID], id);
@@ -462,9 +461,8 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	}
 
 	protected void loadMapSetFever(GameEngine engine, int playerID, int id, boolean forceReload) {
-		if((propFeverMap[playerID] == null) || (forceReload)) {
-			propFeverMap[playerID] = receiver.loadProperties("config/map/avalanche/" +
-					FEVER_MAPS[id] + ".map");
+		if (propFeverMap[playerID] == null || forceReload) {
+			propFeverMap[playerID] = receiver.loadProperties("config/map/avalanche/" + FEVER_MAPS[id] + ".map");
 			feverChainMin[playerID] = propFeverMap[playerID].getProperty("minChain", 3);
 			feverChainMax[playerID] = propFeverMap[playerID].getProperty("maxChain", 15);
 			String subsets = propFeverMap[playerID].getProperty("sets");
@@ -479,7 +477,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
 		receiver = engine.owner.receiver;
-		if(playerID == 1) {
+		if (playerID == 1) {
 			engine.randSeed = owner.engine[0].randSeed;
 			engine.random = new Random(owner.engine[0].randSeed);
 		}
@@ -488,8 +486,9 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		engine.clearMode = GameEngine.ClearType.COLOR;
 		engine.garbageColorClear = true;
 		engine.lineGravityType = GameEngine.LineGravity.CASCADE;
-		for(int i = 0; i < Piece.PIECE_COUNT; i++)
-			engine.nextPieceEnable[i] = (PIECE_ENABLE[i] == 1);
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			engine.nextPieceEnable[i] = PIECE_ENABLE[i] == 1;
+		}
 		engine.blockColors = BLOCK_COLORS;
 		engine.randomBlockColor = true;
 		engine.connectBlocks = false;
@@ -512,23 +511,30 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if(engine.statc[0] == 0)
+		if (engine.statc[0] == 0) {
 			return readyInit(engine, playerID);
+		}
 		return false;
 	}
 
 	public boolean readyInit(GameEngine engine, int playerID) {
 		engine.numColors = numColors[playerID];
-		engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW : GameEngine.LineGravity.CASCADE;
+		engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW
+				: GameEngine.LineGravity.CASCADE;
 		engine.displaysize = bigDisplay ? 1 : 0;
 		engine.sticky = 2;
 
-		if(outlineType[playerID] == 0) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
-		if(outlineType[playerID] == 1) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_SAMECOLOR;
-		if(outlineType[playerID] == 2) engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+		if (outlineType[playerID] == 0) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
+		}
+		if (outlineType[playerID] == 1) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_SAMECOLOR;
+		}
+		if (outlineType[playerID] == 2) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+		}
 
-		if (big[playerID])
-		{
+		if (big[playerID]) {
 			engine.fieldHeight = 6;
 			engine.fieldWidth = 3;
 			engine.field = null;
@@ -537,28 +543,28 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			engine.createFieldIfNeeded();
 			zenKeshiType[playerID] = ZENKESHI_MODE_OFF;
 			ojamaHard[playerID] = 0;
-		}
-		else if (feverMapSet[playerID] >= 0 && feverMapSet[playerID] < FEVER_MAPS.length)
+		} else if (feverMapSet[playerID] >= 0 && feverMapSet[playerID] < FEVER_MAPS.length) {
 			loadMapSetFever(engine, playerID, feverMapSet[playerID], true);
+		}
 		// MapFor storing backup Replay read
-		if(useMap[playerID]) {
-			if(owner.replayMode) {
+		if (useMap[playerID]) {
+			if (owner.replayMode) {
 				engine.createFieldIfNeeded();
 				loadMap(engine.field, owner.replayProp, playerID);
 				engine.field.setAllSkin(engine.getSkin());
 			} else {
-				if(propMap[playerID] == null) {
+				if (propMap[playerID] == null) {
 					propMap[playerID] = receiver.loadProperties("config/map/avalanche/" + mapSet[playerID] + ".map");
 				}
 
-				if(propMap[playerID] != null) {
+				if (propMap[playerID] != null) {
 					engine.createFieldIfNeeded();
 
-					if(mapNumber[playerID] < 0) {
-						if((playerID == 1) && (useMap[0]) && (mapNumber[0] < 0)) {
+					if (mapNumber[playerID] < 0) {
+						if (playerID == 1 && useMap[0] && mapNumber[0] < 0) {
 							engine.field.copy(owner.engine[0].field);
 						} else {
-							int no = (mapMaxNo[playerID] < 1) ? 0 : randMap.nextInt(mapMaxNo[playerID]);
+							int no = mapMaxNo[playerID] < 1 ? 0 : randMap.nextInt(mapMaxNo[playerID]);
 							loadMap(engine.field, propMap[playerID], no);
 						}
 					} else {
@@ -569,7 +575,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 					fldBackup[playerID] = new Field(engine.field);
 				}
 			}
-		} else if(engine.field != null) {
+		} else if (engine.field != null) {
 			engine.field.reset();
 		}
 		return false;
@@ -583,7 +589,9 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		engine.b2bEnable = false;
 		engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
 		engine.enableSE = enableSE[playerID];
-		if(playerID == 1) owner.bgmStatus.bgm = bgmno;
+		if (playerID == 1) {
+			owner.bgmStatus.bgm = bgmno;
+		}
 		engine.ignoreHidden = true;
 
 		engine.tspinAllowKick = false;
@@ -622,67 +630,75 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			int pts = calcPts(engine, playerID, avalanche);
 
 			int multiplier = engine.field.colorClearExtraCount;
-			if (big[playerID])
+			if (big[playerID]) {
 				multiplier >>= 2;
-			if (engine.field.colorsCleared > 1)
-				multiplier += (engine.field.colorsCleared-1)*2;
+			}
+			if (engine.field.colorsCleared > 1) {
+				multiplier += (engine.field.colorsCleared - 1) * 2;
+			}
 
 			multiplier += calcChainMultiplier(engine, playerID, engine.chain);
 
-			if (multiplier > 999)
+			if (multiplier > 999) {
 				multiplier = 999;
-			if (multiplier < 1)
+			}
+			if (multiplier < 1) {
 				multiplier = 1;
+			}
 
 			lastscore[playerID] = pts;
 			lastmultiplier[playerID] = multiplier;
 			scgettime[playerID] = 25;
-			int ptsTotal = pts*multiplier;
+			int ptsTotal = pts * multiplier;
 			score[playerID] += ptsTotal;
 
-			if (engine.chain >= rensaShibari[playerID])
+			if (engine.chain >= rensaShibari[playerID]) {
 				addOjama(engine, playerID, ptsTotal);
+			}
 
 			if (engine.field.isEmpty()) {
 				engine.playSE("bravo");
 				zenKeshi[playerID] = true;
 				engine.statistics.score += 2100;
 				score[playerID] += 2100;
-			}
-			else
+			} else {
 				zenKeshi[playerID] = false;
-		}
-		else if (!engine.field.canCascade())
+			}
+		} else if (!engine.field.canCascade()) {
 			cleared[playerID] = false;
+		}
 	}
 
-	protected int calcPts (GameEngine engine, int playerID, int avalanche) {
-		return avalanche*10;
+	protected int calcPts(GameEngine engine, int playerID, int avalanche) {
+		return avalanche * 10;
 	}
 
 	protected int calcChainMultiplier(GameEngine engine, int playerID, int chain) {
-		if (newChainPower[playerID])
+		if (newChainPower[playerID]) {
 			return calcChainNewPower(engine, playerID, chain);
-		else
+		} else {
 			return calcChainClassicPower(engine, playerID, chain);
+		}
 	}
 
 	protected int calcChainNewPower(GameEngine engine, int playerID, int chain) {
-		if (chain > CHAIN_POWERS.length)
-			return CHAIN_POWERS[CHAIN_POWERS.length-1];
-		else
-			return CHAIN_POWERS[chain-1];
+		if (chain > CHAIN_POWERS.length) {
+			return CHAIN_POWERS[CHAIN_POWERS.length - 1];
+		} else {
+			return CHAIN_POWERS[chain - 1];
+		}
 	}
 
 	protected int calcChainClassicPower(GameEngine engine, int playerID, int chain) {
-		if (chain == 2)
+		if (chain == 2) {
 			return 8;
-		else if (chain == 3)
+		} else if (chain == 3) {
 			return 16;
-		else if (chain >= 4)
-			return 32*(chain-3);
-		else
+		} else if (chain >= 4) {
+			return 32 * (chain - 3);
+		} else {
 			return 0;
+		}
 	}
 
 	protected void onClear(GameEngine engine, int playerID) {
@@ -690,43 +706,45 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	protected void addOjama(GameEngine engine, int playerID, int pts) {
 		int enemyID = 0;
-		if(playerID == 0) enemyID = 1;
+		if (playerID == 0) {
+			enemyID = 1;
+		}
 
 		int ojamaNew = 0;
-		if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_ON)
+		if (zenKeshi[playerID] && zenKeshiType[playerID] == ZENKESHI_MODE_ON) {
 			ojamaNew += 30;
-		//Add ojama
+		}
+		// Add ojama
 		int rate = ojamaRate[playerID];
-		if (hurryupSeconds[playerID] > 0 && engine.statistics.time > hurryupSeconds[playerID])
+		if (hurryupSeconds[playerID] > 0 && engine.statistics.time > hurryupSeconds[playerID]) {
 			rate >>= engine.statistics.time / (hurryupSeconds[playerID] * 60);
-		if (rate <= 0)
+		}
+		if (rate <= 0) {
 			rate = 1;
+		}
 		ojamaNew += ptsToOjama(engine, playerID, pts, rate);
 		ojamaSent[playerID] += ojamaNew;
 
-		if (ojamaCounterMode[playerID] != OJAMA_COUNTER_OFF)
-		{
-			//Counter ojama
-			if (ojama[playerID] > 0 && ojamaNew > 0)
-			{
+		if (ojamaCounterMode[playerID] != OJAMA_COUNTER_OFF) {
+			// Counter ojama
+			if (ojama[playerID] > 0 && ojamaNew > 0) {
 				int delta = Math.min(ojama[playerID], ojamaNew);
 				ojama[playerID] -= delta;
 				ojamaNew -= delta;
 			}
-			if (ojamaAdd[playerID] > 0 && ojamaNew > 0)
-			{
+			if (ojamaAdd[playerID] > 0 && ojamaNew > 0) {
 				int delta = Math.min(ojamaAdd[playerID], ojamaNew);
 				ojamaAdd[playerID] -= delta;
 				ojamaNew -= delta;
 			}
 		}
-		if (ojamaNew > 0)
+		if (ojamaNew > 0) {
 			ojamaAdd[enemyID] += ojamaNew;
+		}
 	}
 
-	protected int ptsToOjama(GameEngine engine, int playerID, int pts, int rate)
-	{
-		return (pts+rate-1)/rate;
+	protected int ptsToOjama(GameEngine engine, int playerID, int pts, int rate) {
+		return (pts + rate - 1) / rate;
 	}
 
 	@Override
@@ -736,28 +754,28 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	 * Check for game over
 	 */
 	protected void gameOverCheck(GameEngine engine, int playerID) {
-		if (engine.field == null)
+		if (engine.field == null) {
 			return;
-		if (big[playerID])
-		{
-			if (!engine.field.getBlockEmpty(1, 0))
-				engine.stat = GameEngine.Status.GAMEOVER;
 		}
-		else if (!engine.field.getBlockEmpty(2, 0) ||
-				(dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)))
+		if (big[playerID]) {
+			if (!engine.field.getBlockEmpty(1, 0)) {
+				engine.stat = GameEngine.Status.GAMEOVER;
+			}
+		} else if (!engine.field.getBlockEmpty(2, 0)
+				|| dangerColumnDouble[playerID] && !engine.field.getBlockEmpty(3, 0)) {
 			engine.stat = GameEngine.Status.GAMEOVER;
+		}
 	}
 
 	protected void loadFeverMap(GameEngine engine, int playerID, int chain) {
-		loadFeverMap(engine, playerID, engine.random, chain,
-				engine.random.nextInt(feverMapSubsets[playerID].length));
+		loadFeverMap(engine, playerID, engine.random, chain, engine.random.nextInt(feverMapSubsets[playerID].length));
 	}
 
 	protected void loadFeverMap(GameEngine engine, int playerID, Random rand, int chain, int subset) {
 		engine.createFieldIfNeeded();
 		engine.field.reset();
-		engine.field.stringToField(propFeverMap[playerID].getProperty(feverMapSubsets[playerID][subset] +
-				"." + numColors[playerID] + "colors." + chain + "chain"));
+		engine.field.stringToField(propFeverMap[playerID].getProperty(
+				feverMapSubsets[playerID][subset] + "." + numColors[playerID] + "colors." + chain + "chain"));
 		engine.field.setBlockLinkByColor();
 		engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, false);
 		engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
@@ -770,28 +788,31 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	 */
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
-		if (scgettime[playerID] > 0)
+		if (scgettime[playerID] > 0) {
 			scgettime[playerID]--;
-		if (zenKeshiDisplay[playerID] > 0)
+		}
+		if (zenKeshiDisplay[playerID] > 0) {
 			zenKeshiDisplay[playerID]--;
-		if (chainDisplay[playerID] > 0)
+		}
+		if (chainDisplay[playerID] > 0) {
 			chainDisplay[playerID]--;
+		}
 
 		// Settlement
-		if((playerID == 1) && (owner.engine[0].gameActive)) {
-			boolean p1Lose = (owner.engine[0].stat == GameEngine.Status.GAMEOVER);
-			boolean p2Lose = (owner.engine[1].stat == GameEngine.Status.GAMEOVER);
-			if(p1Lose && p2Lose) {
+		if (playerID == 1 && owner.engine[0].gameActive) {
+			boolean p1Lose = owner.engine[0].stat == GameEngine.Status.GAMEOVER;
+			boolean p2Lose = owner.engine[1].stat == GameEngine.Status.GAMEOVER;
+			if (p1Lose && p2Lose) {
 				// Draw
 				winnerID = -1;
 				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
 				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
-			} else if(p2Lose && !p1Lose) {
+			} else if (p2Lose && !p1Lose) {
 				// 1P win
 				winnerID = 0;
 				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
-			} else if(p1Lose && !p2Lose) {
+			} else if (p1Lose && !p2Lose) {
 				// 2P win
 				winnerID = 1;
 				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
@@ -810,126 +831,149 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	}
 
 	@Override
-	public void pieceLocked (GameEngine engine, int playerID, int clear) {
+	public void pieceLocked(GameEngine engine, int playerID, int clear) {
 		cleared[playerID] = false;
 		ojamaDrop[playerID] = false;
 	}
 
-	protected void updateOjamaMeter (GameEngine engine, int playerID) {
+	protected void updateOjamaMeter(GameEngine engine, int playerID) {
 		int width = 6;
-		if (engine.field != null)
+		if (engine.field != null) {
 			width = engine.field.getWidth();
+		}
 		int blockHeight = receiver.getBlockGraphicsHeight(engine, playerID);
 		// Rising auctionMeter
 		int value = ojama[playerID] * blockHeight / width;
-		if(ojama[playerID] >= 5*width) engine.meterColor = GameEngine.METER_COLOR_RED;
-		else if(ojama[playerID] >= width) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-		else if(ojama[playerID] >= 1) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-		else engine.meterColor = GameEngine.METER_COLOR_GREEN;
-		if (value > engine.meterValue)
+		if (ojama[playerID] >= 5 * width) {
+			engine.meterColor = Colors.METER_COLOR_RED;
+		} else if (ojama[playerID] >= width) {
+			engine.meterColor = Colors.METER_COLOR_ORANGE;
+		} else if (ojama[playerID] >= 1) {
+			engine.meterColor = Colors.METER_COLOR_YELLOW;
+		} else {
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+		}
+		if (value > engine.meterValue) {
 			engine.meterValue++;
-		else if (value < engine.meterValue)
+		} else if (value < engine.meterValue) {
 			engine.meterValue--;
+		}
 	}
 
 	@Override
-	public void renderLast (GameEngine engine, int playerID) {
-		if (!owner.engine[playerID].gameActive)
+	public void renderLast(GameEngine engine, int playerID) {
+		if (!owner.engine[playerID].gameActive) {
 			return;
+		}
 
 		int textHeight = 13;
 		if (engine.field != null) {
 			textHeight = engine.field.getHeight();
 			textHeight += 3;
 		}
-		if(engine.displaysize == 1) textHeight = 11;
+		if (engine.displaysize == 1) {
+			textHeight = 11;
+		}
 
-		int baseX = (engine.displaysize == 1) ? 1 : -2;
+		int baseX = engine.displaysize == 1 ? 1 : -2;
 
-		if (engine.chain > 0 && chainDisplay[playerID] > 0 && chainDisplayType[playerID] != CHAIN_DISPLAY_NONE)
+		if (engine.chain > 0 && chainDisplay[playerID] > 0 && chainDisplayType[playerID] != CHAIN_DISPLAY_NONE) {
 			receiver.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight,
 					engine.chain + " CHAIN!", getChainColor(engine, playerID));
-		if(zenKeshi[playerID] || zenKeshiDisplay[playerID] > 0)
-			receiver.drawMenuFont(engine, playerID, baseX+1, textHeight+1, "ZENKESHI!", EventReceiver.COLOR_YELLOW);
+		}
+		if (zenKeshi[playerID] || zenKeshiDisplay[playerID] > 0) {
+			receiver.drawMenuFont(engine, playerID, baseX + 1, textHeight + 1, "ZENKESHI!", Colors.FONT_YELLOW);
+		}
 	}
 
-	protected int getChainColor (GameEngine engine, int playerID) {
-		if (chainDisplayType[playerID] == CHAIN_DISPLAY_PLAYER)
-			return (playerID == 0) ? EventReceiver.COLOR_RED : EventReceiver.COLOR_BLUE;
-		else if (chainDisplayType[playerID] == CHAIN_DISPLAY_SIZE)
-			return (engine.chain >= rensaShibari[playerID]) ? EventReceiver.COLOR_GREEN : EventReceiver.COLOR_RED;
-		else
-			return EventReceiver.COLOR_YELLOW;
+	protected int getChainColor(GameEngine engine, int playerID) {
+		if (chainDisplayType[playerID] == CHAIN_DISPLAY_PLAYER) {
+			return playerID == 0 ? Colors.FONT_RED : Colors.FONT_BLUE;
+		} else if (chainDisplayType[playerID] == CHAIN_DISPLAY_SIZE) {
+			return engine.chain >= rensaShibari[playerID] ? Colors.FONT_GREEN : Colors.FONT_RED;
+		} else {
+			return Colors.FONT_YELLOW;
+		}
 	}
 
-	protected void drawX (GameEngine engine, int playerID) {
-		if(!dangerColumnShowX[playerID]) return;
+	protected void drawX(GameEngine engine, int playerID) {
+		if (!dangerColumnShowX[playerID]) {
+			return;
+		}
 
 		int baseX = big[playerID] ? 1 : 2;
 
-		for(int i = 0; i < ((dangerColumnDouble[playerID] && !big[playerID]) ? 2 : 1); i++) {
-			if((engine.field == null) || (engine.field.getBlockEmpty(baseX + i, 0))) {
-				if(big[playerID])
-					receiver.drawMenuFont(engine, playerID, 2, 0, "e", EventReceiver.COLOR_RED, 2.0f);
-				else if(engine.displaysize == 1)
-					receiver.drawMenuFont(engine, playerID, 4 + (i * 2), 0, "e", EventReceiver.COLOR_RED, 2.0f);
-				else
-					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", EventReceiver.COLOR_RED);
+		for (int i = 0; i < (dangerColumnDouble[playerID] && !big[playerID] ? 2 : 1); i++) {
+			if (engine.field == null || engine.field.getBlockEmpty(baseX + i, 0)) {
+				if (big[playerID]) {
+					receiver.drawMenuFont(engine, playerID, 2, 0, "e", Colors.FONT_RED, 2.0f);
+				} else if (engine.displaysize == 1) {
+					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, 2.0f);
+				} else {
+					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
+				}
 			}
 		}
 	}
 
-	protected void drawHardOjama (GameEngine engine, int playerID) {
-		if (engine.field != null)
-			for (int x = 0; x < engine.field.getWidth(); x++)
-				for (int y = 0; y < engine.field.getHeight(); y++)
-				{
+	protected void drawHardOjama(GameEngine engine, int playerID) {
+		if (engine.field != null) {
+			for (int x = 0; x < engine.field.getWidth(); x++) {
+				for (int y = 0; y < engine.field.getHeight(); y++) {
 					int hard = engine.field.getBlock(x, y).hard;
 					if (hard > 0) {
-						if(engine.displaysize == 1)
-							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(hard), EventReceiver.COLOR_YELLOW, 2.0f);
-						else
-							receiver.drawMenuFont(engine, playerID, x, y, String.valueOf(hard), EventReceiver.COLOR_YELLOW);
+						if (engine.displaysize == 1) {
+							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(hard),
+									Colors.FONT_YELLOW, 2.0f);
+						} else {
+							receiver.drawMenuFont(engine, playerID, x, y, String.valueOf(hard), Colors.FONT_YELLOW);
+						}
 					}
 				}
+			}
+		}
 	}
 
-	protected void drawScores (GameEngine engine, int playerID, int x, int y, int headerColor) {
+	protected void drawScores(GameEngine engine, int playerID, int x, int y, int headerColor) {
 		receiver.drawScoreFont(engine, playerID, x, y, "SCORE", headerColor);
 		y++;
-		receiver.drawScoreFont(engine, playerID, x, y, "1P: ", EventReceiver.COLOR_RED);
-		if (scgettime[0] > 0 && lastscore[0] > 0 && lastmultiplier[0] > 0)
-			receiver.drawScoreFont(engine, playerID, x+4, y, "+" + lastscore[0] + "e" + lastmultiplier[0],
-					EventReceiver.COLOR_RED);
-		else
-			receiver.drawScoreFont(engine, playerID, x+4, y, String.valueOf(score[0]), EventReceiver.COLOR_RED);
+		receiver.drawScoreFont(engine, playerID, x, y, "1P: ", Colors.FONT_RED);
+		if (scgettime[0] > 0 && lastscore[0] > 0 && lastmultiplier[0] > 0) {
+			receiver.drawScoreFont(engine, playerID, x + 4, y, "+" + lastscore[0] + "e" + lastmultiplier[0],
+					Colors.FONT_RED);
+		} else {
+			receiver.drawScoreFont(engine, playerID, x + 4, y, String.valueOf(score[0]), Colors.FONT_RED);
+		}
 		y++;
-		receiver.drawScoreFont(engine, playerID, x, y, "2P: ", EventReceiver.COLOR_BLUE);
-		if (scgettime[1] > 0 && lastscore[1] > 0 && lastmultiplier[1] > 0)
-			receiver.drawScoreFont(engine, playerID, x+4, y, "+" + lastscore[1] + "e" + lastmultiplier[1],
-					EventReceiver.COLOR_BLUE);
-		else
-			receiver.drawScoreFont(engine, playerID, x+4, y, String.valueOf(score[1]), EventReceiver.COLOR_BLUE);
+		receiver.drawScoreFont(engine, playerID, x, y, "2P: ", Colors.FONT_BLUE);
+		if (scgettime[1] > 0 && lastscore[1] > 0 && lastmultiplier[1] > 0) {
+			receiver.drawScoreFont(engine, playerID, x + 4, y, "+" + lastscore[1] + "e" + lastmultiplier[1],
+					Colors.FONT_BLUE);
+		} else {
+			receiver.drawScoreFont(engine, playerID, x + 4, y, String.valueOf(score[1]), Colors.FONT_BLUE);
+		}
 	}
 
-	protected void drawOjama (GameEngine engine, int playerID, int x, int y, int headerColor) {
+	protected void drawOjama(GameEngine engine, int playerID, int x, int y, int headerColor) {
 		receiver.drawScoreFont(engine, playerID, x, y, "OJAMA", headerColor);
 		String ojamaStr1P = String.valueOf(ojama[0]);
-		if (ojamaAdd[0] > 0)
+		if (ojamaAdd[0] > 0) {
 			ojamaStr1P = ojamaStr1P + "(+" + String.valueOf(ojamaAdd[0]) + ")";
+		}
 		String ojamaStr2P = String.valueOf(ojama[1]);
-		if (ojamaAdd[1] > 0)
+		if (ojamaAdd[1] > 0) {
 			ojamaStr2P = ojamaStr2P + "(+" + String.valueOf(ojamaAdd[1]) + ")";
-		receiver.drawScoreFont(engine, playerID, x, y+1, "1P:", EventReceiver.COLOR_RED);
-		receiver.drawScoreFont(engine, playerID, x+4, y+1, ojamaStr1P, (ojama[0] > 0));
-		receiver.drawScoreFont(engine, playerID, x, y+2, "2P:", EventReceiver.COLOR_BLUE);
-		receiver.drawScoreFont(engine, playerID, x+4, y+2, ojamaStr2P, (ojama[1] > 0));
+		}
+		receiver.drawScoreFont(engine, playerID, x, y + 1, "1P:", Colors.FONT_RED);
+		receiver.drawScoreFont(engine, playerID, x + 4, y + 1, ojamaStr1P, ojama[0] > 0);
+		receiver.drawScoreFont(engine, playerID, x, y + 2, "2P:", Colors.FONT_BLUE);
+		receiver.drawScoreFont(engine, playerID, x + 4, y + 2, ojamaStr2P, ojama[1] > 0);
 	}
 
-	protected void drawAttack (GameEngine engine, int playerID, int x, int y, int headerColor) {
+	protected void drawAttack(GameEngine engine, int playerID, int x, int y, int headerColor) {
 		receiver.drawScoreFont(engine, playerID, x, y, "ATTACK", headerColor);
-		receiver.drawScoreFont(engine, playerID, x, y+1, "1P: " + String.valueOf(ojamaSent[0]), EventReceiver.COLOR_RED);
-		receiver.drawScoreFont(engine, playerID, x, y+2, "2P: " + String.valueOf(ojamaSent[1]), EventReceiver.COLOR_BLUE);
+		receiver.drawScoreFont(engine, playerID, x, y + 1, "1P: " + ojamaSent[0], Colors.FONT_RED);
+		receiver.drawScoreFont(engine, playerID, x, y + 2, "2P: " + ojamaSent[1], Colors.FONT_BLUE);
 	}
 
 	/*
@@ -937,23 +981,20 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", EventReceiver.COLOR_ORANGE);
-		if(winnerID == -1) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", EventReceiver.COLOR_GREEN);
-		} else if(winnerID == playerID) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", EventReceiver.COLOR_YELLOW);
+		receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", Colors.FONT_ORANGE);
+		if (winnerID == -1) {
+			receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", Colors.FONT_GREEN);
+		} else if (winnerID == playerID) {
+			receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", Colors.FONT_YELLOW);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", EventReceiver.COLOR_WHITE);
+			receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
 		}
-
-		float apm = (float)(ojamaSent[playerID] * 3600) / (float)(engine.statistics.time);
-		drawResult(engine, playerID, receiver, 3, EventReceiver.COLOR_ORANGE,
-				"ATTACK", String.format("%10d", ojamaSent[playerID]),
-				"CLEARED", String.format("%10d", engine.statistics.lines),
-				"MAX CHAIN", String.format("%10d", engine.statistics.maxChain),
-				"PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
-				"ATTACK/MIN", String.format("%10g", apm),
-				"PIECE/SEC", String.format("%10g", engine.statistics.pps),
-				"TIME", String.format("%10s", GeneralUtil.getTime(owner.engine[0].statistics.time)));
+		float apm = (float) (ojamaSent[playerID] * 3600) / (float) engine.statistics.time;
+		drawResult(engine, playerID, receiver, 3, Colors.FONT_ORANGE, "ATTACK",
+				String.format("%10d", ojamaSent[playerID]), "CLEARED", String.format("%10d", engine.statistics.lines),
+				"MAX CHAIN", String.format("%10d", engine.statistics.maxChain), "PIECE",
+				String.format("%10d", engine.statistics.totalPieceLocked), "ATTACK/MIN", String.format("%10g", apm),
+				"PIECE/SEC", String.format("%10g", engine.statistics.pps), "TIME",
+				String.format("%10s", GeneralUtil.getTime(owner.engine[0].statistics.time)));
 	}
 }

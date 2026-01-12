@@ -14,12 +14,13 @@ public class DoubleBagRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
-		baglen = pieces.length*2;
+		baglen = pieces.length * 2;
 		bag = new int[baglen];
 		pt = 0;
 		for (int i = 0; i < baglen; i++) {
-			bag[i] = pieces[i%pieces.length];
+			bag[i] = pieces[i % pieces.length];
 		}
 		shuffle();
 	}
@@ -27,12 +28,13 @@ public class DoubleBagRandomizer extends Randomizer {
 	public void shuffle() {
 		for (int i = baglen; i > 1; i--) {
 			int j = r.nextInt(i);
-			int temp = bag[i-1];
-			bag[i-1] = bag[j];
+			int temp = bag[i - 1];
+			bag[i - 1] = bag[j];
 			bag[j] = temp;
 		}
 	}
 
+	@Override
 	public int next() {
 		int id = bag[pt];
 		pt++;

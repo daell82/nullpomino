@@ -13,9 +13,10 @@ public class History4RollsRandomizer extends LimitedHistoryRandomizer {
 
 	}
 
+	@Override
 	public void init() {
 		super.init();
-		history = new int[] {Piece.PIECE_Z, Piece.PIECE_Z, Piece.PIECE_Z, Piece.PIECE_Z};
+		history = new int[] { Piece.PIECE_Z, Piece.PIECE_Z, Piece.PIECE_Z, Piece.PIECE_Z };
 		numrolls = 4;
 	}
 }

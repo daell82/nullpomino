@@ -35,7 +35,9 @@ import mu.nu.nullpo.util.GeneralUtil;
 
 /**
  * 7 piece bag randomizer
- * @deprecated No longer used. The current one is net.omegaboshi.nullpomino.game.subsystem.randomizer.BagRandomizer.
+ * 
+ * @deprecated No longer used. The current one is
+ *             net.omegaboshi.nullpomino.game.subsystem.randomizer.BagRandomizer.
  */
 public class BagRandomizer implements Randomizer {
 	/*
@@ -45,18 +47,18 @@ public class BagRandomizer implements Randomizer {
 		int[] pieceArray = new int[arrayMax];
 		int pieceKind = GeneralUtil.getNumberOfPiecesCanAppear(pieceEnable);
 
-		for(int i = 0; i < arrayMax / pieceKind; i++) {
+		for (int i = 0; i < arrayMax / pieceKind; i++) {
 			// Flags for pieces which have already appeared
 			boolean[] alreadyAppeared = new boolean[Piece.PIECE_COUNT];
 
 			// Create draws
-			for(int j = 0; j < pieceKind; j++) {
+			for (int j = 0; j < pieceKind; j++) {
 				int id = 0;
 
 				// Draw
 				do {
 					id = random.nextInt(Piece.PIECE_COUNT);
-				} while((pieceEnable[id] == false) || (alreadyAppeared[id] == true));
+				} while ((pieceEnable[id] == false) || (alreadyAppeared[id] == true));
 
 				// Set block drawn flag to ON
 				alreadyAppeared[id] = true;

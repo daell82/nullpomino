@@ -10,9 +10,10 @@ public class BagMinusTwoRandomizer extends BagRandomizer {
 
 	public BagMinusTwoRandomizer(boolean[] pieceEnable, long seed) {
 		super(pieceEnable, seed);
-		baglen = Math.max(1,pieces.length-2);
+		baglen = Math.max(1, pieces.length - 2);
 	}
 
+	@Override
 	public int next() {
 		int id = bag[pt];
 		pt++;

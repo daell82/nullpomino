@@ -10,6 +10,7 @@ public class MemorylessRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public int next() {
 		return pieces[r.nextInt(pieces.length)];
 	}

@@ -55,6 +55,7 @@ public class ReplayData implements Serializable {
 
 	/**
 	 * Copy constructor
+	 * 
 	 * @param r Copy source
 	 */
 	public ReplayData(ReplayData r) {
@@ -65,7 +66,7 @@ public class ReplayData implements Serializable {
 	 * Reset to defaults
 	 */
 	public void reset() {
-		if(inputDataArray == null)
+		if (inputDataArray == null)
 			inputDataArray = new ArrayList<Integer>(DEFAULT_ARRAYLIST_SIZE);
 		else
 			inputDataArray.clear();
@@ -73,23 +74,25 @@ public class ReplayData implements Serializable {
 
 	/**
 	 * OtherReplayDataCopied from the
+	 * 
 	 * @param r Copy source
 	 */
 	public void copy(ReplayData r) {
 		reset();
 
-		for(int i = 0; i < r.inputDataArray.size(); i++) {
+		for (int i = 0; i < r.inputDataArray.size(); i++) {
 			inputDataArray.add(i, r.inputDataArray.get(i));
 		}
 	}
 
 	/**
-	 *  button inputSet the status
-	 * @param input  button inputBit of status flag
-	 * @param frame  frame  (Course time)
+	 * button inputSet the status
+	 * 
+	 * @param input button inputBit of status flag
+	 * @param frame frame (Course time)
 	 */
 	public void setInputData(int input, int frame) {
-		if((frame < 0) || (frame >= inputDataArray.size())) {
+		if ((frame < 0) || (frame >= inputDataArray.size())) {
 			inputDataArray.add(input);
 		} else {
 			inputDataArray.set(frame, input);
@@ -97,12 +100,13 @@ public class ReplayData implements Serializable {
 	}
 
 	/**
-	 *  button inputGet status
-	 * @param frame  frame  (Course time)
-	 * @return  button inputBit of status flag
+	 * button inputGet status
+	 * 
+	 * @param frame frame (Course time)
+	 * @return button inputBit of status flag
 	 */
 	public int getInputData(int frame) {
-		if((frame < 0) || (frame >= inputDataArray.size())) {
+		if ((frame < 0) || (frame >= inputDataArray.size())) {
 			return 0;
 		}
 		return inputDataArray.get(frame);
@@ -110,25 +114,29 @@ public class ReplayData implements Serializable {
 
 	/**
 	 * Stored in the property set
-	 * @param p Property Set
-	 * @param id AnyID (Player IDEtc.)
+	 * 
+	 * @param p        Property Set
+	 * @param id       AnyID (Player IDEtc.)
 	 * @param maxFrame Save frame count (-1Save in all)
 	 */
 	public void writeProperty(CustomProperties p, int id, int maxFrame) {
 		int max = maxFrame;
-		if((maxFrame < 0) || (maxFrame > inputDataArray.size())) max = inputDataArray.size();
+		if ((maxFrame < 0) || (maxFrame > inputDataArray.size()))
+			max = inputDataArray.size();
 
-		for(int i = 0; i < max; i++) {
+		for (int i = 0; i < max; i++) {
 			int input = getInputData(i);
 			int previous = getInputData(i - 1);
-			if(input != previous) p.setProperty(id + ".r." + i, input);
+			if (input != previous)
+				p.setProperty(id + ".r." + i, input);
 		}
 		p.setProperty(id + ".r.max", max);
 	}
 
 	/**
 	 * Read from the property set
-	 * @param p Property Set
+	 * 
+	 * @param p  Property Set
 	 * @param id AnyID (Player IDEtc.)
 	 */
 	public void readProperty(CustomProperties p, int id) {
@@ -136,9 +144,10 @@ public class ReplayData implements Serializable {
 		int max = p.getProperty(id + ".r.max", 0);
 		int input = 0;
 
-		for(int i = 0; i < max; i++) {
+		for (int i = 0; i < max; i++) {
 			int data = p.getProperty(id + ".r." + i, -1);
-			if(data != -1) input = data;
+			if (data != -1)
+				input = data;
 			setInputData(input, i);
 		}
 	}

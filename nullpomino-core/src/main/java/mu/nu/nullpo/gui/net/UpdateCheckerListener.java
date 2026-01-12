@@ -39,6 +39,7 @@ public interface UpdateCheckerListener {
 
 	/**
 	 * Update check When finished
+	 * 
 	 * @param status State(FailureSTATUS_ERROR, The successSTATUS_COMPLETE)
 	 */
 	public void onUpdateCheckerEnd(int status);

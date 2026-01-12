@@ -10,6 +10,7 @@ public class ExpDistWeightRandomizer extends DistanceWeightRandomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public int getWeight(int i) {
 		if (weights[i] == 0) {
 			return 0;
@@ -18,6 +19,7 @@ public class ExpDistWeightRandomizer extends DistanceWeightRandomizer {
 		}
 	}
 
+	@Override
 	public boolean isAtDistanceLimit(int i) {
 		return weights[i] > 25;
 	}

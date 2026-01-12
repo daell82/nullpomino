@@ -34,7 +34,9 @@ import mu.nu.nullpo.game.component.Piece;
 
 /**
  * Memoryless randomizer
- * @deprecated No longer used. The current one is net.omegaboshi.nullpomino.game.subsystem.randomizer.MemorylessRandomizer.
+ * 
+ * @deprecated No longer used. The current one is
+ *             net.omegaboshi.nullpomino.game.subsystem.randomizer.MemorylessRandomizer.
  */
 public class MemorylessRandomizer implements Randomizer {
 	/*
@@ -43,12 +45,12 @@ public class MemorylessRandomizer implements Randomizer {
 	public int[] createPieceSequence(boolean[] pieceEnable, Random random, int arrayMax) {
 		int[] pieceArray = new int[arrayMax];
 
-		for(int i = 0; i < pieceArray.length; i++) {
+		for (int i = 0; i < pieceArray.length; i++) {
 			int id = 0;
 
 			do {
 				id = random.nextInt(Piece.PIECE_COUNT);
-			} while(pieceEnable[id] == false);
+			} while (pieceEnable[id] == false);
 
 			pieceArray[i] = id;
 		}

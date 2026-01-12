@@ -13,11 +13,13 @@ public class NintendoRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
 		prev = pieces.length;
-		roll = pieces.length+1;
+		roll = pieces.length + 1;
 	}
 
+	@Override
 	public int next() {
 		int id = r.nextInt(roll);
 		if (id == prev || id == pieces.length) {

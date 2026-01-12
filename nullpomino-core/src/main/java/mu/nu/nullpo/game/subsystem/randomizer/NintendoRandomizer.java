@@ -34,7 +34,9 @@ import mu.nu.nullpo.game.component.Piece;
 
 /**
  * Nintendo randomizer
- * @deprecated No longer used. The current one is net.omegaboshi.nullpomino.game.subsystem.randomizer.NintendoRandomizer.
+ * 
+ * @deprecated No longer used. The current one is
+ *             net.omegaboshi.nullpomino.game.subsystem.randomizer.NintendoRandomizer.
  */
 public class NintendoRandomizer implements Randomizer {
 	/*
@@ -44,17 +46,17 @@ public class NintendoRandomizer implements Randomizer {
 		int[] pieceArray = new int[arrayMax];
 		int prev = Piece.PIECE_COUNT;
 
-		for(int i = 0; i < pieceArray.length; i++) {
+		for (int i = 0; i < pieceArray.length; i++) {
 			int id = 0;
 
 			do {
-				id = random.nextInt(Piece.PIECE_COUNT+1);
-			} while(id != Piece.PIECE_COUNT && pieceEnable[id] == false);
+				id = random.nextInt(Piece.PIECE_COUNT + 1);
+			} while (id != Piece.PIECE_COUNT && pieceEnable[id] == false);
 
 			if (id == prev || id == Piece.PIECE_COUNT) {
 				do {
 					id = random.nextInt(Piece.PIECE_COUNT);
-				} while(pieceEnable[id] == false);
+				} while (pieceEnable[id] == false);
 			}
 
 			pieceArray[i] = id;

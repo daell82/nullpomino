@@ -31,8 +31,8 @@ package mu.nu.nullpo.game.subsystem.mode;
 import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -50,41 +50,41 @@ public class SpeedMania2Mode extends AbstractMode {
 	private static final int DEFAULT_TORIKAN_CLASSIC = 8880;
 
 	/** ARE table */
-	private static final int[] tableARE       = { 8,  8,  8,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2};
+	private static final int[] tableARE = { 8, 8, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
 
 	/** ARE after line clear table */
-	private static final int[] tableARELine   = { 4,  3,  2,  2,  1,  1,  1,  1,  1,  1,  1,  1,  1,  2};
+	private static final int[] tableARELine = { 4, 3, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2 };
 
 	/** Line clear time table */
-	private static final int[] tableLineDelay = { 6,  5,  4,  4,  3,  3,  3,  3,  3,  3,  3,  3,  3,  6};
+	private static final int[] tableLineDelay = { 6, 5, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 6 };
 
 	/** Fixation time table */
-	private static final int[] tableLockDelay = {19, 19, 18, 16, 16, 14, 13, 13, 13, 13, 13, 11,  9, 16};
+	private static final int[] tableLockDelay = { 19, 19, 18, 16, 16, 14, 13, 13, 13, 13, 13, 11, 9, 16 };
 
 	/** DAS table */
-	private static final int[] tableDAS       = { 9,  7,  7,  7,  5,  5,  5,  5,  5,  5,  5,  5,  5,  5};
+	private static final int[] tableDAS = { 9, 7, 7, 7, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 };
 
 	/** Rising auction interval */
-	private static final int[] tableGarbage   = { 0,  0,  0,  0,  0, 20, 18, 10,  9,  8,  0,  0,  0,  0};
+	private static final int[] tableGarbage = { 0, 0, 0, 0, 0, 20, 18, 10, 9, 8, 0, 0, 0, 0 };
 
 	/** REGRET criteria Time */
-	private static final int[] tableTimeRegret = {3600,3600,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,3000};
+	private static final int[] tableTimeRegret = { 3600, 3600, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000, 3000,
+			3000, 3000, 3000 };
 
 	/** BGM fadeout levels */
-	private static final int[] tableBGMFadeout = {485, 685, 985, -1};
+	private static final int[] tableBGMFadeout = { 485, 685, 985, -1 };
 
 	/** BGM change levels */
-	private static final int[] tableBGMChange  = {500, 700, 1000, -1};
+	private static final int[] tableBGMChange = { 500, 700, 1000, -1 };
 
 	/** Of danName */
-	private static final String[] tableGradeName = {"1", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10", "S11", "S12", "S13"};
+	private static final String[] tableGradeName = { "1", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
+			"S11", "S12", "S13" };
 
 	/** Dan&#39;s backName */
-	private static final String[] tableSecretGradeName =
-	{
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  0~ 8
-		"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9",	//  9~17
-		"GM"													// 18
+	private static final String[] tableSecretGradeName = { "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", // 0~ 8
+			"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", // 9~17
+			"GM" // 18
 	};
 
 	/** LV999 roll time */
@@ -198,7 +198,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	/** Rankings' Dan */
 	private int[] rankingGrade;
 
-	/** Rankings'  level */
+	/** Rankings' level */
 	private int[] rankingLevel;
 
 	/** Rankings' times */
@@ -267,19 +267,19 @@ public class SpeedMania2Mode extends AbstractMode {
 		engine.tspinEnable = false;
 		engine.b2bEnable = false;
 		engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
-		engine.framecolor = GameEngine.FRAME_COLOR_RED;
+		engine.framecolor = Colors.FRAME_COLOR_RED;
 		engine.bighalf = true;
 		engine.bigmove = true;
 		engine.staffrollEnable = true;
 		engine.staffrollNoDeath = false;
 
-		if(owner.replayMode == false) {
+		if (owner.replayMode == false) {
 			version = CURRENT_VERSION;
 			loadSetting(owner.modeConfig, engine.ruleopt.strRuleName);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 		} else {
 			version = owner.replayProp.getProperty("speedmania2.version", 0);
-			for(int i = 0; i < SECTION_MAX; i++) {
+			for (int i = 0; i < SECTION_MAX; i++) {
 				bestSectionTime[i] = DEFAULT_SECTION_TIME;
 			}
 			loadSetting(owner.replayProp, engine.ruleopt.strRuleName);
@@ -290,7 +290,8 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * Load settings from property file
-	 * @param prop Property file
+	 *
+	 * @param prop        Property file
 	 * @param strRuleName Rule name
 	 */
 	protected void loadSetting(CustomProperties prop, String strRuleName) {
@@ -298,9 +299,11 @@ public class SpeedMania2Mode extends AbstractMode {
 		lvstopse = prop.getProperty("speedmania2.lvstopse", true);
 		showsectiontime = prop.getProperty("speedmania2.showsectiontime", false);
 		big = prop.getProperty("speedmania2.big", false);
-		if(version >= 2) {
+		if (version >= 2) {
 			int defaultTorikan = DEFAULT_TORIKAN;
-			if(strRuleName.contains("CLASSIC")) defaultTorikan = DEFAULT_TORIKAN_CLASSIC;
+			if (strRuleName.contains("CLASSIC")) {
+				defaultTorikan = DEFAULT_TORIKAN_CLASSIC;
+			}
 			torikan = prop.getProperty("speedmania2.torikan." + strRuleName, defaultTorikan);
 		} else {
 			torikan = prop.getProperty("speedmania2.torikan", DEFAULT_TORIKAN);
@@ -310,7 +313,8 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * Save settings to property file
-	 * @param prop Property file
+	 *
+	 * @param prop        Property file
 	 * @param strRuleName Rule name
 	 */
 	protected void saveSetting(CustomProperties prop, String strRuleName) {
@@ -318,7 +322,7 @@ public class SpeedMania2Mode extends AbstractMode {
 		prop.setProperty("speedmania2.lvstopse", lvstopse);
 		prop.setProperty("speedmania2.showsectiontime", showsectiontime);
 		prop.setProperty("speedmania2.big", big);
-		if(version >= 2) {
+		if (version >= 2) {
 			prop.setProperty("speedmania2.torikan." + strRuleName, torikan);
 		} else {
 			prop.setProperty("speedmania2.torikan", torikan);
@@ -328,22 +332,28 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * Set BGM at start of game
+	 *
 	 * @param engine GameEngine
 	 */
 	private void setStartBgmlv(GameEngine engine) {
 		bgmlv = 0;
-		while((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) bgmlv++;
+		while (tableBGMChange[bgmlv] != -1 && engine.statistics.level >= tableBGMChange[bgmlv]) {
+			bgmlv++;
+		}
 	}
 
 	/**
 	 * Update falling speed
+	 *
 	 * @param engine GameEngine
 	 */
 	private void setSpeed(GameEngine engine) {
 		engine.speed.gravity = -1;
 
 		int section = engine.statistics.level / 100;
-		if(section > tableARE.length - 1) section = tableARE.length - 1;
+		if (section > tableARE.length - 1) {
+			section = tableARE.length - 1;
+		}
 		engine.speed.are = tableARE[section];
 		engine.speed.areLine = tableARELine[section];
 		engine.speed.lineDelay = tableLineDelay[section];
@@ -355,10 +365,12 @@ public class SpeedMania2Mode extends AbstractMode {
 	 * Update average section time
 	 */
 	private void setAverageSectionTime() {
-		if(sectionscomp > 0 && startlevel < 13) {
+		if (sectionscomp > 0 && startlevel < 13) {
 			int temp = 0;
-			for(int i = startlevel; i < startlevel + sectionscomp; i++) {
-				if((i >= 0) && (i < sectiontime.length)) temp += sectiontime[i];
+			for (int i = startlevel; i < startlevel + sectionscomp; i++) {
+				if (i >= 0 && i < sectiontime.length) {
+					temp += sectiontime[i];
+				}
 			}
 			sectionavgtime = temp / sectionscomp;
 		} else {
@@ -368,38 +380,47 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * ST medal check
-	 * @param engine GameEngine
+	 *
+	 * @param engine        GameEngine
 	 * @param sectionNumber Section number
 	 */
 	private void stMedalCheck(GameEngine engine, int sectionNumber) {
 		int best = bestSectionTime[sectionNumber];
 
-		if(sectionlasttime < best) {
-			if(medalST < 3) {
+		if (sectionlasttime < best) {
+			if (medalST < 3) {
 				engine.playSE("medal");
 				medalST = 3;
 			}
-			if(!owner.replayMode) {
+			if (!owner.replayMode) {
 				sectionIsNewRecord[sectionNumber] = true;
 			}
-		} else if((sectionlasttime < best + 300) && (medalST < 2)) {
+		} else if (sectionlasttime < best + 300 && medalST < 2) {
 			engine.playSE("medal");
 			medalST = 2;
-		} else if((sectionlasttime < best + 600) && (medalST < 1)) {
+		} else if (sectionlasttime < best + 600 && medalST < 1) {
 			engine.playSE("medal");
 			medalST = 1;
 		}
 	}
 
 	/**
-	 *  medal Gets the color of the character
-	 * @param medalColor  medal State
-	 * @return  medal Text color of the
+	 * medal Gets the color of the character
+	 *
+	 * @param medalColor medal State
+	 * @return medal Text color of the
 	 */
 	private int getMedalFontColor(int medalColor) {
-		if(medalColor == 1) return EventReceiver.COLOR_RED;
-		if(medalColor == 2) return EventReceiver.COLOR_WHITE;
-		if(medalColor == 3) return EventReceiver.COLOR_YELLOW;
+		switch (medalColor) {
+		case 1:
+			return Colors.FONT_RED;
+		case 2:
+			return Colors.FONT_WHITE;
+		case 3:
+			return Colors.FONT_YELLOW;
+		default:
+			break;
+		}
 		return -1;
 	}
 
@@ -409,18 +430,22 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if(engine.owner.replayMode == false) {
+		if (engine.owner.replayMode == false) {
 			// Configuration changes
 			int change = updateCursor(engine, 5);
 
-			if(change != 0) {
+			if (change != 0) {
 				engine.playSE("change");
 
-				switch(menuCursor) {
+				switch (menuCursor) {
 				case 0:
 					startlevel += change;
-					if(startlevel < 0) startlevel = 13;
-					if(startlevel > 13) startlevel = 0;
+					if (startlevel < 0) {
+						startlevel = 13;
+					}
+					if (startlevel > 13) {
+						startlevel = 0;
+					}
 					owner.backgroundStatus.bg = Math.min(startlevel, 12);
 					break;
 				case 1:
@@ -434,8 +459,12 @@ public class SpeedMania2Mode extends AbstractMode {
 					break;
 				case 4:
 					torikan += 60 * change;
-					if(torikan < 0) torikan = 72000;
-					if(torikan > 72000) torikan = 0;
+					if (torikan < 0) {
+						torikan = 72000;
+					}
+					if (torikan > 72000) {
+						torikan = 0;
+					}
 					break;
 				case 5:
 					gradedisp = !gradedisp;
@@ -443,14 +472,14 @@ public class SpeedMania2Mode extends AbstractMode {
 				}
 			}
 
-			//  section time display切替
-			if(engine.ctrl.isPush(Controller.BUTTON_F) && (menuTime >= 5)) {
+			// section time display切替
+			if (engine.ctrl.isPush(Controller.BUTTON_F) && menuTime >= 5) {
 				engine.playSE("change");
 				isShowBestSectionTime = !isShowBestSectionTime;
 			}
 
 			// 決定
-			if(engine.ctrl.isPush(Controller.BUTTON_A) && (menuTime >= 5)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
 				engine.playSE("decide");
 				saveSetting(owner.modeConfig, engine.ruleopt.strRuleName);
 				receiver.saveModeConfig(owner.modeConfig);
@@ -461,7 +490,7 @@ public class SpeedMania2Mode extends AbstractMode {
 			}
 
 			// Cancel
-			if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_B)) {
 				engine.quitflag = true;
 			}
 
@@ -470,7 +499,7 @@ public class SpeedMania2Mode extends AbstractMode {
 			menuTime++;
 			menuCursor = -1;
 
-			if(menuTime >= 60) {
+			if (menuTime >= 60) {
 				return false;
 			}
 		}
@@ -483,13 +512,11 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-				"LEVEL", String.valueOf(startlevel * 100),
-				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse),
-				"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"BIG",  GeneralUtil.getONorOFF(big),
-				"LV500LIMIT", (torikan == 0) ? "NONE" : GeneralUtil.getTime(torikan),
-				"GRADE DISP", GeneralUtil.getONorOFF(gradedisp));
+		drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
+				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
+				"BIG", GeneralUtil.getONorOFF(big), "LV500LIMIT",
+				torikan == 0 ? "NONE" : GeneralUtil.getTime(torikan), "GRADE DISP",
+				GeneralUtil.getONorOFF(gradedisp));
 	}
 
 	/*
@@ -500,9 +527,15 @@ public class SpeedMania2Mode extends AbstractMode {
 		engine.statistics.level = startlevel * 100;
 
 		nextseclv = engine.statistics.level + 100;
-		if(engine.statistics.level < 0) nextseclv = 100;
-		if(engine.statistics.level >= 1300) nextseclv = 1300;
-		if(engine.statistics.level >= 1000) engine.bone = true;
+		if (engine.statistics.level < 0) {
+			nextseclv = 100;
+		}
+		if (engine.statistics.level >= 1300) {
+			nextseclv = 1300;
+		}
+		if (engine.statistics.level >= 1000) {
+			engine.bone = true;
+		}
 
 		owner.backgroundStatus.bg = Math.min(startlevel, 12);
 
@@ -511,9 +544,8 @@ public class SpeedMania2Mode extends AbstractMode {
 		setSpeed(engine);
 		setStartBgmlv(engine);
 		owner.bgmStatus.bgm = bgmlv + 2;
-		
-		if (startlevel >= 13)
-		{
+
+		if (startlevel >= 13) {
 			// Ending
 			engine.statistics.level = 1300;
 			engine.timerActive = false;
@@ -530,64 +562,77 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "SPEED MANIA 2", EventReceiver.COLOR_RED);
+		receiver.drawScoreFont(engine, playerID, 0, 0, "SPEED MANIA 2", Colors.FONT_RED);
 
-		if( (engine.stat == GameEngine.Status.SETTING) || ((engine.stat == GameEngine.Status.RESULT) && (owner.replayMode == false)) ) {
-			if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
-				if(!isShowBestSectionTime) {
+		if (engine.stat == GameEngine.Status.SETTING
+				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
+			if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null) {
+				if (!isShowBestSectionTime) {
 					// Rankings
-					float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
-					int topY = (receiver.getNextDisplayType() == 2) ? 5 : 3;
-					receiver.drawScoreFont(engine, playerID, 3, topY-1, "GRADE LEVEL TIME", EventReceiver.COLOR_BLUE, scale);
+					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+					int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
+					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE,
+							scale);
 
-					for(int i = 0; i < RANKING_MAX; i++) {
-						int gcolor = EventReceiver.COLOR_WHITE;
-						if(rankingRollclear[i] == 1) gcolor = EventReceiver.COLOR_GREEN;
-						if(rankingRollclear[i] == 2) gcolor = EventReceiver.COLOR_ORANGE;
+					for (int i = 0; i < RANKING_MAX; i++) {
+						int gcolor = Colors.FONT_WHITE;
+						if (rankingRollclear[i] == 1) {
+							gcolor = Colors.FONT_GREEN;
+						}
+						if (rankingRollclear[i] == 2) {
+							gcolor = Colors.FONT_ORANGE;
+						}
 
-						receiver.drawScoreFont(engine, playerID, 0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
-						receiver.drawScoreFont(engine, playerID, 3, topY+i, tableGradeName[rankingGrade[i]], gcolor, scale);
-						receiver.drawScoreFont(engine, playerID, 9, topY+i, String.valueOf(rankingLevel[i]), (i == rankingRank), scale);
-						receiver.drawScoreFont(engine, playerID, 15, topY+i, GeneralUtil.getTime(rankingTime[i]), (i == rankingRank), scale);
+						receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+								Colors.FONT_YELLOW, scale);
+						receiver.drawScoreFont(engine, playerID, 3, topY + i, tableGradeName[rankingGrade[i]], gcolor,
+								scale);
+						receiver.drawScoreFont(engine, playerID, 9, topY + i, String.valueOf(rankingLevel[i]),
+								i == rankingRank, scale);
+						receiver.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[i]),
+								i == rankingRank, scale);
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 20, "F:VIEW SECTION TIME", EventReceiver.COLOR_GREEN);
+					receiver.drawScoreFont(engine, playerID, 0, 20, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
 				} else {
 					// Section Time
-					receiver.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);
 
 					int totalTime = 0;
-					for(int i = 0; i < SECTION_MAX; i++) {
+					for (int i = 0; i < SECTION_MAX; i++) {
 						int temp = i * 100;
-						int temp2 = ((i + 1) * 100) - 1;
+						int temp2 = (i + 1) * 100 - 1;
 
 						String strSectionTime;
-						strSectionTime = String.format("%4d-%4d %s", temp, temp2, GeneralUtil.getTime(bestSectionTime[i]));
+						strSectionTime = String.format("%4d-%4d %s", temp, temp2,
+								GeneralUtil.getTime(bestSectionTime[i]));
 
 						receiver.drawScoreFont(engine, playerID, 0, 3 + i, strSectionTime, sectionIsNewRecord[i]);
 
 						totalTime += bestSectionTime[i];
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 17, "TOTAL", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 0, 17, "TOTAL", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(totalTime));
-					receiver.drawScoreFont(engine, playerID, 9, 17, "AVERAGE", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 9, 17, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, 9, 18, GeneralUtil.getTime(totalTime / SECTION_MAX));
 
-					receiver.drawScoreFont(engine, playerID, 0, 20, "F:VIEW RANKING", EventReceiver.COLOR_GREEN);
+					receiver.drawScoreFont(engine, playerID, 0, 20, "F:VIEW RANKING", Colors.FONT_GREEN);
 				}
 			}
 		} else {
-			if(gradedisp) {
+			if (gradedisp) {
 				// 段位
-				receiver.drawScoreFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
-				if((grade >= 0) && (grade < tableGradeName.length))
-					receiver.drawScoreFont(engine, playerID, 0, 3, tableGradeName[grade], ((gradeflash > 0) && (gradeflash % 4 == 0)));
+				receiver.drawScoreFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
+				if (grade >= 0 && grade < tableGradeName.length) {
+					receiver.drawScoreFont(engine, playerID, 0, 3, tableGradeName[grade],
+							gradeflash > 0 && gradeflash % 4 == 0);
+				}
 
 				// Score
-				receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", EventReceiver.COLOR_BLUE);
+				receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
 				String strScore;
-				if((lastscore == 0) || (scgettime <= 0)) {
+				if (lastscore == 0 || scgettime <= 0) {
 					strScore = String.valueOf(engine.statistics.score);
 				} else {
 					strScore = String.valueOf(engine.statistics.score) + "\n(+" + String.valueOf(lastscore) + ")";
@@ -595,68 +640,88 @@ public class SpeedMania2Mode extends AbstractMode {
 				receiver.drawScoreFont(engine, playerID, 0, 6, strScore);
 			}
 
-			//  level
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", EventReceiver.COLOR_BLUE);
+			// level
+			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
 			int tempLevel = engine.statistics.level;
-			if(tempLevel < 0) tempLevel = 0;
+			if (tempLevel < 0) {
+				tempLevel = 0;
+			}
 			String strLevel = String.format("%3d", tempLevel);
 			receiver.drawScoreFont(engine, playerID, 0, 10, strLevel);
 
 			int speed = engine.speed.gravity / 128;
-			if(engine.speed.gravity < 0) speed = 40;
+			if (engine.speed.gravity < 0) {
+				speed = 40;
+			}
 			receiver.drawSpeedMeter(engine, playerID, 0, 11, speed);
 
 			receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
 
 			// Time
-			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(engine.statistics.time));
 
 			// Roll Rest time
-			if((engine.gameActive) && (engine.ending == 2)) {
+			if (engine.gameActive && engine.ending == 2) {
 				int time = ROLLTIMELIMIT - rolltime;
-				if(time < 0) time = 0;
-				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", EventReceiver.COLOR_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), ((time > 0) && (time < 10 * 60)));
+				if (time < 0) {
+					time = 0;
+				}
+				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
+				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time),
+						time > 0 && time < 10 * 60);
 			}
 
 			// REGRETDisplay
-			if(regretdispframe > 0) {
-				receiver.drawMenuFont(engine,playerID,2,21,"REGRET",(regretdispframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_ORANGE);
+			if (regretdispframe > 0) {
+				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", regretdispframe % 4 == 0,
+						Colors.FONT_WHITE, Colors.FONT_ORANGE);
 			}
 
-			//  medal
-			if(medalAC >= 1) receiver.drawScoreFont(engine, playerID, 0, 20, "AC", getMedalFontColor(medalAC));
-			if(medalST >= 1) receiver.drawScoreFont(engine, playerID, 3, 20, "ST", getMedalFontColor(medalST));
-			if(medalSK >= 1) receiver.drawScoreFont(engine, playerID, 0, 21, "SK", getMedalFontColor(medalSK));
-			if(medalCO >= 1) receiver.drawScoreFont(engine, playerID, 3, 21, "CO", getMedalFontColor(medalCO));
+			// medal
+			if (medalAC >= 1) {
+				receiver.drawScoreFont(engine, playerID, 0, 20, "AC", getMedalFontColor(medalAC));
+			}
+			if (medalST >= 1) {
+				receiver.drawScoreFont(engine, playerID, 3, 20, "ST", getMedalFontColor(medalST));
+			}
+			if (medalSK >= 1) {
+				receiver.drawScoreFont(engine, playerID, 0, 21, "SK", getMedalFontColor(medalSK));
+			}
+			if (medalCO >= 1) {
+				receiver.drawScoreFont(engine, playerID, 3, 21, "CO", getMedalFontColor(medalCO));
+			}
 
 			// Section Time
-			if((showsectiontime == true) && (sectiontime != null)) {
-				int y = (receiver.getNextDisplayType() == 2) ? 4 : 2;
-				int x = (receiver.getNextDisplayType() == 2) ? 20 : 12;
-				int x2 = (receiver.getNextDisplayType() == 2) ? 9 : 12;
-				float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
+			if (showsectiontime == true && sectiontime != null) {
+				int y = receiver.getNextDisplayType() == 2 ? 4 : 2;
+				int x = receiver.getNextDisplayType() == 2 ? 20 : 12;
+				int x2 = receiver.getNextDisplayType() == 2 ? 9 : 12;
+				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 
-				receiver.drawScoreFont(engine, playerID, x, y, "SECTION TIME", EventReceiver.COLOR_BLUE, scale);
+				receiver.drawScoreFont(engine, playerID, x, y, "SECTION TIME", Colors.FONT_BLUE, scale);
 
-				for(int i = 0; i < sectiontime.length; i++) {
-					if(sectiontime[i] > 0) {
+				for (int i = 0; i < sectiontime.length; i++) {
+					if (sectiontime[i] > 0) {
 						int temp = i * 100;
 
 						int section = engine.statistics.level / 100;
 						String strSeparator = " ";
-						if((i == section) && (engine.ending == 0)) strSeparator = "b";
+						if (i == section && engine.ending == 0) {
+							strSeparator = "b";
+						}
 
 						String strSectionTime;
-						strSectionTime = String.format("%4d%s%s", temp, strSeparator, GeneralUtil.getTime(sectiontime[i]));
+						strSectionTime = String.format("%4d%s%s", temp, strSeparator,
+								GeneralUtil.getTime(sectiontime[i]));
 
-						receiver.drawScoreFont(engine, playerID, x-1, y + 1 + i, strSectionTime, sectionIsNewRecord[i], scale);
+						receiver.drawScoreFont(engine, playerID, x - 1, y + 1 + i, strSectionTime,
+								sectionIsNewRecord[i], scale);
 					}
 				}
 
-				if(sectionavgtime > 0) {
-					receiver.drawScoreFont(engine, playerID, x2, 17, "AVERAGE", EventReceiver.COLOR_BLUE);
+				if (sectionavgtime > 0) {
+					receiver.drawScoreFont(engine, playerID, x2, 17, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, x2, 18, GeneralUtil.getTime(sectionavgtime));
 				}
 			}
@@ -669,35 +734,39 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
-		if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (!lvupflag)) {
+		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
 			// Level up
-			if(engine.statistics.level < nextseclv - 1) {
+			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					engine.playSE("levelstop");
+				}
 			}
 			levelUp(engine);
 		}
-		if( (engine.ending == 0) && (engine.statc[0] > 0) && ((version >= 1) || (engine.holdDisable == false)) ) {
+		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 1 || engine.holdDisable == false)) {
 			lvupflag = false;
 		}
 
-		if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false)) {
+		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false) {
 			// Count rising auction
-			if(tableGarbage[engine.statistics.level / 100] != 0) garbageCount++;
+			if (tableGarbage[engine.statistics.level / 100] != 0) {
+				garbageCount++;
+			}
 
 			// Rising auction
-			if((garbageCount >= tableGarbage[engine.statistics.level / 100]) && (tableGarbage[engine.statistics.level / 100] != 0)) {
+			if (garbageCount >= tableGarbage[engine.statistics.level / 100]
+					&& tableGarbage[engine.statistics.level / 100] != 0) {
 				engine.playSE("garbage");
-				engine.field.addBottomCopyGarbage(Block.BLOCK_COLOR_GRAY,
-												  engine.getSkin(),
-												  Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE,
-												  1);
+				engine.field.addBottomCopyGarbage(Colors.BLOCK_COLOR_GRAY, engine.getSkin(),
+						Block.BLOCK_ATTRIBUTE_GARBAGE | Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE,
+						1);
 				garbageCount = 0;
 			}
 		}
 
 		// EndingStart
-		if((engine.ending == 2) && (rollstarted == false)) {
+		if (engine.ending == 2 && rollstarted == false) {
 			rollstarted = true;
 			engine.big = true;
 			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
@@ -712,10 +781,12 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
-		if((engine.ending == 0) && (engine.statc[0] >= engine.statc[1] - 1) && (!lvupflag)) {
-			if(engine.statistics.level < nextseclv - 1) {
+		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					engine.playSE("levelstop");
+				}
 			}
 			levelUp(engine);
 			lvupflag = true;
@@ -725,22 +796,29 @@ public class SpeedMania2Mode extends AbstractMode {
 	}
 
 	/**
-	 *  levelcommon process is raised when
+	 * levelcommon process is raised when
 	 */
 	private void levelUp(GameEngine engine) {
 		// Meter
-		engine.meterValue = ((engine.statistics.level % 100) * receiver.getMeterMax(engine)) / 99;
-		engine.meterColor = GameEngine.METER_COLOR_GREEN;
-		if(engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-		if(engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-		if(engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
+		engine.meterValue = engine.statistics.level % 100 * receiver.getMeterMax(engine) / 99;
+		engine.meterColor = Colors.METER_COLOR_GREEN;
+		if (engine.statistics.level % 100 >= 50) {
+			engine.meterColor = Colors.METER_COLOR_YELLOW;
+		}
+		if (engine.statistics.level % 100 >= 80) {
+			engine.meterColor = Colors.METER_COLOR_ORANGE;
+		}
+		if (engine.statistics.level == nextseclv - 1) {
+			engine.meterColor = Colors.METER_COLOR_RED;
+		}
 
 		// Speed ​​change
 		setSpeed(engine);
 
 		// BGM fadeout
-		if((tableBGMFadeout[bgmlv] != -1) && (engine.statistics.level >= tableBGMFadeout[bgmlv]))
-			owner.bgmStatus.fadesw  = true;
+		if (tableBGMFadeout[bgmlv] != -1 && engine.statistics.level >= tableBGMFadeout[bgmlv]) {
+			owner.bgmStatus.fadesw = true;
+		}
 	}
 
 	/*
@@ -749,80 +827,88 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public void calcScore(GameEngine engine, int playerID, int lines) {
 		// Combo
-		if(lines == 0) {
+		if (lines == 0) {
 			comboValue = 1;
 		} else {
-			comboValue = comboValue + (2 * lines) - 2;
-			if(comboValue < 1) comboValue = 1;
+			comboValue = comboValue + 2 * lines - 2;
+			if (comboValue < 1) {
+				comboValue = 1;
+			}
 		}
 
-		if((lines >= 1) && (engine.ending == 0)) {
+		if (lines >= 1 && engine.ending == 0) {
 			// 4-line clearCount
-			if(lines >= 4) {
+			if (lines >= 4) {
 				// SK medal
-				if(big == true) {
-					if((engine.statistics.totalFour == 1) || (engine.statistics.totalFour == 2) || (engine.statistics.totalFour == 4)) {
+				if (big == true) {
+					if (engine.statistics.totalFour == 1 || engine.statistics.totalFour == 2
+							|| engine.statistics.totalFour == 4) {
 						engine.playSE("medal");
 						medalSK++;
 					}
-				} else {
-					if((engine.statistics.totalFour == 5) || (engine.statistics.totalFour == 10) || (engine.statistics.totalFour == 17)) {
-						engine.playSE("medal");
-						medalSK++;
-					}
+				} else if (engine.statistics.totalFour == 5 || engine.statistics.totalFour == 10
+						|| engine.statistics.totalFour == 17) {
+					engine.playSE("medal");
+					medalSK++;
 				}
 			}
 
 			// AC medal
-			if(engine.field.isEmpty()) {
+			if (engine.field.isEmpty()) {
 				engine.playSE("bravo");
 
-				if(medalAC < 3) {
+				if (medalAC < 3) {
 					engine.playSE("medal");
 					medalAC++;
 				}
 			}
 
 			// CO medal
-			if(big == true) {
-				if((engine.combo >= 2) && (medalCO < 1)) {
+			if (big == true) {
+				if (engine.combo >= 2 && medalCO < 1) {
 					engine.playSE("medal");
 					medalCO = 1;
-				} else if((engine.combo >= 3) && (medalCO < 2)) {
+				} else if (engine.combo >= 3 && medalCO < 2) {
 					engine.playSE("medal");
 					medalCO = 2;
-				} else if((engine.combo >= 4) && (medalCO < 3)) {
+				} else if (engine.combo >= 4 && medalCO < 3) {
 					engine.playSE("medal");
 					medalCO = 3;
 				}
-			} else {
-				if((engine.combo >= 4) && (medalCO < 1)) {
-					engine.playSE("medal");
-					medalCO = 1;
-				} else if((engine.combo >= 5) && (medalCO < 2)) {
-					engine.playSE("medal");
-					medalCO = 2;
-				} else if((engine.combo >= 7) && (medalCO < 3)) {
-					engine.playSE("medal");
-					medalCO = 3;
-				}
+			} else if (engine.combo >= 4 && medalCO < 1) {
+				engine.playSE("medal");
+				medalCO = 1;
+			} else if (engine.combo >= 5 && medalCO < 2) {
+				engine.playSE("medal");
+				medalCO = 2;
+			} else if (engine.combo >= 7 && medalCO < 3) {
+				engine.playSE("medal");
+				medalCO = 3;
 			}
 
 			// Count decrease rising auction
-			if(tableGarbage[engine.statistics.level / 100] != 0) garbageCount -= lines;
-			if(garbageCount < 0) garbageCount = 0;
+			if (tableGarbage[engine.statistics.level / 100] != 0) {
+				garbageCount -= lines;
+			}
+			if (garbageCount < 0) {
+				garbageCount = 0;
+			}
 
 			// Level up
 			int levelb = engine.statistics.level;
 			int levelplus = lines;
-			if(lines == 3) levelplus = 4;
-			if(lines >= 4) levelplus = 6;
+			if (lines == 3) {
+				levelplus = 4;
+			}
+			if (lines >= 4) {
+				levelplus = 6;
+			}
 
 			engine.statistics.level += levelplus;
 
 			levelUp(engine);
 
-			if(engine.statistics.level >= 1300) {
+			if (engine.statistics.level >= 1300) {
 				// Ending
 				engine.playSE("endingstart");
 				engine.statistics.level = 1300;
@@ -838,24 +924,31 @@ public class SpeedMania2Mode extends AbstractMode {
 				// ST medal
 				stMedalCheck(engine, levelb / 100);
 
-				if(sectionlasttime > tableTimeRegret[levelb / 100]) {
+				if (sectionlasttime > tableTimeRegret[levelb / 100]) {
 					// REGRETJudgment
 					regretdispframe = 180;
 					engine.playSE("regret");
 				} else {
 					// Dan rise
 					grade++;
-					if(grade > 13) grade = 13;
+					if (grade > 13) {
+						grade = 13;
+					}
 					gradeflash = 180;
 				}
-			} else if( ((nextseclv ==  500) && (engine.statistics.level >=  500) && (torikan > 0) && (engine.statistics.time > torikan)) ||
-					   ((nextseclv == 1000) && (engine.statistics.level >= 1000) && (torikan > 0) && (engine.statistics.time > torikan * 2)) )
-			{
-				//  level500/1000Kang birds
+			} else if (nextseclv == 500 && engine.statistics.level >= 500 && torikan > 0
+					&& engine.statistics.time > torikan
+					|| nextseclv == 1000 && engine.statistics.level >= 1000 && torikan > 0
+							&& engine.statistics.time > torikan * 2) {
+				// level500/1000Kang birds
 				engine.playSE("endingstart");
 
-				if(nextseclv == 500) engine.statistics.level = 500;
-				if(nextseclv == 1000) engine.statistics.level = 1000;
+				if (nextseclv == 500) {
+					engine.statistics.level = 500;
+				}
+				if (nextseclv == 1000) {
+					engine.statistics.level = 1000;
+				}
 
 				engine.gameEnded();
 				engine.staffrollEnable = false;
@@ -871,17 +964,19 @@ public class SpeedMania2Mode extends AbstractMode {
 				// ST medal
 				stMedalCheck(engine, levelb / 100);
 
-				if(sectionlasttime > tableTimeRegret[levelb / 100]) {
+				if (sectionlasttime > tableTimeRegret[levelb / 100]) {
 					// REGRETJudgment
 					regretdispframe = 180;
 					engine.playSE("regret");
 				} else {
 					// Dan rise
 					grade++;
-					if(grade > 13) grade = 13;
+					if (grade > 13) {
+						grade = 13;
+					}
 					gradeflash = 180;
 				}
-			} else if(engine.statistics.level >= nextseclv) {
+			} else if (engine.statistics.level >= nextseclv) {
 				// Next Section
 				engine.playSE("levelup");
 
@@ -891,7 +986,7 @@ public class SpeedMania2Mode extends AbstractMode {
 				owner.backgroundStatus.fadebg = nextseclv / 100;
 
 				// BGMSwitching
-				if((tableBGMChange[bgmlv] != -1) && (engine.statistics.level >= tableBGMChange[bgmlv])) {
+				if (tableBGMChange[bgmlv] != -1 && engine.statistics.level >= tableBGMChange[bgmlv]) {
 					bgmlv++;
 					owner.bgmStatus.fadesw = false;
 					owner.bgmStatus.bgm = bgmlv + 2;
@@ -906,37 +1001,47 @@ public class SpeedMania2Mode extends AbstractMode {
 				stMedalCheck(engine, levelb / 100);
 
 				// BoneBlockAdvent start
-				if(engine.statistics.level >= 1000) engine.bone = true;
+				if (engine.statistics.level >= 1000) {
+					engine.bone = true;
+				}
 
 				// Update level for next section
 				nextseclv += 100;
 
-				if(sectionlasttime > tableTimeRegret[levelb / 100]) {
+				if (sectionlasttime > tableTimeRegret[levelb / 100]) {
 					// REGRETJudgment
 					regretdispframe = 180;
 					engine.playSE("regret");
 				} else {
 					// Dan rise
 					grade++;
-					if(grade > 13) grade = 13;
+					if (grade > 13) {
+						grade = 13;
+					}
 					gradeflash = 180;
 				}
-			} else if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
+			} else if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
 				engine.playSE("levelstop");
 			}
 
 			// Calculate score
 			int manuallock = 0;
-			if(engine.manualLock == true) manuallock = 1;
+			if (engine.manualLock == true) {
+				manuallock = 1;
+			}
 
 			int bravo = 1;
-			if(engine.field.isEmpty()) bravo = 2;
+			if (engine.field.isEmpty()) {
+				bravo = 2;
+			}
 
 			int speedBonus = engine.getLockDelay() - engine.statc[0];
-			if(speedBonus < 0) speedBonus = 0;
+			if (speedBonus < 0) {
+				speedBonus = 0;
+			}
 
-			lastscore = ( ((levelb + lines) / 4 + engine.softdropFall + manuallock) * lines * comboValue + speedBonus +
-						(engine.statistics.level / 2) ) * bravo;
+			lastscore = (((levelb + lines) / 4 + engine.softdropFall + manuallock) * lines * comboValue + speedBonus
+					+ engine.statistics.level / 2) * bravo;
 
 			engine.statistics.score += lastscore;
 			scgettime = 120;
@@ -948,8 +1053,9 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if(engine.statc[0] == 0 && startlevel >= 11)
+		if (engine.statc[0] == 0 && startlevel >= 11) {
 			engine.bone = true;
+		}
 		return false;
 	}
 
@@ -959,37 +1065,49 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
 		// Flash at elevated dan
-		if(gradeflash > 0) gradeflash--;
+		if (gradeflash > 0) {
+			gradeflash--;
+		}
 
 		// AcquisitionRender score
-		if(scgettime > 0) scgettime--;
+		if (scgettime > 0) {
+			scgettime--;
+		}
 
 		// REGRETDisplay
-		if(regretdispframe > 0) regretdispframe--;
+		if (regretdispframe > 0) {
+			regretdispframe--;
+		}
 
 		// Section TimeIncrease
-		if((engine.timerActive) && (engine.ending == 0)) {
+		if (engine.timerActive && engine.ending == 0) {
 			int section = engine.statistics.level / 100;
 
-			if((section >= 0) && (section < sectiontime.length)) {
+			if (section >= 0 && section < sectiontime.length) {
 				sectiontime[section]++;
 			}
 		}
 
 		// Ending
-		if((engine.gameActive) && (engine.ending == 2)) {
+		if (engine.gameActive && engine.ending == 2) {
 			rolltime++;
 
 			// Time meter
 			int remainRollTime = ROLLTIMELIMIT - rolltime;
-			engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+			engine.meterValue = remainRollTime * receiver.getMeterMax(engine) / ROLLTIMELIMIT;
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainRollTime <= 30 * 60) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainRollTime <= 20 * 60) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainRollTime <= 10 * 60) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
 
 			// Roll End
-			if(rolltime >= ROLLTIMELIMIT) {
+			if (rolltime >= ROLLTIMELIMIT) {
 				secretGrade = engine.field.getSecretGrade();
 				rollclear = 2;
 				engine.gameEnded();
@@ -1005,7 +1123,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if((engine.statc[0] == 0) && (engine.gameActive)) {
+		if (engine.statc[0] == 0 && engine.gameActive) {
 			secretGrade = engine.field.getSecretGrade();
 		}
 		return false;
@@ -1016,45 +1134,59 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3",
+				Colors.FONT_RED);
 
-		if(engine.statc[1] == 0) {
-			int gcolor = EventReceiver.COLOR_WHITE;
-			if((rollclear == 1) || (rollclear == 3)) gcolor = EventReceiver.COLOR_GREEN;
-			if((rollclear == 2) || (rollclear == 4)) gcolor = EventReceiver.COLOR_ORANGE;
-			receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
+		if (engine.statc[1] == 0) {
+			int gcolor = Colors.FONT_WHITE;
+			if (rollclear == 1 || rollclear == 3) {
+				gcolor = Colors.FONT_GREEN;
+			}
+			if (rollclear == 2 || rollclear == 4) {
+				gcolor = Colors.FONT_ORANGE;
+			}
+			receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 			String strGrade = String.format("%10s", tableGradeName[grade]);
 			receiver.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
 
-			drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
-					Statistic.SCORE, Statistic.LINES, Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
-			if(secretGrade > 4) {
-				drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
-						"S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
+			drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+					Statistic.LEVEL_MANIA, Statistic.TIME);
+			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
+			if (secretGrade > 4) {
+				drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
+						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
-		} else if(engine.statc[1] == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
+		} else if (engine.statc[1] == 1) {
+			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
 
-			for(int i = 0; i < sectiontime.length; i++) {
-				if(sectiontime[i] > 0) {
-					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), sectionIsNewRecord[i]);
+			for (int i = 0; i < sectiontime.length; i++) {
+				if (sectiontime[i] > 0) {
+					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
+							sectionIsNewRecord[i]);
 				}
 			}
 
-			if(sectionavgtime > 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 16, "AVERAGE", EventReceiver.COLOR_BLUE);
+			if (sectionavgtime > 0) {
+				receiver.drawMenuFont(engine, playerID, 0, 16, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 17, GeneralUtil.getTime(sectionavgtime));
 			}
-		} else if(engine.statc[1] == 2) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", EventReceiver.COLOR_BLUE);
-			if(medalAC >= 1) receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
-			if(medalST >= 1) receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
-			if(medalSK >= 1) receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
-			if(medalCO >= 1) receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
+		} else if (engine.statc[1] == 2) {
+			receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", Colors.FONT_BLUE);
+			if (medalAC >= 1) {
+				receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
+			}
+			if (medalST >= 1) {
+				receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
+			}
+			if (medalSK >= 1) {
+				receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
+			}
+			if (medalCO >= 1) {
+				receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
+			}
 
-			drawResultStats(engine, playerID, receiver, 6, EventReceiver.COLOR_BLUE,
-					Statistic.LPM, Statistic.SPM, Statistic.PIECE, Statistic.PPS);
+			drawResultStats(engine, playerID, receiver, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+					Statistic.PIECE, Statistic.PPS);
 		}
 	}
 
@@ -1064,18 +1196,22 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page switching
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 			engine.statc[1]--;
-			if(engine.statc[1] < 0) engine.statc[1] = 2;
+			if (engine.statc[1] < 0) {
+				engine.statc[1] = 2;
+			}
 			engine.playSE("change");
 		}
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 			engine.statc[1]++;
-			if(engine.statc[1] > 2) engine.statc[1] = 0;
+			if (engine.statc[1] > 2) {
+				engine.statc[1] = 0;
+			}
 			engine.playSE("change");
 		}
-		//  section time displaySwitching
-		if(engine.ctrl.isPush(Controller.BUTTON_F)) {
+		// section time displaySwitching
+		if (engine.ctrl.isPush(Controller.BUTTON_F)) {
 			engine.playSE("change");
 			isShowBestSectionTime = !isShowBestSectionTime;
 		}
@@ -1092,11 +1228,13 @@ public class SpeedMania2Mode extends AbstractMode {
 		owner.replayProp.setProperty("speedmania2.version", version);
 
 		// Update rankings
-		if((owner.replayMode == false) && (startlevel == 0) && (big == false) && (engine.ai == null)) {
+		if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null) {
 			updateRanking(grade, engine.statistics.level, engine.statistics.time, rollclear);
-			if(medalST == 3) updateBestSectionTime();
+			if (medalST == 3) {
+				updateBestSectionTime();
+			}
 
-			if((rankingRank != -1) || (medalST == 3)) {
+			if (rankingRank != -1 || medalST == 3) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 				receiver.saveModeConfig(owner.modeConfig);
 			}
@@ -1105,51 +1243,55 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * Read rankings from property file
-	 * @param prop Property file
+	 *
+	 * @param prop     Property file
 	 * @param ruleName Rule name
 	 */
 	private void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
+		for (int i = 0; i < RANKING_MAX; i++) {
 			rankingGrade[i] = prop.getProperty("speedmania2.ranking." + ruleName + ".grade." + i, 0);
 			rankingLevel[i] = prop.getProperty("speedmania2.ranking." + ruleName + ".level." + i, 0);
 			rankingTime[i] = prop.getProperty("speedmania2.ranking." + ruleName + ".time." + i, 0);
 			rankingRollclear[i] = prop.getProperty("speedmania2.ranking." + ruleName + ".rollclear." + i, 0);
 		}
-		for(int i = 0; i < SECTION_MAX; i++) {
-			bestSectionTime[i] = prop.getProperty("speedmania2.bestSectionTime." + ruleName + "." + i, DEFAULT_SECTION_TIME);
+		for (int i = 0; i < SECTION_MAX; i++) {
+			bestSectionTime[i] = prop.getProperty("speedmania2.bestSectionTime." + ruleName + "." + i,
+					DEFAULT_SECTION_TIME);
 		}
 	}
 
 	/**
 	 * Save rankings to property file
-	 * @param prop Property file
+	 *
+	 * @param prop     Property file
 	 * @param ruleName Rule name
 	 */
 	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
+		for (int i = 0; i < RANKING_MAX; i++) {
 			prop.setProperty("speedmania2.ranking." + ruleName + ".grade." + i, rankingGrade[i]);
 			prop.setProperty("speedmania2.ranking." + ruleName + ".level." + i, rankingLevel[i]);
 			prop.setProperty("speedmania2.ranking." + ruleName + ".time." + i, rankingTime[i]);
 			prop.setProperty("speedmania2.ranking." + ruleName + ".rollclear." + i, rankingRollclear[i]);
 		}
-		for(int i = 0; i < SECTION_MAX; i++) {
+		for (int i = 0; i < SECTION_MAX; i++) {
 			prop.setProperty("speedmania2.bestSectionTime." + ruleName + "." + i, bestSectionTime[i]);
 		}
 	}
 
 	/**
 	 * Update rankings
-	 * @param gr Dan
-	 * @param lv  level
-	 * @param time Time
+	 *
+	 * @param gr    Dan
+	 * @param lv    level
+	 * @param time  Time
 	 * @param clear Roll Clear flag
 	 */
 	private void updateRanking(int gr, int lv, int time, int clear) {
 		rankingRank = checkRanking(gr, lv, time, clear);
 
-		if(rankingRank != -1) {
+		if (rankingRank != -1) {
 			// Shift down ranking entries
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
 				rankingGrade[i] = rankingGrade[i - 1];
 				rankingLevel[i] = rankingLevel[i - 1];
 				rankingTime[i] = rankingTime[i - 1];
@@ -1166,21 +1308,23 @@ public class SpeedMania2Mode extends AbstractMode {
 
 	/**
 	 * Calculate ranking position
-	 * @param gr Dan
-	 * @param lv  level
-	 * @param time Time
+	 *
+	 * @param gr    Dan
+	 * @param lv    level
+	 * @param time  Time
 	 * @param clear Roll Clear flag
 	 * @return Position (-1 if unranked)
 	 */
 	private int checkRanking(int gr, int lv, int time, int clear) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(clear > rankingRollclear[i]) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (clear > rankingRollclear[i]) {
 				return i;
-			} else if((clear == rankingRollclear[i]) && (gr > rankingGrade[i])) {
+			} else if (clear == rankingRollclear[i] && gr > rankingGrade[i]) {
 				return i;
-			} else if((clear == rankingRollclear[i]) && (gr == rankingGrade[i]) && (lv > rankingLevel[i])) {
+			} else if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv > rankingLevel[i]) {
 				return i;
-			} else if((clear == rankingRollclear[i]) && (gr == rankingGrade[i]) && (lv == rankingLevel[i]) && (time < rankingTime[i])) {
+			} else if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv == rankingLevel[i]
+					&& time < rankingTime[i]) {
 				return i;
 			}
 		}
@@ -1192,8 +1336,8 @@ public class SpeedMania2Mode extends AbstractMode {
 	 * Update best section time records
 	 */
 	private void updateBestSectionTime() {
-		for(int i = 0; i < SECTION_MAX; i++) {
-			if(sectionIsNewRecord[i]) {
+		for (int i = 0; i < SECTION_MAX; i++) {
+			if (sectionIsNewRecord[i]) {
 				bestSectionTime[i] = sectiontime[i];
 			}
 		}

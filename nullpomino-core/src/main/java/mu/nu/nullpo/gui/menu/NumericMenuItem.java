@@ -15,7 +15,8 @@ public class NumericMenuItem extends MenuItem {
 		this(name, color, state, minValue, maxValue, step, ARITHSTYLE_MODULAR);
 	}
 
-	public NumericMenuItem(String name, int color, int state, int minValue, int maxValue, int step, int arithmeticStyle) {
+	public NumericMenuItem(String name, int color, int state, int minValue, int maxValue, int step,
+			int arithmeticStyle) {
 		super(name);
 		this.color = color;
 		this.state = state;
@@ -26,25 +27,29 @@ public class NumericMenuItem extends MenuItem {
 	}
 
 	public void changeState(int change) {
-		state += step*change;
+		state += step * change;
 		int range = maxValue - minValue;
 		if (state > maxValue) {
 			switch (arithmeticStyle) {
-				case ARITHSTYLE_MODULAR:
-					do {
-						state -= range;
-					} while (state > maxValue);
-					break;
-				case ARITHSTYLE_SATURATE: state = maxValue; break;
+			case ARITHSTYLE_MODULAR:
+				do {
+					state -= range;
+				} while (state > maxValue);
+				break;
+			case ARITHSTYLE_SATURATE:
+				state = maxValue;
+				break;
 			}
 		} else if (state < minValue) {
 			switch (arithmeticStyle) {
-				case ARITHSTYLE_MODULAR:
-					do {
-						state += range;
-					} while (state < maxValue);
-					break;
-				case ARITHSTYLE_SATURATE: state = minValue; break;
+			case ARITHSTYLE_MODULAR:
+				do {
+					state += range;
+				} while (state < maxValue);
+				break;
+			case ARITHSTYLE_SATURATE:
+				state = minValue;
+				break;
 			}
 		}
 	}

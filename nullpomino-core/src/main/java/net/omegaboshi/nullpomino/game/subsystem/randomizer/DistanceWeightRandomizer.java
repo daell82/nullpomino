@@ -4,7 +4,7 @@ import mu.nu.nullpo.game.component.Piece;
 
 public abstract class DistanceWeightRandomizer extends Randomizer {
 
-	int[] initWeights = {3, 3, 0, 0, 3, 3, 0, 2, 2, 2, 2};
+	int[] initWeights = { 3, 3, 0, 0, 3, 3, 0, 2, 2, 2, 2 };
 	int[] weights;
 	int[] cumulative;
 	int sum;
@@ -20,6 +20,7 @@ public abstract class DistanceWeightRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
 		weights = new int[pieces.length];
 		for (int i = 0; i < pieces.length; i++) {
@@ -28,6 +29,7 @@ public abstract class DistanceWeightRandomizer extends Randomizer {
 		cumulative = new int[pieces.length];
 	}
 
+	@Override
 	public int next() {
 		sum = 0;
 		for (int i = 0; i < pieces.length; i++) {

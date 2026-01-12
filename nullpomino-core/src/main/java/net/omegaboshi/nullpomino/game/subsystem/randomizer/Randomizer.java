@@ -9,13 +9,15 @@ public abstract class Randomizer {
 	protected Random r;
 	public int[] pieces;
 
-	public Randomizer() {}
+	public Randomizer() {
+	}
 
 	public Randomizer(boolean[] pieceEnable, long seed) {
 		setState(pieceEnable, seed);
 	}
 
-	public void init() {}
+	public void init() {
+	}
 
 	public abstract int next();
 
@@ -28,7 +30,9 @@ public abstract class Randomizer {
 	public void setPieceEnable(boolean[] pieceEnable) {
 		int piece = 0;
 		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
-			if  (pieceEnable[i]) piece++;
+			if (pieceEnable[i]) {
+				piece++;
+			}
 		}
 		pieces = new int[piece];
 		piece = 0;
@@ -44,13 +48,12 @@ public abstract class Randomizer {
 		r = new Random(seed);
 	}
 
-	protected boolean isPieceSZOOnly()
-	{
-		for (int i=0; i<pieces.length; i++) {
-			if (pieces[i] != Piece.PIECE_O && pieces[i] != Piece.PIECE_Z && pieces[i] != Piece.PIECE_S)
+	protected boolean isPieceSZOOnly() {
+		for (int piece : pieces) {
+			if (piece != Piece.PIECE_O && piece != Piece.PIECE_Z && piece != Piece.PIECE_S) {
 				return false;
+			}
 		}
-
 		return true;
 	}
 }

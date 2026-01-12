@@ -9,7 +9,8 @@ public class BagNoSZORandomizer extends BagRandomizer {
 	public BagNoSZORandomizer() {
 		super();
 	}
-	
+
+	@Override
 	public void init() {
 		firstBag = true;
 		super.init();
@@ -19,6 +20,7 @@ public class BagNoSZORandomizer extends BagRandomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void shuffle() {
 		if (firstBag && !isPieceSZOOnly()) {
 			do {

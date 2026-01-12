@@ -3,7 +3,7 @@
   <tns:title>Nullpomino</tns:title>
   <tns:subTitle>Version 7.4.0</tns:subTitle>
   <tns:MenuItem xsi:type="tns:MenuMenuItemType">
-  	<tns:name>Start</tns:name>
+  	<tns:name>StartFOO</tns:name>
   	<tns:description>Start a new game.</tns:description>
   	<tns:menu xsi:type="tns:SelectionMenuType">
   		<tns:MenuItem xsi:type="tns:ModeMenuItemType">

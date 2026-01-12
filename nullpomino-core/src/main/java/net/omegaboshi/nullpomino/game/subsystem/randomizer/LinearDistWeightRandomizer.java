@@ -10,10 +10,12 @@ public class LinearDistWeightRandomizer extends DistanceWeightRandomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public int getWeight(int i) {
 		return weights[i];
 	}
 
+	@Override
 	public boolean isAtDistanceLimit(int i) {
 		return false;
 	}

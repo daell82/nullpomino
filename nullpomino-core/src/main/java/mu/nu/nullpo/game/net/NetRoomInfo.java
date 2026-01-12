@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.List;
 
 import mu.nu.nullpo.game.component.RuleOptions;
 
@@ -153,7 +154,7 @@ public class NetRoomInfo implements Serializable {
 	/** Targeting time */
 	public int targetTimer = 60;
 
-	//public boolean useTankMode = false;
+	// public boolean useTankMode = false;
 
 	/** HurryupSeconds before the startcount(-1InHurryupNo) */
 	public int hurryupSeconds = -1;
@@ -192,25 +193,28 @@ public class NetRoomInfo implements Serializable {
 	public int style = 0;
 
 	/** Map list */
-	public LinkedList<String> mapList = new LinkedList<String>();
+	public LinkedList<String> mapList = new LinkedList<>();
 
 	/** List of people in the room */
-	public LinkedList<NetPlayerInfo> playerList = new LinkedList<NetPlayerInfo>();
+	public List<NetPlayerInfo> playerList = new LinkedList<>();
 
 	/** Game seat */
-	public LinkedList<NetPlayerInfo> playerSeat = new LinkedList<NetPlayerInfo>();
+	public List<NetPlayerInfo> playerSeat = new LinkedList<>();
 
-	/** Game seat(Start gameI updated and new people will not change, even if someone or go out or come in only when) */
-	public LinkedList<NetPlayerInfo> playerSeatNowPlaying = new LinkedList<NetPlayerInfo>();
+	/**
+	 * Game seat(Start gameI updated and new people will not change, even if someone
+	 * or go out or come in only when)
+	 */
+	public List<NetPlayerInfo> playerSeatNowPlaying = new LinkedList<>();
 
 	/** Queue */
-	public LinkedList<NetPlayerInfo> playerQueue = new LinkedList<NetPlayerInfo>();
+	public List<NetPlayerInfo> playerQueue = new LinkedList<>();
 
 	/** Dead player list (Pushed from front, winner will be the first entry) */
-	public LinkedList<NetPlayerInfo> playerSeatDead = new LinkedList<NetPlayerInfo>();
+	public List<NetPlayerInfo> playerSeatDead = new LinkedList<>();
 
 	/** Chat messages */
-	public LinkedList<NetChatMessage> chatList = new LinkedList<NetChatMessage>();
+	public List<NetChatMessage> chats = new LinkedList<>();
 
 	/**
 	 * Constructor
@@ -221,8 +225,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * Copy constructor
 	 *
-	 * @param n
-	 *            Copy source
+	 * @param n Copy source
 	 */
 	public NetRoomInfo(NetRoomInfo n) {
 		copy(n);
@@ -231,8 +234,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * StringFrom an array of dataSubstituteConstructor
 	 *
-	 * @param rdata
-	 *            StringAn array of(String[7])
+	 * @param rdata StringAn array of(String[7])
 	 */
 	public NetRoomInfo(String[] rdata) {
 		importStringArray(rdata);
@@ -241,8 +243,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * StringFrom dataSubstituteConstructor
 	 *
-	 * @param str
-	 *            String
+	 * @param str String
 	 */
 	public NetRoomInfo(String str) {
 		importString(str);
@@ -251,8 +252,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * OtherNetRoomInfoCopied from the
 	 *
-	 * @param n
-	 *            Copy source
+	 * @param n Copy source
 	 */
 	public void copy(NetRoomInfo n) {
 		roomID = n.roomID;
@@ -305,7 +305,7 @@ public class NetRoomInfo implements Serializable {
 		divideChangeRateByPlayers = n.divideChangeRateByPlayers;
 		isTarget = n.isTarget;
 		targetTimer = n.targetTimer;
-		//useTankMode = n.useTankMode;
+		// useTankMode = n.useTankMode;
 		strMode = n.strMode;
 		singleplayer = n.singleplayer;
 		rated = n.rated;
@@ -324,15 +324,14 @@ public class NetRoomInfo implements Serializable {
 		playerQueue.addAll(n.playerQueue);
 		playerSeatDead.clear();
 		playerSeatDead.addAll(n.playerSeatDead);
-		chatList.clear();
-		chatList.addAll(n.chatList);
+		chats.clear();
+		chats.addAll(n.chats);
 	}
 
 	/**
 	 * StringFrom an array of dataAssignment(PlayerExcept list)
 	 *
-	 * @param rdata
-	 *            StringAn array of(String[43])
+	 * @param rdata StringAn array of(String[43])
 	 */
 	public void importStringArray(String[] rdata) {
 		roomID = Integer.parseInt(rdata[0]);
@@ -376,16 +375,19 @@ public class NetRoomInfo implements Serializable {
 		customRated = Boolean.parseBoolean(rdata[38]);
 		style = Integer.parseInt(rdata[39]);
 		divideChangeRateByPlayers = Boolean.parseBoolean(rdata[40]);
-		if(rdata.length > 41) isTarget = Boolean.parseBoolean(rdata[41]);
-		if(rdata.length > 42) targetTimer = Integer.parseInt(rdata[42]);
-		//useTankMode = Boolean.parseBoolean(rdata[43]);
+		if (rdata.length > 41) {
+			isTarget = Boolean.parseBoolean(rdata[41]);
+		}
+		if (rdata.length > 42) {
+			targetTimer = Integer.parseInt(rdata[42]);
+			// useTankMode = Boolean.parseBoolean(rdata[43]);
+		}
 	}
 
 	/**
 	 * String(;Separated in)From dataAssignment(PlayerExcept list)
 	 *
-	 * @param str
-	 *            String
+	 * @param str String
 	 */
 	public void importString(String str) {
 		importStringArray(str.split(";"));
@@ -441,7 +443,7 @@ public class NetRoomInfo implements Serializable {
 		rdata[40] = Boolean.toString(divideChangeRateByPlayers);
 		rdata[41] = Boolean.toString(isTarget);
 		rdata[42] = Integer.toString(targetTimer);
-		//rdata[43] = Boolean.toString(useTankMode);
+		// rdata[43] = Boolean.toString(useTankMode);
 
 		return rdata;
 	}
@@ -457,8 +459,9 @@ public class NetRoomInfo implements Serializable {
 
 		for (int i = 0; i < data.length; i++) {
 			strResult += data[i];
-			if (i < data.length - 1)
+			if (i < data.length - 1) {
 				strResult += ";";
+			}
 		}
 
 		return strResult;
@@ -474,15 +477,17 @@ public class NetRoomInfo implements Serializable {
 	}
 
 	/**
-	 * Those who are in the game now seatcountAcountObtained(nullSeat does not count)
+	 * Those who are in the game now seatcountAcountObtained(nullSeat does not
+	 * count)
 	 *
 	 * @return Those who are in the game now seatcount
 	 */
 	public int getNumberOfPlayerSeated() {
 		int count = 0;
-		for (int i = 0; i < playerSeat.size(); i++) {
-			if (playerSeat.get(i) != null)
+		for (NetPlayerInfo element : playerSeat) {
+			if (element != null) {
 				count++;
+			}
 		}
 		return count;
 	}
@@ -490,8 +495,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * SpecifiedPlayerI will find out if you are in the game seat
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 * @return SpecifiedPlayerIf you&#39;re in the game seattrue
 	 */
 	public boolean isPlayerInSeat(NetPlayerInfo pInfo) {
@@ -501,8 +505,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * SpecifiedPlayerWhat is numberI look at the game you are in the seat of
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 * @return Game seat number(If you do not have-1)
 	 */
 	public int getPlayerSeatNumber(NetPlayerInfo pInfo) {
@@ -518,14 +521,13 @@ public class NetRoomInfo implements Serializable {
 	 * @return If you put the seat immediately without waiting gametrue
 	 */
 	public boolean canJoinSeat() {
-		return (getNumberOfPlayerSeated() < maxPlayers);
+		return getNumberOfPlayerSeated() < maxPlayers;
 	}
 
 	/**
 	 * Entered the game seat
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 * @return Game seat number(I were packed-1)
 	 */
 	public int joinSeat(NetPlayerInfo pInfo) {
@@ -548,8 +550,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * SpecifiedPlayerRemove the seat from the game
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 */
 	public void exitSeat(NetPlayerInfo pInfo) {
 		for (int i = 0; i < playerSeat.size(); i++) {
@@ -562,8 +563,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * Waiting to enter the
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 * @return Waiting number
 	 */
 	public int joinQueue(NetPlayerInfo pInfo) {
@@ -577,8 +577,7 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * SpecifiedPlayerRemoved from the waiting list
 	 *
-	 * @param pInfo
-	 *            Player
+	 * @param pInfo Player
 	 */
 	public void exitQueue(NetPlayerInfo pInfo) {
 		playerQueue.remove(pInfo);
@@ -592,25 +591,24 @@ public class NetRoomInfo implements Serializable {
 	public int getHowManyPlayersReady() {
 		int count = 0;
 		for (NetPlayerInfo pInfo : playerSeat) {
-			if (pInfo != null) {
-				if (pInfo.ready)
-					count++;
+			if (pInfo.ready) {
+				count++;
 			}
 		}
 		return count;
 	}
 
 	/**
-	 * How manyPlayerOr is playingcountObtained(People have just come to the room and still does not include dead man)
+	 * How manyPlayerOr is playingcountObtained(People have just come to the room
+	 * and still does not include dead man)
 	 *
 	 * @return In playNumber of players
 	 */
 	public int getHowManyPlayersPlaying() {
 		int count = 0;
 		for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-			if (pInfo != null) {
-				if (pInfo.playing && playerSeat.contains(pInfo))
-					count++;
+			if (pInfo.playing && playerSeat.contains(pInfo)) {
+				count++;
 			}
 		}
 		return count;
@@ -619,16 +617,14 @@ public class NetRoomInfo implements Serializable {
 	/**
 	 * I survived the lastPlayerGet information
 	 *
-	 * @return I survived the lastPlayerInformation(Yet2Or if you live more than, If I do not start the game in the first place isnull)
+	 * @return I survived the lastPlayerInformation(Yet2Or if you live more than, If
+	 *         I do not start the game in the first place isnull)
 	 */
 	public NetPlayerInfo getWinner() {
-		if ((startPlayers >= 2) && (getHowManyPlayersPlaying() < 2)
-				&& (playing == true)) {
+		if (startPlayers >= 2 && getHowManyPlayersPlaying() < 2 && playing) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (pInfo != null) {
-					if (pInfo.playing && pInfo.connected
-							&& playerSeat.contains(pInfo))
-						return pInfo;
+				if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
+					return pInfo;
 				}
 			}
 		}
@@ -641,12 +637,10 @@ public class NetRoomInfo implements Serializable {
 	 * @return I survived the lastTeam name
 	 */
 	public String getWinnerTeam() {
-		if ((startPlayers >= 2) && (getHowManyPlayersPlaying() >= 2)
-				&& (playing == true)) {
+		if (startPlayers >= 2 && getHowManyPlayersPlaying() >= 2 && playing) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if ((pInfo != null) && pInfo.playing && pInfo.connected
-						&& playerSeat.contains(pInfo)) {
-					if (pInfo.strTeam.length() <= 0) {
+				if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
+					if (pInfo.strTeam.isEmpty()) {
 						return null;
 					} else {
 						return pInfo.strTeam;
@@ -664,12 +658,10 @@ public class NetRoomInfo implements Serializable {
 	public boolean isTeamWin() {
 		String teamname = null;
 
-		if ((startPlayers >= 2) && (getHowManyPlayersPlaying() >= 2)
-				&& (playing == true)) {
+		if (startPlayers >= 2 && getHowManyPlayersPlaying() >= 2 && playing) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if ((pInfo != null) && pInfo.playing && pInfo.connected
-						&& playerSeat.contains(pInfo)) {
-					if (pInfo.strTeam.length() <= 0) {
+				if (pInfo != null && pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
+					if (pInfo.strTeam.isEmpty()) {
 						return false;
 					} else if (teamname == null) {
 						teamname = pInfo.strTeam;
@@ -679,28 +671,25 @@ public class NetRoomInfo implements Serializable {
 				}
 			}
 		}
-
-		return (teamname != null);
+		return teamname != null;
 	}
 
 	/**
 	 * @return true if it's a team game
 	 */
 	public boolean isTeamGame() {
-		LinkedList<String> teamList = new LinkedList<String>();
-
+		List<String> teams = new LinkedList<>();
 		if (startPlayers >= 2) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if ((pInfo != null) && (pInfo.strTeam.length() > 0)) {
-					if (teamList.contains(pInfo.strTeam)) {
+				if (!pInfo.strTeam.isEmpty()) {
+					if (teams.contains(pInfo.strTeam)) {
 						return true;
 					} else {
-						teamList.add(pInfo.strTeam);
+						teams.add(pInfo.strTeam);
 					}
 				}
 			}
 		}
-
 		return false;
 	}
 
@@ -708,15 +697,15 @@ public class NetRoomInfo implements Serializable {
 	 * @return true if 2 or more people have same IP
 	 */
 	public boolean hasSameIPPlayers() {
-		LinkedList<String> ipList = new LinkedList<String>();
+		List<String> ips = new LinkedList<>();
 
 		if (startPlayers >= 2) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if ((pInfo != null) && (pInfo.strRealIP.length() > 0)) {
-					if (ipList.contains(pInfo.strRealIP)) {
+				if (!pInfo.strRealIP.isEmpty()) {
+					if (ips.contains(pInfo.strRealIP)) {
 						return true;
 					} else {
-						ipList.add(pInfo.strRealIP);
+						ips.add(pInfo.strRealIP);
 					}
 				}
 			}
@@ -733,7 +722,7 @@ public class NetRoomInfo implements Serializable {
 		playerSeatNowPlaying.clear();
 		playerSeatNowPlaying.addAll(playerSeat);
 		playerSeatDead.clear();
-		chatList.clear();
+		chats.clear();
 		startPlayers = playerSeatedCount;
 		deadCount = 0;
 		autoStartActive = false;
@@ -751,6 +740,6 @@ public class NetRoomInfo implements Serializable {
 		playerSeatNowPlaying.clear();
 		playerQueue.clear();
 		playerSeatDead.clear();
-		chatList.clear();
+		chats.clear();
 	}
 }

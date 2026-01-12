@@ -37,16 +37,16 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
@@ -74,14 +74,14 @@ import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
-import mu.nu.nullpo.game.component.Block;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 
 /**
  * Rule Editor
@@ -102,14 +102,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** UIFor translationProperty file */
 	public CustomProperties propLang;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/** I&#39;m now openFilename (null:No) */
 	private String strNowFile;
 
 	/** Tab */
 	private JTabbedPane tabPane;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Basic Settings panel */
 
 	/** Rule name */
@@ -119,30 +119,33 @@ public class RuleEditor extends JFrame implements ActionListener {
 	private JTextField txtfldNextDisplay;
 
 	/** Game style combobox */
-	private JComboBox comboboxStyle;
+	private JComboBox<String> comboboxStyle;
 
 	/** Of pictureComboBox */
-	private JComboBox comboboxSkin;
+	private JComboBox<ComboLabel> comboboxSkin;
 
-	/** ghost  is enabled */
+	/** ghost is enabled */
 	private JCheckBox chkboxGhost;
 
 	/** BlockAnd PeacefieldAttempts off target emerges from */
 	private JCheckBox chkboxEnterAboveField;
 
-	/** When the planned site appearance is buriedY-coordinateSlide on theMaximum count */
+	/**
+	 * When the planned site appearance is buriedY-coordinateSlide on theMaximum
+	 * count
+	 */
 	private JTextField txtfldEnterMaxDistanceY;
 
 	/** NEXTOrder generation algorithm */
-	private JComboBox comboboxRandomizer;
+	private JComboBox<String> comboboxRandomizer;
 
 	/** NEXTList of order generation algorithm */
-	private Vector<String> vectorRandomizer;
+	private String[] vectorRandomizer;
 
 	/** NEXTReset sequence generation algorithm button */
 	private JButton btnResetRandomizer;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* fieldSettings panel */
 
 	/** fieldThe width of the */
@@ -163,7 +166,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** fieldAttempts off target to death after only protrude */
 	private JCheckBox chkboxFieldPartialLockoutDeath;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Hold Setting Panel */
 
 	/** Hold is enabled */
@@ -175,13 +178,16 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Can not hold prior continuous use */
 	private JCheckBox chkboxHoldInitialLimit;
 
-	/** When using the holdBlockThe orientation of the piece back to its initial state */
+	/**
+	 * When using the holdBlockThe orientation of the piece back to its initial
+	 * state
+	 */
 	private JCheckBox chkboxHoldResetDirection;
 
 	/** You can hold count (-1:Limitless) */
 	private JTextField txtfldHoldLimit;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Settings panel drop */
 
 	/** Hard dropAvailability */
@@ -214,7 +220,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Use new soft drop codes */
 	private JCheckBox chkboxDropSoftDropGravitySpeedLimit;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* rotationSettings panel */
 
 	/** Precedingrotation */
@@ -242,15 +248,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 	private JCheckBox chkboxRotateButtonAllowDouble;
 
 	/** WallkickAlgorithm */
-	private JComboBox comboboxWallkickSystem;
+	private JComboBox<String> comboboxWallkickSystem;
 
 	/** WallkickList of Algorithms */
-	private Vector<String> vectorWallkickSystem;
+	private String[] vectorWallkickSystem;
 
 	/** WallkickReset of the algorithm button */
 	private JButton btnResetWallkickSystem;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Fixation timeSettings panel */
 
 	/** Minimum fixed time */
@@ -271,7 +277,10 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Lock delay reset by wallkick */
 	private JCheckBox chkboxLockDelayLockResetWallkick;
 
-	/** Lateral motion counterAndrotation counterShare (Lateral motion counterI use only) */
+	/**
+	 * Lateral motion counterAndrotation counterShare (Lateral motion counterI use
+	 * only)
+	 */
 	private JCheckBox chkboxLockDelayLockResetLimitShareCount;
 
 	/** Lateral motion countLimit */
@@ -280,7 +289,10 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** rotation countLimit */
 	private JTextField txtfldLockDelayLockResetLimitRotate;
 
-	/** Lateral motion counterOrrotation counterExceeded the fixed timeTo disable the reset */
+	/**
+	 * Lateral motion counterOrrotation counterExceeded the fixed timeTo disable the
+	 * reset
+	 */
 	private JRadioButton radioLockDelayLockResetLimitOverNoReset;
 
 	/** Lateral motion counterOrrotation counterI fixed the excess is immediately */
@@ -289,7 +301,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Lateral motion counterOrrotation counterI exceeded theWallkickDisable */
 	private JRadioButton radioLockDelayLockResetLimitOverNoWallkick;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* ARESettings panel */
 
 	/** LowestARE */
@@ -322,7 +334,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** ARE cancel on hold checkbox */
 	private JCheckBox chkboxARECancelHold;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Line clearSettings panel */
 
 	/** LowestLine clear time */
@@ -343,7 +355,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Line delay cancel on hold checkbox */
 	private JCheckBox chkboxLineCancelHold;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Move the settings panel */
 
 	/** Minimum horizontal reservoir time */
@@ -376,7 +388,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** EndingCan accumulate on the screen next to the inrush */
 	private JCheckBox chkboxMoveDASInEndingStart;
 
-	/** DAS charge on blocked move checkbox*/
+	/** DAS charge on blocked move checkbox */
 	private JCheckBox chkboxMoveDASChargeOnBlockedMove;
 
 	/** Store DAS Charge on neutral checkbox **/
@@ -397,13 +409,16 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** Can simultaneously pressing the left and right */
 	private JCheckBox chkboxMoveLeftAndRightAllow;
 
-	/** Before when I press the left and right simultaneously frame Of input DirectionGive priority to */
+	/**
+	 * Before when I press the left and right simultaneously frame Of input
+	 * DirectionGive priority to
+	 */
 	private JCheckBox chkboxMoveLeftAndRightUsePreviousInput;
 
 	/** Shift lock checkbox */
 	private JCheckBox chkboxMoveShiftLockEnable;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* rotationPanel pattern correction */
 
 	/** rotationPattern correction tab */
@@ -415,7 +430,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** rotationPattern correction(Y) input Column */
 	private JTextField[][] txtfldPieceOffsetY;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* rotationPanel pattern correction */
 
 	/** rotationPattern correction tab */
@@ -433,19 +448,19 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/** BigAppearance position correction during(Y) input Column */
 	private JTextField[][] txtfldPieceSpawnBigY;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* Panel color settings */
 
 	/** Color selectionComboBox */
 	private JComboBox[] comboboxPieceColor;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/* InitialDirectionSettings panel */
 
 	/** InitialDirectionSelectionComboBox */
 	private JComboBox[] comboboxPieceDirection;
 
-	//----------------------------------------------------------------------
+	// ----------------------------------------------------------------------
 	/** BlockImage */
 	private BufferedImage[] imgBlockSkins;
 
@@ -463,7 +478,9 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Reads a specific fileConstructor
-	 * @param filename Filename (Empty string ornullIt without parameters and toConstructorThe same behavior)
+	 *
+	 * @param filename Filename (Empty string ornullIt without parameters and
+	 *                 toConstructorThe same behavior)
 	 */
 	public RuleEditor(String filename) {
 		super();
@@ -472,15 +489,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		RuleOptions ruleopt = new RuleOptions();
 
-		if((filename != null) && (filename.length() > 0)) {
+		if (filename != null && filename.length() > 0) {
 			try {
 				ruleopt = load(filename);
 				strNowFile = filename;
 				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
 			} catch (IOException e) {
 				log.error("Failed to load rule data from " + filename, e);
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e, getUIText("Title_FileLoadFailed"),
-											  JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed") + "\n" + e,
+						getUIText("Title_FileLoadFailed"), JOptionPane.ERROR_MESSAGE);
 			}
 		}
 
@@ -495,11 +512,10 @@ public class RuleEditor extends JFrame implements ActionListener {
 	private void init() {
 		// Read configuration file
 		propConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
+		try (FileInputStream in = new FileInputStream("config/setting/swing.cfg")) {
 			propConfig.load(in);
-			in.close();
-		} catch(IOException e) {}
+		} catch (IOException _) {
+		}
 
 		// Read language file
 		propLangDefault = new CustomProperties();
@@ -513,17 +529,19 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		propLang = new CustomProperties();
 		try {
-			FileInputStream in = new FileInputStream("config/lang/ruleeditor_" + Locale.getDefault().getCountry() + ".properties");
+			FileInputStream in = new FileInputStream(
+					"config/lang/ruleeditor_" + Locale.getDefault().getCountry() + ".properties");
 			propLang.load(in);
 			in.close();
-		} catch(IOException e) {}
+		} catch (IOException e) {
+		}
 
 		// Look&FeelSetting
-		if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+		if (propConfig.getProperty("option.usenativelookandfeel", true)) {
 			try {
 				UIManager.getInstalledLookAndFeels();
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch(Exception e) {
+			} catch (Exception e) {
 				log.warn("Failed to set native look&feel", e);
 			}
 		}
@@ -581,7 +599,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		// NameSave
 		JMenuItem miSaveAs = new JMenuItem(getUIText("JMenuItem_SaveAs"));
 		miSaveAs.setMnemonic('A');
-		miSaveAs.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		miSaveAs.setAccelerator(
+				KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
 		miSaveAs.setActionCommand("SaveAs");
 		miSaveAs.addActionListener(this);
 		mFile.add(miSaveAs);
@@ -629,7 +648,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JLabel lStyle = new JLabel(getUIText("Basic_Style"));
 		pStyle.add(lStyle);
 
-		comboboxStyle = new JComboBox(GameEngine.GAMESTYLE_NAMES);
+		comboboxStyle = new JComboBox<>(GameEngine.GAMESTYLE_NAMES);
 		comboboxStyle.setPreferredSize(new Dimension(100, 30));
 		pStyle.add(comboboxStyle);
 
@@ -640,11 +659,11 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JLabel lSkin = new JLabel(getUIText("Basic_Skin"));
 		pSkin.add(lSkin);
 
-		DefaultComboBoxModel model = new DefaultComboBoxModel();
-		for(int i = 0; i < imgBlockSkins.length; i++) {
+		DefaultComboBoxModel<ComboLabel> model = new DefaultComboBoxModel<>();
+		for (int i = 0; i < imgBlockSkins.length; i++) {
 			model.addElement(new ComboLabel("" + i, new ImageIcon(imgBlockSkins[i])));
 		}
-		comboboxSkin = new JComboBox(model);
+		comboboxSkin = new JComboBox<>(model);
 		comboboxSkin.setRenderer(new ComboLabelCellRenderer());
 		comboboxSkin.setPreferredSize(new Dimension(190, 30));
 		pSkin.add(comboboxSkin);
@@ -657,7 +676,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxEnterAboveField = new JCheckBox(getUIText("Basic_EnterAboveField"));
 		panelBasic.add(chkboxEnterAboveField);
 
-		// When the planned site appearance is buriedY-coordinateSlide on theMaximum count
+		// When the planned site appearance is buriedY-coordinateSlide on theMaximum
+		// count
 		JPanel pEnterMaxDistanceY = new JPanel();
 		panelBasic.add(pEnterMaxDistanceY);
 
@@ -675,7 +695,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		pRandomizer.add(lRandomizer);
 
 		vectorRandomizer = getTextFileVector("config/list/randomizer.lst");
-		comboboxRandomizer = new JComboBox(createShortStringVector(vectorRandomizer));
+		comboboxRandomizer = new JComboBox<>(createShortStringVector(vectorRandomizer));
 		comboboxRandomizer.setPreferredSize(new Dimension(200, 30));
 		pRandomizer.add(comboboxRandomizer);
 
@@ -749,7 +769,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxHoldInitialLimit = new JCheckBox(getUIText("Hold_HoldInitialLimit"));
 		panelHold.add(chkboxHoldInitialLimit);
 
-		// When using the holdBlockThe orientation of the piece back to its initial state
+		// When using the holdBlockThe orientation of the piece back to its initial
+		// state
 		chkboxHoldResetDirection = new JCheckBox(getUIText("Hold_HoldResetDirection"));
 		panelHold.add(chkboxHoldResetDirection);
 
@@ -863,7 +884,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		pWallkickSystem.add(lWallkickSystem);
 
 		vectorWallkickSystem = getTextFileVector("config/list/wallkick.lst");
-		comboboxWallkickSystem = new JComboBox(createShortStringVector(vectorWallkickSystem));
+		comboboxWallkickSystem = new JComboBox<>(createShortStringVector(vectorWallkickSystem));
 		comboboxWallkickSystem.setPreferredSize(new Dimension(200, 30));
 		pWallkickSystem.add(comboboxWallkickSystem);
 
@@ -906,8 +927,10 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxLockDelayLockResetWallkick = new JCheckBox(getUIText("LockDelay_LockResetWallkick"));
 		panelLockDelay.add(chkboxLockDelayLockResetWallkick);
 
-		// Lateral motion counterAndrotation counterShare (Lateral motion counterI use only)
-		chkboxLockDelayLockResetLimitShareCount = new JCheckBox(getUIText("LockDelay_LockDelayLockResetLimitShareCount"));
+		// Lateral motion counterAndrotation counterShare (Lateral motion counterI use
+		// only)
+		chkboxLockDelayLockResetLimitShareCount = new JCheckBox(
+				getUIText("LockDelay_LockDelayLockResetLimitShareCount"));
 		panelLockDelay.add(chkboxLockDelayLockResetLimitShareCount);
 
 		// Lateral motion countLimit
@@ -938,15 +961,18 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		ButtonGroup gLockDelayLockResetLimitOver = new ButtonGroup();
 
-		radioLockDelayLockResetLimitOverNoReset = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoReset"));
+		radioLockDelayLockResetLimitOverNoReset = new JRadioButton(
+				getUIText("LockDelay_LockDelayLockResetLimitOverNoReset"));
 		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
 		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoReset);
 
-		radioLockDelayLockResetLimitOverInstant = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverInstant"));
+		radioLockDelayLockResetLimitOverInstant = new JRadioButton(
+				getUIText("LockDelay_LockDelayLockResetLimitOverInstant"));
 		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
 		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverInstant);
 
-		radioLockDelayLockResetLimitOverNoWallkick = new JRadioButton(getUIText("LockDelay_LockDelayLockResetLimitOverNoWallkick"));
+		radioLockDelayLockResetLimitOverNoWallkick = new JRadioButton(
+				getUIText("LockDelay_LockDelayLockResetLimitOverNoWallkick"));
 		pLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
 		gLockDelayLockResetLimitOver.add(radioLockDelayLockResetLimitOverNoWallkick);
 
@@ -1090,9 +1116,9 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxMoveDASChargeOnBlockedMove = new JCheckBox(getUIText("Move_DASChargeOnBlockedMove"));
 		panelMove.add(chkboxMoveDASChargeOnBlockedMove);
 		chkboxMoveDASStoreChargeOnNeutral = new JCheckBox(getUIText("Move_DASStoreChargeOnNeutral"));
-      panelMove.add(chkboxMoveDASStoreChargeOnNeutral);
-      chkboxMoveDASRedirectInDelay = new JCheckBox(getUIText("Move_DASRedirectInDelay"));
-      panelMove.add(chkboxMoveDASRedirectInDelay);
+		panelMove.add(chkboxMoveDASStoreChargeOnNeutral);
+		chkboxMoveDASRedirectInDelay = new JCheckBox(getUIText("Move_DASRedirectInDelay"));
+		panelMove.add(chkboxMoveDASRedirectInDelay);
 
 		// First frame Can move in the
 		chkboxMoveFirstFrame = new JCheckBox(getUIText("Move_FirstFrame"));
@@ -1118,7 +1144,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxMoveShiftLockEnable = new JCheckBox(getUIText("Move_ShiftLock"));
 		panelMove.add(chkboxMoveShiftLockEnable);
 
-		// rotationPattern correction tab ------------------------------------------------
+		// rotationPattern correction tab
+		// ------------------------------------------------
 		JPanel panelPieceOffset = new JPanel();
 		panelPieceOffset.setLayout(new BoxLayout(panelPieceOffset, BoxLayout.Y_AXIS));
 		tabPane.addTab(getUIText("TabName_PieceOffset"), panelPieceOffset);
@@ -1126,7 +1153,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		tabPieceOffset = new JTabbedPane();
 		panelPieceOffset.add(tabPieceOffset);
 
-		// rotationPattern correction(X)Tab --------------------------------------------------
+		// rotationPattern correction(X)Tab
+		// --------------------------------------------------
 		JPanel panelPieceOffsetX = new JPanel();
 		panelPieceOffsetX.setLayout(new BoxLayout(panelPieceOffsetX, BoxLayout.Y_AXIS));
 		tabPieceOffset.addTab(getUIText("TabName_PieceOffsetX"), panelPieceOffsetX);
@@ -1134,20 +1162,21 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceOffsetX = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceOffsetX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceOffsetX[i] = new JPanel();
 			panelPieceOffsetX.add(pPieceOffsetX[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceOffsetX[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceOffsetX[i][j] = new JTextField("", 5);
 				pPieceOffsetX[i].add(txtfldPieceOffsetX[i][j]);
 			}
 		}
 
-		// rotationPattern correction(Y)Tab --------------------------------------------------
+		// rotationPattern correction(Y)Tab
+		// --------------------------------------------------
 		JPanel panelPieceOffsetY = new JPanel();
 		panelPieceOffsetY.setLayout(new BoxLayout(panelPieceOffsetY, BoxLayout.Y_AXIS));
 		tabPieceOffset.addTab(getUIText("TabName_PieceOffsetY"), panelPieceOffsetY);
@@ -1155,20 +1184,21 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceOffsetY = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceOffsetY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceOffsetY[i] = new JPanel();
 			panelPieceOffsetY.add(pPieceOffsetY[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceOffsetY[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceOffsetY[i][j] = new JTextField("", 5);
 				pPieceOffsetY[i].add(txtfldPieceOffsetY[i][j]);
 			}
 		}
 
-		// Correction tab appearance position ------------------------------------------------
+		// Correction tab appearance position
+		// ------------------------------------------------
 		JPanel panelPieceSpawn = new JPanel();
 		panelPieceSpawn.setLayout(new BoxLayout(panelPieceSpawn, BoxLayout.Y_AXIS));
 		tabPane.addTab(getUIText("TabName_PieceSpawn"), panelPieceSpawn);
@@ -1176,7 +1206,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		tabPieceSpawn = new JTabbedPane();
 		panelPieceSpawn.add(tabPieceSpawn);
 
-		// Appearance position correction(X)Tab --------------------------------------------------
+		// Appearance position correction(X)Tab
+		// --------------------------------------------------
 		JPanel panelPieceSpawnX = new JPanel();
 		panelPieceSpawnX.setLayout(new BoxLayout(panelPieceSpawnX, BoxLayout.Y_AXIS));
 		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnX"), panelPieceSpawnX);
@@ -1184,20 +1215,21 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceSpawnX = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceSpawnX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceSpawnX[i] = new JPanel();
 			panelPieceSpawnX.add(pPieceSpawnX[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceSpawnX[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceSpawnX[i][j] = new JTextField("", 5);
 				pPieceSpawnX[i].add(txtfldPieceSpawnX[i][j]);
 			}
 		}
 
-		// Appearance position correction(Y)Tab --------------------------------------------------
+		// Appearance position correction(Y)Tab
+		// --------------------------------------------------
 		JPanel panelPieceSpawnY = new JPanel();
 		panelPieceSpawnY.setLayout(new BoxLayout(panelPieceSpawnY, BoxLayout.Y_AXIS));
 		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnY"), panelPieceSpawnY);
@@ -1205,20 +1237,21 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceSpawnY = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceSpawnY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceSpawnY[i] = new JPanel();
 			panelPieceSpawnY.add(pPieceSpawnY[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceSpawnY[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceSpawnY[i][j] = new JTextField("", 5);
 				pPieceSpawnY[i].add(txtfldPieceSpawnY[i][j]);
 			}
 		}
 
-		// BigAppearance position correction during(X)Tab --------------------------------------------------
+		// BigAppearance position correction during(X)Tab
+		// --------------------------------------------------
 		JPanel panelPieceSpawnBigX = new JPanel();
 		panelPieceSpawnBigX.setLayout(new BoxLayout(panelPieceSpawnBigX, BoxLayout.Y_AXIS));
 		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigX"), panelPieceSpawnBigX);
@@ -1226,20 +1259,21 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceSpawnBigX = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceSpawnBigX = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceSpawnBigX[i] = new JPanel();
 			panelPieceSpawnBigX.add(pPieceSpawnBigX[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceSpawnBigX[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceSpawnBigX[i][j] = new JTextField("", 5);
 				pPieceSpawnBigX[i].add(txtfldPieceSpawnBigX[i][j]);
 			}
 		}
 
-		// BigAppearance position correction during(Y)Tab --------------------------------------------------
+		// BigAppearance position correction during(Y)Tab
+		// --------------------------------------------------
 		JPanel panelPieceSpawnBigY = new JPanel();
 		panelPieceSpawnBigY.setLayout(new BoxLayout(panelPieceSpawnBigY, BoxLayout.Y_AXIS));
 		tabPieceSpawn.addTab(getUIText("TabName_PieceSpawnBigY"), panelPieceSpawnBigY);
@@ -1247,14 +1281,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JPanel[] pPieceSpawnBigY = new JPanel[Piece.PIECE_COUNT];
 
 		txtfldPieceSpawnBigY = new JTextField[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceSpawnBigY[i] = new JPanel();
 			panelPieceSpawnBigY.add(pPieceSpawnBigY[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceSpawnBigY[i].add(lPieceName);
 
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceSpawnBigY[i][j] = new JTextField("", 5);
 				pPieceSpawnBigY[i].add(txtfldPieceSpawnBigY[i][j]);
 			}
@@ -1265,44 +1299,49 @@ public class RuleEditor extends JFrame implements ActionListener {
 		panelPieceColor.setLayout(new BoxLayout(panelPieceColor, BoxLayout.Y_AXIS));
 		tabPane.addTab(getUIText("TabName_PieceColor"), panelPieceColor);
 
-		String[] strColorNames = new String[Block.BLOCK_COLOR_COUNT - 1];
-		for(int i = 0; i < strColorNames.length; i++) strColorNames[i] = getUIText("ColorName" + i);
+		String[] strColorNames = new String[Colors.BLOCK_COLOR_COUNT - 1];
+		for (int i = 0; i < strColorNames.length; i++) {
+			strColorNames[i] = getUIText("ColorName" + i);
+		}
 
 		JPanel[] pPieceColor = new JPanel[Piece.PIECE_COUNT];
 
 		comboboxPieceColor = new JComboBox[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceColor[i] = new JPanel();
 			panelPieceColor.add(pPieceColor[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceColor[i].add(lPieceName);
 
-			comboboxPieceColor[i] = new JComboBox(strColorNames);
+			comboboxPieceColor[i] = new JComboBox<>(strColorNames);
 			comboboxPieceColor[i].setPreferredSize(new Dimension(100, 30));
 			comboboxPieceColor[i].setMaximumRowCount(strColorNames.length);
 			pPieceColor[i].add(comboboxPieceColor[i]);
 		}
 
-		// InitialDirectionSettings tab --------------------------------------------------
+		// InitialDirectionSettings tab
+		// --------------------------------------------------
 		JPanel panelPieceDirection = new JPanel();
 		panelPieceDirection.setLayout(new BoxLayout(panelPieceDirection, BoxLayout.Y_AXIS));
 		tabPane.addTab(getUIText("TabName_PieceDirection"), panelPieceDirection);
 
 		String[] strDirectionNames = new String[Piece.DIRECTION_COUNT + 1];
-		for(int i = 0; i < strDirectionNames.length; i++) strDirectionNames[i] = getUIText("DirectionName" + i);
+		for (int i = 0; i < strDirectionNames.length; i++) {
+			strDirectionNames[i] = getUIText("DirectionName" + i);
+		}
 
 		JPanel[] pPieceDirection = new JPanel[Piece.PIECE_COUNT];
 
 		comboboxPieceDirection = new JComboBox[Piece.PIECE_COUNT];
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
 			pPieceDirection[i] = new JPanel();
 			panelPieceDirection.add(pPieceDirection[i]);
 
 			JLabel lPieceName = new JLabel(getUIText("PieceName" + i));
 			pPieceDirection[i].add(lPieceName);
 
-			comboboxPieceDirection[i] = new JComboBox(strDirectionNames);
+			comboboxPieceDirection[i] = new JComboBox<>(strDirectionNames);
 			comboboxPieceDirection[i].setPreferredSize(new Dimension(150, 30));
 			comboboxPieceDirection[i].setMaximumRowCount(strDirectionNames.length);
 			pPieceDirection[i].add(comboboxPieceDirection[i]);
@@ -1317,9 +1356,9 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		int numBlocks = 0;
 		File file = null;
-		while(true) {
+		while (true) {
 			file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
-			if(file.canRead()) {
+			if (file.canRead()) {
 				numBlocks++;
 			} else {
 				break;
@@ -1329,15 +1368,16 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		imgBlockSkins = new BufferedImage[numBlocks];
 
-		for(int i = 0; i < numBlocks; i++) {
-			BufferedImage imgBlock = (BufferedImage) loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
-			boolean isSticky = ((imgBlock != null) && (imgBlock.getWidth() >= 400) && (imgBlock.getHeight() >= 304));
+		for (int i = 0; i < numBlocks; i++) {
+			BufferedImage imgBlock = loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
+			boolean isSticky = imgBlock != null && imgBlock.getWidth() >= 400 && imgBlock.getHeight() >= 304;
 
 			imgBlockSkins[i] = new BufferedImage(144, 16, BufferedImage.TYPE_INT_RGB);
 
-			if(isSticky) {
-				for(int j = 0; j < 9; j++) {
-					imgBlockSkins[i].getGraphics().drawImage(imgBlock, j * 16, 0, (j * 16) + 16, 16, 0, j * 16, 16, (j * 16) + 16, null);
+			if (isSticky) {
+				for (int j = 0; j < 9; j++) {
+					imgBlockSkins[i].getGraphics().drawImage(imgBlock, j * 16, 0, j * 16 + 16, 16, 0, j * 16, 16,
+							j * 16 + 16, null);
 				}
 			} else {
 				imgBlockSkins[i].getGraphics().drawImage(imgBlock, 0, 0, 144, 16, 0, 0, 144, 16, null);
@@ -1347,6 +1387,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Load an image
+	 *
 	 * @param url Image filesURL
 	 * @return Image file (Failurenull)
 	 */
@@ -1363,6 +1404,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Resource FilesURLReturns
+	 *
 	 * @param str Filename
 	 * @return Resource FilesURL
 	 */
@@ -1374,16 +1416,16 @@ public class RuleEditor extends JFrame implements ActionListener {
 			String file = str.replace(sep, '/');
 
 			// Note:http://www.asahi-net.or.jp/~DP8T-ASM/java/tips/HowToMakeURL.html
-			if(file.charAt(0) != '/') {
+			if (file.charAt(0) != '/') {
 				String dir = System.getProperty("user.dir");
 				dir = dir.replace(sep, '/') + '/';
-				if(dir.charAt(0) != '/') {
+				if (dir.charAt(0) != '/') {
 					dir = "/" + dir;
 				}
 				file = dir + file;
 			}
 			url = new URL("file", "", file);
-		} catch(MalformedURLException e) {
+		} catch (MalformedURLException e) {
 			log.warn("Invalid URL:" + str, e);
 			return null;
 		}
@@ -1393,52 +1435,51 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Read the text fileVector&lt;String&gt;Add to
+	 *
 	 * @param filename Filename
 	 * @return I read a text fileVector&lt;String&gt;
 	 */
-	public Vector<String> getTextFileVector(String filename) {
-		Vector<String> vec = new Vector<String>();
-
+	public String[] getTextFileVector(String filename) {
+		List<String> vec = new LinkedList<>();
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(filename));
-
-			while(true) {
-				String str = in.readLine();
-				if((str == null) || (str.length() <= 0)) break;
-				vec.add(str);
+			for (String entry : Files.readAllLines(new File(filename).toPath())) {
+				if (!entry.isEmpty()) {
+					vec.add(entry);
+				}
 			}
-		} catch (IOException e) {}
-
-		return vec;
+		} catch (IOException e) {
+		}
+		return vec.toArray(size -> new String[size]);
 	}
 
 	/**
-	 * SpecificVector&lt;String&gt;Only the target was removed from the last dot symbolVector&lt;String&gt;Create
-	 * @param vecSrc OriginalVector&lt;String&gt;
+	 * SpecificVector&lt;String&gt;Only the target was removed from the last dot
+	 * symbolVector&lt;String&gt;Create
+	 *
+	 * @param inputs OriginalVector&lt;String&gt;
 	 * @return Was processedVector&lt;String&gt;
 	 */
-	public Vector<String> createShortStringVector(Vector<String> vecSrc) {
-		Vector<String> vec = new Vector<String>();
+	public String[] createShortStringVector(String[] inputs) {
+		String[] outputs = new String[inputs.length];
 
-		for(int i = 0; i < vecSrc.size(); i++) {
-			String str = vecSrc.get(i);
+		for (int i = 0; i < inputs.length; i++) {
+			String str = inputs[i];
 			int last = str.lastIndexOf('.');
 
 			String newStr = "";
-			if(last != -1) {
+			if (last != -1) {
 				newStr = str.substring(last + 1);
 			} else {
 				newStr = str;
 			}
-
-			vec.add(newStr);
+			outputs[i] = newStr;
 		}
-
-		return vec;
+		return outputs;
 	}
 
 	/**
 	 * A rule setUIBe reflected in the
+	 *
 	 * @param r Rule Set
 	 */
 	public void readRuleToUI(RuleOptions r) {
@@ -1449,8 +1490,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxGhost.setSelected(r.ghost);
 		chkboxEnterAboveField.setSelected(r.pieceEnterAboveField);
 		txtfldEnterMaxDistanceY.setText(String.valueOf(r.pieceEnterMaxDistanceY));
-		int indexRandomizer = vectorRandomizer.indexOf(r.strRandomizer);
-		comboboxRandomizer.setSelectedIndex(indexRandomizer);
+		int selection = indexOf(vectorRandomizer, r.strRandomizer);
+		comboboxRandomizer.setSelectedIndex(selection);
 
 		txtfldFieldWidth.setText(String.valueOf(r.fieldWidth));
 		txtfldFieldHeight.setText(String.valueOf(r.fieldHeight));
@@ -1484,7 +1525,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxRotateButtonDefaultRight.setSelected(r.rotateButtonDefaultRight);
 		chkboxRotateButtonAllowReverse.setSelected(r.rotateButtonAllowReverse);
 		chkboxRotateButtonAllowDouble.setSelected(r.rotateButtonAllowDouble);
-		int indexWallkick = vectorWallkickSystem.indexOf(r.strWallkick);
+		int indexWallkick = indexOf(vectorWallkickSystem, r.strWallkick);
 		comboboxWallkickSystem.setSelectedIndex(indexWallkick);
 
 		txtfldLockDelayMin.setText(String.valueOf(r.minLockDelay));
@@ -1496,12 +1537,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxLockDelayLockResetLimitShareCount.setSelected(r.lockresetLimitShareCount);
 		txtfldLockDelayLockResetLimitMove.setText(String.valueOf(r.lockresetLimitMove));
 		txtfldLockDelayLockResetLimitRotate.setText(String.valueOf(r.lockresetLimitRotate));
-		if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NORESET)
-			radioLockDelayLockResetLimitOverNoReset.setSelected(true);
-		else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT)
-			radioLockDelayLockResetLimitOverInstant.setSelected(true);
-		else if(r.lockresetLimitOver == RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK)
+		switch (r.lockresetLimitOver) {
+		case RuleOptions.LOCKRESET_LIMIT_OVER_NORESET -> radioLockDelayLockResetLimitOverNoReset.setSelected(true);
+		case RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT -> radioLockDelayLockResetLimitOverInstant.setSelected(true);
+		case RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK ->
 			radioLockDelayLockResetLimitOverNoWallkick.setSelected(true);
+		default -> {
+			/* nothing */}
+		}
 
 		txtfldAREMin.setText(String.valueOf(r.minARE));
 		txtfldAREMax.setText(String.valueOf(r.maxARE));
@@ -1541,8 +1584,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		chkboxMoveLeftAndRightUsePreviousInput.setSelected(r.moveLeftAndRightUsePreviousInput);
 		chkboxMoveShiftLockEnable.setSelected(r.shiftLockEnable);
 
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				txtfldPieceOffsetX[i][j].setText(String.valueOf(r.pieceOffsetX[i][j]));
 				txtfldPieceOffsetY[i][j].setText(String.valueOf(r.pieceOffsetY[i][j]));
 				txtfldPieceSpawnX[i][j].setText(String.valueOf(r.pieceSpawnX[i][j]));
@@ -1557,6 +1600,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * A rule setUIWritten from the
+	 *
 	 * @param r Rule Set
 	 */
 	public void writeRuleFromUI(RuleOptions r) {
@@ -1568,8 +1612,11 @@ public class RuleEditor extends JFrame implements ActionListener {
 		r.pieceEnterAboveField = chkboxEnterAboveField.isSelected();
 		r.pieceEnterMaxDistanceY = getIntTextField(txtfldEnterMaxDistanceY);
 		int indexRandomizer = comboboxRandomizer.getSelectedIndex();
-		if(indexRandomizer >= 0) r.strRandomizer = vectorRandomizer.get(indexRandomizer);
-		else r.strRandomizer = "";
+		if (indexRandomizer >= 0) {
+			r.strRandomizer = vectorRandomizer[indexRandomizer];
+		} else {
+			r.strRandomizer = "";
+		}
 
 		r.fieldWidth = getIntTextField(txtfldFieldWidth);
 		r.fieldHeight = getIntTextField(txtfldFieldHeight);
@@ -1604,8 +1651,11 @@ public class RuleEditor extends JFrame implements ActionListener {
 		r.rotateButtonAllowReverse = chkboxRotateButtonAllowReverse.isSelected();
 		r.rotateButtonAllowDouble = chkboxRotateButtonAllowDouble.isSelected();
 		int indexWallkick = comboboxWallkickSystem.getSelectedIndex();
-		if(indexWallkick >= 0) r.strWallkick = vectorWallkickSystem.get(indexWallkick);
-		else r.strWallkick = "";
+		if (indexWallkick >= 0) {
+			r.strWallkick = vectorWallkickSystem[indexWallkick];
+		} else {
+			r.strWallkick = "";
+		}
 
 		r.minLockDelay = getIntTextField(txtfldLockDelayMin);
 		r.maxLockDelay = getIntTextField(txtfldLockDelayMax);
@@ -1616,9 +1666,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 		r.lockresetLimitShareCount = chkboxLockDelayLockResetLimitShareCount.isSelected();
 		r.lockresetLimitMove = getIntTextField(txtfldLockDelayLockResetLimitMove);
 		r.lockresetLimitRotate = getIntTextField(txtfldLockDelayLockResetLimitRotate);
-		if(radioLockDelayLockResetLimitOverNoReset.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
-		if(radioLockDelayLockResetLimitOverInstant.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
-		if(radioLockDelayLockResetLimitOverNoWallkick.isSelected()) r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
+		if (radioLockDelayLockResetLimitOverNoReset.isSelected()) {
+			r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NORESET;
+		}
+		if (radioLockDelayLockResetLimitOverInstant.isSelected()) {
+			r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_INSTANT;
+		}
+		if (radioLockDelayLockResetLimitOverNoWallkick.isSelected()) {
+			r.lockresetLimitOver = RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK;
+		}
 
 		r.minARE = getIntTextField(txtfldAREMin);
 		r.maxARE = getIntTextField(txtfldAREMax);
@@ -1658,8 +1714,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		r.moveLeftAndRightUsePreviousInput = chkboxMoveLeftAndRightUsePreviousInput.isSelected();
 		r.shiftLockEnable = chkboxMoveShiftLockEnable.isSelected();
 
-		for(int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for(int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
 				r.pieceOffsetX[i][j] = getIntTextField(txtfldPieceOffsetX[i][j]);
 				r.pieceOffsetY[i][j] = getIntTextField(txtfldPieceOffsetY[i][j]);
 				r.pieceSpawnX[i][j] = getIntTextField(txtfldPieceSpawnX[i][j]);
@@ -1674,6 +1730,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Rules stored in a file
+	 *
 	 * @param filename Filename
 	 * @throws IOException When I failed to save
 	 */
@@ -1693,6 +1750,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Reading rules from a file
+	 *
 	 * @param filename Filename
 	 * @return Rule data
 	 * @throws IOException Failed to loadWhen it was
@@ -1714,19 +1772,30 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * PosttranslationalUIGets a string of
+	 *
 	 * @param str String
 	 * @return PosttranslationalUIString (If you do not acceptstrReturns)
 	 */
 	public String getUIText(String str) {
 		String result = propLang.getProperty(str);
-		if(result == null) {
+		if (result == null) {
 			result = propLangDefault.getProperty(str, str);
 		}
 		return result;
 	}
 
+	private <T> int indexOf(T[] data, T value) {
+		for (int i = 0; i < data.length; i++) {
+			if (data[i].equals(value)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	/**
 	 * TextfieldFromintGets the value of the type
+	 *
 	 * @param txtfld Textfield
 	 * @return TextfieldIf you can get the value from its value, Failed0
 	 */
@@ -1735,13 +1804,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		try {
 			v = Integer.parseInt(txtfld.getText());
-		} catch(Exception e) {}
+		} catch (Exception e) {
+		}
 
 		return v;
 	}
 
 	/**
 	 * TextfieldFromfloatGets the value of the type
+	 *
 	 * @param txtfld Textfield
 	 * @return TextfieldIf you can get the value from its value, Failed0f
 	 */
@@ -1750,7 +1821,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		try {
 			v = Float.parseFloat(txtfld.getText());
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 
 		return v;
 	}
@@ -1758,18 +1830,19 @@ public class RuleEditor extends JFrame implements ActionListener {
 	/**
 	 * Processing at the time of occurrence of action
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand() == "New") {
+		if (e.getActionCommand() == "New") {
 			// New
 			strNowFile = null;
 			setTitle(getUIText("Title_RuleEditor"));
 			readRuleToUI(new RuleOptions());
-		} else if(e.getActionCommand() == "Open") {
+		} else if (e.getActionCommand() == "Open") {
 			// Open
 			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
 			c.setFileFilter(new FileFilterRUL());
 
-			if(c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (c.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = c.getSelectedFile();
 				RuleOptions ruleopt = new RuleOptions();
 
@@ -1780,48 +1853,50 @@ public class RuleEditor extends JFrame implements ActionListener {
 					ruleopt = load(file.getPath());
 				} catch (IOException e2) {
 					log.error("Failed to load rule data from " + strNowFile, e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed")+"\n"+e2, getUIText("Title_FileLoadFailed"),
-												  JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, getUIText("Message_FileLoadFailed") + "\n" + e2,
+							getUIText("Title_FileLoadFailed"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
 				readRuleToUI(ruleopt);
 			}
-		} else if((e.getActionCommand() == "Save") && (strNowFile != null)) {
+		} else if (e.getActionCommand() == "Save" && strNowFile != null) {
 			// UpDisclaimer save
 			try {
 				save(strNowFile);
 			} catch (IOException e2) {
 				log.error("Failed to save rule data to " + strNowFile, e2);
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-											  JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
+						getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
 			}
-		} else if((e.getActionCommand() == "Save") || (e.getActionCommand() == "SaveAs")) {
+		} else if (e.getActionCommand() == "Save" || e.getActionCommand() == "SaveAs") {
 			// NameSave
 			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
 			c.setFileFilter(new FileFilterRUL());
 
-			if(c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 				File file = c.getSelectedFile();
 				String filename = file.getPath();
-				if(!filename.endsWith(".rul")) filename = filename + ".rul";
+				if (!filename.endsWith(".rul")) {
+					filename = filename + ".rul";
+				}
 
 				try {
 					save(filename);
 				} catch (Exception e2) {
 					log.error("Failed to save rule data to " + filename, e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed")+"\n"+e2, getUIText("Title_FileSaveFailed"),
-												  JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
+							getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
 					return;
 				}
 
 				strNowFile = filename;
 				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
 			}
-		} else if(e.getActionCommand() == "ResetRandomizer") {
+		} else if (e.getActionCommand() == "ResetRandomizer") {
 			// NEXTReset selection of order generation algorithm
 			comboboxRandomizer.setSelectedItem(null);
-		} else if(e.getActionCommand() == "Exit") {
+		} else if (e.getActionCommand() == "Exit") {
 			// End
 			dispose();
 		}
@@ -1829,13 +1904,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 	/**
 	 * Main functioncount
+	 *
 	 * @param args CommandLinesArgumentcount
 	 */
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("config/etc/log.cfg");
 		log.debug("RuleEditor start");
 
-		if(args.length > 0) {
+		if (args.length > 0) {
 			new RuleEditor(args[0]);
 		} else {
 			new RuleEditor();
@@ -1848,9 +1924,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	protected class FileFilterRUL extends FileFilter {
 		@Override
 		public boolean accept(File f) {
-			if(f.isDirectory()) return true;
-			if(f.getName().endsWith(".rul")) return true;
-			return false;
+			return f.isDirectory() || f.getName().endsWith(".rul");
 		}
 
 		@Override
@@ -1904,26 +1978,27 @@ public class RuleEditor extends JFrame implements ActionListener {
 	 * Image displayComboOf the boxListCellRenderer<br>
 	 * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">Source</a>
 	 */
-	protected class ComboLabelCellRenderer extends JLabel implements ListCellRenderer {
+	protected class ComboLabelCellRenderer extends JLabel implements ListCellRenderer<ComboLabel> {
 		private static final long serialVersionUID = 1L;
 
 		public ComboLabelCellRenderer() {
-			this.setOpaque(true);
+			setOpaque(true);
 		}
 
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-			ComboLabel data = (ComboLabel)value;
+		@Override
+		public Component getListCellRendererComponent(JList<? extends ComboLabel> list, ComboLabel value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			ComboLabel data = value;
 			setText(data.getText());
 			setIcon(data.getIcon());
 
-			if(isSelected) {
+			if (isSelected) {
 				setForeground(Color.white);
 				setBackground(Color.black);
 			} else {
 				setForeground(Color.black);
 				setBackground(Color.white);
 			}
-
 			return this;
 		}
 	}

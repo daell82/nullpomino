@@ -29,6 +29,8 @@
 package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -36,6 +38,7 @@ import mu.nu.nullpo.util.CustomProperties;
  * ScoreInformation such as the
  */
 public class Statistics implements Serializable {
+
 	/** Serial version ID */
 	private static final long serialVersionUID = -499640168205398295L;
 
@@ -63,7 +66,10 @@ public class Statistics implements Serializable {
 	/** Level */
 	public int level;
 
-	/** LevelAdded to the display ofcount (Display levelUse if it is different from the value of the internal) */
+	/**
+	 * LevelAdded to the display ofcount (Display levelUse if it is different from
+	 * the value of the internal)
+	 */
 	public int levelDispAdd;
 
 	/** I put the piececount */
@@ -162,6 +168,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Copy constructor
+	 *
 	 * @param s Copy source
 	 */
 	public Statistics(Statistics s) {
@@ -170,6 +177,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Constructor that imports data from a String Array
+	 *
 	 * @param s String Array (String[37])
 	 */
 	public Statistics(String[] s) {
@@ -178,6 +186,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Constructor that imports data from a String
+	 *
 	 * @param s String (Split by ;)
 	 */
 	public Statistics(String s) {
@@ -230,6 +239,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * OtherStatisticsCopy the value of the
+	 *
 	 * @param s Copy source
 	 */
 	public void copy(Statistics s) {
@@ -276,22 +286,23 @@ public class Statistics implements Serializable {
 	 * SPMYaLPMUpdates
 	 */
 	public void update() {
-		if(lines > 0) {
-			spl = (double)(score) / (double)(lines);
+		if (lines > 0) {
+			spl = (double) score / (double) lines;
 		}
-		if(time > 0) {
-			spm = (double)(score * 3600.0) / (double)(time);
-			sps = (double)(score * 60.0) / (double)(time);
-			lpm = (float)(lines * 3600f) / (float)(time);
-			lps = (float)(lines * 60f) / (float)(time);
-			ppm = (float)(totalPieceLocked * 3600f) / (float)(time);
-			pps = (float)(totalPieceLocked * 60f) / (float)(time);
+		if (time > 0) {
+			spm = score * 3600.0 / time;
+			sps = score * 60.0 / time;
+			lpm = lines * 3600f / time;
+			lps = lines * 60f / time;
+			ppm = totalPieceLocked * 3600f / time;
+			pps = totalPieceLocked * 60f / time;
 		}
 	}
 
 	/**
 	 * Stored in the property set
-	 * @param p Property Set
+	 *
+	 * @param p  Property Set
 	 * @param id AnyID (Player IDEtc.)
 	 */
 	public void writeProperty(CustomProperties p, int id) {
@@ -335,7 +346,7 @@ public class Statistics implements Serializable {
 		p.setProperty(id + ".statistics.rollclear", rollclear);
 
 		// OldVersionFor compatibility with
-		if(id == 0) {
+		if (id == 0) {
 			p.setProperty("result.score", score);
 			p.setProperty("result.totallines", lines);
 			p.setProperty("result.level", level);
@@ -345,7 +356,8 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Read from the property set
-	 * @param p Property Set
+	 *
+	 * @param p  Property Set
 	 * @param id AnyID (Player IDEtc.)
 	 */
 	public void readProperty(CustomProperties p, int id) {
@@ -391,6 +403,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Import from String Array
+	 *
 	 * @param s String Array (String[38])
 	 */
 	public void importStringArray(String[] s) {
@@ -431,11 +444,14 @@ public class Statistics implements Serializable {
 		pps = Float.parseFloat(s[34]);
 		gamerate = Float.parseFloat(s[35]);
 		maxChain = Integer.parseInt(s[36]);
-		if(s.length > 37) rollclear = Integer.parseInt(s[37]);
+		if (s.length > 37) {
+			rollclear = Integer.parseInt(s[37]);
+		}
 	}
 
 	/**
 	 * Import from String
+	 *
 	 * @param s String (Split by ;)
 	 */
 	public void importString(String s) {
@@ -444,6 +460,7 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Export to String Array
+	 *
 	 * @return String Array (String[38])
 	 */
 	public String[] exportStringArray() {
@@ -491,15 +508,11 @@ public class Statistics implements Serializable {
 
 	/**
 	 * Export to String
+	 *
 	 * @return String (Split by ;)
 	 */
 	public String exportString() {
 		String[] array = exportStringArray();
-		String result = "";
-		for(int i = 0; i < array.length; i++) {
-			if(i > 0) result += ";";
-			result += array[i];
-		}
-		return result;
+		return Stream.of(array).collect(Collectors.joining(";"));
 	}
 }

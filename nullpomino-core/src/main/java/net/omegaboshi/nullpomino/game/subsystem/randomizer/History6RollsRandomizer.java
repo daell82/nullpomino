@@ -12,9 +12,10 @@ public class History6RollsRandomizer extends LimitedHistoryRandomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
 		super.init();
-		history = new int[] {Piece.PIECE_S, Piece.PIECE_Z, Piece.PIECE_S, Piece.PIECE_Z};
+		history = new int[] { Piece.PIECE_S, Piece.PIECE_Z, Piece.PIECE_S, Piece.PIECE_Z };
 		numrolls = 6;
 	}
 }

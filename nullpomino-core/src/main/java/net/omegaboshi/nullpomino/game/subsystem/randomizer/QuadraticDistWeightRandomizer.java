@@ -10,10 +10,12 @@ public class QuadraticDistWeightRandomizer extends DistanceWeightRandomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public int getWeight(int i) {
-		return weights[i]*weights[i];
+		return weights[i] * weights[i];
 	}
 
+	@Override
 	public boolean isAtDistanceLimit(int i) {
 		return false;
 	}

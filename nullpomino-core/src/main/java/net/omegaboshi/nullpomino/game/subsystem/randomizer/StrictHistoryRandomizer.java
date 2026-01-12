@@ -21,13 +21,15 @@ public class StrictHistoryRandomizer extends Randomizer {
 		super(pieceEnable, seed);
 	}
 
+	@Override
 	public void init() {
-		history = new int[] {Piece.PIECE_S, Piece.PIECE_Z, Piece.PIECE_O, Piece.PIECE_O};
+		history = new int[] { Piece.PIECE_S, Piece.PIECE_Z, Piece.PIECE_O, Piece.PIECE_O };
 		curHist = new boolean[pieces.length];
 		notHist = new int[pieces.length];
-		histLen = Math.min(4,pieces.length-1);
+		histLen = Math.min(4, pieces.length - 1);
 	}
 
+	@Override
 	public int next() {
 		for (int i = 0; i < pieces.length; i++) {
 			curHist[i] = false;
@@ -47,8 +49,8 @@ public class StrictHistoryRandomizer extends Randomizer {
 			}
 		}
 		id = notHist[r.nextInt(notHistPos)];
-		for (int i = histLen-1; i > 0; i--) {
-			history[i] = history[i-1];
+		for (int i = histLen - 1; i > 0; i--) {
+			history[i] = history[i - 1];
 		}
 		history[0] = pieces[id];
 		return pieces[id];

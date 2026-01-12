@@ -30,14 +30,14 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Controller;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
-
-import org.apache.log4j.Logger;
 
 /**
  * GRADE MANIA 3 Mode
@@ -50,98 +50,73 @@ public class GradeMania3Mode extends AbstractMode {
 	private static final int CURRENT_VERSION = 2;
 
 	/** Section COOL criteria Time */
-	private static final int[] tableTimeCool =
-	{
-		3120, 3120, 2940, 2700, 2700, 2520, 2520, 2280, 2280, 0
-	};
+	private static final int[] tableTimeCool = { 3120, 3120, 2940, 2700, 2700, 2520, 2520, 2280, 2280, 0 };
 
 	/** Section REGRET criteria Time */
-	private static final int[] tableTimeRegret =
-	{
-		5400, 4500, 4500, 4080, 3600, 3600, 3000, 3000, 3000, 3000
-	};
+	private static final int[] tableTimeRegret = { 5400, 4500, 4500, 4080, 3600, 3600, 3000, 3000, 3000, 3000 };
 
 	/** Fall velocity table */
-	private static final int[] tableGravityValue =
-	{
-		4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64, 96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1
-	};
+	private static final int[] tableGravityValue = { 4, 6, 8, 10, 12, 16, 32, 48, 64, 80, 96, 112, 128, 144, 4, 32, 64,
+			96, 128, 160, 192, 224, 256, 512, 768, 1024, 1280, 1024, 768, -1 };
 
 	/** Fall velocity changes level */
-	private static final int[] tableGravityChangeLevel =
-	{
-		30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200, 220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000
-	};
+	private static final int[] tableGravityChangeLevel = { 30, 35, 40, 50, 60, 70, 80, 90, 100, 120, 140, 160, 170, 200,
+			220, 230, 233, 236, 239, 243, 247, 251, 300, 330, 360, 400, 420, 450, 500, 10000 };
 
 	/** ARE table */
-	private static final int[] tableARE       = {23, 23, 23, 23, 23, 23, 23, 14, 10, 10,  4,  3,  2};
+	private static final int[] tableARE = { 23, 23, 23, 23, 23, 23, 23, 14, 10, 10, 4, 3, 2 };
 
 	/** ARE after line clear table */
-	private static final int[] tableARELine   = {23, 23, 23, 23, 23, 23, 14, 10,  4,  4,  4,  3,  2};
+	private static final int[] tableARELine = { 23, 23, 23, 23, 23, 23, 14, 10, 4, 4, 4, 3, 2 };
 
 	/** Line clear time table */
-	private static final int[] tableLineDelay = {40, 40, 40, 40, 40, 25, 16, 12,  6,  6,  6,  6,  6};
+	private static final int[] tableLineDelay = { 40, 40, 40, 40, 40, 25, 16, 12, 6, 6, 6, 6, 6 };
 
 	/** Fixation time table */
-	private static final int[] tableLockDelay = {31, 31, 31, 31, 31, 31, 31, 31, 31, 18, 18, 16, 16};
+	private static final int[] tableLockDelay = { 31, 31, 31, 31, 31, 31, 31, 31, 31, 18, 18, 16, 16 };
 
 	/** DAS table */
-	private static final int[] tableDAS       = {15, 15, 15, 15, 15,  9,  9,  9,  9,  7,  7,  7,  7};
+	private static final int[] tableDAS = { 15, 15, 15, 15, 15, 9, 9, 9, 9, 7, 7, 7, 7 };
 
 	/** BGM fadeout level */
-	private static final int[] tableBGMFadeout = {485,685,-1};
+	private static final int[] tableBGMFadeout = { 485, 685, -1 };
 
 	/** BGM change level */
-	private static final int[] tableBGMChange  = {500,700,-1};
+	private static final int[] tableBGMChange = { 500, 700, -1 };
 
 	/** Line clearDan when entering the point */
-	private static final int[][] tableGradePoint =
-	{
-		{10,10,10,10,10, 5, 5, 5, 5, 5, 2},
-		{20,20,20,15,15,15,10,10,10,10,12},
-		{40,30,30,30,20,20,20,15,15,15,13},
-		{50,40,40,40,40,30,30,30,30,30,30},
-	};
+	private static final int[][] tableGradePoint = { { 10, 10, 10, 10, 10, 5, 5, 5, 5, 5, 2 },
+			{ 20, 20, 20, 15, 15, 15, 10, 10, 10, 10, 12 }, { 40, 30, 30, 30, 20, 20, 20, 15, 15, 15, 13 },
+			{ 50, 40, 40, 40, 40, 30, 30, 30, 30, 30, 30 }, };
 
 	/** Dan pointOfCombo bonus */
-	private static final float[][] tableGradeComboBonus =
-	{
-		{1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f,1.0f},
-		{1.0f,1.2f,1.2f,1.4f,1.4f,1.4f,1.4f,1.5f,1.5f,2.0f},
-		{1.0f,1.4f,1.5f,1.6f,1.7f,1.8f,1.9f,2.0f,2.1f,2.5f},
-		{1.0f,1.5f,1.8f,2.0f,2.2f,2.3f,2.4f,2.5f,2.6f,3.0f},
-	};
+	private static final float[][] tableGradeComboBonus = {
+			{ 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f },
+			{ 1.0f, 1.2f, 1.2f, 1.4f, 1.4f, 1.4f, 1.4f, 1.5f, 1.5f, 2.0f },
+			{ 1.0f, 1.4f, 1.5f, 1.6f, 1.7f, 1.8f, 1.9f, 2.0f, 2.1f, 2.5f },
+			{ 1.0f, 1.5f, 1.8f, 2.0f, 2.2f, 2.3f, 2.4f, 2.5f, 2.6f, 3.0f }, };
 
 	/** Required to raise the internal dan dan actual */
-	private static final int[] tableGradeChange =
-	{
-		1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1
-	};
+	private static final int[] tableGradeChange = { 1, 2, 3, 4, 5, 7, 9, 12, 15, 18, 19, 20, 23, 25, 27, 29, 31, -1 };
 
 	/** Dan pointThe1Reduce one time */
-	private static final int[] tableGradeDecayRate =
-	{
-		125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20, 20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10
-	};
+	private static final int[] tableGradeDecayRate = { 125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20,
+			20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10 };
 
 	///** Of dancount */
-	//private static final int GRADE_MAX = 33;
+	// private static final int GRADE_MAX = 33;
 
 	/** Of danName */
-	private static final String[] tableGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0~ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9~17
-		"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9",	// 18~26
-		 "M", "MK", "MV", "MO", "MM", "GM"						// 27~32
+	private static final String[] tableGradeName = { "9", "8", "7", "6", "5", "4", "3", "2", "1", // 0~ 8
+			"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", // 9~17
+			"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9", // 18~26
+			"M", "MK", "MV", "MO", "MM", "GM" // 27~32
 	};
 
 	/** Dan&#39;s backName */
-	private static final String[] tableSecretGradeName =
-	{
-		 "9",  "8",  "7",  "6",  "5",  "4",  "3",  "2",  "1",	//  0~ 8
-		"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9",	//  9~17
-		"GM"													// 18
+	private static final String[] tableSecretGradeName = { "9", "8", "7", "6", "5", "4", "3", "2", "1", // 0~ 8
+			"S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", // 9~17
+			"GM" // 18
 	};
 
 	/** LV999 roll time */
@@ -156,7 +131,10 @@ public class GradeMania3Mode extends AbstractMode {
 	/** The size of the history dan */
 	private static final int GRADE_HISTORY_SIZE = 7;
 
-	/** Probability of occurrence of a certification exam dan(EXAM_CHANCEMinutes1Probability of occurrence) */
+	/**
+	 * Probability of occurrence of a certification exam
+	 * dan(EXAM_CHANCEMinutes1Probability of occurrence)
+	 */
 	private static final int EXAM_CHANCE = 3;
 
 	/** Number of sections */
@@ -165,7 +143,10 @@ public class GradeMania3Mode extends AbstractMode {
 	/** Default section time */
 	private static final int DEFAULT_SECTION_TIME = 5400;
 
-	/** Current Speed ​​of fall number (tableGravityChangeLevelOf levelAt each of1Increase one) */
+	/**
+	 * Current Speed ​​of fall number (tableGravityChangeLevelOf levelAt each
+	 * of1Increase one)
+	 */
 	private int gravityindex;
 
 	/** Next Section Of level (This-1At levelStop) */
@@ -234,10 +215,10 @@ public class GradeMania3Mode extends AbstractMode {
 	/** REGRET display time frame count */
 	private int regretdispframe;
 
-	/** COOL section flags*/
+	/** COOL section flags */
 	private boolean[] coolsection;
 
-	/** REGRET section flags*/
+	/** REGRET section flags */
 	private boolean[] regretsection;
 
 	/** Section time display color-code type */
@@ -463,14 +444,14 @@ public class GradeMania3Mode extends AbstractMode {
 
 		engine.tspinEnable = false;
 		engine.b2bEnable = false;
-		engine.framecolor = GameEngine.FRAME_COLOR_BLUE;
+		engine.framecolor = Colors.FRAME_COLOR_BLUE;
 		engine.comboType = GameEngine.COMBO_TYPE_DOUBLE;
 		engine.bighalf = true;
 		engine.bigmove = true;
 		engine.staffrollEnable = true;
 		engine.staffrollNoDeath = false;
 
-		if(owner.replayMode == false) {
+		if (owner.replayMode == false) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -478,11 +459,11 @@ public class GradeMania3Mode extends AbstractMode {
 			loadSetting(owner.replayProp);
 			version = owner.replayProp.getProperty("grademania3.version", 0);
 
-			for(int i = 0; i < SECTION_MAX; i++) {
+			for (int i = 0; i < SECTION_MAX; i++) {
 				bestSectionTime[i][enableexam ? 1 : 0] = DEFAULT_SECTION_TIME;
 			}
 
-			if(enableexam) {
+			if (enableexam) {
 				promotionalExam = owner.replayProp.getProperty("grademania3.exam", 0);
 				demotionPoints = owner.replayProp.getProperty("grademania3.demopoint", 0);
 				demotionExamGrade = owner.replayProp.getProperty("grademania3.demotionExamGrade", 0);
@@ -510,8 +491,10 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Load settings from property file
+	 *
 	 * @param prop Property file
 	 */
+	@Override
 	protected void loadSetting(CustomProperties prop) {
 		startlevel = prop.getProperty("grademania3.startlevel", 0);
 		internalStartLevel = prop.getProperty("grademania3.internalLevel", startlevel * 100);
@@ -528,8 +511,10 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Save settings to property file
+	 *
 	 * @param prop Property file
 	 */
+	@Override
 	protected void saveSetting(CustomProperties prop) {
 		prop.setProperty("grademania3.startlevel", startlevel);
 		prop.setProperty("grademania3.internalLevel", internalStartLevel);
@@ -546,26 +531,32 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Set BGM at start of game
+	 *
 	 * @param engine GameEngine
 	 */
 	private void setStartBgmlv(GameEngine engine) {
 		bgmlv = 0;
-		while((tableBGMChange[bgmlv] != -1) && (internalLevel >= tableBGMChange[bgmlv])) bgmlv++;
+		while (tableBGMChange[bgmlv] != -1 && internalLevel >= tableBGMChange[bgmlv]) {
+			bgmlv++;
+		}
 	}
 
 	/**
 	 * Update falling speed
+	 *
 	 * @param engine GameEngine
 	 */
 	private void setSpeed(GameEngine engine) {
-		if((always20g == true) || (engine.statistics.time >= 54000)) {
+		if (always20g == true || engine.statistics.time >= 54000) {
 			engine.speed.gravity = -1;
 		} else {
-			while(internalLevel >= tableGravityChangeLevel[gravityindex]) gravityindex++;
+			while (internalLevel >= tableGravityChangeLevel[gravityindex]) {
+				gravityindex++;
+			}
 			engine.speed.gravity = tableGravityValue[gravityindex];
 		}
 
-		if(engine.statistics.time >= 54000) {
+		if (engine.statistics.time >= 54000) {
 			engine.speed.are = 2;
 			engine.speed.areLine = 1;
 			engine.speed.lineDelay = 3;
@@ -573,7 +564,9 @@ public class GradeMania3Mode extends AbstractMode {
 			engine.speed.das = 5;
 		} else {
 			int section = internalLevel / 100;
-			if(section > tableARE.length - 1) section = tableARE.length - 1;
+			if (section > tableARE.length - 1) {
+				section = tableARE.length - 1;
+			}
 			engine.speed.are = tableARE[section];
 			engine.speed.areLine = tableARELine[section];
 			engine.speed.lineDelay = tableLineDelay[section];
@@ -586,10 +579,12 @@ public class GradeMania3Mode extends AbstractMode {
 	 * Update average section time
 	 */
 	private void setAverageSectionTime() {
-		if(sectionscomp > 0 && startlevel < 10) {
+		if (sectionscomp > 0 && startlevel < 10) {
 			int temp = 0;
-			for(int i = startlevel; i < startlevel + sectionscomp; i++) {
-				if((i >= 0) && (i < sectiontime.length)) temp += sectiontime[i];
+			for (int i = startlevel; i < startlevel + sectionscomp; i++) {
+				if (i >= 0 && i < sectiontime.length) {
+					temp += sectiontime[i];
+				}
 			}
 			sectionavgtime = temp / sectionscomp;
 		} else {
@@ -599,58 +594,66 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * ST medal check
-	 * @param engine GameEngine
+	 *
+	 * @param engine        GameEngine
 	 * @param sectionNumber Section number
 	 */
 	private void stMedalCheck(GameEngine engine, int sectionNumber) {
 		int type = enableexam ? 1 : 0;
 		int best = bestSectionTime[sectionNumber][type];
 
-		if(sectionlasttime < best) {
-			if(medalST < 3) {
+		if (sectionlasttime < best) {
+			if (medalST < 3) {
 				engine.playSE("medal");
 				medalST = 3;
 			}
-			if(!owner.replayMode) {
+			if (!owner.replayMode) {
 				sectionIsNewRecord[sectionNumber] = true;
 			}
-		} else if((sectionlasttime < best + 300) && (medalST < 2)) {
+		} else if (sectionlasttime < best + 300 && medalST < 2) {
 			engine.playSE("medal");
 			medalST = 2;
-		} else if((sectionlasttime < best + 600) && (medalST < 1)) {
+		} else if (sectionlasttime < best + 600 && medalST < 1) {
 			engine.playSE("medal");
 			medalST = 1;
 		}
 	}
 
 	/**
-	 *  medal Gets the color of the character
-	 * @param medalColor  medal State
-	 * @return  medal Text color of the
+	 * medal Gets the color of the character
+	 *
+	 * @param medalColor medal State
+	 * @return medal Text color of the
 	 */
 	private int getMedalFontColor(int medalColor) {
-		if(medalColor == 1) return EventReceiver.COLOR_RED;
-		if(medalColor == 2) return EventReceiver.COLOR_WHITE;
-		if(medalColor == 3) return EventReceiver.COLOR_YELLOW;
+		switch (medalColor) {
+		case 1:
+			return Colors.FONT_RED;
+		case 2:
+			return Colors.FONT_WHITE;
+		case 3:
+			return Colors.FONT_YELLOW;
+		default:
+			break;
+		}
 		return -1;
 	}
 
 	/**
 	 * COOLOf check
+	 *
 	 * @param engine GameEngine
 	 */
 	private void checkCool(GameEngine engine) {
 		// COOL check
-		if((engine.statistics.level % 100 >= 70) && (coolchecked == false)) {
+		if (engine.statistics.level % 100 >= 70 && coolchecked == false) {
 			int section = engine.statistics.level / 100;
 
-			if( (sectiontime[section] <= tableTimeCool[section]) &&
-				((previouscool == false) || ((previouscool == true) && (sectiontime[section] <= coolprevtime + 120))) )
-			{
+			if (sectiontime[section] <= tableTimeCool[section]
+					&& (previouscool == false || previouscool == true && sectiontime[section] <= coolprevtime + 120)) {
 				cool = true;
 				coolsection[section] = true;
-			}
-			else {
+			} else {
 				coolsection[section] = false;
 			}
 			coolprevtime = sectiontime[section];
@@ -658,7 +661,7 @@ public class GradeMania3Mode extends AbstractMode {
 		}
 
 		// COOLDisplay
-		if((engine.statistics.level % 100 >= 82) && (cool == true) && (cooldisplayed == false)) {
+		if (engine.statistics.level % 100 >= 82 && cool == true && cooldisplayed == false) {
 			engine.playSE("cool");
 			cooldispframe = 180;
 			cooldisplayed = true;
@@ -667,26 +670,30 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * REGRETOf check
+	 *
 	 * @param engine GameEngine
 	 * @param levelb Line clearPrevious level
 	 */
 	private void checkRegret(GameEngine engine, int levelb) {
 		int section = levelb / 100;
-		if(sectionlasttime > tableTimeRegret[section]) {
+		if (sectionlasttime > tableTimeRegret[section]) {
 			previouscool = false;
 
 			coolcount--;
-			if(coolcount < 0) coolcount = 0;
+			if (coolcount < 0) {
+				coolcount = 0;
+			}
 
 			grade--;
-			if(grade < 0) grade = 0;
+			if (grade < 0) {
+				grade = 0;
+			}
 			gradeflash = 180;
 
 			regretdispframe = 180;
 			engine.playSE("regret");
 			regretsection[section] = true;
-		}
-		else {
+		} else {
 			regretsection[section] = false;
 		}
 	}
@@ -700,11 +707,14 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Gets the name of the dan
+	 *
 	 * @param g Dan number
 	 * @return Dan name(If out of rangeN/A)
 	 */
 	private String getGradeName(int g) {
-		if((g < 0) || (g >= tableGradeName.length)) return "N/A";
+		if (g < 0 || g >= tableGradeName.length) {
+			return "N/A";
+		}
 		return tableGradeName[g];
 	}
 
@@ -714,41 +724,52 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if(engine.owner.replayMode == false) {
+		if (engine.owner.replayMode == false) {
 			// Configuration changes
 			int change = updateCursor(engine, 10);
 
-			if(change != 0) {
+			if (change != 0) {
 				engine.playSE("change");
 
-				
-				switch(menuCursor) {
+				switch (menuCursor) {
 				case 0:
 					startlevel += change;
-					if(startlevel < 0) startlevel = 11;
-					if(startlevel > 11) startlevel = 0;
+					if (startlevel < 0) {
+						startlevel = 11;
+					}
+					if (startlevel > 11) {
+						startlevel = 0;
+					}
 					owner.backgroundStatus.bg = Math.min(9, startlevel);
-					if (startlevel == 11)
+					if (startlevel == 11) {
 						internalStartLevel = 1200;
-					else {
-						if (startlevel < 10 && startlevel - change < 10 && internalStartLevel < 1200)
+					} else {
+						if (startlevel < 10 && startlevel - change < 10 && internalStartLevel < 1200) {
 							internalStartLevel += change * 100;
+						}
 						int minSpeed = Math.min(startlevel, 9) * 100;
 						int maxSpeed = Math.min(startlevel << 1, 12) * 100;
-						if(internalStartLevel < minSpeed) internalStartLevel = minSpeed;
-						if(internalStartLevel > maxSpeed) internalStartLevel = maxSpeed;
+						if (internalStartLevel < minSpeed) {
+							internalStartLevel = minSpeed;
+						}
+						if (internalStartLevel > maxSpeed) {
+							internalStartLevel = maxSpeed;
+						}
 					}
 					break;
 				case 1:
-					if (startlevel == 11)
+					if (startlevel == 11) {
 						internalStartLevel = 1200;
-					else
-					{
+					} else {
 						internalStartLevel += change * 100;
 						int minSpeed = Math.min(startlevel, 9) * 100;
 						int maxSpeed = Math.min(startlevel << 1, 12) * 100;
-						if(internalStartLevel < minSpeed) internalStartLevel = maxSpeed;
-						if(internalStartLevel > maxSpeed) internalStartLevel = minSpeed;
+						if (internalStartLevel < minSpeed) {
+							internalStartLevel = maxSpeed;
+						}
+						if (internalStartLevel > maxSpeed) {
+							internalStartLevel = minSpeed;
+						}
 					}
 					break;
 				case 2:
@@ -767,15 +788,26 @@ public class GradeMania3Mode extends AbstractMode {
 					gradedisp = !gradedisp;
 					break;
 				case 7:
-					if(engine.ctrl.isPress(Controller.BUTTON_E)) lv500torikan += 3600 * change;
-					else lv500torikan += 60 * change;
-					if(lv500torikan < 0) lv500torikan = 72000;
-					if(lv500torikan > 72000) lv500torikan = 0;
+					if (engine.ctrl.isPress(Controller.BUTTON_E)) {
+						lv500torikan += 3600 * change;
+					} else {
+						lv500torikan += 60 * change;
+					}
+					if (lv500torikan < 0) {
+						lv500torikan = 72000;
+					}
+					if (lv500torikan > 72000) {
+						lv500torikan = 0;
+					}
 					break;
 				case 8:
 					stcolor += change;
-					if(stcolor < 0) stcolor = 2;
-					if(stcolor > 2) stcolor = 0;
+					if (stcolor < 0) {
+						stcolor = 2;
+					}
+					if (stcolor > 2) {
+						stcolor = 0;
+					}
 					break;
 				case 9:
 					big = !big;
@@ -786,14 +818,14 @@ public class GradeMania3Mode extends AbstractMode {
 				}
 			}
 
-			//  section time display切替
-			if(engine.ctrl.isPush(Controller.BUTTON_F) && (menuTime >= 5)) {
+			// section time display切替
+			if (engine.ctrl.isPush(Controller.BUTTON_F) && menuTime >= 5) {
 				engine.playSE("change");
 				isShowBestSectionTime = !isShowBestSectionTime;
 			}
 
 			// 決定
-			if(engine.ctrl.isPush(Controller.BUTTON_A) && (menuTime >= 5)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
 				engine.playSE("decide");
 				saveSetting(owner.modeConfig);
 				receiver.saveModeConfig(owner.modeConfig);
@@ -803,13 +835,13 @@ public class GradeMania3Mode extends AbstractMode {
 				sectionscomp = 0;
 
 				Random rand = new Random();
-				if(!always20g && !big && enableexam && (rand.nextInt(EXAM_CHANCE) == 0)) {
+				if (!always20g && !big && enableexam && rand.nextInt(EXAM_CHANCE) == 0) {
 					setPromotionalGrade();
-					if(promotionalExam > qualifiedGrade) {
+					if (promotionalExam > qualifiedGrade) {
 						promotionFlag = true;
 						readyframe = 100;
 						passframe = 600;
-					} else if(demotionPoints >= 30) {
+					} else if (demotionPoints >= 30) {
 						demotionFlag = true;
 						demotionExamGrade = qualifiedGrade;
 						passframe = 600;
@@ -821,7 +853,8 @@ public class GradeMania3Mode extends AbstractMode {
 					log.debug("Promotional Exam Grade:" + getGradeName(promotionalExam) + " (" + promotionalExam + ")");
 					log.debug("Promotional Exam Flag:" + promotionFlag);
 					log.debug("Demotion Points:" + demotionPoints);
-					log.debug("Demotional Exam Grade:" + getGradeName(demotionExamGrade) + " (" + demotionExamGrade + ")");
+					log.debug("Demotional Exam Grade:" + getGradeName(demotionExamGrade) + " (" + demotionExamGrade
+							+ ")");
 					log.debug("Demotional Exam Flag:" + demotionFlag);
 					log.debug("*** Exam debug log END ***");
 				}
@@ -830,7 +863,7 @@ public class GradeMania3Mode extends AbstractMode {
 			}
 
 			// Cancel
-			if(engine.ctrl.isPush(Controller.BUTTON_B)) {
+			if (engine.ctrl.isPush(Controller.BUTTON_B)) {
 				engine.quitflag = true;
 			}
 
@@ -839,7 +872,7 @@ public class GradeMania3Mode extends AbstractMode {
 			menuTime++;
 			menuCursor = -1;
 
-			if(menuTime >= 60) {
+			if (menuTime >= 60) {
 				return false;
 			}
 		}
@@ -853,28 +886,32 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		String scolorStr = "NONE";
-		if (stcolor == 1) scolorStr = "NEWRECORD";
-		else if (stcolor == 2) scolorStr = "COOL";
+		if (stcolor == 1) {
+			scolorStr = "NEWRECORD";
+		} else if (stcolor == 2) {
+			scolorStr = "COOL";
+		}
 		String level;
-		if (startlevel == 10) level = "ROLL";
-		else if (startlevel == 11) level = "M-ROLL";
-		else level = String.valueOf(startlevel * 100);
+		if (startlevel == 10) {
+			level = "ROLL";
+		} else if (startlevel == 11) {
+			level = "M-ROLL";
+		} else {
+			level = String.valueOf(startlevel * 100);
+		}
 		String speedlevel;
-		if (internalStartLevel >= 1200) speedlevel = "MAX";
-		else speedlevel = String.valueOf(internalStartLevel);
-		drawMenu(engine, playerID, receiver, 0, EventReceiver.COLOR_BLUE, 0,
-				"LEVEL", level,
-				"SPEED", speedlevel,
-				"FULL GHOST", GeneralUtil.getONorOFF(alwaysghost),
-				"20G MODE", GeneralUtil.getONorOFF(always20g),
-				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse),
-				"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"GRADE DISP", GeneralUtil.getONorOFF(gradedisp),
-				"LV500LIMIT", (lv500torikan == 0) ? "NONE" : GeneralUtil.getTime(lv500torikan),
-				"STIMECOLOR", scolorStr);
-		drawMenuCompact(engine, playerID, receiver,
-				"BIG", GeneralUtil.getONorOFF(big),
-				"EXAM", GeneralUtil.getONorOFF(enableexam));
+		if (internalStartLevel >= 1200) {
+			speedlevel = "MAX";
+		} else {
+			speedlevel = String.valueOf(internalStartLevel);
+		}
+		drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "LEVEL", level, "SPEED", speedlevel, "FULL GHOST",
+				GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE",
+				GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "GRADE DISP",
+				GeneralUtil.getONorOFF(gradedisp), "LV500LIMIT",
+				lv500torikan == 0 ? "NONE" : GeneralUtil.getTime(lv500torikan), "STIMECOLOR", scolorStr);
+		drawMenuCompact(engine, playerID, receiver, "BIG", GeneralUtil.getONorOFF(big), "EXAM",
+				GeneralUtil.getONorOFF(enableexam));
 	}
 
 	/*
@@ -885,8 +922,12 @@ public class GradeMania3Mode extends AbstractMode {
 		engine.statistics.level = Math.min(999, startlevel * 100);
 
 		nextseclv = engine.statistics.level + 100;
-		if(engine.statistics.level < 0) nextseclv = 100;
-		if(engine.statistics.level >= 900) nextseclv = 999;
+		if (engine.statistics.level < 0) {
+			nextseclv = 100;
+		}
+		if (engine.statistics.level >= 900) {
+			nextseclv = 999;
+		}
 
 		owner.backgroundStatus.bg = Math.min(startlevel, 9);
 
@@ -897,16 +938,15 @@ public class GradeMania3Mode extends AbstractMode {
 		setStartBgmlv(engine);
 		owner.bgmStatus.bgm = bgmlv;
 
-		if (startlevel >= 10)
-		{
+		if (startlevel >= 10) {
 			// Ending
 			engine.timerActive = false;
 			engine.ending = 2;
 			rollclear = 1;
-			mrollFlag = (startlevel == 11);
+			mrollFlag = startlevel == 11;
 			rollstarted = true;
 
-			if(mrollFlag) {
+			if (mrollFlag) {
 				engine.blockHidden = engine.ruleopt.lockflash;
 				engine.blockHiddenAnim = false;
 				engine.blockShowOutlineOnly = true;
@@ -924,81 +964,95 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA 3" + (enableexam ? "(+EXAM)" : ""), EventReceiver.COLOR_CYAN);
+		receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA 3" + (enableexam ? "(+EXAM)" : ""),
+				Colors.FONT_CYAN);
 
-		if( (engine.stat == GameEngine.Status.SETTING) || ((engine.stat == GameEngine.Status.RESULT) && (!owner.replayMode)) ) {
-			if((startlevel == 0) && (!big) && (!always20g) && (!owner.replayMode) && (engine.ai == null)) {
-				if(!isShowBestSectionTime) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (startlevel == 0 && !big && !always20g && !owner.replayMode && engine.ai == null) {
+				if (!isShowBestSectionTime) {
 					// Rankings
-					float scale = (receiver.getNextDisplayType() == 2) ? 0.5f : 1.0f;
-					int topY = (receiver.getNextDisplayType() == 2) ? 5 : 3;
-					receiver.drawScoreFont(engine, playerID, 3, topY-1, "GRADE LEVEL TIME", EventReceiver.COLOR_BLUE, scale);
+					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+					int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
+					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE, scale);
 
-					for(int i = 0; i < RANKING_MAX; i++) {
+					for (int i = 0; i < RANKING_MAX; i++) {
 						int type = enableexam ? 1 : 0;
-						int gcolor = EventReceiver.COLOR_WHITE;
-						if((rankingRollclear[i][type] == 1) || (rankingRollclear[i][type] == 3)) gcolor = EventReceiver.COLOR_GREEN;
-						if((rankingRollclear[i][type] == 2) || (rankingRollclear[i][type] == 4)) gcolor = EventReceiver.COLOR_ORANGE;
+						int gcolor = Colors.FONT_WHITE;
+						if (rankingRollclear[i][type] == 1 || rankingRollclear[i][type] == 3) {
+							gcolor = Colors.FONT_GREEN;
+						}
+						if (rankingRollclear[i][type] == 2 || rankingRollclear[i][type] == 4) {
+							gcolor = Colors.FONT_ORANGE;
+						}
 
-						receiver.drawScoreFont(engine, playerID, 0, topY+i, String.format("%2d", i + 1), EventReceiver.COLOR_YELLOW, scale);
-						receiver.drawScoreFont(engine, playerID, 3, topY+i, getGradeName(rankingGrade[i][type]), gcolor, scale);
-						receiver.drawScoreFont(engine, playerID, 9, topY+i, String.valueOf(rankingLevel[i][type]), (i == rankingRank), scale);
-						receiver.drawScoreFont(engine, playerID, 15, topY+i, GeneralUtil.getTime(rankingTime[i][type]), (i == rankingRank), scale);
+						receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+								Colors.FONT_YELLOW, scale);
+						receiver.drawScoreFont(engine, playerID, 3, topY + i, getGradeName(rankingGrade[i][type]),
+								gcolor, scale);
+						receiver.drawScoreFont(engine, playerID, 9, topY + i, String.valueOf(rankingLevel[i][type]),
+								i == rankingRank, scale);
+						receiver.drawScoreFont(engine, playerID, 15, topY + i,
+								GeneralUtil.getTime(rankingTime[i][type]), i == rankingRank, scale);
 					}
 
-					if(enableexam) {
-						receiver.drawScoreFont(engine, playerID, 0, 14, "QUALIFIED GRADE", EventReceiver.COLOR_YELLOW);
+					if (enableexam) {
+						receiver.drawScoreFont(engine, playerID, 0, 14, "QUALIFIED GRADE", Colors.FONT_YELLOW);
 						receiver.drawScoreFont(engine, playerID, 0, 15, getGradeName(qualifiedGrade));
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", EventReceiver.COLOR_GREEN);
+					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
 				} else {
 					// Section Time
-					receiver.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);
 
 					int totalTime = 0;
-					for(int i = 0; i < SECTION_MAX; i++) {
+					for (int i = 0; i < SECTION_MAX; i++) {
 						int type = enableexam ? 1 : 0;
 
 						int temp = Math.min(i * 100, 999);
-						int temp2 = Math.min(((i + 1) * 100) - 1, 999);
+						int temp2 = Math.min((i + 1) * 100 - 1, 999);
 
 						String strSectionTime;
-						strSectionTime = String.format("%3d-%3d %s", temp, temp2, GeneralUtil.getTime(bestSectionTime[i][type]));
+						strSectionTime = String.format("%3d-%3d %s", temp, temp2,
+								GeneralUtil.getTime(bestSectionTime[i][type]));
 
-						receiver.drawScoreFont(engine, playerID, 0, 3 + i, strSectionTime, (sectionIsNewRecord[i] && !isAnyExam()));
+						receiver.drawScoreFont(engine, playerID, 0, 3 + i, strSectionTime,
+								sectionIsNewRecord[i] && !isAnyExam());
 
 						totalTime += bestSectionTime[i][type];
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 14, "TOTAL", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 0, 14, "TOTAL", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(totalTime));
-					receiver.drawScoreFont(engine, playerID, 9, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 9, 14, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, 9, 15, GeneralUtil.getTime(totalTime / SECTION_MAX));
 
-					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW RANKING", EventReceiver.COLOR_GREEN);
+					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW RANKING", Colors.FONT_GREEN);
 				}
 			}
 		} else {
-			if(promotionFlag) {
+			if (promotionFlag) {
 				// 試験段位
-				receiver.drawScoreFont(engine, playerID, 0, 5, "QUALIFY", EventReceiver.COLOR_YELLOW);
+				receiver.drawScoreFont(engine, playerID, 0, 5, "QUALIFY", Colors.FONT_YELLOW);
 				receiver.drawScoreFont(engine, playerID, 0, 6, getGradeName(promotionalExam));
 			}
 
-			if(gradedisp) {
+			if (gradedisp) {
 				// Dan
 				int rgrade = grade;
-				if(enableexam && (rgrade >= 32) && (qualifiedGrade < 32)) rgrade = 31;
+				if (enableexam && rgrade >= 32 && qualifiedGrade < 32) {
+					rgrade = 31;
+				}
 
-				receiver.drawScoreFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 3, getGradeName(rgrade), ((gradeflash > 0) && (gradeflash % 4 == 0)));
+				receiver.drawScoreFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
+				receiver.drawScoreFont(engine, playerID, 0, 3, getGradeName(rgrade),
+						gradeflash > 0 && gradeflash % 4 == 0);
 
-				if(!promotionFlag) {
+				if (!promotionFlag) {
 					// Score
-					receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", EventReceiver.COLOR_BLUE);
+					receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
 					String strScore;
-					if((lastscore == 0) || (scgettime <= 0)) {
+					if (lastscore == 0 || scgettime <= 0) {
 						strScore = String.valueOf(engine.statistics.score);
 					} else {
 						strScore = String.valueOf(engine.statistics.score) + "\n(+" + String.valueOf(lastscore) + ")";
@@ -1007,80 +1061,100 @@ public class GradeMania3Mode extends AbstractMode {
 				}
 			}
 
-			//  level
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", EventReceiver.COLOR_BLUE);
+			// level
+			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
 			int tempLevel = engine.statistics.level;
-			if(tempLevel < 0) tempLevel = 0;
+			if (tempLevel < 0) {
+				tempLevel = 0;
+			}
 			String strLevel = String.format("%3d", tempLevel);
 			receiver.drawScoreFont(engine, playerID, 0, 10, strLevel);
 
 			int speed = engine.speed.gravity / 128;
-			if(engine.speed.gravity < 0) speed = 40;
+			if (engine.speed.gravity < 0) {
+				speed = 40;
+			}
 			receiver.drawSpeedMeter(engine, playerID, 0, 11, speed);
 
 			receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
 
 			// Time
-			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", EventReceiver.COLOR_BLUE);
+			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
 			receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(engine.statistics.time));
 
 			// Roll Rest time
-			if((engine.gameActive) && (engine.ending == 2)) {
+			if (engine.gameActive && engine.ending == 2) {
 				int time = ROLLTIMELIMIT - rolltime;
-				if(time < 0) time = 0;
-				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", EventReceiver.COLOR_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), ((time > 0) && (time < 10 * 60)));
+				if (time < 0) {
+					time = 0;
+				}
+				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
+				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
 			}
 
-			if(regretdispframe > 0) {
+			if (regretdispframe > 0) {
 				// REGRET表示
-				receiver.drawMenuFont(engine,playerID,2,21,"REGRET",(regretdispframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_ORANGE);
-			} else if(cooldispframe > 0) {
+				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", regretdispframe % 4 == 0, Colors.FONT_WHITE,
+						Colors.FONT_ORANGE);
+			} else if (cooldispframe > 0) {
 				// COOL表示
-				receiver.drawMenuFont(engine,playerID,2,21,"COOL!!",(cooldispframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_ORANGE);
+				receiver.drawMenuFont(engine, playerID, 2, 21, "COOL!!", cooldispframe % 4 == 0, Colors.FONT_WHITE,
+						Colors.FONT_ORANGE);
 			}
 
-			//  medal
-			if(medalAC >= 1) receiver.drawScoreFont(engine, playerID, 0, 20, "AC", getMedalFontColor(medalAC));
-			if(medalST >= 1) receiver.drawScoreFont(engine, playerID, 3, 20, "ST", getMedalFontColor(medalST));
-			if(medalSK >= 1) receiver.drawScoreFont(engine, playerID, 0, 21, "SK", getMedalFontColor(medalSK));
-			if(medalCO >= 1) receiver.drawScoreFont(engine, playerID, 3, 21, "CO", getMedalFontColor(medalCO));
+			// medal
+			if (medalAC >= 1) {
+				receiver.drawScoreFont(engine, playerID, 0, 20, "AC", getMedalFontColor(medalAC));
+			}
+			if (medalST >= 1) {
+				receiver.drawScoreFont(engine, playerID, 3, 20, "ST", getMedalFontColor(medalST));
+			}
+			if (medalSK >= 1) {
+				receiver.drawScoreFont(engine, playerID, 0, 21, "SK", getMedalFontColor(medalSK));
+			}
+			if (medalCO >= 1) {
+				receiver.drawScoreFont(engine, playerID, 3, 21, "CO", getMedalFontColor(medalCO));
+			}
 
 			// Section Time
-			if((showsectiontime == true) && (sectiontime != null)) {
-				int x = (receiver.getNextDisplayType() == 2) ? 8 : 12;
-				int x2 = (receiver.getNextDisplayType() == 2) ? 9 : 12;
-				receiver.drawScoreFont(engine, playerID, x, 2, "SECTION TIME", EventReceiver.COLOR_BLUE);
+			if (showsectiontime == true && sectiontime != null) {
+				int x = receiver.getNextDisplayType() == 2 ? 8 : 12;
+				int x2 = receiver.getNextDisplayType() == 2 ? 9 : 12;
+				receiver.drawScoreFont(engine, playerID, x, 2, "SECTION TIME", Colors.FONT_BLUE);
 
-				for(int i = 0; i < sectiontime.length; i++) {
-					if(sectiontime[i] > 0) {
+				for (int i = 0; i < sectiontime.length; i++) {
+					if (sectiontime[i] > 0) {
 						int temp = i * 100;
-						if(temp > 999) temp = 999;
+						if (temp > 999) {
+							temp = 999;
+						}
 
 						int section = engine.statistics.level / 100;
 						String strSeparator = " ";
 
-						int color = EventReceiver.COLOR_WHITE;
-						if((i == section) && (engine.ending == 0)) {
+						int color = Colors.FONT_WHITE;
+						if (i == section && engine.ending == 0) {
 							strSeparator = "b";
-						} else {
-							if (stcolor == 1 && sectionIsNewRecord[i]) {
-								color = EventReceiver.COLOR_RED;
-							} else if (stcolor == 2) {
-								if (regretsection[i]) color = EventReceiver.COLOR_RED;
-								else if (coolsection[i])  color = EventReceiver.COLOR_GREEN;
+						} else if (stcolor == 1 && sectionIsNewRecord[i]) {
+							color = Colors.FONT_RED;
+						} else if (stcolor == 2) {
+							if (regretsection[i]) {
+								color = Colors.FONT_RED;
+							} else if (coolsection[i]) {
+								color = Colors.FONT_GREEN;
 							}
 						}
 
 						String strSectionTime;
-						strSectionTime = String.format("%3d%s%s", temp, strSeparator, GeneralUtil.getTime(sectiontime[i]));
+						strSectionTime = String.format("%3d%s%s", temp, strSeparator,
+								GeneralUtil.getTime(sectiontime[i]));
 
 						receiver.drawScoreFont(engine, playerID, x, 3 + i, strSectionTime, color);
 					}
 				}
 
-				if(sectionavgtime > 0) {
-					receiver.drawScoreFont(engine, playerID, x2, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+				if (sectionavgtime > 0) {
+					receiver.drawScoreFont(engine, playerID, x2, 14, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawScoreFont(engine, playerID, x2, 15, GeneralUtil.getTime(sectionavgtime));
 				}
 			}
@@ -1092,20 +1166,23 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if(promotionFlag) {
-			engine.framecolor = GameEngine.FRAME_COLOR_YELLOW;
+		if (promotionFlag) {
+			engine.framecolor = Colors.FRAME_COLOR_YELLOW;
 
-			if(readyframe == 100) engine.playSE("tspin3");
+			if (readyframe == 100) {
+				engine.playSE("tspin3");
+			}
 
-			if(engine.ctrl.isPush(Controller.BUTTON_A) || engine.ctrl.isPush(Controller.BUTTON_B))
+			if (engine.ctrl.isPush(Controller.BUTTON_A) || engine.ctrl.isPush(Controller.BUTTON_B)) {
 				readyframe = 0;
+			}
 
-			if(readyframe > 0) {
+			if (readyframe > 0) {
 				readyframe--;
 				return true;
 			}
-		} else if(demotionFlag) {
-			engine.framecolor = GameEngine.FRAME_COLOR_GRAY;
+		} else if (demotionFlag) {
+			engine.framecolor = Colors.FRAME_COLOR_GRAY;
 			engine.playSE("danger");
 		}
 
@@ -1117,11 +1194,11 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderReady(GameEngine engine, int playerID) {
-		if(promotionFlag && readyframe > 0) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", EventReceiver.COLOR_YELLOW);
-			receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", EventReceiver.COLOR_YELLOW);
-			receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), (readyframe % 4 ==0),
-				EventReceiver.COLOR_WHITE, EventReceiver.COLOR_ORANGE);
+		if (promotionFlag && readyframe > 0) {
+			receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
+			receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
+			receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), readyframe % 4 == 0,
+					Colors.FONT_WHITE, Colors.FONT_ORANGE);
 		}
 	}
 
@@ -1131,40 +1208,45 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
-		if((engine.ending == 0) && (engine.statc[0] == 0) && (engine.holdDisable == false) && (!lvupflag)) {
+		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
 			// Level up
-			if(engine.statistics.level < nextseclv - 1) {
+			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				internalLevel++;
-				if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					engine.playSE("levelstop");
+				}
 			}
 			levelUp(engine);
 
 			// Hard drop bonusInitialization
 			harddropBonus = 0;
 		}
-		if( (engine.ending == 0) && (engine.statc[0] > 0) && ((version >= 1) || (engine.holdDisable == false)) ) {
+		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 1 || engine.holdDisable == false)) {
 			lvupflag = false;
 		}
 
 		// Dan pointDecrease
-		if((engine.timerActive == true) && (gradeBasicPoint > 0) && (engine.combo <= 0) && (engine.lockDelayNow < engine.getLockDelay() - 1)) {
+		if (engine.timerActive == true && gradeBasicPoint > 0 && engine.combo <= 0
+				&& engine.lockDelayNow < engine.getLockDelay() - 1) {
 			gradeBasicDecay++;
 
 			int index = gradeBasicInternal;
-			if(index > tableGradeDecayRate.length - 1) index = tableGradeDecayRate.length - 1;
+			if (index > tableGradeDecayRate.length - 1) {
+				index = tableGradeDecayRate.length - 1;
+			}
 
-			if(gradeBasicDecay >= tableGradeDecayRate[index]) {
+			if (gradeBasicDecay >= tableGradeDecayRate[index]) {
 				gradeBasicDecay = 0;
 				gradeBasicPoint--;
 			}
 		}
 
 		// EndingStart
-		if((engine.ending == 2) && (rollstarted == false)) {
+		if (engine.ending == 2 && rollstarted == false) {
 			rollstarted = true;
 
-			if(mrollFlag) {
+			if (mrollFlag) {
 				engine.blockHidden = engine.ruleopt.lockflash;
 				engine.blockHiddenAnim = false;
 				engine.blockShowOutlineOnly = true;
@@ -1185,11 +1267,13 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
-		if((engine.ending == 0) && (engine.statc[0] >= engine.statc[1] - 1) && (!lvupflag)) {
-			if(engine.statistics.level < nextseclv - 1) {
+		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				internalLevel++;
-				if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) engine.playSE("levelstop");
+				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					engine.playSE("levelstop");
+				}
 			}
 			levelUp(engine);
 			lvupflag = true;
@@ -1199,15 +1283,21 @@ public class GradeMania3Mode extends AbstractMode {
 	}
 
 	/**
-	 *  levelcommon process is raised when
+	 * levelcommon process is raised when
 	 */
 	private void levelUp(GameEngine engine) {
 		// Meter
-		engine.meterValue = ((engine.statistics.level % 100) * receiver.getMeterMax(engine)) / 99;
-		engine.meterColor = GameEngine.METER_COLOR_GREEN;
-		if(engine.statistics.level % 100 >= 50) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-		if(engine.statistics.level % 100 >= 80) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-		if(engine.statistics.level == nextseclv - 1) engine.meterColor = GameEngine.METER_COLOR_RED;
+		engine.meterValue = engine.statistics.level % 100 * receiver.getMeterMax(engine) / 99;
+		engine.meterColor = Colors.METER_COLOR_GREEN;
+		if (engine.statistics.level % 100 >= 50) {
+			engine.meterColor = Colors.METER_COLOR_YELLOW;
+		}
+		if (engine.statistics.level % 100 >= 80) {
+			engine.meterColor = Colors.METER_COLOR_ORANGE;
+		}
+		if (engine.statistics.level == nextseclv - 1) {
+			engine.meterColor = Colors.METER_COLOR_RED;
+		}
 
 		// COOL check
 		checkCool(engine);
@@ -1216,18 +1306,22 @@ public class GradeMania3Mode extends AbstractMode {
 		setSpeed(engine);
 
 		// LV100In reachingghost Disappear
-		if((engine.statistics.level >= 100) && (!alwaysghost)) engine.ghost = false;
+		if (engine.statistics.level >= 100 && !alwaysghost) {
+			engine.ghost = false;
+		}
 
 		// BGM fadeout
 		int tempLevel = internalLevel;
-		if(cool) tempLevel += 100;
+		if (cool) {
+			tempLevel += 100;
+		}
 
-		if((tableBGMFadeout[bgmlv] != -1) && (tempLevel >= tableBGMFadeout[bgmlv])) {
-			owner.bgmStatus.fadesw  = true;
+		if (tableBGMFadeout[bgmlv] != -1 && tempLevel >= tableBGMFadeout[bgmlv]) {
+			owner.bgmStatus.fadesw = true;
 		}
 
 		// BGMSwitching
-		if((tableBGMChange[bgmlv] != -1) && (internalLevel >= tableBGMChange[bgmlv])) {
+		if (tableBGMChange[bgmlv] != -1 && internalLevel >= tableBGMChange[bgmlv]) {
 			bgmlv++;
 			owner.bgmStatus.fadesw = false;
 			owner.bgmStatus.bgm = bgmlv;
@@ -1240,109 +1334,123 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public void calcScore(GameEngine engine, int playerID, int lines) {
 		// Combo
-		if(lines == 0) {
+		if (lines == 0) {
 			comboValue = 1;
 		} else {
-			comboValue = comboValue + (2 * lines) - 2;
-			if(comboValue < 1) comboValue = 1;
+			comboValue = comboValue + 2 * lines - 2;
+			if (comboValue < 1) {
+				comboValue = 1;
+			}
 		}
 
-		if((lines >= 1) && (engine.ending == 0)) {
+		if (lines >= 1 && engine.ending == 0) {
 			// Dan point
 			int index = gradeBasicInternal;
-			if(index > 10) index = 10;
+			if (index > 10) {
+				index = 10;
+			}
 			int basepoint = tableGradePoint[lines - 1][index];
 
 			int indexcombo = engine.combo - 1;
-			if(indexcombo < 0) indexcombo = 0;
-			if(indexcombo > tableGradeComboBonus[lines - 1].length - 1) indexcombo = tableGradeComboBonus[lines - 1].length - 1;
+			if (indexcombo < 0) {
+				indexcombo = 0;
+			}
+			if (indexcombo > tableGradeComboBonus[lines - 1].length - 1) {
+				indexcombo = tableGradeComboBonus[lines - 1].length - 1;
+			}
 			float combobonus = tableGradeComboBonus[lines - 1][indexcombo];
 
-			int levelbonus = 1 + (engine.statistics.level / 250);
+			int levelbonus = 1 + engine.statistics.level / 250;
 
-			float point = (basepoint * combobonus) * levelbonus;
-			gradeBasicPoint += (int)point;
+			float point = basepoint * combobonus * levelbonus;
+			gradeBasicPoint += (int) point;
 
 			// Dan rising internal
-			if(gradeBasicPoint >= 100) {
+			if (gradeBasicPoint >= 100) {
 				gradeBasicPoint = 0;
 				gradeBasicDecay = 0;
 				gradeBasicInternal++;
 
-				if((tableGradeChange[gradeBasicReal] != -1) && (gradeBasicInternal >= tableGradeChange[gradeBasicReal])) {
-					if(gradedisp) engine.playSE("gradeup");
+				if (tableGradeChange[gradeBasicReal] != -1 && gradeBasicInternal >= tableGradeChange[gradeBasicReal]) {
+					if (gradedisp) {
+						engine.playSE("gradeup");
+					}
 					gradeBasicReal++;
 					grade++;
-					if(grade > 31) grade = 31;
+					if (grade > 31) {
+						grade = 31;
+					}
 					gradeflash = 180;
 					lastGradeTime = engine.statistics.time;
 				}
 			}
 
 			// 4-line clearCount
-			if(lines >= 4) {
+			if (lines >= 4) {
 				// SK medal
-				if(big == true) {
-					if((engine.statistics.totalFour == 1) || (engine.statistics.totalFour == 2) || (engine.statistics.totalFour == 4)) {
+				if (big == true) {
+					if (engine.statistics.totalFour == 1 || engine.statistics.totalFour == 2
+							|| engine.statistics.totalFour == 4) {
 						engine.playSE("medal");
 						medalSK++;
 					}
-				} else {
-					if((engine.statistics.totalFour == 10) || (engine.statistics.totalFour == 20) || (engine.statistics.totalFour == 35)) {
-						engine.playSE("medal");
-						medalSK++;
-					}
+				} else if (engine.statistics.totalFour == 10 || engine.statistics.totalFour == 20
+						|| engine.statistics.totalFour == 35) {
+					engine.playSE("medal");
+					medalSK++;
 				}
 			}
 
 			// AC medal
-			if(engine.field.isEmpty()) {
+			if (engine.field.isEmpty()) {
 				engine.playSE("bravo");
 
-				if(medalAC < 3) {
+				if (medalAC < 3) {
 					engine.playSE("medal");
 					medalAC++;
 				}
 			}
 
 			// CO medal
-			if(big == true) {
-				if((engine.combo >= 2) && (medalCO < 1)) {
+			if (big == true) {
+				if (engine.combo >= 2 && medalCO < 1) {
 					engine.playSE("medal");
 					medalCO = 1;
-				} else if((engine.combo >= 3) && (medalCO < 2)) {
+				} else if (engine.combo >= 3 && medalCO < 2) {
 					engine.playSE("medal");
 					medalCO = 2;
-				} else if((engine.combo >= 4) && (medalCO < 3)) {
+				} else if (engine.combo >= 4 && medalCO < 3) {
 					engine.playSE("medal");
 					medalCO = 3;
 				}
-			} else {
-				if((engine.combo >= 4) && (medalCO < 1)) {
-					engine.playSE("medal");
-					medalCO = 1;
-				} else if((engine.combo >= 5) && (medalCO < 2)) {
-					engine.playSE("medal");
-					medalCO = 2;
-				} else if((engine.combo >= 7) && (medalCO < 3)) {
-					engine.playSE("medal");
-					medalCO = 3;
-				}
+			} else if (engine.combo >= 4 && medalCO < 1) {
+				engine.playSE("medal");
+				medalCO = 1;
+			} else if (engine.combo >= 5 && medalCO < 2) {
+				engine.playSE("medal");
+				medalCO = 2;
+			} else if (engine.combo >= 7 && medalCO < 3) {
+				engine.playSE("medal");
+				medalCO = 3;
 			}
 
 			// Level up
 			int levelb = engine.statistics.level;
 
 			int levelplus = lines;
-			if(lines == 3) levelplus = 4;
-			if(lines >= 4) levelplus = 6;
+			if (lines == 3) {
+				levelplus = 4;
+			}
+			if (lines >= 4) {
+				levelplus = 6;
+			}
 
 			engine.statistics.level += levelplus;
 			internalLevel += levelplus;
 
 			levelUp(engine);
 
-			if(engine.statistics.level >= 999) {
+			if (engine.statistics.level >= 999) {
 				// Ending
 				engine.statistics.level = 999;
 				engine.timerActive = false;
@@ -1363,14 +1471,16 @@ public class GradeMania3Mode extends AbstractMode {
 				checkRegret(engine, levelb);
 
 				// Disappear if all the conditions are metRoll Invocation
-				if(version >= 2) {
-					if((grade >= 24) && (coolcount >= 9)) mrollFlag = true;
-				} else {
-					if((grade >= 15) && (coolcount >= 9)) mrollFlag = true;
+				if (version >= 2) {
+					if (grade >= 24 && coolcount >= 9) {
+						mrollFlag = true;
+					}
+				} else if (grade >= 15 && coolcount >= 9) {
+					mrollFlag = true;
 				}
-			} else if((nextseclv == 500) && (engine.statistics.level >= 500) && (lv500torikan > 0) && (engine.statistics.time > lv500torikan) &&
-					  (!promotionFlag) && (!demotionFlag)) {
-				//  level500Kang birds
+			} else if (nextseclv == 500 && engine.statistics.level >= 500 && lv500torikan > 0
+					&& engine.statistics.time > lv500torikan && !promotionFlag && !demotionFlag) {
+				// level500Kang birds
 				engine.statistics.level = 999;
 				engine.gameEnded();
 				engine.staffrollEnable = false;
@@ -1388,7 +1498,7 @@ public class GradeMania3Mode extends AbstractMode {
 
 				// REGRETJudgment
 				checkRegret(engine, levelb);
-			} else if(engine.statistics.level >= nextseclv) {
+			} else if (engine.statistics.level >= nextseclv) {
 				// Next Section
 				engine.playSE("levelup");
 
@@ -1398,7 +1508,7 @@ public class GradeMania3Mode extends AbstractMode {
 				owner.backgroundStatus.fadebg = nextseclv / 100;
 
 				// BGMSwitching
-				if((tableBGMChange[bgmlv] != -1) && (internalLevel >= tableBGMChange[bgmlv])) {
+				if (tableBGMChange[bgmlv] != -1 && internalLevel >= tableBGMChange[bgmlv]) {
 					bgmlv++;
 					owner.bgmStatus.fadesw = false;
 					owner.bgmStatus.bgm = bgmlv;
@@ -1416,15 +1526,19 @@ public class GradeMania3Mode extends AbstractMode {
 				checkRegret(engine, levelb);
 
 				// COOLI was taking
-				if(cool == true) {
+				if (cool == true) {
 					previouscool = true;
 
 					coolcount++;
 					grade++;
-					if(grade > 31) grade = 31;
+					if (grade > 31) {
+						grade = 31;
+					}
 					gradeflash = 180;
 
-					if(gradedisp) engine.playSE("gradeup");
+					if (gradedisp) {
+						engine.playSE("gradeup");
+					}
 
 					internalLevel += 100;
 				} else {
@@ -1437,48 +1551,74 @@ public class GradeMania3Mode extends AbstractMode {
 
 				// Update level for next section
 				nextseclv += 100;
-				if(nextseclv > 999) nextseclv = 999;
-			} else if((engine.statistics.level == nextseclv - 1) && (lvstopse == true)) {
+				if (nextseclv > 999) {
+					nextseclv = 999;
+				}
+			} else if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
 				engine.playSE("levelstop");
 			}
 
 			// Calculate score
 			int manuallock = 0;
-			if(engine.manualLock == true) manuallock = 1;
+			if (engine.manualLock == true) {
+				manuallock = 1;
+			}
 
 			int bravo = 1;
-			if(engine.field.isEmpty()) bravo = 2;
+			if (engine.field.isEmpty()) {
+				bravo = 2;
+			}
 
 			int speedBonus = engine.getLockDelay() - engine.statc[0];
-			if(speedBonus < 0) speedBonus = 0;
+			if (speedBonus < 0) {
+				speedBonus = 0;
+			}
 
-			lastscore = ( ((levelb + lines) / 4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue + speedBonus +
-						(engine.statistics.level / 2) ) * bravo;
+			lastscore = (((levelb + lines) / 4 + engine.softdropFall + manuallock + harddropBonus) * lines * comboValue
+					+ speedBonus + engine.statistics.level / 2) * bravo;
 
 			engine.statistics.score += lastscore;
 			scgettime = 120;
-		} else if((lines >= 1) && (engine.ending == 2)) {
+		} else if (lines >= 1 && engine.ending == 2) {
 			// Roll InLine clear
 			float points = 0f;
-			if(mrollFlag == false) {
-				if(lines == 1) points = 0.04f;
-				if(lines == 2) points = 0.08f;
-				if(lines == 3) points = 0.12f;
-				if(lines == 4) points = 0.26f;
+			if (mrollFlag == false) {
+				if (lines == 1) {
+					points = 0.04f;
+				}
+				if (lines == 2) {
+					points = 0.08f;
+				}
+				if (lines == 3) {
+					points = 0.12f;
+				}
+				if (lines == 4) {
+					points = 0.26f;
+				}
 			} else {
-				if(lines == 1) points = 0.1f;
-				if(lines == 2) points = 0.2f;
-				if(lines == 3) points = 0.3f;
-				if(lines == 4) points = 1.0f;
+				if (lines == 1) {
+					points = 0.1f;
+				}
+				if (lines == 2) {
+					points = 0.2f;
+				}
+				if (lines == 3) {
+					points = 0.3f;
+				}
+				if (lines == 4) {
+					points = 1.0f;
+				}
 			}
 			rollPoints += points;
 			rollPointsTotal += points;
 
-			while((rollPoints >= 1.0f) && (grade < 31)) {
+			while (rollPoints >= 1.0f && grade < 31) {
 				rollPoints -= 1.0f;
 				grade++;
 				gradeflash = 180;
-				if(gradedisp) engine.playSE("gradeup");
+				if (gradedisp) {
+					engine.playSE("gradeup");
+				}
 			}
 		}
 	}
@@ -1488,7 +1628,9 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public void afterHardDropFall(GameEngine engine, int playerID, int fall) {
-		if(fall * 2 > harddropBonus) harddropBonus = fall * 2;
+		if (fall * 2 > harddropBonus) {
+			harddropBonus = fall * 2;
+		}
 	}
 
 	/*
@@ -1497,50 +1639,64 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
 		// Flash at elevated dan
-		if(gradeflash > 0) gradeflash--;
+		if (gradeflash > 0) {
+			gradeflash--;
+		}
 
 		// AcquisitionRender score
-		if(scgettime > 0) scgettime--;
+		if (scgettime > 0) {
+			scgettime--;
+		}
 
 		// REGRETDisplay
-		if(regretdispframe > 0) regretdispframe--;
+		if (regretdispframe > 0) {
+			regretdispframe--;
+		}
 
 		// COOLDisplay
-		if(cooldispframe > 0) cooldispframe--;
+		if (cooldispframe > 0) {
+			cooldispframe--;
+		}
 
 		// 15Minutes have elapsed
-		if(engine.statistics.time >= 54000) {
+		if (engine.statistics.time >= 54000) {
 			setSpeed(engine);
 		}
 
 		// Section TimeIncrease
-		if((engine.timerActive) && (engine.ending == 0)) {
+		if (engine.timerActive && engine.ending == 0) {
 			int section = engine.statistics.level / 100;
 
-			if((section >= 0) && (section < sectiontime.length)) {
+			if (section >= 0 && section < sectiontime.length) {
 				sectiontime[section]++;
 			}
 		}
 
 		// Ending
-		if((engine.gameActive) && (engine.ending == 2)) {
+		if (engine.gameActive && engine.ending == 2) {
 			rolltime++;
 
 			// Time meter
 			int remainRollTime = ROLLTIMELIMIT - rolltime;
-			engine.meterValue = (remainRollTime * receiver.getMeterMax(engine)) / ROLLTIMELIMIT;
-			engine.meterColor = GameEngine.METER_COLOR_GREEN;
-			if(remainRollTime <= 30*60) engine.meterColor = GameEngine.METER_COLOR_YELLOW;
-			if(remainRollTime <= 20*60) engine.meterColor = GameEngine.METER_COLOR_ORANGE;
-			if(remainRollTime <= 10*60) engine.meterColor = GameEngine.METER_COLOR_RED;
+			engine.meterValue = remainRollTime * receiver.getMeterMax(engine) / ROLLTIMELIMIT;
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainRollTime <= 30 * 60) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainRollTime <= 20 * 60) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainRollTime <= 10 * 60) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
 
 			// Roll End
-			if(rolltime >= ROLLTIMELIMIT) {
+			if (rolltime >= ROLLTIMELIMIT) {
 				rollclear = 2;
 
 				secretGrade = engine.field.getSecretGrade();
 
-				if(mrollFlag == false) {
+				if (mrollFlag == false) {
 					rollPoints += 0.5f;
 					rollPointsTotal += 0.5f;
 				} else {
@@ -1548,12 +1704,16 @@ public class GradeMania3Mode extends AbstractMode {
 					rollPointsTotal += 1.6f;
 				}
 
-				while(rollPoints >= 1.0f) {
+				while (rollPoints >= 1.0f) {
 					rollPoints -= 1.0f;
 					grade++;
-					if(grade > 32) grade = 32;
+					if (grade > 32) {
+						grade = 32;
+					}
 					gradeflash = 180;
-					if(gradedisp) engine.playSE("gradeup");
+					if (gradedisp) {
+						engine.playSE("gradeup");
+					}
 				}
 
 				engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
@@ -1573,20 +1733,22 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
 		// This code block will executed only once
-		if(engine.statc[0] == 0) {
+		if (engine.statc[0] == 0) {
 			secretGrade = engine.field.getSecretGrade();
 
-			if(enableexam) {
-				if(grade < (qualifiedGrade - 7)) {
-					demotionPoints += (qualifiedGrade - grade - 7);
+			if (enableexam) {
+				if (grade < qualifiedGrade - 7) {
+					demotionPoints += qualifiedGrade - grade - 7;
 				}
-				if(promotionFlag && grade >= promotionalExam) {
+				if (promotionFlag && grade >= promotionalExam) {
 					qualifiedGrade = promotionalExam;
 					demotionPoints = 0;
 				}
-				if(demotionFlag && grade < demotionExamGrade) {
+				if (demotionFlag && grade < demotionExamGrade) {
 					qualifiedGrade = demotionExamGrade - 1;
-					if(qualifiedGrade < 0) qualifiedGrade = 0;
+					if (qualifiedGrade < 0) {
+						qualifiedGrade = 0;
+					}
 				}
 
 				log.debug("** Exam result log START **");
@@ -1608,88 +1770,111 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		if(passframe > 0) {
+		if (passframe > 0) {
 			if (promotionFlag) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", EventReceiver.COLOR_YELLOW);
-				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", EventReceiver.COLOR_YELLOW);
-				receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), (passframe % 4 == 0),
-						EventReceiver.COLOR_WHITE, EventReceiver.COLOR_ORANGE);
+				receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
+				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
+				receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), passframe % 4 == 0,
+						Colors.FONT_WHITE, Colors.FONT_ORANGE);
 
-				if(passframe < 420) {
-					if(grade < promotionalExam) {
-						receiver.drawMenuFont(engine,playerID,3,11,"FAIL",(passframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_RED);
+				if (passframe < 420) {
+					if (grade < promotionalExam) {
+						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", passframe % 4 == 0, Colors.FONT_WHITE,
+								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine,playerID,2,11,"PASS!!",(passframe % 4 == 0),EventReceiver.COLOR_ORANGE,EventReceiver.COLOR_YELLOW);
+						receiver.drawMenuFont(engine, playerID, 2, 11, "PASS!!", passframe % 4 == 0,
+								Colors.FONT_ORANGE, Colors.FONT_YELLOW);
 					}
 				}
 			} else if (demotionFlag) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "DEMOTION", EventReceiver.COLOR_RED);
-				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", EventReceiver.COLOR_RED);
+				receiver.drawMenuFont(engine, playerID, 0, 2, "DEMOTION", Colors.FONT_RED);
+				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_RED);
 
-				if(passframe < 420) {
-					if(grade < demotionExamGrade) {
-						receiver.drawMenuFont(engine,playerID,3,11,"FAIL",(passframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_RED);
+				if (passframe < 420) {
+					if (grade < demotionExamGrade) {
+						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", passframe % 4 == 0, Colors.FONT_WHITE,
+								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine,playerID,3,11,"PASS",(passframe % 4 == 0),EventReceiver.COLOR_WHITE,EventReceiver.COLOR_YELLOW);
+						receiver.drawMenuFont(engine, playerID, 3, 11, "PASS", passframe % 4 == 0, Colors.FONT_WHITE,
+								Colors.FONT_YELLOW);
 					}
 				}
 			}
 		} else {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", EventReceiver.COLOR_RED);
+			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
 
-			if(engine.statc[1] == 0) {
+			if (engine.statc[1] == 0) {
 				int rgrade = grade;
-				if(enableexam && (rgrade >= 32) && (qualifiedGrade < 32)) rgrade = 31;
-				int gcolor = EventReceiver.COLOR_WHITE;
-				if((rollclear == 1) || (rollclear == 3)) gcolor = EventReceiver.COLOR_GREEN;
-				if((rollclear == 2) || (rollclear == 4)) gcolor = EventReceiver.COLOR_ORANGE;
-				if((grade >= 32) && (menuCursor % 2 == 0)) gcolor = EventReceiver.COLOR_YELLOW;
-				receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", EventReceiver.COLOR_BLUE);
+				if (enableexam && rgrade >= 32 && qualifiedGrade < 32) {
+					rgrade = 31;
+				}
+				int gcolor = Colors.FONT_WHITE;
+				if (rollclear == 1 || rollclear == 3) {
+					gcolor = Colors.FONT_GREEN;
+				}
+				if (rollclear == 2 || rollclear == 4) {
+					gcolor = Colors.FONT_ORANGE;
+				}
+				if (grade >= 32 && menuCursor % 2 == 0) {
+					gcolor = Colors.FONT_YELLOW;
+				}
+				receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 				String strGrade = String.format("%10s", getGradeName(rgrade));
 				receiver.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
 
-				drawResultStats(engine, playerID, receiver, 4, EventReceiver.COLOR_BLUE,
-						Statistic.SCORE, Statistic.LINES, Statistic.LEVEL_MANIA, Statistic.TIME);
-				drawResultRank(engine, playerID, receiver, 12, EventReceiver.COLOR_BLUE, rankingRank);
-				if(secretGrade > 4) {
-					drawResult(engine, playerID, receiver, 14, EventReceiver.COLOR_BLUE,
-							"S. GRADE", String.format("%10s", tableSecretGradeName[secretGrade-1]));
+				drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+						Statistic.LEVEL_MANIA, Statistic.TIME);
+				drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
+				if (secretGrade > 4) {
+					drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
+							String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 				}
-			} else if(engine.statc[1] == 1) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", EventReceiver.COLOR_BLUE);
+			} else if (engine.statc[1] == 1) {
+				receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
 
-				for(int i = 0; i < sectiontime.length; i++) {
-					if(sectiontime[i] > 0) {
-						int color = EventReceiver.COLOR_WHITE;
+				for (int i = 0; i < sectiontime.length; i++) {
+					if (sectiontime[i] > 0) {
+						int color = Colors.FONT_WHITE;
 						if (stcolor == 1 && sectionIsNewRecord[i]) {
-							color = EventReceiver.COLOR_RED;
+							color = Colors.FONT_RED;
 						} else if (stcolor == 2) {
-							if (regretsection[i]) color = EventReceiver.COLOR_RED;
-							else if (coolsection[i])  color = EventReceiver.COLOR_GREEN;
+							if (regretsection[i]) {
+								color = Colors.FONT_RED;
+							} else if (coolsection[i]) {
+								color = Colors.FONT_GREEN;
+							}
 						}
 						receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), color);
 					}
 				}
 
-				if(sectionavgtime > 0) {
-					receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", EventReceiver.COLOR_BLUE);
+				if (sectionavgtime > 0) {
+					receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 				}
-			} else if(engine.statc[1] == 2) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", EventReceiver.COLOR_BLUE);
-				if(medalAC >= 1) receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
-				if(medalST >= 1) receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
-				if(medalSK >= 1) receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
-				if(medalCO >= 1) receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
+			} else if (engine.statc[1] == 2) {
+				receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", Colors.FONT_BLUE);
+				if (medalAC >= 1) {
+					receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
+				}
+				if (medalST >= 1) {
+					receiver.drawMenuFont(engine, playerID, 8, 3, "ST", getMedalFontColor(medalST));
+				}
+				if (medalSK >= 1) {
+					receiver.drawMenuFont(engine, playerID, 5, 4, "SK", getMedalFontColor(medalSK));
+				}
+				if (medalCO >= 1) {
+					receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
+				}
 
-				if(rollPointsTotal > 0) {
-					receiver.drawMenuFont(engine, playerID, 0, 6, "ROLL POINT", EventReceiver.COLOR_BLUE);
+				if (rollPointsTotal > 0) {
+					receiver.drawMenuFont(engine, playerID, 0, 6, "ROLL POINT", Colors.FONT_BLUE);
 					String strRollPointsTotal = String.format("%10g", rollPointsTotal);
 					receiver.drawMenuFont(engine, playerID, 0, 7, strRollPointsTotal);
 				}
 
-				drawResultStats(engine, playerID, receiver, 8, EventReceiver.COLOR_BLUE,
-						Statistic.LPM, Statistic.SPM, Statistic.PIECE, Statistic.PPS);
+				drawResultStats(engine, playerID, receiver, 8, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+						Statistic.PIECE, Statistic.PPS);
 			}
 		}
 	}
@@ -1699,27 +1884,28 @@ public class GradeMania3Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
-		if(passframe > 0) {
+		if (passframe > 0) {
 			engine.allowTextRenderByReceiver = false; // Turn off RETRY/END menu
 
-			if(engine.ctrl.isPush(Controller.BUTTON_A) || engine.ctrl.isPush(Controller.BUTTON_B)) {
-				if(passframe > 420)
+			if (engine.ctrl.isPush(Controller.BUTTON_A) || engine.ctrl.isPush(Controller.BUTTON_B)) {
+				if (passframe > 420) {
 					passframe = 420;
-				else if(passframe < 300)
+				} else if (passframe < 300) {
 					passframe = 0;
+				}
 			}
 
-			if(promotionFlag) {
-				if(passframe == 420) {
-					if(grade >= promotionalExam) {
+			if (promotionFlag) {
+				if (passframe == 420) {
+					if (grade >= promotionalExam) {
 						engine.playSE("excellent");
 					} else {
 						engine.playSE("regret");
 					}
 				}
-			} else if(demotionFlag) {
-				if(passframe == 420) {
-					if(grade >= qualifiedGrade) {
+			} else if (demotionFlag) {
+				if (passframe == 420) {
+					if (grade >= qualifiedGrade) {
 						engine.playSE("gradeup");
 					} else {
 						engine.playSE("gameover");
@@ -1734,18 +1920,22 @@ public class GradeMania3Mode extends AbstractMode {
 		engine.allowTextRenderByReceiver = true;
 
 		// Page switching
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 			engine.statc[1]--;
-			if(engine.statc[1] < 0) engine.statc[1] = 2;
+			if (engine.statc[1] < 0) {
+				engine.statc[1] = 2;
+			}
 			engine.playSE("change");
 		}
-		if(engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 			engine.statc[1]++;
-			if(engine.statc[1] > 2) engine.statc[1] = 0;
+			if (engine.statc[1] > 2) {
+				engine.statc[1] = 0;
+			}
 			engine.playSE("change");
 		}
-		//  section time displaySwitching
-		if(engine.ctrl.isPush(Controller.BUTTON_F)) {
+		// section time displaySwitching
+		if (engine.ctrl.isPush(Controller.BUTTON_F)) {
 			engine.playSE("change");
 			isShowBestSectionTime = !isShowBestSectionTime;
 		}
@@ -1764,27 +1954,31 @@ public class GradeMania3Mode extends AbstractMode {
 		owner.replayProp.setProperty("result.grade.name", getGradeName(grade));
 		owner.replayProp.setProperty("result.grade.number", grade);
 		owner.replayProp.setProperty("grademania3.version", version);
-		owner.replayProp.setProperty("grademania3.exam", (promotionFlag ? promotionalExam : 0));
+		owner.replayProp.setProperty("grademania3.exam", promotionFlag ? promotionalExam : 0);
 		owner.replayProp.setProperty("grademania3.demopoint", demotionPoints);
 		owner.replayProp.setProperty("grademania3.demotionExamGrade", demotionExamGrade);
 
 		// Update rankings
-		if((owner.replayMode == false) && (startlevel == 0) && (always20g == false) && (big == false) && (engine.ai == null)) {
+		if (owner.replayMode == false && startlevel == 0 && always20g == false && big == false && engine.ai == null) {
 			int rgrade = grade;
-			if(enableexam && (rgrade >= 32) && (qualifiedGrade < 32)) {
+			if (enableexam && rgrade >= 32 && qualifiedGrade < 32) {
 				rgrade = 31;
 			}
-			if(!enableexam || !isAnyExam()) {
+			if (!enableexam || !isAnyExam()) {
 				updateRanking(rgrade, engine.statistics.level, lastGradeTime, rollclear, enableexam ? 1 : 0);
 			} else {
 				rankingRank = -1;
 			}
 
-			if(enableexam) updateGradeHistory(grade);
+			if (enableexam) {
+				updateGradeHistory(grade);
+			}
 
-			if((medalST == 3) && !isAnyExam()) updateBestSectionTime();
+			if (medalST == 3 && !isAnyExam()) {
+				updateBestSectionTime();
+			}
 
-			if((rankingRank != -1) || (enableexam) || (medalST == 3)) {
+			if (rankingRank != -1 || enableexam || medalST == 3) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 				receiver.saveModeConfig(owner.modeConfig);
 			}
@@ -1793,13 +1987,14 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Read rankings from property file
-	 * @param prop Property file
+	 *
+	 * @param prop     Property file
 	 * @param ruleName Rule name
 	 */
 	private void loadRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int j = 0; j < RANKING_TYPE; j++) {
-				if(j == 0) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < RANKING_TYPE; j++) {
+				if (j == 0) {
 					rankingGrade[i][j] = prop.getProperty("grademania3.ranking." + ruleName + ".grade." + i, 0);
 					rankingLevel[i][j] = prop.getProperty("grademania3.ranking." + ruleName + ".level." + i, 0);
 					rankingTime[i][j] = prop.getProperty("grademania3.ranking." + ruleName + ".time." + i, 0);
@@ -1808,18 +2003,20 @@ public class GradeMania3Mode extends AbstractMode {
 					rankingGrade[i][j] = prop.getProperty("grademania3.ranking.exam." + ruleName + ".grade." + i, 0);
 					rankingLevel[i][j] = prop.getProperty("grademania3.ranking.exam." + ruleName + ".level." + i, 0);
 					rankingTime[i][j] = prop.getProperty("grademania3.ranking.exam." + ruleName + ".time." + i, 0);
-					rankingRollclear[i][j] = prop.getProperty("grademania3.ranking.exam." + ruleName + ".rollclear." + i, 0);
+					rankingRollclear[i][j] = prop
+							.getProperty("grademania3.ranking.exam." + ruleName + ".rollclear." + i, 0);
 				}
 			}
 		}
 
-		for(int i = 0; i < SECTION_MAX; i++) {
-			for(int j = 0; j < RANKING_TYPE; j++) {
-				bestSectionTime[i][j] = prop.getProperty("grademania3.bestSectionTime." + j + "." + ruleName + "." + i, DEFAULT_SECTION_TIME);
+		for (int i = 0; i < SECTION_MAX; i++) {
+			for (int j = 0; j < RANKING_TYPE; j++) {
+				bestSectionTime[i][j] = prop.getProperty("grademania3.bestSectionTime." + j + "." + ruleName + "." + i,
+						DEFAULT_SECTION_TIME);
 			}
 		}
 
-		for(int i = 0; i < GRADE_HISTORY_SIZE; i++) {
+		for (int i = 0; i < GRADE_HISTORY_SIZE; i++) {
 			gradeHistory[i] = prop.getProperty("grademania3.gradehistory." + ruleName + "." + i, -1);
 		}
 		qualifiedGrade = prop.getProperty("grademania3.qualified." + ruleName, 0);
@@ -1828,13 +2025,14 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Save rankings to property file
-	 * @param prop Property file
+	 *
+	 * @param prop     Property file
 	 * @param ruleName Rule name
 	 */
 	private void saveRanking(CustomProperties prop, String ruleName) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			for(int j = 0; j < RANKING_TYPE; j++) {
-				if(j == 0) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < RANKING_TYPE; j++) {
+				if (j == 0) {
 					prop.setProperty("grademania3.ranking." + ruleName + ".grade." + i, rankingGrade[i][j]);
 					prop.setProperty("grademania3.ranking." + ruleName + ".level." + i, rankingLevel[i][j]);
 					prop.setProperty("grademania3.ranking." + ruleName + ".time." + i, rankingTime[i][j]);
@@ -1843,19 +2041,20 @@ public class GradeMania3Mode extends AbstractMode {
 					prop.setProperty("grademania3.ranking.exam." + ruleName + ".grade." + i, rankingGrade[i][j]);
 					prop.setProperty("grademania3.ranking.exam." + ruleName + ".level." + i, rankingLevel[i][j]);
 					prop.setProperty("grademania3.ranking.exam." + ruleName + ".time." + i, rankingTime[i][j]);
-					prop.setProperty("grademania3.ranking.exam." + ruleName + ".rollclear." + i, rankingRollclear[i][j]);
+					prop.setProperty("grademania3.ranking.exam." + ruleName + ".rollclear." + i,
+							rankingRollclear[i][j]);
 				}
 			}
 		}
 
-		for(int i = 0; i < SECTION_MAX; i++) {
-			for(int j = 0; j < RANKING_TYPE; j++) {
+		for (int i = 0; i < SECTION_MAX; i++) {
+			for (int j = 0; j < RANKING_TYPE; j++) {
 				prop.setProperty("grademania3.bestSectionTime." + j + "." + ruleName + "." + i, bestSectionTime[i][j]);
 			}
 		}
 
-		for(int i = 0; i < GRADE_HISTORY_SIZE; i++) {
-			prop.setProperty("grademania3.gradehistory." + ruleName+ "." + i, gradeHistory[i]);
+		for (int i = 0; i < GRADE_HISTORY_SIZE; i++) {
+			prop.setProperty("grademania3.gradehistory." + ruleName + "." + i, gradeHistory[i]);
 		}
 		prop.setProperty("grademania3.qualified." + ruleName, qualifiedGrade);
 		prop.setProperty("grademania3.demopoint." + ruleName, demotionPoints);
@@ -1863,16 +2062,17 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Update rankings
-	 * @param gr Dan
-	 * @param lv  level
+	 *
+	 * @param gr   Dan
+	 * @param lv   level
 	 * @param time Time
 	 */
 	private void updateRanking(int gr, int lv, int time, int clear, int type) {
 		rankingRank = checkRanking(gr, lv, time, clear, type);
 
-		if(rankingRank != -1) {
+		if (rankingRank != -1) {
 			// Shift down ranking entries
-			for(int i = RANKING_MAX - 1; i > rankingRank; i--) {
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
 				rankingGrade[i][type] = rankingGrade[i - 1][type];
 				rankingLevel[i][type] = rankingLevel[i - 1][type];
 				rankingTime[i][type] = rankingTime[i - 1][type];
@@ -1889,22 +2089,23 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Calculate ranking position
-	 * @param gr Dan
-	 * @param lv  level
+	 *
+	 * @param gr   Dan
+	 * @param lv   level
 	 * @param time Time
 	 * @return Position (-1 if unranked)
 	 */
 	private int checkRanking(int gr, int lv, int time, int clear, int type) {
-		for(int i = 0; i < RANKING_MAX; i++) {
-			if(gr > rankingGrade[i][type]) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (gr > rankingGrade[i][type]) {
 				return i;
-			} else if((gr == rankingGrade[i][type]) && (clear > rankingRollclear[i][type])) {
+			} else if (gr == rankingGrade[i][type] && clear > rankingRollclear[i][type]) {
 				return i;
-			} else if((gr == rankingGrade[i][type]) && (clear == rankingRollclear[i][type]) && (lv > rankingLevel[i][type])) {
+			} else if (gr == rankingGrade[i][type] && clear == rankingRollclear[i][type]
+					&& lv > rankingLevel[i][type]) {
 				return i;
-			} else if((gr == rankingGrade[i][type]) && (clear == rankingRollclear[i][type]) && (lv == rankingLevel[i][type]) &&
-					  (time < rankingTime[i][type]))
-			{
+			} else if (gr == rankingGrade[i][type] && clear == rankingRollclear[i][type] && lv == rankingLevel[i][type]
+					&& time < rankingTime[i][type]) {
 				return i;
 			}
 		}
@@ -1914,17 +2115,18 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Dan update history
+	 *
 	 * @param gr Dan
 	 */
 	private void updateGradeHistory(int gr) {
-		for(int i = GRADE_HISTORY_SIZE - 1; i > 0; i--) {
+		for (int i = GRADE_HISTORY_SIZE - 1; i > 0; i--) {
 			gradeHistory[i] = gradeHistory[i - 1];
 		}
 		gradeHistory[0] = gr;
 
 		// Debug log
 		log.debug("** Exam grade history START **");
-		for(int i = 0; i < gradeHistory.length; i++) {
+		for (int i = 0; i < gradeHistory.length; i++) {
 			log.debug(i + ": " + getGradeName(gradeHistory[i]) + " (" + gradeHistory[i] + ")");
 		}
 		log.debug("*** Exam grade history END ***");
@@ -1932,26 +2134,25 @@ public class GradeMania3Mode extends AbstractMode {
 
 	/**
 	 * Dan promotion test set a goal of
+	 *
 	 * @author Zircean
 	 */
 	private void setPromotionalGrade() {
 		int gradesOver;
 
-		for(int i = tableGradeName.length - 1; i >= 0; i--) {
+		for (int i = tableGradeName.length - 1; i >= 0; i--) {
 			gradesOver = 0;
-			for(int j = 0; j < GRADE_HISTORY_SIZE; j++) {
-				if(gradeHistory[j] == -1) {
+			for (int j = 0; j < GRADE_HISTORY_SIZE; j++) {
+				if (gradeHistory[j] == -1) {
 					promotionalExam = 0;
 					return;
-				} else {
-					if(gradeHistory[j] >= i) {
-						gradesOver++;
-					}
+				} else if (gradeHistory[j] >= i) {
+					gradesOver++;
 				}
 			}
-			if(gradesOver > 3) {
+			if (gradesOver > 3) {
 				promotionalExam = i;
-				if(qualifiedGrade < 31 && promotionalExam == 32) {
+				if (qualifiedGrade < 31 && promotionalExam == 32) {
 					promotionalExam = 31;
 				}
 				return;
@@ -1963,8 +2164,8 @@ public class GradeMania3Mode extends AbstractMode {
 	 * Update best section time records
 	 */
 	private void updateBestSectionTime() {
-		for(int i = 0; i < SECTION_MAX; i++) {
-			if(sectionIsNewRecord[i]) {
+		for (int i = 0; i < SECTION_MAX; i++) {
+			if (sectionIsNewRecord[i]) {
 				int type = enableexam ? 1 : 0;
 				bestSectionTime[i][type] = sectiontime[i];
 			}

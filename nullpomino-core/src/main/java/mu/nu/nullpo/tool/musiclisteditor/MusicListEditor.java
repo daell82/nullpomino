@@ -38,8 +38,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -55,11 +55,11 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
-import mu.nu.nullpo.game.component.BGMStatus;
-import mu.nu.nullpo.util.CustomProperties;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
+
+import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * MusicListEditor (Music editing tools list)
@@ -93,7 +93,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 	private JFileChooser fileChooser;
 
 	/** File filterHashMap */
-	private HashMap<String, SimpleFileFilter> hashmapFileFilters;
+	private Map<String, SimpleFileFilter> hashmapFileFilters;
 
 	/**
 	 * Constructor
@@ -114,7 +114,8 @@ public class MusicListEditor extends JFrame implements ActionListener {
 			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
 			propConfig.load(in);
 			in.close();
-		} catch(IOException e) {}
+		} catch (IOException e) {
+		}
 
 		// Read language file
 		propLangDefault = new CustomProperties();
@@ -128,20 +129,22 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
 		propLang = new CustomProperties();
 		try {
-			FileInputStream in = new FileInputStream("config/lang/musiclisteditor_" + Locale.getDefault().getCountry() + ".properties");
+			FileInputStream in = new FileInputStream(
+					"config/lang/musiclisteditor_" + Locale.getDefault().getCountry() + ".properties");
 			propLang.load(in);
 			in.close();
-		} catch(IOException e) {}
+		} catch (IOException e) {
+		}
 
 		// Music reading list
 		loadMusicList();
 
 		// Look&FeelSetting
-		if(propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+		if (propConfig.getProperty("option.usenativelookandfeel", true) == true) {
 			try {
 				UIManager.getInstalledLookAndFeels();
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			} catch(Exception e) {
+			} catch (Exception e) {
 				log.warn("Failed to set native look&feel", e);
 			}
 		}
@@ -157,7 +160,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 	 * ScreenInitialization
 	 */
 	private void initUI() {
-		this.getContentPane().setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
 		// Main screen
 		JPanel pMusicSetting = new JPanel();
@@ -168,7 +171,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		txtfldMusicFileNames = new JTextField[BGMStatus.BGM_COUNT];
 		chkboxNoLoop = new JCheckBox[BGMStatus.BGM_COUNT];
 
-		for(int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+		for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
 			JPanel pMusicTemp = new JPanel(new BorderLayout());
 			pMusicSetting.add(pMusicTemp);
 
@@ -226,7 +229,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		pButtons.add(btnCancel);
 
 		// File Filter
-		hashmapFileFilters = new HashMap<String, SimpleFileFilter>();
+		hashmapFileFilters = new HashMap<>();
 		hashmapFileFilters.put(".wav", new SimpleFileFilter(".wav", getUIText("FileChooser_wav")));
 		hashmapFileFilters.put(".xm", new SimpleFileFilter(".xm", getUIText("FileChooser_xm")));
 		hashmapFileFilters.put(".mod", new SimpleFileFilter(".mod", getUIText("FileChooser_mod")));
@@ -237,21 +240,20 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		// File selection dialog
 		fileChooser = new JFileChooser();
 
-		Iterator<SimpleFileFilter> it = hashmapFileFilters.values().iterator();
-		while(it.hasNext()) {
-			SimpleFileFilter filter = it.next();
+		for (SimpleFileFilter filter : hashmapFileFilters.values()) {
 			fileChooser.addChoosableFileFilter(filter);
 		}
 	}
 
 	/**
 	 * PosttranslationalUIGets a string of
+	 *
 	 * @param str String
 	 * @return PosttranslationalUIString (If you do not acceptstrReturns)
 	 */
 	private String getUIText(String str) {
 		String result = propLang.getProperty(str);
-		if(result == null) {
+		if (result == null) {
 			result = propLangDefault.getProperty(str, str);
 		}
 		return result;
@@ -261,16 +263,12 @@ public class MusicListEditor extends JFrame implements ActionListener {
 	 * Music reading list
 	 */
 	private void loadMusicList() {
-		propMusic = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/music.cfg");
-			propMusic.load(in);
-			in.close();
-		} catch (IOException e) {}
+		propMusic = CustomProperties.load("config/setting/music.cfg");
 	}
 
 	/**
 	 * Save the Music List
+	 *
 	 * @throws IOException Save failed
 	 */
 	private void saveMusicList() throws IOException {
@@ -287,8 +285,9 @@ public class MusicListEditor extends JFrame implements ActionListener {
 	/*
 	 * Menu What Happens at Runtime
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand().startsWith("OpenFileDialog")) {
+		if (e.getActionCommand().startsWith("OpenFileDialog")) {
 			// Button numberAcquisition
 			int number = 0;
 			try {
@@ -302,32 +301,34 @@ public class MusicListEditor extends JFrame implements ActionListener {
 			// Current directory
 			String currentDirectory = System.getProperty("user.dir");
 
-			//  default Set the directory
+			// default Set the directory
 			String defaultDirectory = txtfldMusicFileNames[number].getText();
-			if(defaultDirectory.length() < 1) defaultDirectory = currentDirectory + "/res/bgm";
+			if (defaultDirectory.length() < 1) {
+				defaultDirectory = currentDirectory + "/res/bgm";
+			}
 
 			File file = new File(defaultDirectory);
 			fileChooser.setCurrentDirectory(file);
 
 			// Of the file selection dialog default Set the extension
-			if(file.isFile()) {
+			if (file.isFile()) {
 				try {
 					String strName = file.getName();
 					int lastPeriod = strName.lastIndexOf('.');
-					if(lastPeriod != -1) {
+					if (lastPeriod != -1) {
 						String strExt = strName.substring(lastPeriod, strName.length());
 						fileChooser.setFileFilter(hashmapFileFilters.get(strExt));
 					}
-				} catch (Exception e2) {}
+				} catch (Exception e2) {
+				}
 			}
 
 			// Display a file selection dialog
-			if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 				String strPath = fileChooser.getSelectedFile().getPath();
 				txtfldMusicFileNames[number].setText(strPath);
 			}
-		}
-		else if(e.getActionCommand().startsWith("Clear")) {
+		} else if (e.getActionCommand().startsWith("Clear")) {
 			int number = 0;
 			try {
 				String strNum = e.getActionCommand().replaceFirst("Clear", "");
@@ -338,9 +339,8 @@ public class MusicListEditor extends JFrame implements ActionListener {
 			}
 
 			txtfldMusicFileNames[number].setText("");
-		}
-		else if(e.getActionCommand() == "OK") {
-			for(int i = 0; i < txtfldMusicFileNames.length; i++) {
+		} else if (e.getActionCommand() == "OK") {
+			for (int i = 0; i < txtfldMusicFileNames.length; i++) {
 				propMusic.setProperty("music.filename." + i, txtfldMusicFileNames[i].getText());
 				propMusic.setProperty("music.noloop." + i, chkboxNoLoop[i].isSelected());
 			}
@@ -348,19 +348,20 @@ public class MusicListEditor extends JFrame implements ActionListener {
 			try {
 				saveMusicList();
 			} catch (IOException e2) {
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2.getLocalizedMessage(),
-											  getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this,
+						getUIText("Message_FileSaveFailed") + "\n" + e2.getLocalizedMessage(),
+						getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
 			}
 
-			this.dispose();
-		}
-		else if(e.getActionCommand() == "Cancel") {
-			this.dispose();
+			dispose();
+		} else if (e.getActionCommand() == "Cancel") {
+			dispose();
 		}
 	}
 
 	/**
 	 * Main functioncount
+	 *
 	 * @param args CommandLinesArgumentcount
 	 */
 	public static void main(String[] args) {
@@ -388,30 +389,40 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
 			add(cutAction = new AbstractAction(getUIText("Popup_Cut")) {
 				private static final long serialVersionUID = 1L;
+
+				@Override
 				public void actionPerformed(ActionEvent evt) {
 					field.cut();
 				}
 			});
 			add(copyAction = new AbstractAction(getUIText("Popup_Copy")) {
 				private static final long serialVersionUID = 1L;
+
+				@Override
 				public void actionPerformed(ActionEvent evt) {
 					field.copy();
 				}
 			});
 			add(pasteAction = new AbstractAction(getUIText("Popup_Paste")) {
 				private static final long serialVersionUID = 1L;
+
+				@Override
 				public void actionPerformed(ActionEvent evt) {
 					field.paste();
 				}
 			});
 			add(deleteAction = new AbstractAction(getUIText("Popup_Delete")) {
 				private static final long serialVersionUID = 1L;
+
+				@Override
 				public void actionPerformed(ActionEvent evt) {
 					field.replaceSelection(null);
 				}
 			});
 			add(selectAllAction = new AbstractAction(getUIText("Popup_SelectAll")) {
 				private static final long serialVersionUID = 1L;
+
+				@Override
 				public void actionPerformed(ActionEvent evt) {
 					field.selectAll();
 				}
@@ -421,10 +432,10 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		@Override
 		public void show(Component c, int x, int y) {
 			JTextField field = (JTextField) c;
-			boolean flg = field.getSelectedText() != null;
-			cutAction.setEnabled(flg);
-			copyAction.setEnabled(flg);
-			deleteAction.setEnabled(flg);
+			boolean enabled = field.getSelectedText() != null;
+			cutAction.setEnabled(enabled);
+			copyAction.setEnabled(enabled);
+			deleteAction.setEnabled(enabled);
 			selectAllAction.setEnabled(field.isFocusOwner());
 			super.show(c, x, y);
 		}

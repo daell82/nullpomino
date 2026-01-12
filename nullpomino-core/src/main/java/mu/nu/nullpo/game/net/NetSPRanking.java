@@ -2,6 +2,7 @@ package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
 import java.util.LinkedList;
+import java.util.List;
 
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -9,14 +10,15 @@ import mu.nu.nullpo.util.CustomProperties;
  * Single player mode ranking
  */
 public class NetSPRanking implements Serializable {
+
 	/** serialVersionUID for Serialize */
 	private static final long serialVersionUID = 1L;
 
 	/** Game Mode Name */
-	public String strModeName;
+	public String modeName;
 
 	/** Rule Name */
-	public String strRuleName;
+	public String ruleName;
 
 	/** Game Type ID */
 	public int gameType;
@@ -31,7 +33,7 @@ public class NetSPRanking implements Serializable {
 	public int maxRecords;
 
 	/** Records */
-	public LinkedList<NetSPRecord> listRecord;
+	public List<NetSPRecord> records;
 
 	/**
 	 * Default Constructor
@@ -42,6 +44,7 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Copy Constructor
+	 *
 	 * @param s Source
 	 */
 	public NetSPRanking(NetSPRanking s) {
@@ -50,65 +53,69 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Constructor
+	 *
 	 * @param modename Game Mode Name
 	 * @param rulename Rule Name
-	 * @param gtype Game Type ID
-	 * @param style Game Style ID
-	 * @param rtype Ranking Type
-	 * @param max Max number of records
+	 * @param gtype    Game Type ID
+	 * @param style    Game Style ID
+	 * @param rtype    Ranking Type
+	 * @param max      Max number of records
 	 */
 	public NetSPRanking(String modename, String rulename, int gtype, int style, int rtype, int max) {
 		reset();
-		this.strModeName = modename;
-		this.strRuleName = rulename;
-		this.gameType = gtype;
+		modeName = modename;
+		ruleName = rulename;
+		gameType = gtype;
 		this.style = style;
-		this.rankingType = rtype;
-		this.maxRecords = max;
+		rankingType = rtype;
+		maxRecords = max;
 	}
 
 	/**
 	 * Initialization
 	 */
 	public void reset() {
-		strModeName = "";
-		strRuleName = "";
+		modeName = "";
+		ruleName = "";
 		gameType = 0;
 		style = 0;
 		rankingType = 0;
 		maxRecords = 100;
-		listRecord = new LinkedList<NetSPRecord>();
+		records = new LinkedList<>();
 	}
 
 	/**
 	 * Copy from other NetSPRankingData
+	 *
 	 * @param s Source
 	 */
 	public void copy(NetSPRanking s) {
-		strModeName = s.strModeName;
-		strRuleName = s.strRuleName;
+		modeName = s.modeName;
+		ruleName = s.ruleName;
 		gameType = s.gameType;
 		style = s.style;
 		rankingType = s.rankingType;
 		maxRecords = s.maxRecords;
-		listRecord = new LinkedList<NetSPRecord>();
-		for(int i = 0; i < s.listRecord.size(); i++) {
-			listRecord.add(new NetSPRecord(s.listRecord.get(i)));
+		records = new LinkedList<>();
+		for (int i = 0; i < s.records.size(); i++) {
+			records.add(new NetSPRecord(s.records.get(i)));
 		}
 	}
 
 	/**
 	 * Get specific player's record
+	 *
 	 * @param strPlayerName Player Name
 	 * @return NetSPRecord (null if not found)
 	 */
 	public NetSPRecord getRecord(String strPlayerName) {
 		int index = indexOf(strPlayerName);
-		return (index == -1) ? null : listRecord.get(index);
+		return index == -1 ? null : records.get(index);
 	}
 
 	/**
 	 * Get specific player's record
+	 *
 	 * @param pInfo NetPlayerInfo
 	 * @return NetSPRecord (null if not found)
 	 */
@@ -118,13 +125,14 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Get specific player's index
+	 *
 	 * @param strPlayerName Player Name
 	 * @return Index (-1 if not found)
 	 */
 	public int indexOf(String strPlayerName) {
-		for(int i = 0; i < listRecord.size(); i++) {
-			NetSPRecord r = listRecord.get(i);
-			if(r.strPlayerName.equals(strPlayerName)) {
+		for (int i = 0; i < records.size(); i++) {
+			NetSPRecord r = records.get(i);
+			if (r.strPlayerName.equals(strPlayerName)) {
 				return i;
 			}
 		}
@@ -133,6 +141,7 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Get specific player's index
+	 *
 	 * @param pInfo NetPlayerInfo
 	 * @return Index (-1 if not found)
 	 */
@@ -142,18 +151,19 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Remove specific player's record
+	 *
 	 * @param strPlayerName Player Name
 	 * @return Number of records removed (0 if not found)
 	 */
 	public int removeRecord(String strPlayerName) {
 		int count = 0;
 
-		LinkedList<NetSPRecord> list = new LinkedList<NetSPRecord>(listRecord);
-		for(int i = 0; i < list.size(); i++) {
+		List<NetSPRecord> list = new LinkedList<>(records);
+		for (int i = 0; i < list.size(); i++) {
 			NetSPRecord r = list.get(i);
 
-			if(r.strPlayerName.equals(strPlayerName)) {
-				listRecord.remove(i);
+			if (r.strPlayerName.equals(strPlayerName)) {
+				records.remove(i);
 				count++;
 			}
 		}
@@ -163,6 +173,7 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Remove specific player's record
+	 *
 	 * @param pInfo NetPlayerInfo
 	 * @return Number of records removed (0 if not found)
 	 */
@@ -172,97 +183,113 @@ public class NetSPRanking implements Serializable {
 
 	/**
 	 * Checks if r1 is a new record.
+	 *
 	 * @param r1 Newer Record
-	 * @return Returns <code>true</code> if there are no previous record of this player, or if the newer record (r1) is better than old one.
+	 * @return Returns <code>true</code> if there are no previous record of this
+	 *         player, or if the newer record (r1) is better than old one.
 	 */
 	public boolean isNewRecord(NetSPRecord r1) {
 		NetSPRecord r2 = getRecord(r1.strPlayerName);
-		if(r2 == null) return true;
+		if (r2 == null) {
+			return true;
+		}
 		return r1.compare(rankingType, r2);
 	}
 
 	/**
 	 * Register a new record
+	 *
 	 * @param r1 Record
 	 * @return Rank (-1 if out of rank)
 	 */
 	public int registerRecord(NetSPRecord r1) {
-		if(!isNewRecord(r1)) return -1;
+		if (!isNewRecord(r1)) {
+			return -1;
+		}
 
 		// Remove older records
 		removeRecord(r1.strPlayerName);
 
 		// Insert new record
-		LinkedList<NetSPRecord> list = new LinkedList<NetSPRecord>(listRecord);
+		LinkedList<NetSPRecord> list = new LinkedList<>(records);
 		int rank = -1;
 
-		for(int i = 0; i < list.size(); i++) {
-			if(r1.compare(rankingType, list.get(i))) {
-				listRecord.add(i, r1);
+		for (int i = 0; i < list.size(); i++) {
+			if (r1.compare(rankingType, list.get(i))) {
+				records.add(i, r1);
 				rank = i;
 				break;
 			}
 		}
 
 		// Couldn't rank in? Add to last.
-		if(rank == -1) {
-			listRecord.add(r1);
-			rank = listRecord.size() - 1;
+		if (rank == -1) {
+			records.add(r1);
+			rank = records.size() - 1;
 		}
 
 		// Remove anything after maxRecords
-		while(listRecord.size() >= maxRecords) listRecord.removeLast();
+		while (records.size() >= maxRecords) {
+			records.removeLast();
+		}
 
 		// Done
-		return (rank >= maxRecords) ? -1 : rank;
+		return rank >= maxRecords ? -1 : rank;
 	}
 
 	/**
 	 * Write to a CustomProperties
+	 *
 	 * @param prop CustomProperties
 	 */
 	public void writeProperty(CustomProperties prop) {
-		String strKey = "spranking." + strRuleName + "." + strModeName + "." + gameType + ".";
-		prop.setProperty(strKey + "numRecords", listRecord.size());
+		String strKey = "spranking." + ruleName + "." + modeName + "." + gameType + ".";
+		prop.setProperty(strKey + "numRecords", records.size());
 
-		for(int i = 0; i < listRecord.size(); i++) {
-			NetSPRecord record = listRecord.get(i);
-			String strRecordCompressed = NetUtil.compressString(record.exportString());
+		for (int i = 0; i < records.size(); i++) {
+			NetSPRecord netRecord = records.get(i);
+			String strRecordCompressed = NetUtil.compressString(netRecord.exportString());
 			prop.setProperty(strKey + i, strRecordCompressed);
 		}
 	}
 
 	/**
 	 * Read from a CustomProperties
+	 *
 	 * @param prop CustomProperties
 	 */
 	public void readProperty(CustomProperties prop) {
-		String strKey = "spranking." + strRuleName + "." + strModeName + "." + gameType + ".";
+		String strKey = "spranking." + ruleName + "." + modeName + "." + gameType + ".";
 		int numRecords = prop.getProperty(strKey + "numRecords", 0);
-		if(numRecords > maxRecords) numRecords = maxRecords;
+		if (numRecords > maxRecords) {
+			numRecords = maxRecords;
+		}
 
-		listRecord.clear();
-		for(int i = 0; i < numRecords; i++) {
+		records.clear();
+		for (int i = 0; i < numRecords; i++) {
 			String strRecordCompressed = prop.getProperty(strKey + i);
-			if(strRecordCompressed != null) {
+			if (strRecordCompressed != null) {
 				String strRecord = NetUtil.decompressString(strRecordCompressed);
-				NetSPRecord record = new NetSPRecord(strRecord);
-				listRecord.add(record);
+				NetSPRecord netRecord = new NetSPRecord(strRecord);
+				records.add(netRecord);
 			}
 		}
 	}
-	
+
 	/**
 	 * Condense a list of rankings into a single ranking file.
-	 * @param s The list of rankings.
+	 *
+	 * @param rankings The list of rankings.
 	 * @return A ranking that is the combination of all of the rankings.
 	 */
-	public static NetSPRanking mergeRankings(LinkedList<NetSPRanking> s) {
-		if (s == null || s.size() == 0) { return null; }
-		NetSPRanking acc = new NetSPRanking(s.get(0));
-		for (NetSPRanking r : s) {
-			for(int i = 0; i < r.listRecord.size(); i++) {
-				acc.registerRecord(new NetSPRecord(r.listRecord.get(i)));
+	public static NetSPRanking mergeRankings(List<NetSPRanking> rankings) {
+		if (rankings == null || rankings.isEmpty()) {
+			return null;
+		}
+		NetSPRanking acc = new NetSPRanking(rankings.get(0));
+		for (NetSPRanking ranking : rankings) {
+			for (NetSPRecord element : ranking.records) {
+				acc.registerRecord(new NetSPRecord(element));
 			}
 		}
 		return acc;

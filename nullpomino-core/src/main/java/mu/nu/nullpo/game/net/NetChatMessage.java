@@ -3,19 +3,16 @@ package mu.nu.nullpo.game.net;
 import java.io.Serializable;
 import java.util.Calendar;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.util.GeneralUtil;
-
-import org.apache.log4j.Logger;
 
 /**
  * Chat message
  */
+@Log4j
 public class NetChatMessage implements Serializable {
 	/** Serial version */
 	private static final long serialVersionUID = 1L;
-
-	/** Log */
-	static final Logger log = Logger.getLogger(NetChatMessage.class);
 
 	/** User ID */
 	public int uid;
@@ -47,6 +44,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Constructor
+	 * 
 	 * @param msg Message
 	 */
 	public NetChatMessage(String msg) {
@@ -56,7 +54,8 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Constructor
-	 * @param msg Message
+	 * 
+	 * @param msg   Message
 	 * @param pInfo Player Info
 	 */
 	public NetChatMessage(String msg, NetPlayerInfo pInfo) {
@@ -69,8 +68,9 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Constructor
-	 * @param msg Message
-	 * @param pInfo Player Info
+	 * 
+	 * @param msg      Message
+	 * @param pInfo    Player Info
 	 * @param roomInfo Room Info
 	 */
 	public NetChatMessage(String msg, NetPlayerInfo pInfo, NetRoomInfo roomInfo) {
@@ -100,7 +100,7 @@ public class NetChatMessage implements Serializable {
 	 * Output to logger
 	 */
 	public void outputLog() {
-		if(roomID == -1) {
+		if (roomID == -1) {
 			log.info("LobbyChat UID:" + uid + " Name:" + strUserName + " Msg:" + strMessage);
 		} else {
 			log.info("RoomChat Room:" + strRoomName + " UID:" + uid + " Name:" + strUserName + " Msg:" + strMessage);
@@ -109,6 +109,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Import from String array
+	 * 
 	 * @param s String array (String[7])
 	 */
 	public void importStringArray(String[] s) {
@@ -123,6 +124,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Import from String (Divided by ;)
+	 * 
 	 * @param str String
 	 */
 	public void importString(String str) {
@@ -131,6 +133,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Export to String array
+	 * 
 	 * @return String array (String[7])
 	 */
 	public String[] exportStringArray() {
@@ -147,15 +150,18 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Export to String (Divided by ;)
+	 * 
 	 * @return String
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
 		String strResult = "";
 
-		for(int i = 0; i < data.length; i++) {
+		for (int i = 0; i < data.length; i++) {
 			strResult += data[i];
-			if(i < data.length - 1) strResult += ";";
+			if (i < data.length - 1) {
+				strResult += ";";
+			}
 		}
 
 		return strResult;

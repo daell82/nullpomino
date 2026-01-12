@@ -121,6 +121,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Copy constructor
+	 * 
 	 * @param n Copy source
 	 */
 	public NetPlayerInfo(NetPlayerInfo n) {
@@ -129,6 +130,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * String array constructor (Uses importStringArray)
+	 * 
 	 * @param pdata String array (String[12])
 	 */
 	public NetPlayerInfo(String[] pdata) {
@@ -137,6 +139,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * String constructor (Uses importString)
+	 * 
 	 * @param str String(Divided by ;)
 	 */
 	public NetPlayerInfo(String str) {
@@ -145,6 +148,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Copy from other NetPlayerInfo
+	 * 
 	 * @param n Copy source
 	 */
 	public void copy(NetPlayerInfo n) {
@@ -153,13 +157,13 @@ public class NetPlayerInfo implements Serializable {
 		strHost = n.strHost;
 		strTeam = n.strTeam;
 
-		if(n.ruleOpt != null) {
+		if (n.ruleOpt != null) {
 			ruleOpt = new RuleOptions(n.ruleOpt);
 		} else {
 			ruleOpt = null;
 		}
 
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
 			rating[i] = n.rating[i];
 			ratingBefore[i] = n.ratingBefore[i];
 			playCount[i] = n.playCount[i];
@@ -185,6 +189,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Import from String array
+	 * 
 	 * @param pdata String array (String[27])
 	 */
 	public void importStringArray(String[] pdata) {
@@ -212,15 +217,18 @@ public class NetPlayerInfo implements Serializable {
 		winCount[1] = Integer.parseInt(pdata[21]);
 		winCount[2] = Integer.parseInt(pdata[22]);
 		winCount[3] = Integer.parseInt(pdata[23]);
-		if(pdata.length > 24) {
+		if (pdata.length > 24) {
 			spPersonalBest.importString(NetUtil.decompressString(pdata[24]));
 		}
-		if(pdata.length > 25) playCountNow = Integer.parseInt(pdata[25]);
-		if(pdata.length > 26) winCountNow = Integer.parseInt(pdata[26]);
+		if (pdata.length > 25)
+			playCountNow = Integer.parseInt(pdata[25]);
+		if (pdata.length > 26)
+			winCountNow = Integer.parseInt(pdata[26]);
 	}
 
 	/**
 	 * Import from String (Divided by ;)
+	 * 
 	 * @param str String
 	 */
 	public void importString(String str) {
@@ -229,6 +237,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Export to String array
+	 * 
 	 * @return String array (String[27])
 	 */
 	public String[] exportStringArray() {
@@ -265,15 +274,17 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Export to String (Divided by ;)
+	 * 
 	 * @return String
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
 		String strResult = "";
 
-		for(int i = 0; i < data.length; i++) {
+		for (int i = 0; i < data.length; i++) {
 			strResult += data[i];
-			if(i < data.length - 1) strResult += ";";
+			if (i < data.length - 1)
+				strResult += ";";
 		}
 
 		return strResult;

@@ -39,6 +39,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -185,9 +186,11 @@ public class SPFMode extends AbstractMode {
 					{ { 7, 7, 7, 5, 2 }, { 5, 5, 5, 2, 4 }, { 2, 2, 2, 4, 7 }, { 4, 4, 4, 7, 5 } },
 					{ { 2, 2, 2, 7, 4 }, { 4, 4, 4, 5, 7 }, { 7, 7, 7, 2, 5 }, { 5, 5, 5, 4, 2 } },
 					{ { 7, 4, 2, 2, 2 }, { 4, 2, 5, 5, 5 }, { 2, 5, 7, 7, 7 }, { 5, 7, 4, 4, 4 } } } };
+
 	private static final double[][] DROP_PATTERNS_ATTACK_MULTIPLIERS = {
 			{ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.7, 0.7, 1.0 },
 			{ 1.0, 1.2, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.85, 1.0 } };
+
 	private static final double[][] DROP_PATTERNS_DEFEND_MULTIPLIERS = {
 			{ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 },
 			{ 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.2, 1.0, 1.0 } };
@@ -313,8 +316,8 @@ public class SPFMode extends AbstractMode {
 	 * Game style
 	 */
 	@Override
-	public int getGameStyle() {
-		return GameEngine.GAMESTYLE_SPF;
+	public GameStyle getGameStyle() {
+		return GameStyle.SPF;
 	}
 
 	/*
@@ -885,8 +888,8 @@ public class SPFMode extends AbstractMode {
 				menuColor = Colors.FONT_CYAN;
 				drawMenu(engine, playerID, receiver, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
-						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
-						"SE", GeneralUtil.getONorOFF(enableSE[playerID]), "HURRYUP",
+						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1), "SE",
+						GeneralUtil.getONorOFF(enableSE[playerID]), "HURRYUP",
 						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "COUNTDOWN",
 						String.valueOf(ojamaCountdown[playerID]));
 				menuColor = Colors.FONT_PINK;
@@ -1455,7 +1458,8 @@ public class SPFMode extends AbstractMode {
 						if (engine.field.getBlockColor(testX, testY) != color) {
 							done = true;
 							expandHere = false;
-						} else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+						} else if (engine.field.getBlock(testX, testY)
+								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
 							expandHere = false;
 						}
 					}
@@ -1504,7 +1508,8 @@ public class SPFMode extends AbstractMode {
 						if (engine.field.getBlockColor(testX, testY) != color) {
 							done = true;
 							expandHere = false;
-						} else if (engine.field.getBlock(testX, testY).getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+						} else if (engine.field.getBlock(testX, testY)
+								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 							expandHere = false;
 						}
 					}

@@ -383,23 +383,29 @@ public class SquareMode extends AbstractMode {
 				for (int i = 0; i < RANKING_MAX; i++) {
 					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW, scale);
-					if (gametype == 0) {
+					switch (gametype) {
+					case 0:
 						receiver.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[gametype][i]),
 								i == rankingRank, scale);
 						receiver.drawScoreFont(engine, playerID, 9, topY + i,
 								String.valueOf(rankingSquares[gametype][i]), i == rankingRank, scale);
 						receiver.drawScoreFont(engine, playerID, 16, topY + i,
 								GeneralUtil.getTime(rankingTime[gametype][i]), i == rankingRank, scale);
-					} else if (gametype == 1) {
+						break;
+					case 1:
 						receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
 								i == rankingRank);
 						receiver.drawScoreFont(engine, playerID, 9, 4 + i, String.valueOf(rankingSquares[gametype][i]),
 								i == rankingRank);
-					} else if (gametype == 2) {
+						break;
+					case 2:
 						receiver.drawScoreFont(engine, playerID, 3, 4 + i,
 								GeneralUtil.getTime(rankingTime[gametype][i]), i == rankingRank);
 						receiver.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingSquares[gametype][i]),
 								i == rankingRank);
+						break;
+					default:
+						break;
 					}
 				}
 			}
@@ -569,7 +575,7 @@ public class SquareMode extends AbstractMode {
 				pts = 3 + (lines - 3) * 2;
 			}
 
-			int[] squareClears = engine.field.getHowManySquareClears();
+			int[] squareClears = getHowManySquareClears(engine.field);
 			pts += 10 * squareClears[0] + 5 * squareClears[1];
 
 			lastscore = pts;
@@ -579,6 +585,40 @@ public class SquareMode extends AbstractMode {
 			setSpeed(engine);
 
 		}
+	}
+
+	/**
+	 * Checks the lines that are currently being cleared to see how many strips of
+	 * squares are present in them.
+	 *
+	 * @return +1 for every 1x4 strip of gold (index 0) or silver (index 1)
+	 */
+	public int[] getHowManySquareClears(Field field) {
+		int[] squares = { 0, 0 };
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor(); i++) {
+			// Check the lines we are clearing.
+			if (field.getLineFlag(i)) {
+				for (int j = 0; j < field.getWidth(); j++) {
+					Block blk = field.getBlock(j, i);
+
+					// Silver blocks are worth 1, gold are worth 2, but not if they are garbage
+					// (avalanche)
+					if (blk != null && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
+						if (blk.isGoldSquareBlock()) {
+							squares[0]++;
+						} else if (blk.isSilverSquareBlock()) {
+							squares[1]++;
+						}
+					}
+				}
+			}
+		}
+		// We have to divide the amount by 4 because it's based on 1x4 strips, not
+		// single blocks.
+		squares[0] /= 4;
+		squares[1] /= 4;
+
+		return squares;
 	}
 
 	/**
@@ -729,12 +769,155 @@ public class SquareMode extends AbstractMode {
 		return false;
 	}
 
+	/**
+	 * Checks for 4x4 square formations and converts blocks to square blocks if
+	 * needed.
+	 *
+	 * @return Number of square formations (index 0 is gold, index 1 is silver)
+	 */
+	public int[] checkForSquares(Field field) {
+		int[] squares = { 0, 0 };
+
+		// Check for gold squares
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor() - 3; i++) {
+			for (int j = 0; j < field.getWidth() - 3; j++) {
+				// rootBlk is the upper-left square
+				Block rootBlk = field.getBlock(j, i);
+				boolean squareCheck = false;
+
+				/*
+				 * id is the color of the top-left square: if it is a monosquare, every block in
+				 * the 4x4 area will have this color.
+				 */
+				int id = Colors.BLOCK_COLOR_NONE;
+				if (!(rootBlk == null || rootBlk.isEmpty())) {
+					id = rootBlk.color;
+				}
+
+				// This can't be a square if rootBlk doesn't exist or is part of another square.
+				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
+						|| rootBlk.isSilverSquareBlock())) {
+					// A square is innocent until proven guilty.
+					squareCheck = true;
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							// blk is the current block
+							Block blk = field.getBlock(j + l, i + k);
+							/*
+							 * Reasons why the entire area would not be a monosquare: this block does not
+							 * exist, it is part of another square, it has been broken by line clears, is a
+							 * garbage block, is not the same color as id, or has connections outside the
+							 * area.
+							 */
+							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) || blk.color != id
+									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
+									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
+									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
+									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+								squareCheck = false;
+								break;
+							}
+						}
+						if (!squareCheck) {
+							break;
+						}
+					}
+				}
+				// We found a square! Set all the blocks equal to gold blocks.
+				if (squareCheck) {
+					squares[0]++;
+					int[] squareX = new int[] { 0, 1, 1, 2 };
+					int[] squareY = new int[] { 0, 3, 3, 6 };
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							blk.color = Colors.BLOCK_COLOR_SQUARE_GOLD_1 + squareX[l] + squareY[k];
+							// For stylistic concerns, we attach all blocks in the square together.
+							if (k > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
+							}
+							if (k < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
+							}
+							if (l > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (l < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+		// Check for silver squares
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor() - 3; i++) {
+			for (int j = 0; j < field.getWidth() - 3; j++) {
+				Block rootBlk = field.getBlock(j, i);
+				boolean squareCheck = false;
+				// We don't have to check colors because this loop checks for multisquares.
+				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
+						|| rootBlk.isSilverSquareBlock())) {
+					// A square is innocent until proven guilty
+					squareCheck = true;
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							// See above, but without the color checking.
+							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)
+									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
+									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
+									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
+									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+								squareCheck = false;
+								break;
+							}
+						}
+						if (!squareCheck) {
+							break;
+						}
+					}
+				}
+				// We found a square! Set all the blocks equal to silver blocks.
+				if (squareCheck) {
+					squares[1]++;
+					int[] squareX = new int[] { 0, 1, 1, 2 };
+					int[] squareY = new int[] { 0, 3, 3, 6 };
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							blk.color = Colors.BLOCK_COLOR_SQUARE_SILVER_1 + squareX[l] + squareY[k];
+							if (k > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
+							}
+							if (k < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
+							}
+							if (l > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (l < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return squares;
+	}
+
 	/*
 	 * Check for squares when piece locks
 	 */
 	@Override
 	public void pieceLocked(GameEngine engine, int playerID, int lines) {
-		int[] sq = engine.field.checkForSquares();
+		int[] sq = checkForSquares(engine.field);
 		squares += sq[0] + sq[1];
 		if (sq[0] == 0 && sq[1] > 0) {
 			engine.playSE("square_s");

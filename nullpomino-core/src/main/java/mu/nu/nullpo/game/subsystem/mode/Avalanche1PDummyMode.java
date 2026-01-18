@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -135,8 +136,8 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	 * Game style
 	 */
 	@Override
-	public int getGameStyle() {
-		return GameEngine.GAMESTYLE_AVALANCHE;
+	public GameStyle getGameStyle() {
+		return GameStyle.AVALANCHE;
 	}
 
 	/*
@@ -190,7 +191,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 
 	/**
 	 * Set the gravity rate
-	 * 
+	 *
 	 * @param engine GameEngine
 	 */
 	public void setSpeed(GameEngine engine) {
@@ -233,12 +234,18 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 			break;
 		}
 
-		if (numColors == 3) {
+		switch (numColors) {
+		case 3:
 			level = 1;
-		} else if (numColors == 4) {
+			break;
+		case 4:
 			level = 5;
-		} else if (numColors == 5) {
+			break;
+		case 5:
 			level = 10;
+			break;
+		default:
+			break;
 		}
 		toNextLevel = blocksPerLevel;
 

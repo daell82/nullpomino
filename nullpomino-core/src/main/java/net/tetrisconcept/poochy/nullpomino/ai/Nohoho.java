@@ -2,6 +2,7 @@ package net.tetrisconcept.poochy.nullpomino.ai;
 
 import org.apache.log4j.Logger;
 
+import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
@@ -11,7 +12,7 @@ import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 
 /**
  * Nohoho AI
- * 
+ *
  * @author Poochy.EXE Poochy.Spambucket@gmail.com
  */
 public class Nohoho extends DummyAI implements Runnable {
@@ -370,7 +371,7 @@ public class Nohoho extends DummyAI implements Runnable {
 
 	/**
 	 * Search for the best choice
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -554,7 +555,7 @@ public class Nohoho extends DummyAI implements Runnable {
 
 	/**
 	 * Think routine
-	 * 
+	 *
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
 	 * @param rt     Direction
@@ -580,7 +581,7 @@ public class Nohoho extends DummyAI implements Runnable {
 			return Integer.MIN_VALUE;
 		}
 
-		fld.freeFall();
+		freeFall(fld);
 
 		if (defcon >= 4) {
 			int maxX = piece.getMaximumBlockX() + x;
@@ -640,7 +641,7 @@ public class Nohoho extends DummyAI implements Runnable {
 					break;
 				}
 			}
-			fld.freeFall();
+			freeFall(fld);
 			chain++;
 		}
 
@@ -667,6 +668,38 @@ public class Nohoho extends DummyAI implements Runnable {
 		result.big = engine.big;
 		if (!p.offsetApplied) {
 			result.applyOffsetArray(engine.ruleopt.pieceOffsetX[p.id], engine.ruleopt.pieceOffsetY[p.id]);
+		}
+		return result;
+	}
+
+
+	/**
+	 * Instant avalanche, skips intermediate (cascade falling animation) steps.
+	 *
+	 * @return true if it affected the field at all, false otherwise.
+	 */
+	public boolean freeFall(Field field) {
+		int y1, y2;
+		boolean result = false;
+		for (int x = 0; x < field.getWidth(); x++) {
+			y1 = field.getHeight() - 1;
+			while (!field.getBlockEmpty(x, y1) && y1 >= -1 * field.getHiddenHeight()) {
+				y1--;
+			}
+			y2 = y1;
+			while (field.getBlockEmpty(x, y2) && y2 >= -1 * field.getHiddenHeight()) {
+				y2--;
+			}
+			while (y2 >= -1 * field.getHiddenHeight()) {
+				field.setBlock(x, y1, field.getBlock(x, y2));
+				field.setBlock(x, y2, new Block());
+				y1--;
+				y2--;
+				result = true;
+				while (field.getBlockEmpty(x, y2) && y2 >= -1 * field.getHiddenHeight()) {
+					y2--;
+				}
+			}
 		}
 		return result;
 	}

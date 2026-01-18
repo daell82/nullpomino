@@ -35,7 +35,7 @@ import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.Version;
 
 /**
  * Client(PlayerUse)
@@ -144,9 +144,9 @@ public class NetPlayerClient extends NetBaseClient {
 				startPingTask(pingInterval);
 			}
 
-			send("login\t" + GameManager.getVersionMajor() + "\t" + NetUtil.urlEncode(playerName) + "\t"
+			send("login\t" + Version.getMajorVersion() + "\t" + NetUtil.urlEncode(playerName) + "\t"
 					+ Locale.getDefault().getCountry() + "\t" + NetUtil.urlEncode(playerTeam) + "\t"
-					+ GameManager.getVersionMinor() + "\t" + GameManager.isDevBuild() + "\n");
+					+ Version.getMinorVersion() + "\t" + Version.isDevBuild() + "\n");
 		}
 		// PeoplecountUpdate
 		if (message[0].equals("observerupdate")) {

@@ -97,50 +97,45 @@ public class Block implements Serializable {
 	/** Ignore block connections (for Avalanche modes) */
 	public static final int BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK = 65536;
 
+	/** Color-shift phase for rainbow blocks */
+	private static int rainbowPhase = 0;
+
 	/** Block color */
-	public int color;
+	public int color = Colors.BLOCK_COLOR_NONE;
 
 	/** BlockPicture of */
-	public int skin;
+	public int skin = 0;
 
 	/** BlockAttributes */
-	public int attribute;
+	public int attribute = 0;
 
 	/** I have elapsed since a fixed frame count */
-	public int elapsedFrames;
+	public int elapsedFrames = 0;
 
 	/**
 	 * BlockThe darkness of the, It or brightness (0.03If it&#39;s the case3%Darkly,
 	 * -0.05If it&#39;s the case5%Bright)
 	 */
-	public float darkness;
+	public float darkness = 0f;
 
-	/** Transparency (1.0fOpacity in, 0.0fCompletely transparent in) */
-	public float alpha;
-
-	/**
-	 * What number I put in the game since the start ofBlockOr (NegativecountIf it
-	 * was I or initial placement garbage block)
-	 */
-	public int pieceNum;
+	/** Transparency (1.0f Opacity in, 0.0f Completely transparent in) */
+	public float alpha = 1f;
 
 	/** Item number */
-	public int item;
+	@Deprecated(forRemoval = true)
+	public int item = 0;
 
 	/** Number of extra clears required before block is erased */
-	public int hard;
+	public int hard = 0;
 
 	/** Counter for blocks that count down before some effect occurs */
-	public int countdown;
-
-	/** Color-shift phase for rainbow blocks */
-	public static int rainbowPhase = 0;
+	public int countdown = 0;
 
 	/** Color to turn into when garbage block turns into a regular block */
-	public int secondaryColor;
+	public int secondaryColor = 0;
 
 	/** Bonus value awarded when cleared */
-	public int bonusValue;
+	public int bonusValue = 0;
 
 	/**
 	 * Constructor
@@ -197,14 +192,12 @@ public class Block implements Serializable {
 	/**
 	 * SettingsReset to defaults
 	 */
-	public void reset() {
-		color = Colors.BLOCK_COLOR_NONE;
+	private void reset() {
 		skin = 0;
 		attribute = 0;
 		elapsedFrames = 0;
 		darkness = 0f;
 		alpha = 1f;
-		pieceNum = -1;
 		item = 0;
 		hard = 0;
 		countdown = 0;
@@ -224,7 +217,6 @@ public class Block implements Serializable {
 		elapsedFrames = b.elapsedFrames;
 		darkness = b.darkness;
 		alpha = b.alpha;
-		pieceNum = b.pieceNum;
 		item = b.item;
 		hard = b.hard;
 		countdown = b.countdown;
@@ -271,7 +263,8 @@ public class Block implements Serializable {
 	 * @return ThisBlockThe jewelBlockIf it&#39;s the casetrue
 	 */
 	public boolean isGemBlock() {
-		return color >= Colors.BLOCK_COLOR_GEM_RED && color <= Colors.BLOCK_COLOR_GEM_PURPLE || color == Colors.BLOCK_COLOR_GEM_RAINBOW;
+		return color >= Colors.BLOCK_COLOR_GEM_RED && color <= Colors.BLOCK_COLOR_GEM_PURPLE
+				|| color == Colors.BLOCK_COLOR_GEM_RAINBOW;
 	}
 
 	/**
@@ -313,7 +306,7 @@ public class Block implements Serializable {
 	/**
 	 * @return the character representing the color of this block
 	 */
-	public char blockToChar() {
+	private char blockToChar() {
 		// '0'-'9','A'-'Z' represent colors 0-35.
 		// Colors beyond that would follow the ASCII table starting at '['.
 		if (color >= 10) {
@@ -348,13 +341,10 @@ public class Block implements Serializable {
 		return blkColor;
 	}
 
-	public static void updateRainbowPhase(int time) {
-		rainbowPhase = time % 21;
-	}
-
 	public static void updateRainbowPhase(GameEngine engine) {
+		System.out.println("Block.updateRainbowPhase()");
 		if (engine != null && engine.timerActive) {
-			updateRainbowPhase(engine.statistics.time);
+			rainbowPhase = engine.statistics.time % 21;
 		} else {
 			rainbowPhase++;
 			if (rainbowPhase >= 21) {

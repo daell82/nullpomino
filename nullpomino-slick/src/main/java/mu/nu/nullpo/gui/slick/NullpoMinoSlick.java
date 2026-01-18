@@ -56,7 +56,7 @@ import org.newdawn.slick.util.Log;
 
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetObserverClient;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.ModeManager;
 
@@ -301,7 +301,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 			in.close();
 
 			for (int pl = 0; pl < 2; pl++) {
-				for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+				for (int i = 0; i < GameStyle.numStyles(); i++) {
 					// TETROMINO
 					if (i == 0) {
 						if (propGlobal.getProperty(pl + ".rule") == null) {

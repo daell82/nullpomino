@@ -32,107 +32,83 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
+
+import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.play.SoundManager;
 
 /**
  * Sound effectsManager
  */
-public class SoundManager {
-	/** Log */
-	static Logger log = Logger.getLogger(SoundManager.class);
+@Log4j
+public class SlickSoundManager implements SoundManager {
 
 	/** You can registerWAVE file OfMaximumcount */
 	protected int maxClips;
 
-	/** WAVE file  data (Name-> dataBody) */
-	protected Map<String, Sound> clipMap;
+	/** WAVE file data (Name-> dataBody) */
+	protected Map<String, Sound> clips;
 
 	/**
 	 * Constructor
 	 */
-	public SoundManager() {
+	public SlickSoundManager() {
 		this(128);
 	}
 
 	/**
 	 * Constructor
+	 *
 	 * @param maxClips You can registerWAVE file OfMaximumcount
 	 */
-	public SoundManager(int maxClips) {
+	public SlickSoundManager(int maxClips) {
 		this.maxClips = maxClips;
-		clipMap = HashMap.newHashMap(maxClips);
+		clips = HashMap.newHashMap(maxClips);
 	}
 
 	/**
 	 * Load WAVE file
-	 * @param name Registered name
+	 *
+	 * @param name     Registered name
 	 * @param filename Filename (String)
 	 * @return true if successful, false if failed
 	 */
-	public boolean load(String name, String filename) {
-		if(clipMap.size() >= maxClips) {
+	@Override
+	public void load(String name, String filename) {
+		if (clips.size() >= maxClips) {
 			log.error("No more wav files can be loaded (" + maxClips + ")");
-			return false;
+			return;
 		}
-
 		try {
-			Sound clip = new Sound(filename);
-			clipMap.put(name, clip);
-		} catch(SlickException e) {
+			clips.put(name, new Sound(filename));
+		} catch (SlickException e) {
 			log.error("Failed to load wav file", e);
-			return false;
 		}
-
-		return true;
 	}
 
 	/**
 	 * Load WAVE file
-	 * @param name Registered name
+	 *
+	 * @param name    Registered name
 	 * @param fileurl Filename (URL)
 	 * @return true if successful, false if failed
 	 */
-	public boolean load(String name, URL fileurl) {
-		if(clipMap.size() >= maxClips) {
-			log.error("No more wav files can be loaded (" + maxClips + ")");
-			return false;
-		}
-
-		try {
-			Sound clip = new Sound(fileurl);
-			clipMap.put(name, clip);
-		} catch(SlickException e) {
-			log.error("Failed to load wav file", e);
-			return false;
-		}
-
-		return true;
+	public void load(String name, URL fileurl) {
+		load(name, fileurl.getFile());
 	}
 
 	/**
 	 * Playback
+	 *
 	 * @param name Registered name
 	 */
+	@Override
 	public void play(String name) {
-		// NameGet the clip corresponding to the
-		Sound clip = clipMap.get(name);
-
-		if(clip != null) {
-			clip.play();
+		Sound clip = clips.get(name);
+		if (clip == null) {
+			return;
 		}
-	}
-
-	/**
-	 * Stop
-	 * @param name Registered name
-	 */
-	public void stop(String name) {
-		Sound clip = clipMap.get(name);
-
-		if(clip != null) {
-			clip.stop();
-		}
+		clip.play();
 	}
 }

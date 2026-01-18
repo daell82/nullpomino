@@ -599,7 +599,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 		if (chain > CHAIN_POWERS.length) {
 			return CHAIN_POWERS[CHAIN_POWERS.length - 1];
 		} else {
-			return CHAIN_POWERS[chain - 1];
+			return CHAIN_POWERS[chain];
 		}
 	}
 

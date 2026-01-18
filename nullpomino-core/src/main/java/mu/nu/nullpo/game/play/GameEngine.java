@@ -28,10 +28,12 @@
 */
 package mu.nu.nullpo.game.play;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Random;
 
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
@@ -55,21 +57,6 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 @Log4j
 public class GameEngine {
 
-	/**
-	 * Constants of game style (Currently not directly used by GameEngine, but from
-	 * game modes)
-	 */
-	public static final int GAMESTYLE_TETROMINO = 0;
-	public static final int GAMESTYLE_AVALANCHE = 1;
-	public static final int GAMESTYLE_PHYSICIAN = 2;
-	public static final int GAMESTYLE_SPF = 3;
-
-	/** Max number of game style */
-	public static final int MAX_GAMESTYLE = 4;
-
-	/** Game style names */
-	public static final String[] GAMESTYLE_NAMES = { "TETROMINO", "AVALANCHE", "PHYSICIAN", "SPF" };
-
 	/** Constants of main game status */
 	public enum Status {
 		NOTHING, SETTING, READY, MOVE, LOCKFLASH, LINECLEAR, ARE, ENDINGSTART, CUSTOM, EXCELLENT, GAMEOVER, RESULT,
@@ -92,18 +79,18 @@ public class GameEngine {
 	public static final int BLOCK_OUTLINE_SAMECOLOR = 3;
 
 	/** Default duration of Ready->Go */
-	public static final int READY_START = 0;
-	public static final int READY_END = 49;
-	public static final int GO_START = 50;
-	public static final int GO_END = 100;
+	private static final int READY_START = 0;
+	private static final int READY_END = 49;
+	private static final int GO_START = 50;
+	private static final int GO_END = 100;
 
 	/** Constants of T-Spin Mini detection type */
-	public static final int TSPINMINI_TYPE_ROTATECHECK = 0;
-	public static final int TSPINMINI_TYPE_WALLKICKFLAG = 1;
+	private static final int TSPINMINI_TYPE_ROTATECHECK = 0;
+	private static final int TSPINMINI_TYPE_WALLKICKFLAG = 1;
 
 	/** Spin detection type */
-	public static final int SPINTYPE_4POINT = 0;
-	public static final int SPINTYPE_IMMOBILE = 1;
+	private static final int SPINTYPE_4POINT = 0;
+	private static final int SPINTYPE_IMMOBILE = 1;
 
 	/** Constants of combo type */
 	public static final int COMBO_TYPE_DISABLE = 0;
@@ -519,10 +506,10 @@ public class GameEngine {
 	 * Lag flag (Infinite length of ARE will happen after placing a piece until this
 	 * flag is set to false)
 	 */
-	public boolean lagARE;
+	private boolean lagARE;
 
 	/** Lag flag (Pause the game completely) */
-	public boolean lagStop;
+	private boolean lagStop;
 
 	/** Field display size (-1 for mini, 1 for big, 0 for normal) */
 	public int displaysize;
@@ -720,10 +707,10 @@ public class GameEngine {
 		replayData = new ReplayData();
 
 		if (owner.replayMode == false) {
-			versionMajor = GameManager.getVersionMajor();
-			versionMinor = GameManager.getVersionMinor();
-			versionMinorOld = GameManager.getVersionMinorOld();
-			versionIsDevBuild = GameManager.isDevBuild();
+			versionMajor = Version.getMajorVersion();
+			versionMinor = Version.getMinorVersion();
+			versionMinorOld = Version.getMinorVersionOld();
+			versionIsDevBuild = Version.isDevBuild();
 
 			Random tempRand = new Random();
 			randSeed = tempRand.nextLong();
@@ -781,9 +768,8 @@ public class GameEngine {
 
 		nextPieceArraySize = 1400;
 		nextPieceEnable = new boolean[Piece.PIECE_COUNT];
-		for (int i = 0; i < Piece.PIECE_STANDARD_COUNT; i++) {
-			nextPieceEnable[i] = true;
-		}
+		Arrays.fill(nextPieceEnable, 0, Piece.PIECE_STANDARD_COUNT, true);
+
 		nextPieceArrayID = null;
 		nextPieceArrayObject = null;
 		nextPieceCount = 0;
@@ -1449,19 +1435,19 @@ public class GameEngine {
 				boolean isLowSpot1 = false;
 				boolean isLowSpot2 = false;
 
-				if (!fld.getBlockEmptyF(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
+				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
 						y + Piece.SPINBONUSDATA_HIGH_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
 					isHighSpot1 = true;
 				}
-				if (!fld.getBlockEmptyF(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
+				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
 						y + Piece.SPINBONUSDATA_HIGH_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
 					isHighSpot2 = true;
 				}
-				if (!fld.getBlockEmptyF(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
+				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
 						y + Piece.SPINBONUSDATA_LOW_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
 					isLowSpot1 = true;
 				}
-				if (!fld.getBlockEmptyF(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
+				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
 						y + Piece.SPINBONUSDATA_LOW_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
 					isLowSpot2 = true;
 				}
@@ -1900,51 +1886,27 @@ public class GameEngine {
 		// Processing status of each
 		if (!lagStop) {
 			switch (stat) {
-			case NOTHING:
-				break;
-			case SETTING:
-				statSetting();
-				break;
-			case READY:
-				statReady();
-				break;
-			case MOVE:
+			case SETTING -> statSetting();
+			case READY -> statReady();
+			case LOCKFLASH -> statLockFlash();
+			case LINECLEAR -> statLineClear();
+			case ARE -> statARE();
+			case ENDINGSTART -> statEndingStart();
+			case CUSTOM -> statCustom();
+			case EXCELLENT -> statExcellent();
+			case GAMEOVER -> statGameOver();
+			case RESULT -> statResult();
+			case FIELDEDIT -> statFieldEdit();
+			case INTERRUPTITEM -> statInterruptItem();
+			case MOVE -> {
 				dasRepeat = true;
 				dasInstant = false;
 				while (dasRepeat) {
 					statMove();
 				}
-				break;
-			case LOCKFLASH:
-				statLockFlash();
-				break;
-			case LINECLEAR:
-				statLineClear();
-				break;
-			case ARE:
-				statARE();
-				break;
-			case ENDINGSTART:
-				statEndingStart();
-				break;
-			case CUSTOM:
-				statCustom();
-				break;
-			case EXCELLENT:
-				statExcellent();
-				break;
-			case GAMEOVER:
-				statGameOver();
-				break;
-			case RESULT:
-				statResult();
-				break;
-			case FIELDEDIT:
-				statFieldEdit();
-				break;
-			case INTERRUPTITEM:
-				statInterruptItem();
-				break;
+			}
+			case NOTHING -> {
+			}
 			}
 		}
 
@@ -2254,14 +2216,12 @@ public class GameEngine {
 		dasRepeat = false;
 
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onMove(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onMove(this, playerID)) {
+			return;
 		}
 		owner.receiver.onMove(this, playerID);
 
-		// Horizontal reservoirInitialization
+		// Horizontal reservoir Initialization
 		int moveDirection = getMoveDirection();
 
 		if (statc[0] > 0 || ruleopt.dasInMoveFirstFrame) {
@@ -2374,7 +2334,7 @@ public class GameEngine {
 				nowPieceColorOverride = Colors.BLOCK_COLOR_GRAY;
 			}
 
-			// Precedingrotation
+			// Preceding rotation
 			if (versionMajor < 7.5f) {
 				initialRotate(); // XXX: Weird active time IRS
 				// if( (getARE() != 0) && ((getARELine() != 0) || (version < 6.3f)) )
@@ -2660,9 +2620,9 @@ public class GameEngine {
 
 							if (getDASDelay() == 0 && dasCount > 0
 									&& nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false) {
-								if (!dasInstant) {
-									playSE("move");
-								}
+//								if (!dasInstant) {
+//									playSE("move");
+//								}
 								dasRepeat = true;
 								dasInstant = true;
 							}
@@ -3767,10 +3727,10 @@ public class GameEngine {
 		// Placement
 		if (ctrl.isPress(Controller.BUTTON_A) && fldeditFrames > 10) {
 			try {
-				if (field.getBlockColorE(fldeditX, fldeditY) != fldeditColor) {
+				if (field.getBlockColor(fldeditX, fldeditY) != fldeditColor) {
 					Block blk = new Block(fldeditColor, getSkin(),
 							Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE);
-					field.setBlockE(fldeditX, fldeditY, blk);
+					field.setBlock(fldeditX, fldeditY, blk);
 					playSE("change");
 				}
 			} catch (Exception e) {
@@ -3780,8 +3740,8 @@ public class GameEngine {
 		// Elimination
 		if (ctrl.isPress(Controller.BUTTON_D) && fldeditFrames > 10) {
 			try {
-				if (!field.getBlockEmptyE(fldeditX, fldeditY)) {
-					field.setBlockColorE(fldeditX, fldeditY, Colors.BLOCK_COLOR_NONE);
+				if (!field.getBlockEmpty(fldeditX, fldeditY)) {
+					field.setBlockColor(fldeditX, fldeditY, Colors.BLOCK_COLOR_NONE);
 					playSE("change");
 				}
 			} catch (Exception e) {

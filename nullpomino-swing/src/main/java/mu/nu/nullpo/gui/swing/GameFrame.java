@@ -63,6 +63,8 @@ import mu.nu.nullpo.util.Colors;
 @Log4j
 public class GameFrame extends JFrame implements Runnable {
 
+	private static final long ONE_SECOND_IN_NS = 1_000_000_000L;
+
 	/** Serial version ID */
 	private static final long serialVersionUID = 1L;
 
@@ -74,9 +76,6 @@ public class GameFrame extends JFrame implements Runnable {
 
 	/** BufferStrategy */
 	protected BufferStrategy bufferStrategy = null;
-
-	/** Game loop thread */
-	protected Thread thread = null;
 
 	/** trueThread moves between */
 	protected volatile boolean running = false;
@@ -208,8 +207,7 @@ public class GameFrame extends JFrame implements Runnable {
 		setSize(width, height);
 
 		if (!running) {
-			thread = new Thread(this, "Game Thread");
-			thread.start();
+			new Thread(this, "Game Thread").start();
 		}
 	}
 
@@ -251,7 +249,8 @@ public class GameFrame extends JFrame implements Runnable {
 
 		// Initialization
 		maxfpsCurrent = maxfps;
-		periodCurrent = (long) (1.0 / maxfpsCurrent * 1000000000);
+		periodCurrent = (long) (1.0 / maxfpsCurrent * ONE_SECOND_IN_NS);
+		log.debug("current period: "+periodCurrent);
 		beforeTime = System.nanoTime();
 		prevCalcTime = beforeTime;
 		pause = false;
@@ -299,7 +298,7 @@ public class GameFrame extends JFrame implements Runnable {
 			timeDiff = afterTime - beforeTime;
 
 			sleepTime = periodCurrent - timeDiff - overSleepTime;
-			sleepTimeInMillis = sleepTime / 1000000L;
+			sleepTimeInMillis = sleepTime / 1_000_000L;
 
 			if (sleepTimeInMillis >= 4 && !perfectFPSMode) {
 				// If it is possible to use sleep
@@ -321,17 +320,17 @@ public class GameFrame extends JFrame implements Runnable {
 					maxfpsCurrent = maxfps + 5;
 				}
 				if (perfectYield) {
-					while (System.nanoTime() < perfectFPSDelay + 1_000_000_000 / maxfps) {
+					while (System.nanoTime() < perfectFPSDelay + ONE_SECOND_IN_NS / maxfps) {
 						Thread.yield();
 					}
 				} else {
-					while (System.nanoTime() < perfectFPSDelay + 1_000_000_000 / maxfps) {
+					while (System.nanoTime() < perfectFPSDelay + ONE_SECOND_IN_NS / maxfps) {
 					}
 				}
 				perfectFPSDelay += 1_000_000_000 / maxfps;
 
 				// Don't run in super fast after the heavy slowdown
-				if (System.nanoTime() > perfectFPSDelay + 2_000_000_000 / maxfps) {
+				if (System.nanoTime() > (perfectFPSDelay + 2 * ONE_SECOND_IN_NS) / maxfps) {
 					perfectFPSDelay = System.nanoTime();
 				}
 
@@ -369,7 +368,7 @@ public class GameFrame extends JFrame implements Runnable {
 	 */
 	protected void gameUpdate() {
 		GameManager gameManager = owner.getGameManager();
-		if (gameManager == null) {
+		if (gameManager == null || gameManager.engine == null) {
 			return;
 		}
 
@@ -377,7 +376,7 @@ public class GameFrame extends JFrame implements Runnable {
 		for (int i = 0; i < 2; i++) {
 			boolean prevInGame = isInGame[i];
 
-			if (gameManager.engine != null && gameManager.engine.length > i) {
+			if (gameManager.engine.length > i) {
 				isInGame[i] = gameManager.engine[i].isInGame;
 			}
 			if (pause && !enableframestep) {
@@ -393,8 +392,7 @@ public class GameFrame extends JFrame implements Runnable {
 		GameKeySwing.gamekey[1].update();
 
 		// Title bar update
-		if (gameManager != null && gameManager.engine != null && gameManager.engine.length > 0
-				&& gameManager.engine[0] != null) {
+		if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
 			boolean nowInGame = gameManager.engine[0].isInGame;
 			if (prevInGameFlag != nowInGame) {
 				prevInGameFlag = nowInGame;
@@ -406,7 +404,7 @@ public class GameFrame extends JFrame implements Runnable {
 		if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_PAUSE)
 				|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_PAUSE)) {
 			if (!pause) {
-				if (gameManager != null && gameManager.isGameActive() && pauseFrame <= 0) {
+				if (gameManager.isGameActive() && pauseFrame <= 0) {
 					resourceManager.getSoundManager().play("pause");
 					pause = true;
 					if (!enableframestep) {
@@ -516,33 +514,29 @@ public class GameFrame extends JFrame implements Runnable {
 
 		// Execute game loops
 		if (!pause || GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_FRAMESTEP) && enableframestep) {
-			if (gameManager != null) {
-				for (int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
-					if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
-						GameKeySwing.gamekey[i].inputStatusUpdate(gameManager.engine[i].ctrl);
-					}
+			for (int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
+				if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
+					GameKeySwing.gamekey[i].inputStatusUpdate(gameManager.engine[i].ctrl);
 				}
+			}
 
-				for (int i = 0; i <= fastforward; i++) {
-					gameManager.updateAll();
-				}
+			for (int i = 0; i <= fastforward; i++) {
+				gameManager.updateAll();
 			}
 		}
 
-		if (gameManager != null) {
-			// Retry button
-			if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_RETRY)
-					|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_RETRY)) {
-				pause = false;
-				gameManager.reset();
-			}
+		// Retry button
+		if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_RETRY)
+				|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_RETRY)) {
+			pause = false;
+			gameManager.reset();
+		}
 
-			// Return to title
-			if (gameManager.getQuitFlag() || GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_GIVEUP)
-					|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_GIVEUP)) {
-				shutdown();
-				return;
-			}
+		// Return to title
+		if (gameManager.getQuitFlag() || GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_GIVEUP)
+				|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_GIVEUP)) {
+			shutdown();
+			return;
 		}
 
 		// Screenshot button
@@ -564,7 +558,7 @@ public class GameFrame extends JFrame implements Runnable {
 	 */
 	protected void gameUpdateNet() {
 		GameManager gameManager = owner.getGameManager();
-		if (gameManager == null) {
+		if (gameManager == null || gameManager.engine == null) {
 			return;
 		}
 
@@ -572,7 +566,7 @@ public class GameFrame extends JFrame implements Runnable {
 			// Set ingame flag
 			boolean prevInGame = isInGame[0];
 
-			if (gameManager.engine != null && gameManager.engine.length > 0) {
+			if (gameManager.engine.length > 0) {
 				isInGame[0] = gameManager.engine[0].isInGame;
 			}
 			if (pause && !enableframestep) {
@@ -591,8 +585,7 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 
 			// Title bar update
-			if (gameManager != null && gameManager.engine != null && gameManager.engine.length > 0
-					&& gameManager.engine[0] != null) {
+			if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
 				boolean nowInGame = gameManager.engine[0].isInGame;
 				if (prevInGameFlag != nowInGame) {
 					prevInGameFlag = nowInGame;
@@ -601,7 +594,7 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 
 			// Execute game loops
-			if (gameManager != null && gameManager.mode != null) {
+			if (gameManager.mode != null) {
 				GameKeySwing.gamekey[0].inputStatusUpdate(gameManager.engine[0].ctrl);
 				gameManager.updateAll();
 
@@ -633,7 +626,7 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 		} catch (NullPointerException e) {
 			try {
-				if (gameManager != null && gameManager.getQuitFlag()) {
+				if (gameManager.getQuitFlag()) {
 					shutdown();
 					return;
 				} else {
@@ -643,7 +636,7 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 		} catch (Exception e) {
 			try {
-				if (gameManager != null && gameManager.getQuitFlag()) {
+				if (gameManager.getQuitFlag()) {
 					shutdown();
 					return;
 				} else {
@@ -808,20 +801,8 @@ public class GameFrame extends JFrame implements Runnable {
 			NormalFontSwing.graphics = g;
 			((RendererSwing) gameManager.receiver).setGraphics(g);
 			gameManager.renderAll();
-		} catch (NullPointerException e) {
-			try {
-				if (gameManager == null || !gameManager.getQuitFlag()) {
-					log.error("render NPE", e);
-				}
-			} catch (Throwable e2) {
-			}
 		} catch (Exception e) {
-			try {
-				if (gameManager == null || !gameManager.getQuitFlag()) {
-					log.error("render fail", e);
-				}
-			} catch (Throwable e2) {
-			}
+			log.error("render fail", e);
 		}
 
 		// FPSDisplay
@@ -859,16 +840,16 @@ public class GameFrame extends JFrame implements Runnable {
 	}
 
 	/**
-	 * FPSCalculation of
+	 * Calculation of FPS
 	 *
-	 * @param period FPSInterval to calculate the
+	 * @param period to calculate the FPSInterval
 	 */
 	protected void calcFPS(long period) {
 		frameCount++;
 		calcInterval += period;
 
 		// 1Second intervalsFPSRecalculate the
-		if (calcInterval >= 1000000000L) {
+		if (calcInterval >= ONE_SECOND_IN_NS) {
 			long timeNow = System.nanoTime();
 
 			// Actual elapsed timeMeasure
@@ -876,7 +857,7 @@ public class GameFrame extends JFrame implements Runnable {
 
 			// FPSCalculate the
 			// realElapsedTimeThe unit ofnsSosConverted to
-			actualFPS = (double) frameCount / realElapsedTime * 1000000000L;
+			actualFPS = (double) frameCount / realElapsedTime * ONE_SECOND_IN_NS;
 
 			frameCount = 0L;
 			calcInterval = 0L;
@@ -890,7 +871,7 @@ public class GameFrame extends JFrame implements Runnable {
 					if (maxfpsCurrent > maxfps + 20) {
 						maxfpsCurrent = maxfps + 20;
 					}
-					periodCurrent = (long) (1.0 / maxfpsCurrent * 1000000000);
+					periodCurrent = (long) (1.0 / maxfpsCurrent * ONE_SECOND_IN_NS);
 				} else if (actualFPS > maxfps + 1) {
 					// Too fast
 					maxfpsCurrent--;
@@ -900,7 +881,7 @@ public class GameFrame extends JFrame implements Runnable {
 					if (maxfpsCurrent < 0) {
 						maxfpsCurrent = 0;
 					}
-					periodCurrent = (long) (1.0 / maxfpsCurrent * 1000000000);
+					periodCurrent = (long) (1.0 / maxfpsCurrent * ONE_SECOND_IN_NS);
 				}
 			}
 		}

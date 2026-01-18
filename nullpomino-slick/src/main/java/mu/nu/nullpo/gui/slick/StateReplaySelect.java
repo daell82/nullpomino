@@ -176,22 +176,12 @@ public class StateReplaySelect extends DummyMenuScrollState {
 	@Override
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
 		ResourceHolderSlick.soundManager.play("decide");
-
-		CustomProperties prop = new CustomProperties();
-
-		try {
-			FileInputStream in = new FileInputStream(
-					NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay") + "/"
-							+ list.get(cursor));
-			prop.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Failed to load replay file from " + list.get(cursor), e);
+		String dir = NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay");
+		CustomProperties prop = CustomProperties.load(dir + "/" + list.get(cursor));
+		if(prop.isEmpty()) {
 			return true;
 		}
-
 		NullpoMinoSlick.stateInGame.startReplayGame(prop);
-
 		game.enterState(StateInGame.ID);
 		return false;
 	}

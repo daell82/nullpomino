@@ -58,7 +58,8 @@ public class GameKeySwing extends GameKeyDummy {
 					{ KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_A,
 							KeyEvent.VK_S, KeyEvent.VK_D, KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C,
 							KeyEvent.VK_ESCAPE, KeyEvent.VK_F1, KeyEvent.VK_F12, KeyEvent.VK_F11, KeyEvent.VK_N,
-							KeyEvent.VK_F10 }, },
+							KeyEvent.VK_F10 }, //
+			},
 			// Menu
 			{
 					// Blockbox type
@@ -75,7 +76,11 @@ public class GameKeySwing extends GameKeyDummy {
 					{ KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_A,
 							KeyEvent.VK_S, KeyEvent.VK_D, KeyEvent.VK_Z, KeyEvent.VK_X, KeyEvent.VK_C,
 							KeyEvent.VK_ESCAPE, KeyEvent.VK_F1, KeyEvent.VK_F12, KeyEvent.VK_F11, KeyEvent.VK_N,
-							KeyEvent.VK_F10 }, }, };
+							KeyEvent.VK_F10 }, //
+			}, };
+
+	/** Button input flag */
+	protected final boolean[] pressstate;
 
 	/**
 	 * Init everything
@@ -90,7 +95,7 @@ public class GameKeySwing extends GameKeyDummy {
 	 * Default constructor
 	 */
 	public GameKeySwing() {
-		super();
+		this(0);
 	}
 
 	/**
@@ -100,6 +105,7 @@ public class GameKeySwing extends GameKeyDummy {
 	 */
 	public GameKeySwing(int pl) {
 		super(pl);
+		pressstate = new boolean[MAX_BUTTON];
 	}
 
 	/**
@@ -162,7 +168,7 @@ public class GameKeySwing extends GameKeyDummy {
 	 *
 	 * @param type Settings type (0=Blockbox 1=Guideline 2=NullpoMino-Classic)
 	 */
-	public void loadDefaultGameKeymap(int type) {
+	private void loadDefaultGameKeymap(int type) {
 		for (int i = 0; i < keymap.length; i++) {
 			keymap[i] = DEFAULTKEYS[0][type][i];
 		}
@@ -173,7 +179,7 @@ public class GameKeySwing extends GameKeyDummy {
 	 *
 	 * @param type Settings type (0=Blockbox 1=Guideline 2=NullpoMino-Classic)
 	 */
-	public void loadDefaultMenuKeymap(int type) {
+	private void loadDefaultMenuKeymap(int type) {
 		for (int i = 0; i < keymapNav.length; i++) {
 			keymapNav[i] = DEFAULTKEYS[1][type][i];
 		}

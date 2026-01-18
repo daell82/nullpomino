@@ -31,6 +31,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -112,8 +113,8 @@ public class PhysicianMode extends AbstractMode {
 	 * Game style
 	 */
 	@Override
-	public int getGameStyle() {
-		return GameEngine.GAMESTYLE_PHYSICIAN;
+	public GameStyle getGameStyle() {
+		return GameStyle.PHYSICIAN;
 	}
 
 	/*

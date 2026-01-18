@@ -642,8 +642,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 							graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
 							graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
 						}
-						if (block
-								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 							graphics.fillRect(x3, y3, 2, 2);
 						}
 						if (block.getAttribute(
@@ -659,12 +658,12 @@ public class RendererSlick extends EventReceiver<Graphics> {
 							graphics.fillRect(x3 + blksize - 2, y3 + blksize - 2, 2, 2);
 						}
 					} else {
-						Block blkTemp = new Block(piece.block[i]);
-						blkTemp.darkness = 0.3f;
+						Block block = new Block(piece.block[i]);
+						block.darkness = 0.3f;
 						if (engine.nowPieceColorOverride >= 0) {
-							blkTemp.color = engine.nowPieceColorOverride;
+							block.color = engine.nowPieceColorOverride;
 						}
-						drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale);
+						drawBlock(x + x2 * blksize, y + y2 * blksize, block, scale);
 					}
 				}
 			} else {
@@ -672,13 +671,13 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				int y2 = engine.nowPieceBottomY + piece.dataY[piece.direction][i] * 2;
 
 				if (outlineGhost) {
-					Block blkTemp = piece.block[i];
+					Block block = piece.block[i];
 					int x3 = x + x2 * blksize;
 					int y3 = y + y2 * blksize;
 					int ls = blksize * 2 - 1;
 
-					int colorID = blkTemp.getDrawColor();
-					if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+					int colorID = block.getDrawColor();
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 						colorID = -1;
 					}
 					Color color = getColorByID(colorID);
@@ -691,42 +690,41 @@ public class RendererSlick extends EventReceiver<Graphics> {
 					graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
 					graphics.setColor(Color.white);
 
-					if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 						graphics.drawLine(x3, y3, x3 + ls, y3);
 						graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
 					}
-					if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 						graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
 						graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
 					}
-					if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
 						graphics.drawLine(x3, y3, x3, y3 + ls);
 						graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
 					}
-					if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
 						graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
 						graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
 					}
-					if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 						graphics.fillRect(x3, y3, 2, 2);
 					}
-					if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 						graphics.fillRect(x3, y3 + blksize * 2 - 2, 2, 2);
 					}
-					if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 						graphics.fillRect(x3 + blksize * 2 - 2, y3, 2, 2);
 					}
-					if (blkTemp
-							.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 						graphics.fillRect(x3 + blksize * 2 - 2, y3 + blksize * 2 - 2, 2, 2);
 					}
 				} else {
-					Block blkTemp = new Block(piece.block[i]);
-					blkTemp.darkness = 0.3f;
+					Block block = new Block(piece.block[i]);
+					block.darkness = 0.3f;
 					if (engine.nowPieceColorOverride >= 0) {
-						blkTemp.color = engine.nowPieceColorOverride;
+						block.color = engine.nowPieceColorOverride;
 					}
-					drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale * 2.0f);
+					drawBlock(x + x2 * blksize, y + y2 * blksize, block, scale * 2.0f);
 				}
 			}
 		}
@@ -734,117 +732,116 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 	protected void drawHintPiece(int x, int y, GameEngine engine, float scale) {
 		Piece piece = engine.aiHintPiece;
-		if (piece != null) {
-			piece.direction = engine.ai.bestRt;
-			piece.updateConnectData();
-			int blksize = (int) (16 * scale);
+		if (piece == null) {
+			return;
+		}
+		piece.direction = engine.ai.bestRt;
+		piece.updateConnectData();
+		int blksize = (int) (16 * scale);
+		if (!piece.big) {
+			drawHintPieceNormal(x, y, engine, piece, blksize);
+		} else {
+			drawHintPieceBig(x, y, engine, piece, blksize);
+		}
+	}
 
-			if (piece != null) {
-				for (int i = 0; i < piece.getMaxBlock(); i++) {
-					if (!piece.big) {
-						int x2 = engine.ai.bestX + piece.dataX[engine.ai.bestRt][i];
-						int y2 = engine.ai.bestY + piece.dataY[engine.ai.bestRt][i];
+	protected void drawHintPieceNormal(int x, int y, GameEngine engine, Piece piece, int blksize) {
+		for (int i = 0; i < piece.getMaxBlock(); i++) {
+			int x2 = engine.ai.bestX + piece.dataX[engine.ai.bestRt][i];
+			int y2 = engine.ai.bestY + piece.dataY[engine.ai.bestRt][i];
+			if (y2 < 0) {
+				continue;
+			}
+			Block block = piece.block[i];
+			int x3 = x + x2 * blksize;
+			int y3 = y + y2 * blksize;
+			int ls = blksize - 1;
 
-						if (y2 >= 0) {
+			int colorID = block.getDrawColor();
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+				colorID = -1;
+			}
+			Color color = getColorByID(colorID);
+			graphics.setColor(color);
 
-							Block blkTemp = piece.block[i];
-							int x3 = x + x2 * blksize;
-							int y3 = y + y2 * blksize;
-							int ls = blksize - 1;
+			if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.fillRect(x3, y3, ls, 2);
+			}
+			if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.fillRect(x3, y3 + ls - 1, ls, 2);
+			}
+			if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+				graphics.fillRect(x3, y3, 2, ls);
+			}
+			if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+				graphics.fillRect(x3 + ls - 1, y3, 2, ls);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.fillRect(x3, y3, 2, 2);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.fillRect(x3, y3 + blksize - 2, 2, 2);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.fillRect(x3 + blksize - 2, y3, 2, 2);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.fillRect(x3 + blksize - 2, y3 + blksize - 2, 2, 2);
+			}
+		}
+	}
 
-							int colorID = blkTemp.getDrawColor();
-							if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-								colorID = -1;
-							}
-							Color color = getColorByID(colorID);
-							graphics.setColor(color);
+	protected void drawHintPieceBig(int x, int y, GameEngine engine, Piece piece, int blksize) {
+		for (int i = 0; i < piece.getMaxBlock(); i++) {
+			int x2 = engine.ai.bestX + piece.dataX[engine.ai.bestRt][i] * 2;
+			int y2 = engine.ai.bestY + piece.dataY[engine.ai.bestRt][i] * 2;
 
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.fillRect(x3, y3, ls, 2);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.fillRect(x3, y3 + ls - 1, ls, 2);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-								graphics.fillRect(x3, y3, 2, ls);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-								graphics.fillRect(x3 + ls - 1, y3, 2, ls);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.fillRect(x3, y3, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.fillRect(x3, y3 + blksize - 2, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.fillRect(x3 + blksize - 2, y3, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.fillRect(x3 + blksize - 2, y3 + blksize - 2, 2, 2);
-							}
-						}
-					} else {
-						int x2 = engine.ai.bestX + piece.dataX[engine.ai.bestRt][i] * 2;
-						int y2 = engine.ai.bestY + piece.dataY[engine.ai.bestRt][i] * 2;
+			Block blkTemp = piece.block[i];
+			int x3 = x + x2 * blksize;
+			int y3 = y + y2 * blksize;
+			int ls = blksize * 2 - 1;
 
-						Block blkTemp = piece.block[i];
-						int x3 = x + x2 * blksize;
-						int y3 = y + y2 * blksize;
-						int ls = blksize * 2 - 1;
+			int colorID = blkTemp.getDrawColor();
+			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+				colorID = -1;
+			}
+			Color color = getColorByID(colorID);
+			if (showbg) {
+				color.a = 0.5f;
+			} else {
+				color = color.darker(0.5f);
+			}
+			graphics.setColor(color);
+			// graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
+			graphics.setColor(Color.white);
 
-						int colorID = blkTemp.getDrawColor();
-						if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-							colorID = -1;
-						}
-						Color color = getColorByID(colorID);
-						if (showbg) {
-							color.a = 0.5f;
-						} else {
-							color = color.darker(0.5f);
-						}
-						graphics.setColor(color);
-						// graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
-						graphics.setColor(Color.white);
-
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-							graphics.drawLine(x3, y3, x3 + ls, y3);
-							graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
-						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-							graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
-							graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
-						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-							graphics.drawLine(x3, y3, x3, y3 + ls);
-							graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
-						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-							graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
-							graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
-						}
-						if (blkTemp
-								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-							graphics.fillRect(x3, y3, 2, 2);
-						}
-						if (blkTemp.getAttribute(
-								Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-							graphics.fillRect(x3, y3 + blksize * 2 - 2, 2, 2);
-						}
-						if (blkTemp
-								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-							graphics.fillRect(x3 + blksize * 2 - 2, y3, 2, 2);
-						}
-						if (blkTemp.getAttribute(
-								Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-							graphics.fillRect(x3 + blksize * 2 - 2, y3 + blksize * 2 - 2, 2, 2);
-						}
-					}
-				}
+			if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.drawLine(x3, y3, x3 + ls, y3);
+				graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
+			}
+			if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
+				graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
+			}
+			if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+				graphics.drawLine(x3, y3, x3, y3 + ls);
+				graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
+			}
+			if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+				graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
+				graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
+			}
+			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.fillRect(x3, y3, 2, 2);
+			}
+			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.fillRect(x3, y3 + blksize * 2 - 2, 2, 2);
+			}
+			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				graphics.fillRect(x3 + blksize * 2 - 2, y3, 2, 2);
+			}
+			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				graphics.fillRect(x3 + blksize * 2 - 2, y3 + blksize * 2 - 2, 2, 2);
 			}
 		}
 	}
@@ -855,7 +852,6 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
-	 * @param small  Half size
 	 */
 	protected void drawField(int x, int y, GameEngine engine, int size) {
 		if (graphics == null) {
@@ -991,7 +987,6 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
-	 * @param small  Half size
 	 */
 	protected void drawFrame(int x, int y, GameEngine engine, int displaysize) {
 		if (graphics == null) {
@@ -1012,9 +1007,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			width = engine.field.getWidth();
 			height = engine.field.getHeight();
 		}
-		if (engine != null) {
-			offsetX = engine.framecolor * 16;
-		}
+		offsetX = engine.framecolor * 16;
 
 		// Field Background
 		if (fieldBGBright > 0) {
@@ -1052,65 +1045,60 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 		tmpX = x + 4;
 		tmpY = y;
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 0,
-				offsetX + 4 + 4, 4);
+
+		Image frame = ResourceHolderSlick.imgFrame;
+
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 0, offsetX + 4 + 4, 4);
 		tmpY = y + height * size * 4 + 4;
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 8,
-				offsetX + 4 + 4, 8 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 8, offsetX + 4 + 4, 8 + 4);
 
 		// Left and Right
 		tmpX = x;
 		tmpY = y + 4;
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX, 4,
-				offsetX + 4, 4 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX, 4, offsetX + 4, 4 + 4);
 
 		if (showMeter) {
 			tmpX = x + width * size * 4 + 12;
 		} else {
 			tmpX = x + width * size * 4 + 4;
 		}
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 8, 4,
-				offsetX + 8 + 4, 4 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 8, 4, offsetX + 8 + 4,
+				4 + 4);
 
 		// Upper left
 		tmpX = x;
 		tmpY = y;
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 0, offsetX + 4, 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 0, offsetX + 4, 4);
 
 		// Lower left
 		tmpX = x;
 		tmpY = y + height * size * 4 + 4;
-		graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 8, offsetX + 4,
-				8 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 8, offsetX + 4, 8 + 4);
 
 		if (showMeter) {
 			// MeterONWhen the upper right corner of the
 			tmpX = x + width * size * 4 + 12;
 			tmpY = y;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0,
-					offsetX + 8 + 4, 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4);
 
 			// MeterONWhen the lower-right corner of
 			tmpX = x + width * size * 4 + 12;
 			tmpY = y + height * size * 4 + 4;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8,
-					offsetX + 8 + 4, 8 + 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4);
 
 			// RightMeterFrame
 			tmpX = x + width * size * 4 + 4;
 			tmpY = y + 4;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4,
-					offsetX + 12, 4, offsetX + 12 + 4, 4 + 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 12, 4, offsetX + 12 + 4,
+					4 + 4);
 
 			tmpX = x + width * size * 4 + 4;
 			tmpY = y;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 0,
-					offsetX + 12 + 4, 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 0, offsetX + 12 + 4, 4);
 
 			tmpX = x + width * size * 4 + 4;
 			tmpY = y + height * size * 4 + 4;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 8,
-					offsetX + 12 + 4, 8 + 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 8, offsetX + 12 + 4, 8 + 4);
 
 			// RightMeter
 			int maxHeight = height * size * 4;
@@ -1133,7 +1121,6 @@ public class RendererSlick extends EventReceiver<Graphics> {
 					if (value > height * size * 4) {
 						value = height * size * 4;
 					}
-
 					if (value > 0) {
 						tmpX = x + width * size * 4 + 8;
 						tmpY = y + height * size * 4 + 3 - (value - 1);
@@ -1148,7 +1135,6 @@ public class RendererSlick extends EventReceiver<Graphics> {
 					if (value > height * size * 4) {
 						value = height * size * 4;
 					}
-
 					if (value > 0) {
 						tmpX = x + width * size * 4 + 8;
 						tmpY = y + height * size * 4 + 3 - (value - 1);
@@ -1163,14 +1149,12 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			// MeterOFFWhen the upper right corner of the
 			tmpX = x + width * size * 4 + 4;
 			tmpY = y;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0,
-					offsetX + 8 + 4, 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4);
 
 			// MeterOFFWhen the lower-right corner of
 			tmpX = x + width * size * 4 + 4;
 			tmpY = y + height * size * 4 + 4;
-			graphics.drawImage(ResourceHolderSlick.imgFrame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8,
-					offsetX + 8 + 4, 8 + 4);
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4);
 		}
 	}
 
@@ -1335,7 +1319,6 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				if (engine.ruleopt.nextDisplay >= 1) {
 					NormalFontSlick.printFont(x + 60, y, NullpoMinoSlick.getUIText("InGame_Next"), Colors.FONT_ORANGE,
 							0.5f);
-
 					Piece piece = engine.getNextObject(engine.nextPieceCount);
 					if (piece != null) {
 						// int x2 = x + 4 + ((-1 + (engine.field.getWidth() - piece.getWidth() + 1) / 2)
@@ -1409,7 +1392,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 				if (engine.holdPieceObject != null) {
 					float dark = 0f;
-					if (engine.holdDisable == true) {
+					if (engine.holdDisable) {
 						dark = 0.3f;
 					}
 					Piece piece = new Piece(engine.holdPieceObject);
@@ -1615,21 +1598,21 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * BlockWhen you issue the production process to turn off the
 	 */
 	@Override
-	public void blockBreak(GameEngine engine, int playerID, int x, int y, Block blk) {
-		if (showLineEffect && blk != null && engine.displaysize != -1) {
-			int color = blk.getDrawColor();
-			// UsuallyBlock
+	public void blockBreak(GameEngine engine, int playerID, int x, int y, Block block) {
+		if (showLineEffect && block != null && engine.displaysize != -1) {
+			int color = block.getDrawColor();
+			// Normal Block
 			if (color >= Colors.BLOCK_COLOR_GRAY && color <= Colors.BLOCK_COLOR_PURPLE
-					&& !blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-				EffectObject obj = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
+					&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+				EffectObject effect = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
 						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effects.add(obj);
+				effects.add(effect);
 			}
-			// JewelBlock
-			else if (blk.isGemBlock()) {
-				EffectObject obj = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
+			// Gem Block
+			else if (block.isGemBlock()) {
+				EffectObject effect = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
 						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effects.add(obj);
+				effects.add(effect);
 			}
 		}
 	}
@@ -1642,13 +1625,9 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (graphics == null) {
 			return;
 		}
-		if (engine.allowTextRenderByReceiver == false) {
+		if (!engine.isVisible || !engine.allowTextRenderByReceiver) {
 			return;
 		}
-		if (engine.isVisible == false) {
-			return;
-		}
-
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
@@ -1677,10 +1656,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (graphics == null) {
 			return;
 		}
-		if (engine.allowTextRenderByReceiver == false) {
-			return;
-		}
-		if (engine.isVisible == false) {
+		if (!engine.isVisible || !engine.allowTextRenderByReceiver) {
 			return;
 		}
 
@@ -1714,10 +1690,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (graphics == null) {
 			return;
 		}
-		if (!engine.allowTextRenderByReceiver) {
-			return;
-		}
-		if (!engine.isVisible) {
+		if (!engine.allowTextRenderByReceiver || !engine.isVisible) {
 			return;
 		}
 
@@ -1780,28 +1753,26 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	protected void effectUpdate() {
 		boolean emptyflag = true;
 
-		for (EffectObject obj : effects) {
-
-			if (obj.effect != 0) {
+		for (EffectObject effect : effects) {
+			if (effect.effect != 0) {
 				emptyflag = false;
 			}
 
 			// Normal Block
-			if (obj.effect == 1) {
-				obj.anim += lineEffectSpeed + 1;
-				if (obj.anim >= 36) {
-					obj.effect = 0;
+			if (effect.effect == 1) {
+				effect.anim += lineEffectSpeed + 1;
+				if (effect.anim >= 36) {
+					effect.effect = 0;
 				}
 			}
 			// Gem Block
-			if (obj.effect == 2) {
-				obj.anim += lineEffectSpeed + 1;
-				if (obj.anim >= 60) {
-					obj.effect = 0;
+			if (effect.effect == 2) {
+				effect.anim += lineEffectSpeed + 1;
+				if (effect.anim >= 60) {
+					effect.effect = 0;
 				}
 			}
 		}
-
 		if (emptyflag) {
 			effects.clear();
 		}

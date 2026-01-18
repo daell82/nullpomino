@@ -29,21 +29,40 @@ public class NetDummyVSMode extends NetDummyMode {
 	/**
 	 * NET-VS: Numbers of seats numbers corresponding to frames on player's screen
 	 */
-	protected static final int[][] NETVS_GAME_SEAT_NUMBERS = { { 0, 1, 2, 3, 4, 5 }, { 1, 0, 2, 3, 4, 5 },
-			{ 1, 2, 0, 3, 4, 5 }, { 1, 2, 3, 0, 4, 5 }, { 1, 2, 3, 4, 0, 5 }, { 1, 2, 3, 4, 5, 0 }, };
+	protected static final int[][] NETVS_GAME_SEAT_NUMBERS = {
+			{ 0, 1, 2, 3, 4, 5 }, //
+			{ 1, 0, 2, 3, 4, 5 }, //
+			{ 1, 2, 0, 3, 4, 5 }, //
+			{ 1, 2, 3, 0, 4, 5 }, //
+			{ 1, 2, 3, 4, 0, 5 }, //
+			{ 1, 2, 3, 4, 5, 0 }, };
 
 	/** NET-VS: Each player's garbage block color */
-	protected static final int[] NETVS_PLAYER_COLOR_BLOCK = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_BLUE,
-			Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE, Colors.BLOCK_COLOR_CYAN };
+	protected static final int[] NETVS_PLAYER_COLOR_BLOCK = { //
+			Colors.BLOCK_COLOR_RED, //
+			Colors.BLOCK_COLOR_BLUE, //
+			Colors.BLOCK_COLOR_GREEN,  //
+			Colors.BLOCK_COLOR_YELLOW,  //
+			Colors.BLOCK_COLOR_PURPLE,  //
+			Colors.BLOCK_COLOR_CYAN };
 
 	/** NET-VS: Each player's frame color */
-	protected static final int[] NETVS_PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE,
-			Colors.FRAME_COLOR_GREEN, Colors.FRAME_COLOR_YELLOW, Colors.FRAME_COLOR_PURPLE,
+	protected static final int[] NETVS_PLAYER_COLOR_FRAME = {
+			Colors.FRAME_COLOR_RED, //
+			Colors.FRAME_COLOR_BLUE, //
+			Colors.FRAME_COLOR_GREEN, //
+			Colors.FRAME_COLOR_YELLOW, //
+			Colors.FRAME_COLOR_PURPLE, //
 			Colors.FRAME_COLOR_CYAN };
 
 	/** NET-VS: Team font colors */
-	protected static final int[] NETVS_TEAM_FONT_COLORS = { Colors.FONT_WHITE, Colors.FONT_RED,
-			Colors.FONT_GREEN, Colors.FONT_BLUE, Colors.FONT_YELLOW, Colors.FONT_PURPLE,
+	protected static final int[] NETVS_TEAM_FONT_COLORS = {
+			Colors.FONT_WHITE,  //
+			Colors.FONT_RED, //
+			Colors.FONT_GREEN,  //
+			Colors.FONT_BLUE,  //
+			Colors.FONT_YELLOW,  //
+			Colors.FONT_PURPLE,
 			Colors.FONT_CYAN };
 
 	/** NET-VS: Default time before forced piece lock */
@@ -1064,7 +1083,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				owner.receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 			} else if (netvsNumNowPlayers == 2 || netCurrentRoomInfo.maxPlayers == 2) {
 				owner.receiver.drawDirectFont(engine, playerID, x + 52, y + 204, "LOSE", Colors.FONT_WHITE);
-			} else
+			} else {
 				switch (place) {
 				case 1:
 					break;
@@ -1089,12 +1108,13 @@ public class NetDummyVSMode extends NetDummyMode {
 				default:
 					break;
 				}
+			}
 		} else if (netvsPlayerReady[playerID] && !netvsIsGameActive) {
 			owner.receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", Colors.FONT_YELLOW, 0.5f);
 		} else if (netvsNumNowPlayers == 2 || netCurrentRoomInfo.maxPlayers == 2) {
 			owner.receiver.drawDirectFont(engine, playerID, x + 28, y + 80, "LOSE", Colors.FONT_WHITE,
 					0.5f);
-		} else
+		} else {
 			switch (place) {
 			case 1:
 				break;
@@ -1121,6 +1141,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			default:
 				break;
 			}
+		}
 	}
 
 	/**

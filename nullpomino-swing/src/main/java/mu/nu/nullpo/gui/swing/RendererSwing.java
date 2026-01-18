@@ -53,7 +53,7 @@ import mu.nu.nullpo.util.CustomProperties;
 public class RendererSwing extends EventReceiver<Graphics2D> {
 
 	/** Effect objects */
-	protected List<EffectObject> effectlist;
+	protected List<EffectObject> effects;
 
 	/** Line clear effect enabled flag */
 	protected boolean showlineeffect;
@@ -71,10 +71,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	protected boolean darknextarea;
 
 	/** ghost On top of the pieceNEXTDisplay */
-	protected boolean nextshadow;
+	protected boolean nextShadow;
 
 	/** Line clear effect speed */
-	protected int lineeffectspeed;
+	protected int lineEffectSpeed;
 
 	private final ResourceHolderSwing resourceManager;
 
@@ -86,7 +86,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 		resourceManager = ResourceHolderSwing.getInstance();
 
-		effectlist = new ArrayList<>(10 * 4);
+		effects = new ArrayList<>(10 * 4);
 		showbg = NullpoMinoSwing.propConfig.getProperty("option.showbg", true);
 		showlineeffect = NullpoMinoSwing.propConfig.getProperty("option.showlineeffect", false);
 		showMeter = NullpoMinoSwing.propConfig.getProperty("option.showmeter", true);
@@ -94,8 +94,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		simpleblock = NullpoMinoSwing.propConfig.getProperty("option.simpleblock", false);
 		showfieldbggrid = NullpoMinoSwing.propConfig.getProperty("option.showfieldbggrid", true);
 		darknextarea = NullpoMinoSwing.propConfig.getProperty("option.darknextarea", true);
-		nextshadow = NullpoMinoSwing.propConfig.getProperty("option.nextshadow", false);
-		lineeffectspeed = NullpoMinoSwing.propConfig.getProperty("option.lineeffectspeed", 0);
+		nextShadow = NullpoMinoSwing.propConfig.getProperty("option.nextshadow", false);
+		lineEffectSpeed = NullpoMinoSwing.propConfig.getProperty("option.lineeffectspeed", 0);
 		outlineGhost = NullpoMinoSwing.propConfig.getProperty("option.outlineghost", false);
 		sidenext = NullpoMinoSwing.propConfig.getProperty("option.sidenext", false);
 		bigsidenext = NullpoMinoSwing.propConfig.getProperty("option.bigsidenext", false);
@@ -385,7 +385,6 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			case Colors.BLOCK_COLOR_PURPLE -> graphics.setColor(Color.magenta);
 			default -> graphics.setColor(Color.white);
 			}
-			;
 			graphics.drawRect(x, y, size - 1, size - 1);
 
 			if (showbg) {
@@ -539,10 +538,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int x2 = x + (int) (piece.dataX[piece.direction][i] * 16 * scale);
 			int y2 = y + (int) (piece.dataY[piece.direction][i] * 16 * scale);
 
-			Block blkTemp = new Block(piece.block[i]);
-			blkTemp.darkness = darkness;
+			Block block = new Block(piece.block[i]);
+			block.darkness = darkness;
 
-			drawBlock(x2, y2, blkTemp, scale);
+			drawBlock(x2, y2, block, scale);
 		}
 	}
 
@@ -552,36 +551,37 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
+	 * @param scale  Display magnification
 	 */
 	protected void drawCurrentPiece(int x, int y, GameEngine engine, float scale) {
 		Piece piece = engine.nowPieceObject;
-		int blksize = (int) (16 * scale);
+		if (piece == null) {
+			return;
+		}
+		int blockSize = (int) (16 * scale);
+		for (int i = 0; i < piece.getMaxBlock(); i++) {
+			if (!piece.big) {
+				int x2 = engine.nowPieceX + piece.dataX[piece.direction][i];
+				int y2 = engine.nowPieceY + piece.dataY[piece.direction][i];
 
-		if (piece != null) {
-			for (int i = 0; i < piece.getMaxBlock(); i++) {
-				if (!piece.big) {
-					int x2 = engine.nowPieceX + piece.dataX[piece.direction][i];
-					int y2 = engine.nowPieceY + piece.dataY[piece.direction][i];
-
-					if (y2 >= 0) {
-						Block blkTemp = piece.block[i];
-						if (engine.nowPieceColorOverride >= 0) {
-							blkTemp = new Block(piece.block[i]);
-							blkTemp.color = engine.nowPieceColorOverride;
-						}
-						drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale);
-					}
-				} else {
-					int x2 = engine.nowPieceX + piece.dataX[piece.direction][i] * 2;
-					int y2 = engine.nowPieceY + piece.dataY[piece.direction][i] * 2;
-
+				if (y2 >= 0) {
 					Block blkTemp = piece.block[i];
 					if (engine.nowPieceColorOverride >= 0) {
 						blkTemp = new Block(piece.block[i]);
 						blkTemp.color = engine.nowPieceColorOverride;
 					}
-					drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale * 2.0f);
+					drawBlock(x + x2 * blockSize, y + y2 * blockSize, blkTemp, scale);
 				}
+			} else {
+				int x2 = engine.nowPieceX + piece.dataX[piece.direction][i] * 2;
+				int y2 = engine.nowPieceY + piece.dataY[piece.direction][i] * 2;
+
+				Block blkTemp = piece.block[i];
+				if (engine.nowPieceColorOverride >= 0) {
+					blkTemp = new Block(piece.block[i]);
+					blkTemp.color = engine.nowPieceColorOverride;
+				}
+				drawBlock(x + x2 * blockSize, y + y2 * blockSize, blkTemp, scale * 2.0f);
 			}
 		}
 	}
@@ -592,133 +592,130 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
+	 * @param scale  Display magnification
 	 */
 	protected void drawGhostPiece(int x, int y, GameEngine engine, float scale) {
 		Piece piece = engine.nowPieceObject;
+		if (piece == null) {
+			return;
+		}
 		int blksize = (int) (16 * scale);
 
-		if (piece != null) {
-			for (int i = 0; i < piece.getMaxBlock(); i++) {
-				if (!piece.big) {
-					int x2 = engine.nowPieceX + piece.dataX[piece.direction][i];
-					int y2 = engine.nowPieceBottomY + piece.dataY[piece.direction][i];
+		for (int i = 0; i < piece.getMaxBlock(); i++) {
+			if (!piece.big) {
+				int x2 = engine.nowPieceX + piece.dataX[piece.direction][i];
+				int y2 = engine.nowPieceBottomY + piece.dataY[piece.direction][i];
 
-					if (y2 >= 0) {
-						if (outlineGhost) {
-							Block blkTemp = piece.block[i];
-							int x3 = x + x2 * blksize;
-							int y3 = y + y2 * blksize;
-							int ls = blksize - 1;
-
-							int colorID = blkTemp.getDrawColor();
-							if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-								colorID = -1;
-							}
-							Color color = SwingColors.getColorByID(colorID);
-							graphics.setColor(color);
-							graphics.fillRect(x3, y3, blksize, blksize);
-							graphics.setColor(Color.white);
-
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.drawLine(x3, y3, x3 + ls, y3);
-								graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
-								graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-								graphics.drawLine(x3, y3, x3, y3 + ls);
-								graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
-							}
-							if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-								graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
-								graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.fillRect(x3, y3, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.fillRect(x3, y3 + blksize - 2, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-								graphics.fillRect(x3 + blksize - 2, y3, 2, 2);
-							}
-							if (blkTemp.getAttribute(
-									Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								graphics.fillRect(x3 + blksize - 2, y3 + blksize - 2, 2, 2);
-							}
-						} else {
-							Block blkTemp = new Block(piece.block[i]);
-							blkTemp.darkness = 0.3f;
-							if (engine.nowPieceColorOverride >= 0) {
-								blkTemp.color = engine.nowPieceColorOverride;
-							}
-							drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale);
-						}
-					}
-				} else {
-					int x2 = engine.nowPieceX + piece.dataX[piece.direction][i] * 2;
-					int y2 = engine.nowPieceBottomY + piece.dataY[piece.direction][i] * 2;
-
+				if (y2 >= 0) {
 					if (outlineGhost) {
-						Block blkTemp = piece.block[i];
+						Block block = piece.block[i];
 						int x3 = x + x2 * blksize;
 						int y3 = y + y2 * blksize;
-						int ls = blksize * 2 - 1;
+						int ls = blksize - 1;
 
-						int colorID = blkTemp.getDrawColor();
-						if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+						int colorID = block.getDrawColor();
+						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 							colorID = -1;
 						}
 						Color color = SwingColors.getColorByID(colorID);
 						graphics.setColor(color);
-						graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
+						graphics.fillRect(x3, y3, blksize, blksize);
 						graphics.setColor(Color.white);
 
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 							graphics.drawLine(x3, y3, x3 + ls, y3);
 							graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
 						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+						if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 							graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
 							graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
 						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+						if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
 							graphics.drawLine(x3, y3, x3, y3 + ls);
 							graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
 						}
-						if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+						if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
 							graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
 							graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
 						}
-						if (blkTemp
-								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 							graphics.fillRect(x3, y3, 2, 2);
 						}
-						if (blkTemp.getAttribute(
+						if (block.getAttribute(
 								Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-							graphics.fillRect(x3, y3 + blksize * 2 - 2, 2, 2);
+							graphics.fillRect(x3, y3 + blksize - 2, 2, 2);
 						}
-						if (blkTemp
+						if (block
 								.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-							graphics.fillRect(x3 + blksize * 2 - 2, y3, 2, 2);
+							graphics.fillRect(x3 + blksize - 2, y3, 2, 2);
 						}
-						if (blkTemp.getAttribute(
+						if (block.getAttribute(
 								Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-							graphics.fillRect(x3 + blksize * 2 - 2, y3 + blksize * 2 - 2, 2, 2);
+							graphics.fillRect(x3 + blksize - 2, y3 + blksize - 2, 2, 2);
 						}
 					} else {
-						Block blkTemp = new Block(piece.block[i]);
-						blkTemp.darkness = 0.3f;
+						Block block = new Block(piece.block[i]);
+						block.darkness = 0.3f;
 						if (engine.nowPieceColorOverride >= 0) {
-							blkTemp.color = engine.nowPieceColorOverride;
+							block.color = engine.nowPieceColorOverride;
 						}
-						drawBlock(x + x2 * blksize, y + y2 * blksize, blkTemp, scale * 2.0f);
+						drawBlock(x + x2 * blksize, y + y2 * blksize, block, scale);
 					}
+				}
+			} else {
+				int x2 = engine.nowPieceX + piece.dataX[piece.direction][i] * 2;
+				int y2 = engine.nowPieceBottomY + piece.dataY[piece.direction][i] * 2;
+
+				if (outlineGhost) {
+					Block block = piece.block[i];
+					int x3 = x + x2 * blksize;
+					int y3 = y + y2 * blksize;
+					int ls = blksize * 2 - 1;
+
+					int colorID = block.getDrawColor();
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+						colorID = -1;
+					}
+					Color color = SwingColors.getColorByID(colorID);
+					graphics.setColor(color);
+					graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
+					graphics.setColor(Color.white);
+
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						graphics.drawLine(x3, y3, x3 + ls, y3);
+						graphics.drawLine(x3, y3 + 1, x3 + ls, y3 + 1);
+					}
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+						graphics.drawLine(x3, y3 + ls, x3 + ls, y3 + ls);
+						graphics.drawLine(x3, y3 - 1 + ls, x3 + ls, y3 - 1 + ls);
+					}
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+						graphics.drawLine(x3, y3, x3, y3 + ls);
+						graphics.drawLine(x3 + 1, y3, x3 + 1, y3 + ls);
+					}
+					if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+						graphics.drawLine(x3 + ls, y3, x3 + ls, y3 + ls);
+						graphics.drawLine(x3 - 1 + ls, y3, x3 - 1 + ls, y3 + ls);
+					}
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						graphics.fillRect(x3, y3, 2, 2);
+					}
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+						graphics.fillRect(x3, y3 + blksize * 2 - 2, 2, 2);
+					}
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+						graphics.fillRect(x3 + blksize * 2 - 2, y3, 2, 2);
+					}
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT | Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+						graphics.fillRect(x3 + blksize * 2 - 2, y3 + blksize * 2 - 2, 2, 2);
+					}
+				} else {
+					Block block = new Block(piece.block[i]);
+					block.darkness = 0.3f;
+					if (engine.nowPieceColorOverride >= 0) {
+						block.color = engine.nowPieceColorOverride;
+					}
+					drawBlock(x + x2 * blksize, y + y2 * blksize, block, scale * 2.0f);
 				}
 			}
 		}
@@ -787,7 +784,6 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 	protected void drawHintPieceBig(int x, int y, GameEngine engine, Piece piece, int blksize) {
 		for (int i = 0; i < piece.getMaxBlock(); i++) {
-
 			int x2 = engine.ai.bestX + piece.dataX[piece.direction][i] * 2;
 			int y2 = engine.ai.bestY + piece.dataY[piece.direction][i] * 2;
 
@@ -1236,10 +1232,9 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			} else {
 				// NEXT1
 				if (engine.ruleopt.nextDisplay >= 1) {
-					Piece piece = engine.getNextObject(engine.nextPieceCount);
 					NormalFontSwing.printFont(x + 60, y, NullpoMinoSwing.getUIText("InGame_Next"), Colors.FONT_ORANGE,
 							0.5f);
-
+					Piece piece = engine.getNextObject(engine.nextPieceCount);
 					if (piece != null) {
 						// int x2 = x + 4 + ((-1 + (engine.field.getWidth() - piece.getWidth() + 1) / 2)
 						// * 16);
@@ -1290,7 +1285,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 			if (engine.ruleopt.holdEnable == true && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
 				int tempColor = Colors.FONT_GREEN;
-				if (engine.holdDisable == true) {
+				if (engine.holdDisable) {
 					tempColor = Colors.FONT_WHITE;
 				}
 
@@ -1312,7 +1307,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 				if (engine.holdPieceObject != null) {
 					float dark = 0f;
-					if (engine.holdDisable == true) {
+					if (engine.holdDisable) {
 						dark = 0.3f;
 					}
 					Piece piece = new Piece(engine.holdPieceObject);
@@ -1465,7 +1460,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 		if (engine.statc[0] > 1 || engine.ruleopt.moveFirstFrame) {
 			if (engine.displaysize == 1) {
-				if (nextshadow) {
+				if (nextShadow) {
 					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 2.0f);
 				}
 				if (engine.ghost && engine.ruleopt.ghost) {
@@ -1476,7 +1471,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				}
 				drawCurrentPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
 			} else if (engine.displaysize == 0) {
-				if (nextshadow) {
+				if (nextShadow) {
 					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 1.0f);
 				}
 				if (engine.ghost && engine.ruleopt.ghost) {
@@ -1510,13 +1505,13 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 					&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 				EffectObject effect = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
 						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effectlist.add(effect);
+				effects.add(effect);
 			}
 			// Gem Block
 			else if (block.isGemBlock()) {
-				EffectObject obj = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
+				EffectObject effect = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
 						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effectlist.add(obj);
+				effects.add(effect);
 			}
 		}
 	}
@@ -1594,10 +1589,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		if (graphics == null) {
 			return;
 		}
-		if (engine.allowTextRenderByReceiver == false) {
-			return;
-		}
-		if (engine.isVisible == false) {
+		if (!engine.allowTextRenderByReceiver || !engine.isVisible) {
 			return;
 		}
 
@@ -1660,28 +1652,28 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	protected void effectUpdate() {
 		boolean emptyflag = true;
 
-		for (EffectObject effect : effectlist) {
+		for (EffectObject effect : effects) {
 			if (effect.effect != 0) {
 				emptyflag = false;
 			}
 
 			// Normal Block
 			if (effect.effect == 1) {
-				effect.anim += lineeffectspeed + 1;
+				effect.anim += lineEffectSpeed + 1;
 				if (effect.anim >= 36) {
 					effect.effect = 0;
 				}
 			}
 			// Gem Block
 			if (effect.effect == 2) {
-				effect.anim += lineeffectspeed + 1;
+				effect.anim += lineEffectSpeed + 1;
 				if (effect.anim >= 60) {
 					effect.effect = 0;
 				}
 			}
 		}
 		if (emptyflag) {
-			effectlist.clear();
+			effects.clear();
 		}
 	}
 
@@ -1689,7 +1681,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * Render effects
 	 */
 	protected void effectRender() {
-		for (EffectObject obj : effectlist) {
+		for (EffectObject obj : effects) {
 			// Normal Block
 			if (obj.effect == 1) {
 				int x = obj.x - 40;

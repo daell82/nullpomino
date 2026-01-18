@@ -48,7 +48,7 @@ import javax.swing.WindowConstants;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.gui.net.UpdateChecker;
 import mu.nu.nullpo.gui.net.UpdateCheckerListener;
 import mu.nu.nullpo.gui.swing.ext.BareBonesBrowserLaunch;
@@ -287,7 +287,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 			txtfldReleaseDate.setText(UpdateChecker.getStrReleaseDate());
 			txtfldDownloadURL.setText(UpdateChecker.getStrDownloadURL());
 
-			if(UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
+			if(UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
 				txtfldLatestVersion.setForeground(Color.red);
 			}
 			btnOpenDownloadURL.setEnabled(true);
@@ -348,7 +348,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 				txtfldDownloadURL.setText(strURL);
 				txtfldWindowsInstallerURL.setText(strInstaller);
 
-				if(UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
+				if(UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
 					txtfldLatestVersion.setForeground(Color.red);
 					txtfldWindowsInstallerURL.setForeground(Color.red);
 				}

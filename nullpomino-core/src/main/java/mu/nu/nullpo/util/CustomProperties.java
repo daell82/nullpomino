@@ -32,6 +32,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -65,6 +66,18 @@ public class CustomProperties extends Properties {
 			log.error("failed to load properties from " + file.getPath(), ioe);
 		}
 		return result;
+	}
+
+	public void save(String filename, String comments) throws IOException {
+		try(var out = new FileOutputStream(filename)){
+			store(out, comments);
+		}
+	}
+
+	public void save(String filename) throws IOException {
+		try(var out = new FileOutputStream(filename)){
+			store(out, null);
+		}
 	}
 
 	/**

@@ -1,11 +1,11 @@
 package mu.nu.nullpo.gui.slick;
 
-import mu.nu.nullpo.game.play.GameEngine;
-
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+
+import mu.nu.nullpo.game.types.GameStyle;
 
 /**
  * Style select menu
@@ -19,7 +19,7 @@ public class StateConfigRuleStyleSelect extends DummyMenuChooseState {
 
 	public StateConfigRuleStyleSelect() {
 		super();
-		maxCursor = GameEngine.MAX_GAMESTYLE - 1;
+		maxCursor = GameStyle.numStyles() - 1;
 		minChoiceY = 3;
 	}
 
@@ -51,8 +51,9 @@ public class StateConfigRuleStyleSelect extends DummyMenuChooseState {
 
 		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
 
-		for(int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			NormalFontSlick.printFontGrid(2, 3 + i, GameEngine.GAMESTYLE_NAMES[i], (cursor == i));
+		for(GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
+			NormalFontSlick.printFontGrid(2, 3 + i, style.getName(), cursor == i);
 		}
 	}
 

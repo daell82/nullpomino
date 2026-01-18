@@ -42,7 +42,30 @@
 						<groupId>javax.jnlp</groupId>
 						<artifactId>jnlp-api</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>org.lwjgl.lwjgl</groupId>
+						<artifactId>lwjgl</artifactId>
+					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.jmonkeyengine</groupId>
+				<artifactId>lwjgl</artifactId>
+				<version>2.9.5</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.java.jinput</groupId>
+				<artifactId>jinput</artifactId>
+				<version>2.0.9</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.java.jinput</groupId>
+				<artifactId>jinput</artifactId>
+				<version>2.0.9</version>
+				<classifier>natives-all</classifier>
+				<scope>compile</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -65,14 +88,14 @@
 						<source>25</source>
 						<target>25</target>
 						<encoding>UTF-8</encoding>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.projectlombok</groupId>
-                                <artifactId>lombok</artifactId>
-                                <version>${lombok.version}</version>
-                            </path>
-                        </annotationProcessorPaths>                 
-                    </configuration>
+						<annotationProcessorPaths>
+							<path>
+								<groupId>org.projectlombok</groupId>
+								<artifactId>lombok</artifactId>
+								<version>${lombok.version}</version>
+							</path>
+						</annotationProcessorPaths>
+					</configuration>
 				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>

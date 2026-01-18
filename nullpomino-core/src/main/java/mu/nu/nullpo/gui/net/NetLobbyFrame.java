@@ -60,6 +60,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -107,6 +108,7 @@ import javax.swing.text.StyleConstants;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetMessageListener;
@@ -114,9 +116,8 @@ import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.net.NetUtil;
-import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -251,7 +252,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	protected PrintWriter writerRoomLog;
 
 	/** Rated-game rule name list */
-	protected List<String>[] listRatedRuleName;
+	protected EnumMap<GameStyle, List<String>> listRatedRuleName;
 
 	/** Layout manager for main screen */
 	protected CardLayout contentPaneCardLayout;
@@ -736,9 +737,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		});
 
 		// Rated-game rule name list
-		listRatedRuleName = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			listRatedRuleName[i] = new LinkedList<>();
+		listRatedRuleName = new EnumMap<>(GameStyle.class);
+		for (GameStyle style : GameStyle.values()) {
+			listRatedRuleName.put(style, new LinkedList<>());
 		}
 
 		// Map list
@@ -845,7 +846,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 		// * Server selection list box
 		listmodelServerList = new DefaultListModel<>();
-		if (GameManager.isDevBuild()) {
+		if (Version.isDevBuild()) {
 			if (!loadListToDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist_dev.cfg")) {
 				loadListToDefaultListModel(listmodelServerList, "config/list/netlobby_serverlist_default_dev.lst");
 				saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist_dev.cfg");
@@ -2154,10 +2155,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			strMPRankingTableColumnNames[i] = getUIText(MPRANKING_COLUMNNAMES[i]);
 		}
 
-		tableMPRanking = new JTable[GameEngine.MAX_GAMESTYLE];
-		tablemodelMPRanking = new DefaultTableModel[GameEngine.MAX_GAMESTYLE];
+		tableMPRanking = new JTable[GameStyle.numStyles()];
+		tablemodelMPRanking = new DefaultTableModel[GameStyle.numStyles()];
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
 			tablemodelMPRanking[i] = new DefaultTableModel(strMPRankingTableColumnNames, 0);
 
 			tableMPRanking[i] = new JTable(tablemodelMPRanking[i]);
@@ -2175,9 +2177,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			tm.getColumn(4).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.win", 60)); // Win
 
 			JScrollPane spMPRanking = new JScrollPane(tableMPRanking[i]);
-			tabMPRanking.addTab(GameEngine.GAMESTYLE_NAMES[i], spMPRanking);
+			tabMPRanking.addTab(style.getName(), spMPRanking);
 
-			if (i != GameEngine.GAMESTYLE_TETROMINO) {
+			if (style != GameStyle.TRETROMINO) {
 				tabMPRanking.setEnabledAt(i, false); // TODO: Add non-tetromino leaderboard
 			}
 		}
@@ -2203,11 +2205,12 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		mainpanelRuleChange.add(tabRuleChange, BorderLayout.CENTER);
 
 		// ** Rule Listboxes
-		listboxRuleChangeRuleList = new JList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		listboxRuleChangeRuleList = new JList[GameStyle.numStyles()];
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
 			listboxRuleChangeRuleList[i] = new JList<>(extractRuleListFromRuleEntries(i));
 			JScrollPane spRuleList = new JScrollPane(listboxRuleChangeRuleList[i]);
-			tabRuleChange.addTab(GameEngine.GAMESTYLE_NAMES[i], spRuleList);
+			tabRuleChange.addTab(style.getName(), spRuleList);
 		}
 
 		// ** Tuning Tab
@@ -3719,7 +3722,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	public String[] getRuleFileList() {
 		File dir = new File("config/rule");
 
-		FilenameFilter filter = (dir1, name) -> name.endsWith(".rul");
+		FilenameFilter filter = (_, name) -> name.endsWith(".rul");
 
 		String[] list = dir.list(filter);
 
@@ -3801,9 +3804,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public void enterRuleChangeScreen() {
 		// Set rule selections
-		String[] strCurrentFileName = new String[GameEngine.MAX_GAMESTYLE];
+		String[] strCurrentFileName = new String[GameStyle.numStyles()];
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (int i = 0; i < GameStyle.numStyles(); i++) {
 			if (i == 0) {
 				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile", "");
 			} else {
@@ -4246,7 +4249,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			// Set rules
 			String strPrevTetrominoRuleFilename = propGlobal.getProperty(0 + ".rule", "");
 
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				int id = listboxRuleChangeRuleList[i].getSelectedIndex();
 				LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
 				RuleEntry entry = null;
@@ -4387,13 +4390,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			setLobbyButtonsEnabled(0);
 
 			if (message.length > 1 && message[1].equals("DIFFERENT_VERSION")) {
-				String strClientVer = String.valueOf(GameManager.getVersionMajor());
+				String strClientVer = String.valueOf(Version.getMajorVersion());
 				String strServerVer = message[2];
 				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), strClientVer,
 						strServerVer);
 				addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
 			} else if (message.length > 1 && message[1].equals("DIFFERENT_BUILD")) {
-				String strClientBuildType = GameManager.getBuildTypeString();
+				String strClientBuildType = Version.getBuildType();
 				String strServerBuildType = message[2];
 				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentBuild"), strClientBuildType,
 						strServerBuildType);
@@ -4456,24 +4459,20 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		}
 		// Rated-game rule list
 		if (message[0].equals("rulelist")) {
-			int style = Integer.parseInt(message[1]);
-
-			if (style < listRatedRuleName.length) {
-				listRatedRuleName[style].clear();
-
-				for (int i = 0; i < message.length - 2; i++) {
-					String name = NetUtil.urlDecode(message[2 + i]);
-					listRatedRuleName[style].add(name);
-				}
+			int mode = Integer.parseInt(message[1]);
+			GameStyle style = GameStyle.values()[mode];
+			listRatedRuleName.get(style).clear();
+			for (int i = 0; i < message.length - 2; i++) {
+				String name = NetUtil.urlDecode(message[2 + i]);
+				listRatedRuleName.get(style).add(name);
 			}
 
-			if (style == 0) {
+			if (style == GameStyle.TRETROMINO) {
 				listmodelCreateRoom1PRuleList.clear();
 				listmodelCreateRoom1PRuleList.addElement(getUIText("CreateRoom1P_YourRule"));
 				listboxCreateRoom1PRuleList.setSelectedIndex(0);
 
-				for (String element : listRatedRuleName[style]) {
-					String name = element;
+				for (String name : listRatedRuleName.get(style)) {
 					listmodelCreateRoom1PRuleList.addElement(name);
 				}
 
@@ -5520,7 +5519,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * Each label of Image Combobox<br>
 	 * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">Source</a>
 	 */
-	protected record ComboLabel (String text, Icon icon) {
+	protected record ComboLabel(String text, Icon icon) {
 
 	}
 

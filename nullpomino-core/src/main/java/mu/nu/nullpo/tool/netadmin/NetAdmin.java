@@ -57,14 +57,14 @@ import javax.swing.text.StyleConstants;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.net.NetServerBan;
 import mu.nu.nullpo.game.net.NetUtil;
-import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.clarenceho.crypto.RC4;
@@ -517,10 +517,11 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			strMPRankingColumnNames[i] = getUIText(MPRANKING_COLUMNNAMES[i]);
 		}
 
-		tableMPRanking = new JTable[GameEngine.MAX_GAMESTYLE];
-		tablemodelMPRanking = new DefaultTableModel[GameEngine.MAX_GAMESTYLE];
+		tableMPRanking = new JTable[GameStyle.numStyles()];
+		tablemodelMPRanking = new DefaultTableModel[GameStyle.numStyles()];
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
 			tablemodelMPRanking[i] = new DefaultTableModel(strMPRankingColumnNames, 0);
 
 			tableMPRanking[i] = new JTable(tablemodelMPRanking[i]);
@@ -538,7 +539,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			tm.getColumn(4).setPreferredWidth(propConfig.getProperty("tableMPRanking.width.win", 60)); // Win
 
 			JScrollPane sMPRanking = new JScrollPane(tableMPRanking[i]);
-			tabMPRanking.addTab(GameEngine.GAMESTYLE_NAMES[i], sMPRanking);
+			tabMPRanking.addTab(style.getName(), sMPRanking);
 		}
 
 		// *** Load/Refresh Ranking button
@@ -564,7 +565,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		propConfig.setProperty("tableUsers.width.type", tmUsers.getColumn(2).getWidth());
 		propConfig.setProperty("tableUsers.width.name", tmUsers.getColumn(3).getWidth());
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (int i = 0; i < GameStyle.numStyles(); i++) {
 			TableColumnModel tm = tableMPRanking[i].getColumnModel();
 			propConfig.setProperty("tableMPRanking.width.rank", tm.getColumn(0).getWidth());
 			propConfig.setProperty("tableMPRanking.width.name", tm.getColumn(1).getWidth());
@@ -790,7 +791,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		}
 		// version
 		else if (commands[0].equalsIgnoreCase("version")) {
-			addConsoleLog("Client:" + GameManager.getVersionString());
+			addConsoleLog("Client:" + Version.getVersionString());
 			addConsoleLog("Server:" + serverFullVer);
 		}
 		// bangui
@@ -1087,7 +1088,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			labelLoginMessage.setText(getUIText("Login_Message_LoggingIn"));
 
 			// Version check
-			float clientMajorVer = GameManager.getVersionMajor();
+			float clientMajorVer = Version.getMajorVersion();
 			float serverMajorVer = Float.parseFloat(message[1]);
 
 			if (clientMajorVer != serverMajorVer) {
@@ -1100,12 +1101,12 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 
 			// Build type check
-			boolean clientBuildType = GameManager.isDevBuild();
+			boolean clientBuildType = Version.isDevBuild();
 			boolean serverBuildType = Boolean.parseBoolean(message[7]);
 
 			if (clientBuildType != serverBuildType) {
-				String strClientBuildType = GameManager.getBuildTypeString(clientBuildType);
-				String strServerBuildType = GameManager.getBuildTypeString(serverBuildType);
+				String strClientBuildType = Version.getBuildType(clientBuildType);
+				String strServerBuildType = Version.getBuildType(serverBuildType);
 				labelLoginMessage.setForeground(Color.red);
 				labelLoginMessage.setText(String.format(getUIText("Login_Message_BuildTypeError"), strClientBuildType,
 						strServerBuildType));

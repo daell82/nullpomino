@@ -30,9 +30,9 @@ package mu.nu.nullpo.game.net;
 
 import java.io.IOException;
 
-import mu.nu.nullpo.game.play.GameManager;
-
 import org.apache.log4j.Logger;
+
+import mu.nu.nullpo.game.Version;
 
 /**
  * Client(ObserverUse)
@@ -96,8 +96,8 @@ public class NetObserverClient extends NetBaseClient {
 				startPingTask(pingInterval);
 			}
 
-			send("observerlogin\t" + GameManager.getVersionMajor() + "\t" + GameManager.getVersionMinor() + "\t"
-					+ GameManager.isDevBuild() + "\n");
+			send("observerlogin\t" + Version.getMajorVersion() + "\t" + Version.getMinorVersion() + "\t"
+					+ Version.isDevBuild() + "\n");
 		}
 		// PeoplecountUpdate
 		if (message[0].equals("observerupdate")) {

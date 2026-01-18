@@ -162,8 +162,8 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 */
 	@Override
 	public void netplayInit(Object obj) {
-		if (obj instanceof NetLobbyFrame) {
-			netLobby = (NetLobbyFrame) obj;
+		if (obj instanceof NetLobbyFrame frame) {
+			netLobby = frame;
 			netLobby.setNetDummyMode(this);
 
 			try {
@@ -1127,7 +1127,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param playerID Player ID
 	 * @param receiver EventReceiver
 	 */
-	protected void netOnRenderNetPlayRanking(GameEngine engine, int playerID, EventReceiver receiver) {
+	protected void netOnRenderNetPlayRanking(GameEngine engine, int playerID, EventReceiver<?> receiver) {
 		if (netIsNetRankingDisplayMode) {
 			String strBtnA = receiver.getKeyNameByButtonID(engine, Controller.BUTTON_A);
 			String strBtnB = receiver.getKeyNameByButtonID(engine, Controller.BUTTON_B);
@@ -1394,51 +1394,50 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				netRankingGamerate[d].add(Float.parseFloat(arrayData[3]));
 
 				switch (netRankingType) {
-				case NetSPRecord.RANKINGTYPE_GENERIC_SCORE:
+				case NetSPRecord.RANKINGTYPE_GENERIC_SCORE -> {
 					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
 					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
 					netRankingTime[d].add(Integer.parseInt(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_GENERIC_TIME:
+				}
+				case NetSPRecord.RANKINGTYPE_GENERIC_TIME -> {
 					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
 					netRankingPiece[d].add(Integer.parseInt(arrayData[5]));
 					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_SCORERACE:
+				}
+				case NetSPRecord.RANKINGTYPE_SCORERACE -> {
 					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
 					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
 					netRankingSPL[d].add(Double.parseDouble(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_DIGRACE:
+				}
+				case NetSPRecord.RANKINGTYPE_DIGRACE -> {
 					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
 					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
 					netRankingPiece[d].add(Integer.parseInt(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_ULTRA:
+				}
+				case NetSPRecord.RANKINGTYPE_ULTRA -> {
 					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
 					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
 					netRankingPiece[d].add(Integer.parseInt(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_COMBORACE:
+				}
+				case NetSPRecord.RANKINGTYPE_COMBORACE -> {
 					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
 					netRankingTime[d].add(Integer.parseInt(arrayData[5]));
 					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_DIGCHALLENGE:
+				}
+				case NetSPRecord.RANKINGTYPE_DIGCHALLENGE -> {
 					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
 					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
 					netRankingTime[d].add(Integer.parseInt(arrayData[6]));
-					break;
-				case NetSPRecord.RANKINGTYPE_TIMEATTACK:
+				}
+				case NetSPRecord.RANKINGTYPE_TIMEATTACK -> {
 					netRankingLines[d].add(Integer.parseInt(arrayData[4]));
 					netRankingTime[d].add(Integer.parseInt(arrayData[5]));
 					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
 					netRankingRollclear[d].add(Integer.parseInt(arrayData[7]));
-					break;
-				default:
-					log.error("Unknown ranking type:" + netRankingType);
-					break;
 				}
+				default -> log.error("Unknown ranking type:" + netRankingType);
+				}
+				;
 
 				if (pName.equals(netPlayerName)) {
 					netRankingCursor[d] = i;

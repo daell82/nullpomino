@@ -61,13 +61,13 @@ public class BGMStatus implements Serializable {
 	public static final int BGM_COUNT = 16;
 
 	/** Current BGM number */
-	public int bgm;
+	public int bgm = BGM_NOTHING;
 
 	/** Volume (1f=100%, 0.5f=50%) */
-	public float volume;
+	public float volume = 1f;
 
 	/** BGM fadeoutSwitch */
-	public boolean fadesw;
+	public boolean fadesw = false;
 
 	/**
 	 * Constructor
@@ -77,32 +77,12 @@ public class BGMStatus implements Serializable {
 	}
 
 	/**
-	 * Copy constructor
-	 *
-	 * @param b Copy source
-	 */
-	public BGMStatus(BGMStatus b) {
-		copy(b);
-	}
-
-	/**
 	 * Reset to defaults
 	 */
 	public void reset() {
 		bgm = BGM_NOTHING;
 		volume = 1f;
 		fadesw = false;
-	}
-
-	/**
-	 * OtherBGMStatusCopied from the
-	 *
-	 * @param b Copy source
-	 */
-	public void copy(BGMStatus b) {
-		bgm = b.bgm;
-		volume = b.volume;
-		fadesw = b.fadesw;
 	}
 
 	/**

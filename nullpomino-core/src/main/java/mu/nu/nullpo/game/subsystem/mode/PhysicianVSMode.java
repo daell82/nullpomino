@@ -39,6 +39,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -161,13 +162,14 @@ public class PhysicianVSMode extends AbstractMode {
 	 * Game style
 	 */
 	@Override
-	public int getGameStyle() {
-		return GameEngine.GAMESTYLE_PHYSICIAN;
+	public GameStyle getGameStyle() {
+		return GameStyle.PHYSICIAN;
 	}
 
 	/*
 	 * Mode initialization
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public void modeInit(GameManager manager) {
 		owner = manager;

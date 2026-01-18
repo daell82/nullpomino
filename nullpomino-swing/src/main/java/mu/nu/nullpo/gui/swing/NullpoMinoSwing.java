@@ -39,12 +39,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -75,17 +74,18 @@ import org.apache.log4j.PropertyConfigurator;
 
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetObserverClient;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
-import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.gui.net.UpdateChecker;
@@ -213,7 +213,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		// Set default rule selections
 		CustomProperties propDefaultRule = load("config/list/global_defaultrule.properties");
 		for (int pl = 0; pl < 2; pl++) {
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				// TETROMINO
 				if (i == 0) {
 					if (propGlobal.getProperty(pl + ".rule") == null) {
@@ -311,19 +311,10 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	 */
 	public static void saveConfig() {
 		try {
-			FileOutputStream out = new FileOutputStream("config/setting/swing.cfg");
-			propConfig.store(out, "NullpoMino Swing-frontend Config");
-			out.close();
+			propConfig.save("config/setting/swing.cfg", "NullpoMino Swing-frontend Config");
+			propGlobal.save("config/setting/global.cfg", "NullpoMino Global Config");
 		} catch (IOException e) {
 			log.error("Failed to save Swing-specific config", e);
-		}
-
-		try {
-			FileOutputStream out = new FileOutputStream("config/setting/global.cfg");
-			propGlobal.store(out, "NullpoMino Global Config");
-			out.close();
-		} catch (IOException e) {
-			log.error("Failed to save global config", e);
 		}
 	}
 
@@ -430,20 +421,18 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			}
 		});
 
-		setTitle(getUIText("Title_Main") + " version" + GameManager.getVersionString());
+		setTitle(getUIText("Title_Main") + " version" + Version.getVersionString());
 		loadRecommendedRuleList();
 
 		initUI();
 		pack();
 
-		if (propConfig.getProperty("mainwindow.width") != null) {
-			this.setSize(propConfig.getProperty("mainwindow.width", 500),
-					propConfig.getProperty("mainwindow.height", 470));
-		}
-		if (propConfig.getProperty("mainwindow.x") != null) {
-			this.setLocation(propConfig.getProperty("mainwindow.x", 0), propConfig.getProperty("mainwindow.y", 0));
-		}
+		int width = propConfig.getProperty("mainwindow.width", 500);
+		int height = propConfig.getProperty("mainwindow.height", 470);
+		int x = propConfig.getProperty("mainwindow.x", 0);
+		int y = propConfig.getProperty("mainwindow.y", 0);
 
+		setBounds(x, y, width, height);
 		setVisible(true);
 
 		// NewVersion check
@@ -658,41 +647,30 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	protected void loadRecommendedRuleList() {
 		ruleEntries = new HashMap<>();
 
-		try (var in = new BufferedReader(new FileReader("config/list/recommended_rules.lst"))) {
-			String strMode = "";
+		try {
+			List<String> lines = Files.readAllLines(Path.of("config/list/recommended_rules.lst"));
+			String gameMode = "";
+			for(String line : lines) {
+				line = line.trim(); // Trim the space
 
-			String str;
-			while ((str = in.readLine()) != null) {
-				str = str.trim(); // Trim the space
-
-				if (str.startsWith("#")) {
+				if (line.isBlank() || line.startsWith("#")) {
 					// Commment-line. Ignore it.
-				} else if (str.startsWith(":")) {
+				} else if (line.startsWith(":")) {
 					// Mode change
-					strMode = str.substring(1);
+					gameMode = line.substring(1);
 				} else {
 					// File Path
-					File file = new File(str);
-					if (file.exists() && file.isFile()) {
-						try {
-							FileInputStream ruleIn = new FileInputStream(file);
-							CustomProperties propRule = new CustomProperties();
-							propRule.load(ruleIn);
-							ruleIn.close();
+					File file = new File(line);
+					if (!file.exists() || !file.isFile()) {
+						continue;
+					}
+					CustomProperties propRule = CustomProperties.load(file);
 
-							String strRuleName = propRule.getProperty("0.ruleopt.strRuleName", "");
-							if (strRuleName.length() > 0) {
-								RuleEntry entry = ruleEntries.get(strMode);
-								if (entry == null) {
-									entry = new RuleEntry();
-									ruleEntries.put(strMode, entry);
-								}
-								entry.names.add(strRuleName);
-								entry.listPath.add(str);
-							}
-						} catch (IOException e2) {
-							log.error("File " + str + " doesn't exist", e2);
-						}
+					String ruleName = propRule.getProperty("0.ruleopt.strRuleName", "");
+					if (!ruleName.isBlank()) {
+						RuleEntry entry = ruleEntries.computeIfAbsent(gameMode, _ -> new RuleEntry());
+						entry.names.add(ruleName);
+						entry.paths.add(line);
 					}
 				}
 			}
@@ -736,7 +714,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			String strRuleName = listboxRule.getSelectedValue();
 			RuleEntry entry = ruleEntries.get(strMode);
 			if (entry != null) {
-				strRulePath = entry.listPath.get(index - 1);
+				strRulePath = entry.paths.get(index - 1);
 				propGlobal.setProperty("lastrule." + strMode, strRuleName);
 			}
 		} else {
@@ -974,7 +952,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			String rulename = strRulePath;
 			if (rulename == null) {
 				rulename = propGlobal.getProperty(i + ".rule", "");
-				if (gameManager.mode.getGameStyle() > 0) {
+				if (gameManager.mode.getGameStyle().getMode() > 0) {
 					rulename = propGlobal.getProperty(i + ".rule." + gameManager.mode.getGameStyle(), "");
 				}
 			}
@@ -1146,30 +1124,30 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 					-1);
 
 			// Rule
-			RuleOptions ruleopt = null;
+			RuleOptions ruleOptions = null;
 			String rulename = propGlobal.getProperty(0 + ".rule", "");
-			if (gameManager.mode.getGameStyle() > 0) {
+			if (gameManager.mode.getGameStyle().getMode() > 0) {
 				rulename = propGlobal.getProperty(0 + ".rule." + gameManager.mode.getGameStyle(), "");
 			}
 			if (rulename != null && !rulename.isEmpty()) {
 				log.info("Load rule options from " + rulename);
-				ruleopt = GeneralUtil.loadRule(rulename);
+				ruleOptions = GeneralUtil.loadRule(rulename);
 			} else {
 				log.info("Load rule options from setting file");
-				ruleopt = new RuleOptions();
-				ruleopt.readProperty(propGlobal, 0);
+				ruleOptions = new RuleOptions();
+				ruleOptions.readProperty(propGlobal, 0);
 			}
-			gameManager.engine[0].ruleopt = ruleopt;
+			gameManager.engine[0].ruleopt = ruleOptions;
 
 			// Randomizer
-			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
-				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
+			if (ruleOptions.strRandomizer != null && !ruleOptions.strRandomizer.isEmpty()) {
+				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleOptions.strRandomizer);
 				gameManager.engine[0].randomizer = randomizerObject;
 			}
 
 			// Wallkick
-			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
-				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
+			if (ruleOptions.strWallkick != null && !ruleOptions.strWallkick.isEmpty()) {
+				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleOptions.strWallkick);
 				gameManager.engine[0].wallkick = wallkickObject;
 			}
 
@@ -1305,7 +1283,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 	@Override
 	public void onUpdateCheckerEnd(int status) {
-		if (UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
+		if (UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
 			SwingUtilities.invokeLater(() -> {
 				if (lModeSelect != null) {
 					String strTemp = String.format(getUIText("Top_NewVersion"),
@@ -1358,7 +1336,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	 * RuleEntry
 	 */
 	protected class RuleEntry {
-		public final List<String> listPath = new LinkedList<>();
+		public final List<String> paths = new LinkedList<>();
 		public final List<String> names = new LinkedList<>();
 	}
 }

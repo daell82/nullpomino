@@ -38,28 +38,9 @@ import java.io.Serializable;
  * @param direction rotationOf Tetoramino afterDirection
  */
 public record WallkickResult(int offsetX, int offsetY, int direction) implements Serializable {
+
 	/** Serial version ID */
 	private static final long serialVersionUID = -7985029240622355609L;
-
-	/** X-coordinateCorrection amount */
-	// public int offsetX;
-
-	/** Y-coordinateCorrection amount */
-	// public int offsetY;
-
-	/** rotationPiece afterDirection */
-	// public int direction;
-
-	/**
-	 * With parametersConstructor
-	 *
-	 *
-	 */
-	public WallkickResult(int offsetX, int offsetY, int direction) {
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
-		this.direction = direction;
-	}
 
 	/**
 	 * TopDirectionToWallkickDetermine whether

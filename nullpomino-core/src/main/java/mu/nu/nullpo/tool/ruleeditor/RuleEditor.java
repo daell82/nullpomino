@@ -79,7 +79,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.RuleOptions;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -647,8 +647,11 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		JLabel lStyle = new JLabel(getUIText("Basic_Style"));
 		pStyle.add(lStyle);
-
-		comboboxStyle = new JComboBox<>(GameEngine.GAMESTYLE_NAMES);
+		String[] captions = new String[GameStyle.numStyles()];
+		for(GameStyle style : GameStyle.values()) {
+			captions[style.getMode()] = style.getName();
+		}
+		comboboxStyle = new JComboBox<>(captions);
 		comboboxStyle.setPreferredSize(new Dimension(100, 30));
 		pStyle.add(comboboxStyle);
 

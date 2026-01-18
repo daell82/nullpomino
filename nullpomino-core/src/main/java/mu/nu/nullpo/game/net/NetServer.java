@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.ConcurrentModificationException;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -63,9 +64,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.cacas.java.gnu.tools.Crypt;
 
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.RuleOptions;
-import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.clarenceho.crypto.RC4;
@@ -189,13 +190,13 @@ public class NetServer {
 	private static LinkedList<NetPlayerInfo>[] mpRankingList;
 
 	/** Multiplayer mode list */
-	private static LinkedList<String>[] mpModeList;
+	private static EnumMap<GameStyle, List<String>> mpModeList;
 
 	/** Multiplayer race mode flag */
 	private static LinkedList<Boolean>[] mpModeIsRace;
 
 	/** Single player mode list. */
-	private static List<String>[] spModeList;
+	private static EnumMap<GameStyle, List<String>> spModeList;
 
 	/** Single player all-time leaderboard list */
 	private static List<NetSPRanking> spRankingListAlltime;
@@ -293,15 +294,15 @@ public class NetServer {
 	private static void loadRuleList() {
 		log.info("Loading Rule List...");
 
-		ruleList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		ruleSettingIDList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		ruleList = new LinkedList[GameStyle.numStyles()];
+		ruleSettingIDList = new LinkedList[GameStyle.numStyles()];
+		for (int i = 0; i < GameStyle.numStyles(); i++) {
 			ruleList[i] = new LinkedList<>();
 			ruleSettingIDList[i] = new LinkedList<>();
 		}
 
 		try (var txtRuleList = new BufferedReader(new FileReader("config/etc/netserver_rulelist.lst"))) {
-			int style = 0;
+			GameStyle style = GameStyle.TRETROMINO;
 
 			String str = null;
 			while ((str = txtRuleList.readLine()) != null) {
@@ -310,18 +311,10 @@ public class NetServer {
 				} else if (str.startsWith(":")) {
 					// Game style
 					String strStyle = str.substring(1);
-
-					style = -1;
-					for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-						if (strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
-							style = i;
-							break;
-						}
-					}
-
-					if (style == -1) {
+					style = GameStyle.valueOf(strStyle);
+					if (style == null) {
 						log.warn("{StyleChange} Unknown Style:" + str);
-						style = 0;
+						style = GameStyle.TRETROMINO;
 					} else {
 						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
 					}
@@ -345,8 +338,8 @@ public class NetServer {
 						RuleOptions rule = new RuleOptions();
 						rule.readProperty(prop, 0);
 
-						ruleList[style].add(rule);
-						ruleSettingIDList[style].add(Integer.valueOf(settingID));
+						ruleList[style.getMode()].add(rule);
+						ruleSettingIDList[style.getMode()].add(settingID);
 					} catch (Exception e2) {
 						log.warn("Failed to load rule file", e2);
 					}
@@ -362,18 +355,18 @@ public class NetServer {
 	 */
 	private static void loadMPRankingList() {
 		// Load mode list
-		mpModeList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		mpModeIsRace = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			mpModeList[i] = new LinkedList<>();
-			mpModeIsRace[i] = new LinkedList<>();
+		mpModeList = new EnumMap<>(GameStyle.class);
+		mpModeIsRace = new LinkedList[GameStyle.numStyles()];
+		for (GameStyle style : GameStyle.values()) {
+			mpModeList.put(style,  new LinkedList<>());
+			mpModeIsRace[style.getMode()] = new LinkedList<>();
 		}
 
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_multimode.lst"));
 
 			String str = null;
-			int style = 0;
+			GameStyle style = GameStyle.TRETROMINO;
 
 			while ((str = in.readLine()) != null) {
 				if (str.length() <= 0 || str.startsWith("#")) {
@@ -382,16 +375,9 @@ public class NetServer {
 					// Game style tag
 					String strStyle = str.substring(1);
 
-					style = -1;
-					for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-						if (strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
-							style = i;
-							break;
-						}
-					}
-
-					if (style == -1) {
-						style = 0;
+					style = GameStyle.valueOf(strStyle);
+					if (style == null) {
+						style = GameStyle.TRETROMINO;
 					}
 				} else {
 					// Game mode name
@@ -402,8 +388,8 @@ public class NetServer {
 						isRace = Boolean.parseBoolean(strSplit[1]);
 					}
 
-					mpModeList[style].add(strModeName);
-					mpModeIsRace[style].add(isRace);
+					mpModeList.get(style).add(strModeName);
+					mpModeIsRace[style.getMode()].add(isRace);
 				}
 			}
 
@@ -414,12 +400,12 @@ public class NetServer {
 
 		// Load leaderboard
 		log.info("Loading Multiplayer Ranking...");
-		mpRankingList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		mpRankingList = new LinkedList[GameStyle.numStyles()];
+		for (int i = 0; i < mpRankingList.length; i++) {
 			mpRankingList[i] = new LinkedList<>();
 		}
 
-		for (int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
+		for (int style = 0; style < mpRankingList.length; style++) {
 			int count = propMPRanking.getProperty(style + ".mpranking.count", 0);
 			if (count > maxMPRanking) {
 				count = maxMPRanking;
@@ -516,7 +502,7 @@ public class NetServer {
 	 * Write player data properties (propPlayerData) to a file
 	 */
 	private static void writeMPRankingToFile() {
-		for (int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
+		for (int style = 0; style < GameStyle.numStyles(); style++) {
 			int count = mpRankingList[style].size();
 			if (count > maxMPRanking) {
 				count = maxMPRanking;
@@ -551,9 +537,9 @@ public class NetServer {
 		spRankingListDaily = new LinkedList<>();
 
 		// Load mode list
-		spModeList = new LinkedList[GameEngine.MAX_GAMESTYLE];
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-			spModeList[i] = new LinkedList<>();
+		spModeList = new EnumMap<>(GameStyle.class);
+		for (GameStyle style : GameStyle.values()) {
+			spModeList.put(style, new LinkedList<>());
 		}
 
 		// Daily last-update
@@ -567,28 +553,19 @@ public class NetServer {
 			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_singlemode.lst"));
 
 			String str = null;
-			int style = 0;
-
+			GameStyle style = GameStyle.TRETROMINO;
 			while ((str = in.readLine()) != null) {
 				if (str.length() <= 0 || str.startsWith("#")) {
 					// Empty line or comment line. Ignore it.
 				} else if (str.startsWith(":")) {
 					// Game style tag
-					String strStyle = str.substring(1);
-
-					style = -1;
-					for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
-						if (strStyle.equalsIgnoreCase(GameEngine.GAMESTYLE_NAMES[i])) {
-							style = i;
-							break;
-						}
-					}
-
-					if (style == -1) {
+					str = str.substring(1);
+					style = GameStyle.valueOf(str);
+					if (style == null) {
 						log.warn("{StyleChange} Unknown Style:" + str);
-						style = 0;
+						style = GameStyle.TRETROMINO;
 					} else {
-						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
+						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + str);
 					}
 				} else {
 					// Game mode name
@@ -606,12 +583,12 @@ public class NetServer {
 					log.debug("{Mode} Name:" + strModeName + " RankingType:" + rankingType + " MaxGameType:"
 							+ maxGameType);
 
-					spModeList[style].add(strModeName);
+					spModeList.get(style).add(strModeName);
 
-					for (int i = 0; i < ruleList[style].size() + 1; i++) {
+					for (int i = 0; i < ruleList[style.getMode()].size() + 1; i++) {
 						String ruleName;
-						if (i < ruleList[style].size()) {
-							RuleOptions ruleOpt = ruleList[style].get(i);
+						if (i < ruleList[style.getMode()].size()) {
+							RuleOptions ruleOpt = ruleList[style.getMode()].get(i);
 							ruleName = ruleOpt.strRuleName;
 						} else {
 							ruleName = "any";
@@ -624,7 +601,7 @@ public class NetServer {
 								rankingData.ruleName = ruleName;
 								rankingData.gameType = j;
 								rankingData.rankingType = rankingType;
-								rankingData.style = style;
+								rankingData.style = style.getMode();
 								rankingData.maxRecords = maxSPRanking;
 
 								if (k == 0) {
@@ -772,7 +749,7 @@ public class NetServer {
 	 */
 	private static void getPlayerDataFromProperty(NetPlayerInfo pInfo) {
 		if (pInfo.isTripUse) {
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				pInfo.rating[i] = propPlayerData.getProperty("p.rating." + i + "." + pInfo.strName, ratingDefault);
 				pInfo.playCount[i] = propPlayerData.getProperty("p.playCount." + i + "." + pInfo.strName, 0);
 				pInfo.winCount[i] = propPlayerData.getProperty("p.winCount." + i + "." + pInfo.strName, 0);
@@ -780,7 +757,7 @@ public class NetServer {
 			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
 			pInfo.spPersonalBest.readProperty(propPlayerData);
 		} else {
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				pInfo.rating[i] = ratingDefault;
 				pInfo.playCount[i] = 0;
 				pInfo.winCount[i] = 0;
@@ -796,7 +773,7 @@ public class NetServer {
 	 */
 	private static void setPlayerDataToProperty(NetPlayerInfo pInfo) {
 		if (pInfo.isTripUse) {
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				propPlayerData.setProperty("p.rating." + i + "." + pInfo.strName, pInfo.rating[i]);
 				propPlayerData.setProperty("p.playCount." + i + "." + pInfo.strName, pInfo.playCount[i]);
 				propPlayerData.setProperty("p.winCount." + i + "." + pInfo.strName, pInfo.winCount[i]);
@@ -1266,9 +1243,9 @@ public class NetServer {
 			// Send welcome message
 			log.debug("Accept:" + getHostName(socketChannel));
 			send(socketChannel,
-					"welcome\t" + GameManager.getVersionMajor() + "\t" + playerInfos.size() + "\t" + observers.size()
-							+ "\t" + GameManager.getVersionMinor() + "\t" + GameManager.getVersionString() + "\t"
-							+ clientPingInterval + "\t" + GameManager.isDevBuild() + "\n");
+					"welcome\t" + Version.getMajorVersion() + "\t" + playerInfos.size() + "\t" + observers.size() + "\t"
+							+ Version.getMinorVersion() + "\t" + Version.getVersionString() + "\t" + clientPingInterval
+							+ "\t" + Version.isDevBuild() + "\n");
 		}
 	}
 
@@ -1619,9 +1596,9 @@ public class NetServer {
 	public void broadcast(String msg, int roomID) {
 		synchronized (channels) {
 			for (SocketChannel channel : channels) {
-				NetPlayerInfo p = playerInfos.get(channel);
+				NetPlayerInfo player = playerInfos.get(channel);
 
-				if (p != null && roomID == p.roomID) {
+				if (player != null && roomID == player.roomID) {
 					send(channel, msg);
 				}
 			}
@@ -1638,11 +1615,11 @@ public class NetServer {
 	 */
 	public void broadcast(String msg, int roomID, NetPlayerInfo pInfo) {
 		synchronized (channels) {
-			for (SocketChannel ch : channels) {
-				NetPlayerInfo p = playerInfos.get(ch);
+			for (SocketChannel channel : channels) {
+				NetPlayerInfo player = playerInfos.get(channel);
 
-				if (p != null && p.uid != pInfo.uid && roomID == p.roomID) {
-					send(ch, msg);
+				if (player != null && player.uid != pInfo.uid && roomID == player.roomID) {
+					send(channel, msg);
 				}
 			}
 		}
@@ -1654,8 +1631,8 @@ public class NetServer {
 	 * @param msg Message to send (String)
 	 */
 	public void broadcastObserver(String msg) {
-		for (SocketChannel ch : observers) {
-			send(ch, msg);
+		for (SocketChannel channel : observers) {
+			send(channel, msg);
 		}
 	}
 
@@ -1675,8 +1652,8 @@ public class NetServer {
 	 * @param msg Message to send (String)
 	 */
 	public void broadcastAdmin(String msg) {
-		for (SocketChannel ch : admins) {
-			send(ch, msg);
+		for (SocketChannel channel : admins) {
+			send(channel, msg);
 		}
 	}
 
@@ -1688,11 +1665,11 @@ public class NetServer {
 	 */
 	public SocketChannel getSocketChannelByPlayer(NetPlayerInfo pInfo) {
 		synchronized (channels) {
-			for (SocketChannel ch : channels) {
-				NetPlayerInfo p = playerInfos.get(ch);
+			for (SocketChannel channel : channels) {
+				NetPlayerInfo player = playerInfos.get(channel);
 
-				if (p != null && p.uid == pInfo.uid) {
-					return ch;
+				if (player != null && player.uid == pInfo.uid) {
+					return channel;
 				}
 			}
 		}
@@ -1757,8 +1734,8 @@ public class NetServer {
 		if (message[0].equals("getinfo")) {
 			int loggedInUsersCount = playerInfos.size();
 			int observerCount = observers.size();
-			send(client, "getinfo\t" + GameManager.getVersionMajor() + "\t" + loggedInUsersCount + "\t" + observerCount
-					+ "\n");
+			send(client,
+					"getinfo\t" + Version.getMajorVersion() + "\t" + loggedInUsersCount + "\t" + observerCount + "\n");
 			return;
 		}
 		// Disconnect request.
@@ -1796,7 +1773,7 @@ public class NetServer {
 			}
 
 			// Version check
-			float serverVer = GameManager.getVersionMajor();
+			float serverVer = Version.getMajorVersion();
 			float clientVer = Float.parseFloat(message[1]);
 			if (serverVer != clientVer) {
 				send(client, "observerloginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
@@ -1808,7 +1785,7 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = GameManager.isDevBuild();
+			boolean serverBuildType = Version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[3]);
 			if (serverBuildType != clientBuildType) {
 				send(client, "observerloginfail\tDIFFERENT_BUILD\t" + serverBuildType + "\n");
@@ -1847,7 +1824,7 @@ public class NetServer {
 			}
 
 			// Version check
-			float serverVer = GameManager.getVersionMajor();
+			float serverVer = Version.getMajorVersion();
 			float clientVer = Float.parseFloat(message[1]);
 			if (serverVer != clientVer) {
 				send(client, "loginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
@@ -1859,10 +1836,10 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = GameManager.isDevBuild();
+			boolean serverBuildType = Version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[6]);
 			if (serverBuildType != clientBuildType) {
-				send(client, "observerloginfail\tDIFFERENT_BUILD\t" + GameManager.getBuildTypeString() + "\n");
+				send(client, "observerloginfail\tDIFFERENT_BUILD\t" + Version.getBuildType() + "\n");
 				synchronized (pendingChanges) {
 					pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
 				}
@@ -2663,7 +2640,8 @@ public class NetServer {
 		if (message[0].equals("racewin")) {
 			if (pInfo != null && pInfo.roomID != -1 && pInfo.seatID != -1) {
 				NetRoomInfo roomInfo = getRoomInfo(pInfo.roomID);
-				int modeIndex = mpModeList[roomInfo.style].indexOf(roomInfo.strMode);
+				GameStyle style = GameStyle.values()[roomInfo.style];
+				int modeIndex = mpModeList.get(style).indexOf(roomInfo.strMode);
 				boolean isRace = modeIndex == -1 ? false : mpModeIsRace[roomInfo.style].get(modeIndex);
 
 				if (roomInfo.playing && isRace) {
@@ -2952,7 +2930,7 @@ public class NetServer {
 			String strRemoteAddr = getHostFull(client);
 
 			// Check version
-			float serverVer = GameManager.getVersionMajor();
+			float serverVer = Version.getMajorVersion();
 			float clientVer = Float.parseFloat(message[1]);
 			if (serverVer != clientVer) {
 				String strLogMsg = strRemoteAddr + " has tried to access admin, but client version is different ("
@@ -2962,7 +2940,7 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = GameManager.isDevBuild();
+			boolean serverBuildType = Version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[4]);
 			if (serverBuildType != clientBuildType) {
 				String strLogMsg = strRemoteAddr
@@ -3105,7 +3083,7 @@ public class NetServer {
 			boolean mpRankingDataChange = false;
 			boolean spRankingDataChange = false;
 
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				if (propPlayerData.getProperty("p.rating." + i + "." + strName) != null) {
 					propPlayerData.setProperty("p.rating." + i + "." + strName, ratingDefault);
 					propPlayerData.setProperty("p.playCount." + i + "." + strName, 0);
@@ -3827,7 +3805,7 @@ public class NetServer {
 	 * @throws IOException When something bad occurs
 	 */
 	private void sendRatedRuleList(SocketChannel client) throws IOException {
-		for (int style = 0; style < GameEngine.MAX_GAMESTYLE; style++) {
+		for (int style = 0; style < GameStyle.numStyles(); style++) {
 			String msg = "rulelist\t" + style;
 
 			for (RuleOptions tempObj : ruleList[style]) {
@@ -3923,7 +3901,7 @@ public class NetServer {
 		}
 
 		String status = propServer.getProperty("netserver.statusformat", "$observers/$players");
-		status = status.replace("\\$version", Float.toString(GameManager.VERSION_MAJOR));
+		status = status.replace("\\$version", Float.toString(Version.getMajorVersion()));
 		status = status.replace("\\$observers", Integer.toString(observers.size()));
 		status = status.replace("\\$players", Integer.toString(playerInfos.size()));
 		status = status.replace("\\$clients", Integer.toString(observers.size() + playerInfos.size()));

@@ -45,6 +45,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.play.SoundManager;
 
 /**
  * Sound engine <a href=
@@ -52,7 +53,7 @@ import lombok.extern.log4j.Log4j;
  * yuan</a>
  */
 @Log4j
-public class WaveEngine implements LineListener {
+public class WaveEngine implements SoundManager, LineListener {
 
 	/** You can registerWAVE file OfMaximumcount */
 	private final int maxClips;
@@ -160,7 +161,8 @@ public class WaveEngine implements LineListener {
 	 * @param name     Registered name
 	 * @param filename Filename
 	 */
-	private void load(String name, String filename) {
+	@Override
+	public void load(String name, String filename) {
 		load(name, new File(filename));
 	}
 
@@ -245,6 +247,7 @@ public class WaveEngine implements LineListener {
 	 *
 	 * @param name Registered name
 	 */
+	@Override
 	public void play(String name) {
 		Clip clip = clipMap.get(name);
 		if (clip != null) {
@@ -273,7 +276,7 @@ public class WaveEngine implements LineListener {
 	public void update(LineEvent event) {
 		// If you stop playback or to the end
 		if (event.getType() == LineEvent.Type.STOP) {
-			stop((Clip) event.getSource());
+			 stop((Clip) event.getSource());
 		}
 	}
 }

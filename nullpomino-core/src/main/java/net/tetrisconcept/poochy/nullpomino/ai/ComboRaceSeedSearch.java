@@ -335,7 +335,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 		for (int y = height - 3; y < height; y++) {
 			for (int x = 0; x < 4; x++) {
 				result <<= 1;
-				if (!field.getBlockEmptyF(x + valleyX, y)) {
+				if (field.getBlockEmpty(x + valleyX, y)) {
 					result++;
 				}
 			}

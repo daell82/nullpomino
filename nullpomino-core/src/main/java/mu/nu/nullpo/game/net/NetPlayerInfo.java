@@ -32,7 +32,7 @@ import java.io.Serializable;
 import java.nio.channels.SocketChannel;
 
 import mu.nu.nullpo.game.component.RuleOptions;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 
 /**
  * Player information
@@ -60,19 +60,19 @@ public class NetPlayerInfo implements Serializable {
 	public RuleOptions ruleOpt = null;
 
 	/** Multiplayer rating */
-	public int[] rating = new int[GameEngine.MAX_GAMESTYLE];
+	public int[] rating = new int[GameStyle.numStyles()];
 
 	/** Rating backup (internal use) */
-	public int[] ratingBefore = new int[GameEngine.MAX_GAMESTYLE];
+	public int[] ratingBefore = new int[GameStyle.numStyles()];
 
 	/** Number of rated multiplayer games played */
-	public int[] playCount = new int[GameEngine.MAX_GAMESTYLE];
+	public int[] playCount = new int[GameStyle.numStyles()];
 
 	/** Number of games played in current room */
 	public int playCountNow = 0;
 
 	/** Number of rated multiplayer games win */
-	public int[] winCount = new int[GameEngine.MAX_GAMESTYLE];
+	public int[] winCount = new int[GameStyle.numStyles()];
 
 	/** Number of wins in current room */
 	public int winCountNow = 0;
@@ -121,7 +121,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Copy constructor
-	 * 
+	 *
 	 * @param n Copy source
 	 */
 	public NetPlayerInfo(NetPlayerInfo n) {
@@ -130,7 +130,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * String array constructor (Uses importStringArray)
-	 * 
+	 *
 	 * @param pdata String array (String[12])
 	 */
 	public NetPlayerInfo(String[] pdata) {
@@ -139,7 +139,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * String constructor (Uses importString)
-	 * 
+	 *
 	 * @param str String(Divided by ;)
 	 */
 	public NetPlayerInfo(String str) {
@@ -148,7 +148,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Copy from other NetPlayerInfo
-	 * 
+	 *
 	 * @param n Copy source
 	 */
 	public void copy(NetPlayerInfo n) {
@@ -163,7 +163,7 @@ public class NetPlayerInfo implements Serializable {
 			ruleOpt = null;
 		}
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (int i = 0; i < GameStyle.numStyles(); i++) {
 			rating[i] = n.rating[i];
 			ratingBefore[i] = n.ratingBefore[i];
 			playCount[i] = n.playCount[i];
@@ -189,7 +189,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Import from String array
-	 * 
+	 *
 	 * @param pdata String array (String[27])
 	 */
 	public void importStringArray(String[] pdata) {
@@ -220,15 +220,17 @@ public class NetPlayerInfo implements Serializable {
 		if (pdata.length > 24) {
 			spPersonalBest.importString(NetUtil.decompressString(pdata[24]));
 		}
-		if (pdata.length > 25)
+		if (pdata.length > 25) {
 			playCountNow = Integer.parseInt(pdata[25]);
-		if (pdata.length > 26)
+		}
+		if (pdata.length > 26) {
 			winCountNow = Integer.parseInt(pdata[26]);
+		}
 	}
 
 	/**
 	 * Import from String (Divided by ;)
-	 * 
+	 *
 	 * @param str String
 	 */
 	public void importString(String str) {
@@ -237,7 +239,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Export to String array
-	 * 
+	 *
 	 * @return String array (String[27])
 	 */
 	public String[] exportStringArray() {
@@ -274,7 +276,7 @@ public class NetPlayerInfo implements Serializable {
 
 	/**
 	 * Export to String (Divided by ;)
-	 * 
+	 *
 	 * @return String
 	 */
 	public String exportString() {
@@ -283,8 +285,9 @@ public class NetPlayerInfo implements Serializable {
 
 		for (int i = 0; i < data.length; i++) {
 			strResult += data[i];
-			if (i < data.length - 1)
+			if (i < data.length - 1) {
 				strResult += ";";
+			}
 		}
 
 		return strResult;

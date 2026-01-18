@@ -3,6 +3,7 @@ package mu.nu.nullpo.game.net;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import mu.nu.nullpo.game.component.Statistics;
@@ -38,7 +39,7 @@ public class NetSPRecord implements Serializable {
 	public Statistics stats;
 
 	/** List of custom stats (Each String is NAME;VALUE format) */
-	public List<String> listCustomStats;
+	public final List<String> customStats = new LinkedList<>();
 
 	/** Replay data (Compressed) */
 	public String strReplayProp;
@@ -54,7 +55,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Compare 2 records
-	 * 
+	 *
 	 * @param type Ranking Type
 	 * @param r1   Record 1
 	 * @param r2   Record 2
@@ -160,7 +161,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Copy Constructor
-	 * 
+	 *
 	 * @param s Source
 	 */
 	public NetSPRecord(NetSPRecord s) {
@@ -169,7 +170,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Constructor that imports data from a String Array
-	 * 
+	 *
 	 * @param s String Array (String[6])
 	 */
 	public NetSPRecord(String[] s) {
@@ -178,7 +179,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Constructor that imports data from a String
-	 * 
+	 *
 	 * @param s String (Split by ;)
 	 */
 	public NetSPRecord(String s) {
@@ -193,7 +194,7 @@ public class NetSPRecord implements Serializable {
 		strModeName = "";
 		strRuleName = "";
 		stats = null;
-		listCustomStats = new LinkedList<>();
+		customStats.clear();
 		strReplayProp = "";
 		strTimeStamp = "";
 		gameType = 0;
@@ -202,7 +203,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Copy from other NetSPRecord
-	 * 
+	 *
 	 * @param s Source
 	 */
 	public void copy(NetSPRecord s) {
@@ -216,7 +217,8 @@ public class NetSPRecord implements Serializable {
 			stats = new Statistics(s.stats);
 		}
 
-		listCustomStats = new LinkedList<>(s.listCustomStats);
+		customStats.clear();
+		customStats.addAll(s.customStats);
 
 		strReplayProp = s.strReplayProp;
 		strTimeStamp = s.strTimeStamp;
@@ -226,45 +228,30 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Export custom stats to a String
-	 * 
+	 *
 	 * @return String (Split by ,)
 	 */
 	public String exportCustomStats() {
-		if (listCustomStats != null && !listCustomStats.isEmpty()) {
-			String strResult = "";
-			for (int i = 0; i < listCustomStats.size(); i++) {
-				if (i > 0) {
-					strResult += ",";
-				}
-				strResult += listCustomStats.get(i);
-			}
-			return strResult;
-		}
-		return "";
+		return customStats.stream().collect(Collectors.joining(","));
 	}
 
 	/**
 	 * Import custom stats from a String
-	 * 
+	 *
 	 * @param s String (Split by ,)
 	 */
 	public void importCustomStats(String s) {
-		if (listCustomStats == null) {
-			listCustomStats = new LinkedList<>();
-		} else {
-			listCustomStats.clear();
-		}
+		customStats.clear();
 		if (s == null || s.isEmpty()) {
 			return;
 		}
-
 		String[] array = s.split(",");
-		Stream.of(array).forEach(listCustomStats::add);
+		Stream.of(array).forEach(customStats::add);
 	}
 
 	/**
 	 * Set replay data from CustomProperties
-	 * 
+	 *
 	 * @param p CustomProperties that contains replay data
 	 */
 	public void setReplayProp(CustomProperties p) {
@@ -274,7 +261,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Get replay data as CustomProperties
-	 * 
+	 *
 	 * @return CustomProperties that contains replay data
 	 */
 	public CustomProperties getReplayProp() {
@@ -286,7 +273,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Export to a String Array
-	 * 
+	 *
 	 * @return String Array (String[9])
 	 */
 	public String[] exportStringArray() {
@@ -295,8 +282,7 @@ public class NetSPRecord implements Serializable {
 		s[1] = NetUtil.urlEncode(strModeName);
 		s[2] = NetUtil.urlEncode(strRuleName);
 		s[3] = stats == null ? "" : NetUtil.compressString(stats.exportString());
-		s[4] = listCustomStats == null || listCustomStats.size() <= 0 ? ""
-				: NetUtil.compressString(exportCustomStats());
+		s[4] = customStats == null || customStats.size() <= 0 ? "" : NetUtil.compressString(exportCustomStats());
 		s[5] = strReplayProp;
 		s[6] = Integer.toString(gameType);
 		s[7] = Integer.toString(style);
@@ -306,7 +292,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Export to a String
-	 * 
+	 *
 	 * @return String (Split by ;)
 	 */
 	public String exportString() {
@@ -325,7 +311,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Import from a String Array
-	 * 
+	 *
 	 * @param s String Array (String[9])
 	 */
 	public void importStringArray(String[] s) {
@@ -338,7 +324,7 @@ public class NetSPRecord implements Serializable {
 			stats = new Statistics(NetUtil.decompressString(s[3]));
 		}
 		if (s[4].length() <= 0) {
-			listCustomStats = new LinkedList<>();
+			customStats.clear();
 		} else {
 			importCustomStats(NetUtil.decompressString(s[4]));
 		}
@@ -350,7 +336,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Import from a String
-	 * 
+	 *
 	 * @param s String (Split by ;)
 	 */
 	public void importString(String s) {
@@ -359,7 +345,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Compare to other NetSPRecord
-	 * 
+	 *
 	 * @param type Ranking Type
 	 * @param r2   The other NetSPRecord
 	 * @return <code>true</code> if this this record is better than r2
@@ -370,31 +356,31 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Set String value of specific custom stat
-	 * 
+	 *
 	 * @param name  Custom stat name
 	 * @param value Value
 	 */
 	public void setCustomStat(String name, String value) {
-		for (int i = 0; i < listCustomStats.size(); i++) {
-			String strTemp = listCustomStats.get(i);
+		for (int i = 0; i < customStats.size(); i++) {
+			String strTemp = customStats.get(i);
 			String[] strArray = strTemp.split(";");
 
 			if (strArray[0].equals(name)) {
-				listCustomStats.set(i, name + ";" + value);
+				customStats.set(i, name + ";" + value);
 				return;
 			}
 		}
-		listCustomStats.add(name + ";" + value);
+		customStats.add(name + ";" + value);
 	}
 
 	/**
 	 * Get String value of specific custom stat
-	 * 
+	 *
 	 * @param name Custom stat name
 	 * @return Value (null if not found)
 	 */
 	public String getCustomStat(String name) {
-		for (String strTemp : listCustomStats) {
+		for (String strTemp : customStats) {
 			String[] strArray = strTemp.split(";");
 
 			if (strArray[0].equals(name)) {
@@ -406,7 +392,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Get String value of specific custom stat
-	 * 
+	 *
 	 * @param name       Custom stat name
 	 * @param strDefault Default value (used when the name is not found)
 	 * @return Value (strDefault if not found)
@@ -418,7 +404,7 @@ public class NetSPRecord implements Serializable {
 
 	/**
 	 * Get a short String of stats of the record (used by NetServer)
-	 * 
+	 *
 	 * @param type Ranking Type
 	 * @return Short String of stats of the record
 	 */

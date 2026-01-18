@@ -66,7 +66,11 @@ public class BackgroundStatus implements Serializable {
 	 * @param b Copy source
 	 */
 	public BackgroundStatus(BackgroundStatus b) {
-		copy(b);
+		bg = b.bg;
+		fadesw = b.fadesw;
+		fadestat = b.fadestat;
+		fadecount = b.fadecount;
+		fadebg = b.fadebg;
 	}
 
 	/**
@@ -80,18 +84,6 @@ public class BackgroundStatus implements Serializable {
 		fadebg = 0;
 	}
 
-	/**
-	 * Copy from a different BackgroundStatus
-	 *
-	 * @param b Copy source
-	 */
-	public void copy(BackgroundStatus b) {
-		bg = b.bg;
-		fadesw = b.fadesw;
-		fadestat = b.fadestat;
-		fadecount = b.fadecount;
-		fadebg = b.fadebg;
-	}
 
 	/**
 	 * Update background fade state

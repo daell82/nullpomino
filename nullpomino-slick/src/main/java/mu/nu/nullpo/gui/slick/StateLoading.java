@@ -28,8 +28,6 @@
 */
 package mu.nu.nullpo.gui.slick;
 
-import mu.nu.nullpo.game.play.GameManager;
-
 import org.apache.log4j.Logger;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.Color;
@@ -38,6 +36,8 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+
+import mu.nu.nullpo.game.Version;
 
 /**
  * State of the loading screen
@@ -145,7 +145,7 @@ public class StateLoading extends BasicGameState {
 		if(preloadSet > 2) {
 			// Change title bar caption
 			if(container instanceof AppGameContainer) {
-				((AppGameContainer) container).setTitle("NullpoMino version" + GameManager.getVersionString());
+				((AppGameContainer) container).setTitle("NullpoMino version" + Version.getVersionString());
 				((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
 			}
 

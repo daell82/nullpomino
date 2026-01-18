@@ -49,7 +49,7 @@ import mu.nu.nullpo.util.GeneralUtil;
 public class EventReceiver<T> {
 
 	/** Field X position */
-	public static final int[][][] NEW_FIELD_OFFSET_X = { //
+	protected static final int[][][] NEW_FIELD_OFFSET_X = { //
 			{ // TETROMINO
 					{ 119, 247, 375, 503, 247, 375 }, // Small
 					{ 32, 432, 432, 432, 432, 432 }, // Normal
@@ -68,7 +68,7 @@ public class EventReceiver<T> {
 					{ 16, 352, 352, 352, 352, 352 }, // Big
 			}, };
 	/** Field Y position */
-	public static final int[][][] NEW_FIELD_OFFSET_Y = { //
+	protected static final int[][][] NEW_FIELD_OFFSET_Y = { //
 			{ // TETROMINO
 					{ 80, 80, 80, 80, 286, 286 }, // Small
 					{ 32, 32, 32, 32, 32, 32 }, // Normal
@@ -88,7 +88,7 @@ public class EventReceiver<T> {
 			}, };
 
 	/** Field X position (Big side preview) */
-	public static final int[][][] NEW_FIELD_OFFSET_X_BSP = { //
+	protected static final int[][][] NEW_FIELD_OFFSET_X_BSP = { //
 			{ // TETROMINO
 					{ 208, 320, 432, 544, 320, 432 }, // Small
 					{ 64, 400, 400, 400, 400, 400 }, // Normal
@@ -107,7 +107,7 @@ public class EventReceiver<T> {
 					{ 16, 352, 352, 352, 352, 352 }, // Big
 			}, };
 	/** Field Y position (Big side preview) */
-	public static final int[][][] NEW_FIELD_OFFSET_Y_BSP = { //
+	protected static final int[][][] NEW_FIELD_OFFSET_Y_BSP = { //
 			{ // TETROMINO
 					{ 80, 80, 80, 80, 286, 286 }, // Small
 					{ 32, 32, 32, 32, 32, 32 }, // Normal
@@ -490,29 +490,6 @@ public class EventReceiver<T> {
 
 	/**
 	 * [You don't have to override this] Draw String to score display area by using
-	 * a TTF font. If flag is false, it will use colorF as font color. If flag is
-	 * true, it will use colorT instead.
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param str      String to draw
-	 * @param flag     Any boolean variable
-	 * @param colorF   Font color when flag is false
-	 * @param colorT   Font color when flag is true
-	 */
-	public void drawTTFScoreFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
-			int colorT) {
-		if (!flag) {
-			drawTTFScoreFont(engine, playerID, x, y, str, colorF);
-		} else {
-			drawTTFScoreFont(engine, playerID, x, y, str, colorT);
-		}
-	}
-
-	/**
-	 * [You don't have to override this] Draw String to score display area by using
 	 * a TTF font. If flag is false, it will use white font color. If flag is true,
 	 * it will use red instead.
 	 *
@@ -831,10 +808,11 @@ public class EventReceiver<T> {
 	 * @return X position of field
 	 */
 	public int getFieldDisplayPositionX(GameEngine engine, int playerID) {
+		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_X_BSP[engine.owner.mode.getGameStyle()][engine.displaysize + 1][playerID];
+			return NEW_FIELD_OFFSET_X_BSP[style][engine.displaysize + 1][playerID];
 		}
-		return NEW_FIELD_OFFSET_X[engine.owner.mode.getGameStyle()][engine.displaysize + 1][playerID];
+		return NEW_FIELD_OFFSET_X[style][engine.displaysize + 1][playerID];
 	}
 
 	/**
@@ -845,10 +823,11 @@ public class EventReceiver<T> {
 	 * @return Y position of field
 	 */
 	public int getFieldDisplayPositionY(GameEngine engine, int playerID) {
+		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_Y_BSP[engine.owner.mode.getGameStyle()][engine.displaysize + 1][playerID];
+			return NEW_FIELD_OFFSET_Y_BSP[style][engine.displaysize + 1][playerID];
 		}
-		return NEW_FIELD_OFFSET_Y[engine.owner.mode.getGameStyle()][engine.displaysize + 1][playerID];
+		return NEW_FIELD_OFFSET_Y[style][engine.displaysize + 1][playerID];
 	}
 
 	/**
@@ -923,13 +902,7 @@ public class EventReceiver<T> {
 	 * @return Properties from "config/setting/mode.cfg".
 	 */
 	public CustomProperties loadModeConfig() {
-		CustomProperties propModeConfig = new CustomProperties();
-		try (var in = new FileInputStream("config/setting/mode.cfg")) {
-			propModeConfig.load(in);
-		} catch (IOException e) {
-			log.error("Failed to load mode config", e);
-		}
-		return propModeConfig;
+		return CustomProperties.load("config/setting/mode.cfg");
 	}
 
 	/**

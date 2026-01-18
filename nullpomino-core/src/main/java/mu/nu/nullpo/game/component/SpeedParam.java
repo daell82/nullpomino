@@ -34,65 +34,44 @@ import java.io.Serializable;
  * BlockWait and emergence rate of fall of the piece timeSuch as data
  */
 public class SpeedParam implements Serializable {
+
 	/** Serial version ID */
 	private static final long serialVersionUID = -955934100998757270L;
 
 	/** Fall velocity */
-	public int gravity;
+	public int gravity = 4;
 
 	/** Denominator of the rate of fall (gravity==denominatorIf1GBecome) */
-	public int denominator;
+	public int denominator = 256;
 
 	/** Wait appearance time */
-	public int are;
+	public int are = 24;
 
 	/** Line clearAfter waiting for the emergence of time */
-	public int areLine;
+	public int areLine = 24;
 
 	/** Line clear time */
-	public int lineDelay;
+	public int lineDelay = 40;
 
 	/** Fixation time */
-	public int lockDelay;
+	public int lockDelay = 30;
 
 	/** Lateral motion time */
-	public int das;
+	public int das = 14;
 
 	/**
 	 * Constructor
 	 */
 	public SpeedParam() {
-		reset();
+
 	}
 
 	/**
 	 * Copy constructor
-	 * 
+	 *
 	 * @param s Copy source
 	 */
 	public SpeedParam(SpeedParam s) {
-		copy(s);
-	}
-
-	/**
-	 * Reset to defaults
-	 */
-	public void reset() {
-		gravity = 4;
-		denominator = 256;
-		are = 24;
-		areLine = 24;
-		lineDelay = 40;
-		lockDelay = 30;
-		das = 14;
-	}
-
-	/**
-	 * AnotherSpeedParamCopied from the
-	 * 
-	 * @param s Copy source
-	 */
-	public void copy(SpeedParam s) {
 		gravity = s.gravity;
 		denominator = s.denominator;
 		are = s.are;

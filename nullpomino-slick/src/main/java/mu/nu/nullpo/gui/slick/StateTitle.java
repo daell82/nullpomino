@@ -35,7 +35,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.gui.net.UpdateChecker;
 
 /**
@@ -91,7 +91,7 @@ public class StateTitle extends DummyMenuChooseState {
 
 		// Update title bar
 		if(container instanceof AppGameContainer appContainer) {
-			appContainer.setTitle("NullpoMino version" + GameManager.getVersionString());
+			appContainer.setTitle("NullpoMino version" + Version.getVersionString());
 			appContainer.setUpdateOnlyWhenVisible(true);
 		}
 
@@ -127,13 +127,13 @@ public class StateTitle extends DummyMenuChooseState {
 
 		// Menu
 		NormalFontSlick.printFontGrid(1, 1, "NULLPOMINO", NormalFontSlick.COLOR_ORANGE);
-		NormalFontSlick.printFontGrid(1, 2, "VERSION " + GameManager.getVersionString(), NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 2, "VERSION " + Version.getVersionString(), NormalFontSlick.COLOR_ORANGE);
 
 		renderChoices(2, 4, CHOICES);
 
 		NormalFontSlick.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
 
-		if(UpdateChecker.isNewVersionAvailable(GameManager.getVersionMajor(), GameManager.getVersionMinor())) {
+		if(UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
 			String strTemp = String.format(NullpoMinoSlick.getUIText("Title_NewVersion"),
 					UpdateChecker.getLatestVersionFullString(), UpdateChecker.getStrReleaseDate());
 			NormalFontSlick.printTTFFont(16, 416, strTemp);

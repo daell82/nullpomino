@@ -28,16 +28,17 @@ public class Crypt {
 	private static final boolean shifts2[] = { false, false, true, true, true, true, true, true, false, true, true,
 			true, true, true, true, false };
 
-	private static final int skb[][] = { {
-			/* for C bits (numbered as per FIPS 46) 1 2 3 4 5 6 */
-			0x00000000, 0x00000010, 0x20000000, 0x20000010, 0x00010000, 0x00010010, 0x20010000, 0x20010010, 0x00000800,
-			0x00000810, 0x20000800, 0x20000810, 0x00010800, 0x00010810, 0x20010800, 0x20010810, 0x00000020, 0x00000030,
-			0x20000020, 0x20000030, 0x00010020, 0x00010030, 0x20010020, 0x20010030, 0x00000820, 0x00000830, 0x20000820,
-			0x20000830, 0x00010820, 0x00010830, 0x20010820, 0x20010830, 0x00080000, 0x00080010, 0x20080000, 0x20080010,
-			0x00090000, 0x00090010, 0x20090000, 0x20090010, 0x00080800, 0x00080810, 0x20080800, 0x20080810, 0x00090800,
-			0x00090810, 0x20090800, 0x20090810, 0x00080020, 0x00080030, 0x20080020, 0x20080030, 0x00090020, 0x00090030,
-			0x20090020, 0x20090030, 0x00080820, 0x00080830, 0x20080820, 0x20080830, 0x00090820, 0x00090830, 0x20090820,
-			0x20090830, },
+	private static final int skb[][] = { //
+			{
+					/* for C bits (numbered as per FIPS 46) 1 2 3 4 5 6 */
+					0x00000000, 0x00000010, 0x20000000, 0x20000010, 0x00010000, 0x00010010, 0x20010000, 0x20010010,
+					0x00000800, 0x00000810, 0x20000800, 0x20000810, 0x00010800, 0x00010810, 0x20010800, 0x20010810,
+					0x00000020, 0x00000030, 0x20000020, 0x20000030, 0x00010020, 0x00010030, 0x20010020, 0x20010030,
+					0x00000820, 0x00000830, 0x20000820, 0x20000830, 0x00010820, 0x00010830, 0x20010820, 0x20010830,
+					0x00080000, 0x00080010, 0x20080000, 0x20080010, 0x00090000, 0x00090010, 0x20090000, 0x20090010,
+					0x00080800, 0x00080810, 0x20080800, 0x20080810, 0x00090800, 0x00090810, 0x20090800, 0x20090810,
+					0x00080020, 0x00080030, 0x20080020, 0x20080030, 0x00090020, 0x00090030, 0x20090020, 0x20090030,
+					0x00080820, 0x00080830, 0x20080820, 0x20080830, 0x00090820, 0x00090830, 0x20090820, 0x20090830, },
 			{
 					/* for C bits (numbered as per FIPS 46) 7 8 10 11 12 13 */
 					0x00000000, 0x02000000, 0x00002000, 0x02002000, 0x00200000, 0x02200000, 0x00202000, 0x02202000,
@@ -109,16 +110,17 @@ public class Crypt {
 					0x00000820, 0x04000820, 0x00040820, 0x04040820, 0x00000822, 0x04000822, 0x00040822, 0x04040822,
 					0x00002820, 0x04002820, 0x00042820, 0x04042820, 0x00002822, 0x04002822, 0x00042822, 0x04042822, } };
 
-	private static final int SPtrans[][] = { {
-			/* nibble 0 */
-			0x00820200, 0x00020000, 0x80800000, 0x80820200, 0x00800000, 0x80020200, 0x80020000, 0x80800000, 0x80020200,
-			0x00820200, 0x00820000, 0x80000200, 0x80800200, 0x00800000, 0x00000000, 0x80020000, 0x00020000, 0x80000000,
-			0x00800200, 0x00020200, 0x80820200, 0x00820000, 0x80000200, 0x00800200, 0x80000000, 0x00000200, 0x00020200,
-			0x80820000, 0x00000200, 0x80800200, 0x80820000, 0x00000000, 0x00000000, 0x80820200, 0x00800200, 0x80020000,
-			0x00820200, 0x00020000, 0x80000200, 0x00800200, 0x80820000, 0x00000200, 0x00020200, 0x80800000, 0x80020200,
-			0x80000000, 0x80800000, 0x00820000, 0x80820200, 0x00020200, 0x00820000, 0x80800200, 0x00800000, 0x80000200,
-			0x80020000, 0x00000000, 0x00020000, 0x00800000, 0x80800200, 0x00820200, 0x80000000, 0x80820000, 0x00000200,
-			0x80020200, },
+	private static final int SPtrans[][] = { //
+			{
+					/* nibble 0 */
+					0x00820200, 0x00020000, 0x80800000, 0x80820200, 0x00800000, 0x80020200, 0x80020000, 0x80800000,
+					0x80020200, 0x00820200, 0x00820000, 0x80000200, 0x80800200, 0x00800000, 0x00000000, 0x80020000,
+					0x00020000, 0x80000000, 0x00800200, 0x00020200, 0x80820200, 0x00820000, 0x80000200, 0x00800200,
+					0x80000000, 0x00000200, 0x00020200, 0x80820000, 0x00000200, 0x80800200, 0x80820000, 0x00000000,
+					0x00000000, 0x80820200, 0x00800200, 0x80020000, 0x00820200, 0x00020000, 0x80000200, 0x00800200,
+					0x80820000, 0x00000200, 0x00020200, 0x80800000, 0x80020200, 0x80000000, 0x80800000, 0x00820000,
+					0x80820200, 0x00020200, 0x00820000, 0x80800200, 0x00800000, 0x80000200, 0x80020000, 0x00000000,
+					0x00020000, 0x00800000, 0x80800200, 0x00820200, 0x80000000, 0x80820000, 0x00000200, 0x80020200, },
 			{
 					/* nibble 1 */
 					0x10042004, 0x00000000, 0x00042000, 0x10040000, 0x10000004, 0x00002004, 0x10002000, 0x00042000,
@@ -192,25 +194,25 @@ public class Crypt {
 
 	private static final int byteToUnsigned(byte b) {
 		int value = b;
-		return (value >= 0) ? value : value + 256;
+		return value >= 0 ? value : value + 256;
 	}
 
 	private static int fourBytesToInt(byte b[], int offset) {
-		return byteToUnsigned(b[offset++]) | (byteToUnsigned(b[offset++]) << 8) | (byteToUnsigned(b[offset++]) << 16)
-				| (byteToUnsigned(b[offset]) << 24);
+		return byteToUnsigned(b[offset++]) | byteToUnsigned(b[offset++]) << 8 | byteToUnsigned(b[offset++]) << 16
+				| byteToUnsigned(b[offset]) << 24;
 	}
 
 	private static final void intToFourBytes(int iValue, byte b[], int offset) {
-		b[offset++] = (byte) ((iValue) & 0xff);
-		b[offset++] = (byte) ((iValue >>> 8) & 0xff);
-		b[offset++] = (byte) ((iValue >>> 16) & 0xff);
-		b[offset] = (byte) ((iValue >>> 24) & 0xff);
+		b[offset++] = (byte) (iValue & 0xff);
+		b[offset++] = (byte) (iValue >>> 8 & 0xff);
+		b[offset++] = (byte) (iValue >>> 16 & 0xff);
+		b[offset] = (byte) (iValue >>> 24 & 0xff);
 	}
 
 	private static final void PERM_OP(int a, int b, int n, int m, int results[]) {
 		int t;
 
-		t = ((a >>> n) ^ b) & m;
+		t = (a >>> n ^ b) & m;
 		a ^= t << n;
 		b ^= t;
 
@@ -221,8 +223,8 @@ public class Crypt {
 	private static final int HPERM_OP(int a, int n, int m) {
 		int t;
 
-		t = ((a << (16 - n)) ^ a) & m;
-		a = a ^ t ^ (t >>> (16 - n));
+		t = (a << 16 - n ^ a) & m;
+		a = a ^ t ^ t >>> 16 - n;
 
 		return a;
 	}
@@ -254,7 +256,7 @@ public class Crypt {
 		d = results[0];
 		c = results[1];
 
-		d = (((d & 0x000000ff) << 16) | (d & 0x0000ff00) | ((d & 0x00ff0000) >>> 16) | ((c & 0xf0000000) >>> 4));
+		d = (d & 0x000000ff) << 16 | d & 0x0000ff00 | (d & 0x00ff0000) >>> 16 | (c & 0xf0000000) >>> 4;
 		c &= 0x0fffffff;
 
 		int s, t;
@@ -262,27 +264,27 @@ public class Crypt {
 
 		for (int i = 0; i < ITERATIONS; i++) {
 			if (shifts2[i]) {
-				c = (c >>> 2) | (c << 26);
-				d = (d >>> 2) | (d << 26);
+				c = c >>> 2 | c << 26;
+				d = d >>> 2 | d << 26;
 			} else {
-				c = (c >>> 1) | (c << 27);
-				d = (d >>> 1) | (d << 27);
+				c = c >>> 1 | c << 27;
+				d = d >>> 1 | d << 27;
 			}
 
 			c &= 0x0fffffff;
 			d &= 0x0fffffff;
 
-			s = skb[0][(c) & 0x3f] | skb[1][((c >>> 6) & 0x03) | ((c >>> 7) & 0x3c)]
-					| skb[2][((c >>> 13) & 0x0f) | ((c >>> 14) & 0x30)]
-					| skb[3][((c >>> 20) & 0x01) | ((c >>> 21) & 0x06) | ((c >>> 22) & 0x38)];
+			s = skb[0][c & 0x3f] | skb[1][c >>> 6 & 0x03 | c >>> 7 & 0x3c]
+					| skb[2][c >>> 13 & 0x0f | c >>> 14 & 0x30]
+					| skb[3][c >>> 20 & 0x01 | c >>> 21 & 0x06 | c >>> 22 & 0x38];
 
-			t = skb[4][(d) & 0x3f] | skb[5][((d >>> 7) & 0x03) | ((d >>> 8) & 0x3c)] | skb[6][(d >>> 15) & 0x3f]
-					| skb[7][((d >>> 21) & 0x0f) | ((d >>> 22) & 0x30)];
+			t = skb[4][d & 0x3f] | skb[5][d >>> 7 & 0x03 | d >>> 8 & 0x3c] | skb[6][d >>> 15 & 0x3f]
+					| skb[7][d >>> 21 & 0x0f | d >>> 22 & 0x30];
 
-			schedule[j++] = ((t << 16) | (s & 0x0000ffff)) & 0xffffffff;
-			s = ((s >>> 16) | (t & 0xffff0000));
+			schedule[j++] = (t << 16 | s & 0x0000ffff) & 0xffffffff;
+			s = s >>> 16 | t & 0xffff0000;
 
-			s = (s << 4) | (s >>> 28);
+			s = s << 4 | s >>> 28;
 			schedule[j++] = s & 0xffffffff;
 		}
 		return schedule;
@@ -291,16 +293,16 @@ public class Crypt {
 	private static final int D_ENCRYPT(int L, int R, int S, int E0, int E1, int s[]) {
 		int t, u, v;
 
-		v = R ^ (R >>> 16);
+		v = R ^ R >>> 16;
 		u = v & E0;
 		v = v & E1;
-		u = (u ^ (u << 16)) ^ R ^ s[S];
-		t = (v ^ (v << 16)) ^ R ^ s[S + 1];
-		t = (t >>> 4) | (t << 28);
+		u = u ^ u << 16 ^ R ^ s[S];
+		t = v ^ v << 16 ^ R ^ s[S + 1];
+		t = t >>> 4 | t << 28;
 
-		L ^= SPtrans[1][(t) & 0x3f] | SPtrans[3][(t >>> 8) & 0x3f] | SPtrans[5][(t >>> 16) & 0x3f]
-				| SPtrans[7][(t >>> 24) & 0x3f] | SPtrans[0][(u) & 0x3f] | SPtrans[2][(u >>> 8) & 0x3f]
-				| SPtrans[4][(u >>> 16) & 0x3f] | SPtrans[6][(u >>> 24) & 0x3f];
+		L ^= SPtrans[1][t & 0x3f] | SPtrans[3][t >>> 8 & 0x3f] | SPtrans[5][t >>> 16 & 0x3f]
+				| SPtrans[7][t >>> 24 & 0x3f] | SPtrans[0][u & 0x3f] | SPtrans[2][u >>> 8 & 0x3f]
+				| SPtrans[4][u >>> 16 & 0x3f] | SPtrans[6][u >>> 24 & 0x3f];
 
 		return L;
 	}
@@ -322,8 +324,8 @@ public class Crypt {
 
 		t = right;
 
-		right = (left >>> 1) | (left << 31);
-		left = (t >>> 1) | (t << 31);
+		right = left >>> 1 | left << 31;
+		left = t >>> 1 | t << 31;
 
 		left &= 0xffffffff;
 		right &= 0xffffffff;
@@ -362,8 +364,9 @@ public class Crypt {
 
 	public static final String crypt(String salt, String original) {
 		// wwb -- Should do some sanity checks: salt needs to be 2 chars, in alpha.
-		while (salt.length() < 2)
+		while (salt.length() < 2) {
 			salt += "A";
+		}
 
 		char[] buffer = new char[13];
 
@@ -377,11 +380,13 @@ public class Crypt {
 		int Eswap1 = alphabet.indexOf(charOne) << 4;
 		byte key[] = new byte[8];
 
-		for (int i = 0; i < key.length; i++)
+		for (int i = 0; i < key.length; i++) {
 			key[i] = (byte) 0;
+		}
 
-		for (int i = 0; i < key.length && i < original.length(); i++)
-			key[i] = (byte) ((original.charAt(i)) << 1);
+		for (int i = 0; i < key.length && i < original.length(); i++) {
+			key[i] = (byte) (original.charAt(i) << 1);
+		}
 
 		int schedule[] = des_set_key(key);
 		int out[] = body(schedule, Eswap0, Eswap1);
@@ -396,8 +401,9 @@ public class Crypt {
 			for (int j = 0, c = 0; j < 6; j++) {
 				c <<= 1;
 
-				if ((b[y] & u) != 0)
+				if ((b[y] & u) != 0) {
 					c |= 1;
+				}
 
 				u >>>= 1;
 
@@ -431,11 +437,13 @@ public class Crypt {
 		int Eswap1 = alphabet.indexOf(charOne) << 4;
 		byte key[] = new byte[8];
 
-		for (int i = 0; i < key.length; i++)
+		for (int i = 0; i < key.length; i++) {
 			key[i] = (byte) 0;
+		}
 
-		for (int i = 0; i < key.length && i < boriginal.length; i++)
-			key[i] = (byte) ((boriginal[i]) << 1);
+		for (int i = 0; i < key.length && i < boriginal.length; i++) {
+			key[i] = (byte) (boriginal[i] << 1);
+		}
 
 		int schedule[] = des_set_key(key);
 		int out[] = body(schedule, Eswap0, Eswap1);
@@ -450,8 +458,9 @@ public class Crypt {
 			for (int j = 0, c = 0; j < 6; j++) {
 				c <<= 1;
 
-				if ((b[y] & u) != 0)
+				if ((b[y] & u) != 0) {
 					c |= 1;
+				}
 
 				u >>>= 1;
 

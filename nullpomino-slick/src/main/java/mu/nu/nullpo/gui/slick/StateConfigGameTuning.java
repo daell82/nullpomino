@@ -210,7 +210,7 @@ public class StateConfigGameTuning extends BaseGameState {
 			// Rule
 			RuleOptions ruleopt = null;
 			String rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule", "");
-			if(gameManager.mode.getGameStyle() > 0) {
+			if(gameManager.mode.getGameStyle().getMode() > 0) {
 				rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule." + gameManager.mode.getGameStyle(), "");
 			}
 			if(rulename != null && !rulename.isEmpty()) {

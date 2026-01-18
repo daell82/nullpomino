@@ -40,7 +40,6 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.UnicodeFont;
 import org.newdawn.slick.font.effects.ColorEffect;
 import org.newdawn.slick.font.effects.ShadowEffect;
-import org.newdawn.slick.openal.SoundStore;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j;
@@ -100,7 +99,7 @@ public class ResourceHolderSlick {
 	public static UnicodeFont ttfFont;
 
 	/** Sound effects */
-	public static SoundManager soundManager;
+	public static SlickSoundManager soundManager;
 
 	/** BGM */
 	public static Music[] bgm;
@@ -156,9 +155,9 @@ public class ResourceHolderSlick {
 		imgTitle = loadImage(skindir + "/graphics/title.png");
 		imgMenu = loadImage(skindir + "/graphics/menu.png");
 		imgFrame = loadImage(skindir + "/graphics/frame.png");
-		imgFieldbg2 = loadImage(skindir + "/graphics/oldfieldbg2/fieldbg2.png");
-		imgFieldbg2Small = loadImage(skindir + "/graphics/oldfieldbg2/fieldbg2_small.png");
-		imgFieldbg2Big = loadImage(skindir + "/graphics/oldfieldbg2/fieldbg2_big.png");
+		imgFieldbg2 = loadImage(skindir + "/graphics/fieldbg2.png");
+		imgFieldbg2Small = loadImage(skindir + "/graphics/fieldbg2_small.png");
+		imgFieldbg2Big = loadImage(skindir + "/graphics/fieldbg2_big.png");
 
 		if (NullpoMinoSlick.propConfig.getProperty("option.showlineeffect", true)) {
 			loadLineClearEffectImages();
@@ -178,14 +177,8 @@ public class ResourceHolderSlick {
 		}
 
 		// Sound effects
-		soundManager = new SoundManager();
+		soundManager = new SlickSoundManager();
 		if (NullpoMinoSlick.propConfig.getProperty("option.se", true)) {
-			try {
-				SoundStore.get().init();
-			} catch (Throwable e) {
-				log.warn("Sound init failed", e);
-			}
-
 			log.info("Loading Sound Effect");
 			soundManager.load("cursor", skindir + "/se/cursor.wav");
 			soundManager.load("decide", skindir + "/se/decide.wav");
@@ -413,8 +406,8 @@ public class ResourceHolderSlick {
 
 		bgmStop();
 
-		int bgmvolume = NullpoMinoSlick.propConfig.getProperty("option.bgmvolume", 128);
-		NullpoMinoSlick.appGameContainer.setMusicVolume(bgmvolume / (float) 128);
+		float bgmvolume = NullpoMinoSlick.propConfig.getProperty("option.bgmvolume", 128f);
+		NullpoMinoSlick.appGameContainer.setMusicVolume(bgmvolume / 128f);
 
 		if (no >= 0) {
 			if (bgm[no] == null) {

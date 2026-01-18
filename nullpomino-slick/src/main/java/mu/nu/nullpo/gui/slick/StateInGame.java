@@ -171,7 +171,7 @@ public class StateInGame extends BasicGameState {
 			String rulename = strRulePath;
 			if (rulename == null) {
 				rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule", "");
-				if (gameManager.mode.getGameStyle() > 0) {
+				if (gameManager.mode.getGameStyle().getMode() > 0) {
 					rulename = NullpoMinoSlick.propGlobal.getProperty(i + ".rule." + gameManager.mode.getGameStyle(),
 							"");
 				}

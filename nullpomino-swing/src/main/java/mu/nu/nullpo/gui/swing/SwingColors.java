@@ -18,7 +18,7 @@ public class SwingColors {
 		case Colors.METER_COLOR_PURPLE -> new Color(128, 0, 255);
 		case Colors.METER_COLOR_DARKBLUE -> new Color(0, 0, 128);
 		case Colors.METER_COLOR_BLUE -> Color.blue;
-		case Colors.METER_COLOR_CYAN -> Color.cyan;
+		case Colors.METER_COLOR_CYAN -> Color.cyan.darker();
 		case Colors.METER_COLOR_DARKGREEN -> new Color(0, 128, 0);
 		case Colors.METER_COLOR_GREEN -> Color.green;
 		case Colors.METER_COLOR_YELLOW -> Color.yellow;
@@ -45,7 +45,7 @@ public class SwingColors {
 		case Colors.FONT_ORANGE -> new Color(255, 128, 0);
 		case Colors.FONT_PURPLE -> new Color(255, 0, 255);
 		case Colors.FONT_DARKBLUE -> new Color(0, 0, 128);
-		default -> new Color(255, 255, 255);
+		default -> Color.WHITE;
 		};
 	}
 
@@ -65,7 +65,7 @@ public class SwingColors {
 		case Colors.BLOCK_COLOR_CYAN -> new Color(0, 128, 128);
 		case Colors.BLOCK_COLOR_BLUE -> new Color(0, 0, 128);
 		case Colors.BLOCK_COLOR_PURPLE -> new Color(128, 0, 128);
-		default -> new Color(0, 0, 0);
+		default -> Color.BLACK;
 		};
 	}
 
@@ -79,7 +79,7 @@ public class SwingColors {
 		case Colors.BLOCK_COLOR_CYAN -> new Color(0, 255, 255);
 		case Colors.BLOCK_COLOR_BLUE -> new Color(0, 0, 255);
 		case Colors.BLOCK_COLOR_PURPLE -> new Color(255, 0, 255);
-		default -> new Color(0, 0, 0);
+		default -> Color.BLACK;
 		};
 	}
 

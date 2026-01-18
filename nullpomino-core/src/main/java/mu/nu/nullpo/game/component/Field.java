@@ -74,8 +74,8 @@ public class Field implements Serializable {
 	/** Field height */
 	protected int height;
 
-	/** fieldThe height of the invisible part of the above */
-	protected int hidden_height;
+	/** The height of the invisible part of the field above */
+	protected int hiddenHeight;
 
 	/*
 	 * Oct. 6th, 2010: Changed block_field[][] and block_hidden[][] to [row][column]
@@ -102,7 +102,7 @@ public class Field implements Serializable {
 	protected int hurryupFloorLines;
 
 	/** Presence or absence of a ceiling */
-	public boolean ceiling;
+	protected boolean ceiling;
 
 	/** Number of total blocks above minimum required in color clears */
 	public int colorClearExtraCount;
@@ -120,22 +120,22 @@ public class Field implements Serializable {
 	public List<Integer> lineColorsCleared;
 
 	/** List of last rows cleared in most recent horizontal line clear. */
-	public List<Block[]> lastLinesCleared;
+	protected List<Block[]> lastLinesCleared;
 
 	/** Used for TGM garbage, can later be extended to all types */
-	// public ArrayList<Block[]> pendingGarbage;
+	// public List<Block[]> pendingGarbage;
 
 	/**
-	 * With parametersConstructor
+	 * Constructor with parameters
 	 *
-	 * @param w  fieldThe width of the
+	 * @param w  The width of the field
 	 * @param h  Field height
-	 * @param hh fieldThe height of the invisible part of the above
+	 * @param hh The height of the invisible part of the above field
 	 */
 	public Field(int w, int h, int hh) {
 		width = w;
 		height = h;
-		hidden_height = hh;
+		hiddenHeight = hh;
 		ceiling = false;
 
 		reset();
@@ -175,9 +175,9 @@ public class Field implements Serializable {
 	 */
 	public void reset() {
 		block_field = new Block[height][width];
-		block_hidden = new Block[hidden_height][width];
+		block_hidden = new Block[hiddenHeight][width];
 		lineflag_field = new boolean[height];
-		lineflag_hidden = new boolean[hidden_height];
+		lineflag_hidden = new boolean[hiddenHeight];
 		hurryupFloorLines = 0;
 
 		colorClearExtraCount = 0;
@@ -191,7 +191,7 @@ public class Field implements Serializable {
 			for (int j = 0; j < height; j++) {
 				block_field[j][i] = new Block();
 			}
-			for (int j = 0; j < hidden_height; j++) {
+			for (int j = 0; j < hiddenHeight; j++) {
 				block_hidden[j][i] = new Block();
 			}
 		}
@@ -205,13 +205,13 @@ public class Field implements Serializable {
 	public void copy(Field f) {
 		width = f.width;
 		height = f.height;
-		hidden_height = f.hidden_height;
+		hiddenHeight = f.hiddenHeight;
 		ceiling = f.ceiling;
 
 		block_field = new Block[height][width];
-		block_hidden = new Block[hidden_height][width];
+		block_hidden = new Block[hiddenHeight][width];
 		lineflag_field = new boolean[height];
-		lineflag_hidden = new boolean[hidden_height];
+		lineflag_hidden = new boolean[hiddenHeight];
 		hurryupFloorLines = f.hurryupFloorLines;
 
 		colorClearExtraCount = f.colorClearExtraCount;
@@ -225,7 +225,7 @@ public class Field implements Serializable {
 			for (int j = 0; j < height; j++) {
 				block_field[j][i] = new Block(f.getBlock(i, j));
 			}
-			for (int j = 0; j < hidden_height; j++) {
+			for (int j = 0; j < hiddenHeight; j++) {
 				block_hidden[j][i] = new Block(f.getBlock(i, -j - 1));
 			}
 		}
@@ -259,38 +259,35 @@ public class Field implements Serializable {
 	 * @param id AppropriateID
 	 */
 	public void readProperty(CustomProperties p, int id) {
-		for (int i = 0; i < height; i++) {
-			String mapStr = p.getProperty(id + ".field.map." + i, "");
+		for (int y = 0; y < height; y++) {
+			String mapStr = p.getProperty(id + ".field.map." + y, "");
 			String[] mapArray = mapStr.split(",");
 
-			for (int j = 0; j < mapArray.length; j++) {
+			for (int x = 0; x < mapArray.length && x < width; x++) {
 				int blkColor = Colors.BLOCK_COLOR_NONE;
 
 				try {
-					blkColor = Integer.parseInt(mapArray[j]);
+					blkColor = Integer.parseInt(mapArray[x]);
 				} catch (NumberFormatException e) {
 				}
-
-				setBlockColor(j, i, blkColor);
-
-				if (getBlock(j, i) != null) {
-					getBlock(j, i).elapsedFrames = -1;
-				}
+				Block block = getBlock(x, y);
+				block.color = blkColor;
+				block.elapsedFrames = -1;
 			}
 		}
 	}
 
 	/**
-	 * fieldGets the width of the
+	 * Gets the width of the field
 	 *
-	 * @return fieldThe width of the
+	 * @return The width of the field
 	 */
 	public int getWidth() {
 		return width;
 	}
 
 	/**
-	 * Field heightGet the
+	 * Get the Field height
 	 *
 	 * @return Field height
 	 */
@@ -299,12 +296,12 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * fieldGets the height of the invisible part of the above
+	 * Gets the height of the invisible part of above the field
 	 *
-	 * @return fieldThe height of the invisible part of the above
+	 * @return The height of the invisible part above the field
 	 */
 	public int getHiddenHeight() {
-		return hidden_height;
+		return hiddenHeight;
 	}
 
 	/**
@@ -332,7 +329,7 @@ public class Field implements Serializable {
 
 		// Invisible part
 		int y2 = y * -1 - 1;
-		if (y2 < hidden_height) {
+		if (y2 < hiddenHeight) {
 			return COORD_HIDDEN;
 		}
 
@@ -344,26 +341,16 @@ public class Field implements Serializable {
 	 * @param y height of the row in the field
 	 * @return a reference to the row
 	 */
-	public Block[] getRow(int y) {
-		try {
-			return getRowE(y);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return null;
-		}
-	}
-
-	/**
-	 * @param y height of the row in the field
-	 * @return a reference to the row
-	 * @throws ArrayIndexOutOfBoundsException
-	 */
-	public Block[] getRowE(int y) throws ArrayIndexOutOfBoundsException {
+	private Block[] getRow(int y) {
 		if (y >= 0) {
-			return block_field[y];
+			return y < height ? block_field[y] : null;
 		}
 		// fieldOutside
 		int y2 = -y - 1;
-		return block_hidden[y2];
+		if (y2 >= 0 && y2 < hiddenHeight) {
+			return block_hidden[y2];
+		}
+		return null;
 	}
 
 	/**
@@ -371,57 +358,31 @@ public class Field implements Serializable {
 	 *
 	 * @param x X-coordinate
 	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinates successfulBlockObject,
-	 *         Failednull
+	 * @return Block located at the specified coordinates {@code null}
 	 */
 	public Block getBlock(int x, int y) {
-		try {
-			return getBlockE(x, y);
-		} catch (ArrayIndexOutOfBoundsException _) {
-			return null;
+		Block[] row = getRow(y);
+		if (row != null && x >= 0 && x < row.length) {
+			return row[x];
 		}
-	}
-
-	/**
-	 * Is located at the specified coordinatesBlockGet the (Exception sending
-	 * failed)
-	 *
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlockObject
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public Block getBlockE(int x, int y) throws ArrayIndexOutOfBoundsException {
-		return getRowE(y)[x];
+		return null;
 	}
 
 	/**
 	 * Set block to specific location
 	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param blk Block
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param block Block
 	 * @return true if successful, false if failed
 	 */
-	public boolean setBlock(int x, int y, Block blk) {
-		try {
-			setBlockE(x, y, blk);
-		} catch (ArrayIndexOutOfBoundsException | NullPointerException _) {
-			return false; // There is a possible NPE here in avalanche modes
+	public boolean setBlock(int x, int y, Block otherBlock) {
+		Block block = getBlock(x, y);
+		if (block == null) {
+			return false;
 		}
+		block.copy(otherBlock);
 		return true;
-	}
-
-	/**
-	 * Set block to specific location (Throws exception when fails)
-	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param blk Block
-	 * @throws ArrayIndexOutOfBoundsException When the coordinate is invalid
-	 */
-	public void setBlockE(int x, int y, Block blk) throws ArrayIndexOutOfBoundsException {
-		getBlock(x, y).copy(blk);
 	}
 
 	/**
@@ -433,11 +394,9 @@ public class Field implements Serializable {
 	 *         (FailedBLOCK_COLOR_INVALID)
 	 */
 	public int getBlockColor(int x, int y) {
-		try {
-			return getBlockColorE(x, y);
-		} catch (ArrayIndexOutOfBoundsException _) {
-			return Colors.BLOCK_COLOR_INVALID;
-		}
+		// XXX here
+		Block block = getBlock(x, y);
+		return block != null ? block.color : Colors.BLOCK_COLOR_INVALID;
 	}
 
 	/**
@@ -455,19 +414,6 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlock colorGet the (Exception sending
-	 * failed)
-	 *
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlock color
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public int getBlockColorE(int x, int y) throws ArrayIndexOutOfBoundsException {
-		return getBlockE(x, y).color;
-	}
-
-	/**
 	 * Is located at the specified coordinatesBlock colorChange
 	 *
 	 * @param x X-coordinate
@@ -476,52 +422,29 @@ public class Field implements Serializable {
 	 * @return true if successful, false if failed
 	 */
 	public boolean setBlockColor(int x, int y, int c) {
-		try {
-			setBlockColorE(x, y, c);
-		} catch (ArrayIndexOutOfBoundsException e) {
+		Block block = getBlock(x, y);
+		if (block == null) {
 			return false;
 		}
+		block.color = c;
 		return true;
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlock colorChange (Exception sending
-	 * failed)
-	 *
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @param c Color
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public void setBlockColorE(int x, int y, int c) throws ArrayIndexOutOfBoundsException {
-		getBlockE(x, y).color = c;
-	}
-
-	/**
-	 * Line clear flagGet the
+	 * Get the line clear flag
 	 *
 	 * @param y Y-coordinate
-	 * @return If the column to disappeartrue, Otherwise (If the coordinates are out
-	 *         of range) orfalse
+	 * @return true If the column is to disappear, Otherwise (If the coordinates are
+	 *         out of range) orfalse
 	 */
 	public boolean getLineFlag(int y) {
 		// fieldIn
 		if (y >= 0) {
-			try {
-				return lineflag_field[y];
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return false;
-			}
+			return y < height ? lineflag_field[y] : false;
 		}
-
 		// fieldOutside
 		int y2 = y * -1 - 1;
-
-		try {
-			return lineflag_hidden[y2];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
+		return y2 >= 0 && y2 < hiddenHeight ? lineflag_hidden[y2] : false;
 	}
 
 	/**
@@ -533,71 +456,12 @@ public class Field implements Serializable {
 	 *         case of a specified coordinate is out of rangetrue)
 	 */
 	public boolean getBlockEmpty(int x, int y) {
-		try {
-			return getBlockEmptyE(x, y);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return true;
-		}
+		Block block = getBlock(x, y);
+		return block == null || block.isEmpty();
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlockDetermine whether the space is
-	 * (If the coordinates are outside the specified rangefalse)
-	 *
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlockIf space istrue (If the
-	 *         coordinates are outside the specified rangefalse)
-	 */
-	public boolean getBlockEmptyF(int x, int y) {
-		try {
-			return getBlockEmptyE(x, y);
-		} catch (ArrayIndexOutOfBoundsException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * Is located at the specified coordinatesBlockDetermine whether the space is
-	 * (Exception sending failed)
-	 *
-	 * @param x X-coordinate
-	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlockIf space istrue
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public boolean getBlockEmptyE(int x, int y) throws ArrayIndexOutOfBoundsException {
-		return getBlockE(x, y).isEmpty();
-	}
-
-	/**
-	 * Line clear flagGet the (Exception sending failed)
-	 *
-	 * @param y Y-coordinate
-	 * @return If the column to disappeartrue, Otherwisefalse
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public boolean getLineFlagE(int y) throws ArrayIndexOutOfBoundsException {
-		// fieldIn
-		if (y >= 0) {
-			try {
-				return lineflag_field[y];
-			} catch (ArrayIndexOutOfBoundsException e) {
-				throw e;
-			}
-		}
-
-		// fieldOutside
-		try {
-			int y2 = y * -1 - 1;
-			return lineflag_hidden[y2];
-		} catch (ArrayIndexOutOfBoundsException e) {
-			throw e;
-		}
-	}
-
-	/**
-	 * Line clear flagSet the
+	 * Set the Line clear flag
 	 *
 	 * @param y    Y-coordinate
 	 * @param flag SetLine clear flag
@@ -606,51 +470,19 @@ public class Field implements Serializable {
 	public boolean setLineFlag(int y, boolean flag) {
 		// fieldIn
 		if (y >= 0) {
-			try {
+			if (y < height) {
 				lineflag_field[y] = flag;
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return false;
+				return true;
 			}
+			return false;
 		}
 		// fieldOutside
-		else {
-			int y2 = y * -1 - 1;
-
-			try {
-				lineflag_hidden[y2] = flag;
-			} catch (ArrayIndexOutOfBoundsException e) {
-				return false;
-			}
+		int y2 = y * -1 - 1;
+		if (y2 >= 0 && y2 < hiddenHeight) {
+			lineflag_hidden[y2] = flag;
+			return true;
 		}
-
-		return true;
-	}
-
-	/**
-	 * Line clear flagSet the (Exception sending failed)
-	 *
-	 * @param y    Y-coordinate
-	 * @param flag SetLine clear flag
-	 * @throws ArrayIndexOutOfBoundsException The specified coordinates out of range
-	 */
-	public void setLineFlagE(int y, boolean flag) throws ArrayIndexOutOfBoundsException {
-		// fieldIn
-		if (y >= 0) {
-			try {
-				lineflag_field[y] = flag;
-			} catch (ArrayIndexOutOfBoundsException e) {
-				throw e;
-			}
-		}
-		// fieldOutside
-		else {
-			try {
-				int y2 = y * -1 - 1;
-				lineflag_hidden[y2] = flag;
-			} catch (ArrayIndexOutOfBoundsException e) {
-				throw e;
-			}
-		}
+		return false;
 	}
 
 	/**
@@ -668,7 +500,7 @@ public class Field implements Serializable {
 
 		Block[] row = new Block[width];
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			boolean flag = true;
 
 			for (int j = 0; j < width; j++) {
@@ -702,7 +534,7 @@ public class Field implements Serializable {
 	public int checkLineNoFlag() {
 		int lines = 0;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			boolean flag = true;
 
 			for (int j = 0; j < width; j++) {
@@ -729,27 +561,27 @@ public class Field implements Serializable {
 		int lines = 0;
 
 		// fieldIn
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i)) {
 				lines++;
 
 				for (int j = 0; j < width; j++) {
-					Block b = getBlock(j, i);
-					if (b == null) {
+					Block block = getBlock(j, i);
+					if (block == null) {
 						continue;
 					}
-					if (b.hard > 0) {
-						b.hard--;
+					if (block.hard > 0) {
+						block.hard--;
 						setLineFlag(i, false);
 					} else {
-						setBlockColor(j, i, Colors.BLOCK_COLOR_NONE);
+						block.color = Colors.BLOCK_COLOR_NONE;
 					}
 				}
 			}
 		}
 
 		// Had disappearedLinesThe top and bottom of theBlockClear the binding of
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i - 1)) {
 				for (int j = 0; j < width; j++) {
 					Block blk = getBlock(j, i);
@@ -784,12 +616,12 @@ public class Field implements Serializable {
 		int lines = 0;
 		int y = getHeightWithoutHurryupFloor() - 1;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(y)) {
 				lines++;
 
 				// BlockA1Copied from the rows above
-				for (int k = y; k > hidden_height * -1; k--) {
+				for (int k = y; k > hiddenHeight * -1; k--) {
 					for (int l = 0; l < width; l++) {
 						Block blk = getBlock(l, k - 1);
 						if (blk == null) {
@@ -803,9 +635,9 @@ public class Field implements Serializable {
 				// Blank to the top
 				for (int l = 0; l < width; l++) {
 					Block blk = new Block();
-					setBlock(l, hidden_height * -1, blk);
+					setBlock(l, hiddenHeight * -1, blk);
 				}
-				setLineFlag(hidden_height * -1, false);
+				setLineFlag(hiddenHeight * -1, false);
 			} else {
 				y--;
 			}
@@ -820,10 +652,10 @@ public class Field implements Serializable {
 	public void downFloatingBlocksSingleLine() {
 		int y = getHeightWithoutHurryupFloor() - 1;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(y)) {
 				// BlockA1Copied from the rows above
-				for (int k = y; k > hidden_height * -1; k--) {
+				for (int k = y; k > hiddenHeight * -1; k--) {
 					for (int l = 0; l < width; l++) {
 						Block blk = getBlock(l, k - 1);
 						if (blk == null) {
@@ -837,9 +669,9 @@ public class Field implements Serializable {
 				// Blank to the top
 				for (int l = 0; l < width; l++) {
 					Block blk = new Block();
-					setBlock(l, hidden_height * -1, blk);
+					setBlock(l, hiddenHeight * -1, blk);
 				}
-				setLineFlag(hidden_height * -1, false);
+				setLineFlag(hiddenHeight * -1, false);
 				return;
 			} else {
 				y--;
@@ -855,7 +687,7 @@ public class Field implements Serializable {
 	public int getLines() {
 		int lines = 0;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i)) {
 				lines++;
 			}
@@ -870,7 +702,7 @@ public class Field implements Serializable {
 	 * @return All clearIf it&#39;s the casetrue
 	 */
 	public boolean isEmpty() {
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
 				for (int j = 0; j < width; j++) {
 					if (getBlockEmpty(j, i) == false) {
@@ -959,10 +791,10 @@ public class Field implements Serializable {
 	 * @param big BigWhether
 	 * @return T-SpinIf it was a hole I cantrue
 	 */
-	public boolean isTSlot(int x, int y, boolean big) {
+	private boolean isTSlot(int x, int y, boolean big) {
 		// I wonder if the central buried
 		if (big == true) {
-			if (!getBlockEmptyF(x + 2, y + 2)) {
+			if (getBlockEmpty(x + 2, y + 2)) {
 				return false;
 			}
 		} else {
@@ -971,24 +803,24 @@ public class Field implements Serializable {
 			// □ □ □ ※ ※ ※ □ □ □ □
 			// □ □ □ ○ ※ ○ □ □ □ □
 
-			if (!getBlockEmptyF(x + 1, y + 0)) {
+			if (getBlockEmpty(x + 1, y + 0)) {
 				return false;
 			}
-			if (!getBlockEmptyF(x + 1, y + 1)) {
+			if (getBlockEmpty(x + 1, y + 1)) {
 				return false;
 			}
-			if (!getBlockEmptyF(x + 1, y + 2)) {
-				return false;
-			}
-
-			if (!getBlockEmptyF(x + 0, y + 1)) {
-				return false;
-			}
-			if (!getBlockEmptyF(x + 2, y + 1)) {
+			if (getBlockEmpty(x + 1, y + 2)) {
 				return false;
 			}
 
-			if (!getBlockEmptyF(x + 1, y - 1)) {
+			if (getBlockEmpty(x + 0, y + 1)) {
+				return false;
+			}
+			if (getBlockEmpty(x + 2, y + 1)) {
+				return false;
+			}
+
+			if (getBlockEmpty(x + 1, y - 1)) {
 				return false;
 			}
 		}
@@ -1083,7 +915,7 @@ public class Field implements Serializable {
 	 * @param big BigWhether(Not supported)
 	 * @return T-SpinI disappearLinescount(T-SpinFor example, if not the0)
 	 */
-	public int getTSlotLineClear(int x, int y, boolean big) {
+	private int getTSlotLineClear(int x, int y, boolean big) {
 		if (!isTSlot(x, y, big)) {
 			return 0;
 		}
@@ -1097,7 +929,7 @@ public class Field implements Serializable {
 				// □ □ □ ※ ※ ※ □ □ □ □
 				// □ □ □ ○ ※ ○ □ □ □ □
 				if (j < x || j >= x + 3) {
-					if (getBlockEmptyF(j, y + 1 + i) == true) {
+					if (!getBlockEmpty(j, y + 1 + i)) {
 						lineflag[i] = false;
 					}
 				}
@@ -1168,57 +1000,11 @@ public class Field implements Serializable {
 	public int getHowManyBlocks() {
 		int count = 0;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
 				for (int j = 0; j < width; j++) {
 					if (!getBlockEmpty(j, i)) {
 						count++;
-					}
-				}
-			}
-		}
-
-		return count;
-	}
-
-	/**
-	 * How many of the left-BlockI examine whether the side-by-side
-	 *
-	 * @return Are arranged from leftBlockThe totalcount
-	 */
-	public int getHowManyBlocksFromLeft() {
-		int count = 0;
-
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			if (getLineFlag(i) == false) {
-				for (int j = 0; j < width; j++) {
-					if (!getBlockEmpty(j, i)) {
-						count++;
-					} else {
-						break;
-					}
-				}
-			}
-		}
-
-		return count;
-	}
-
-	/**
-	 * How many of the rightBlockI examine whether the side-by-side
-	 *
-	 * @return Side-by-side from the rightBlockThe totalcount
-	 */
-	public int getHowManyBlocksFromRight() {
-		int count = 0;
-
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			if (getLineFlag(i) == false) {
-				for (int j = width - 1; j > 0; j--) {
-					if (!getBlockEmpty(j, i)) {
-						count++;
-					} else {
-						break;
 					}
 				}
 			}
@@ -1233,7 +1019,7 @@ public class Field implements Serializable {
 	 * @return At the topBlockOfY-coordinate
 	 */
 	public int getHighestBlockY() {
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
 				for (int j = 0; j < width; j++) {
 					if (!getBlockEmpty(j, i)) {
@@ -1253,7 +1039,7 @@ public class Field implements Serializable {
 	 * @return At the topBlockOfY-coordinate
 	 */
 	public int getHighestBlockY(int x) {
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
 				if (!getBlockEmpty(x, i)) {
 					return i;
@@ -1270,7 +1056,7 @@ public class Field implements Serializable {
 	 * @return garbage blockFirst occurrence of theY-coordinate
 	 */
 	public int getHighestGarbageBlockY() {
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
 				for (int j = 0; j < width; j++) {
 					if (!getBlockEmpty(j, i) && getBlock(j, i).getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
@@ -1403,8 +1189,8 @@ public class Field implements Serializable {
 
 		for (int i = highest; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i) == false) {
-				if ((!getBlockEmptyF(x - 1, i) || x <= 0) && getBlockEmptyF(x, i)
-						&& (!getBlockEmptyF(x + 1, i) || x >= width - 1)) {
+				if ((getBlockEmpty(x - 1, i) || x <= 0) && !getBlockEmpty(x, i)
+						&& (getBlockEmpty(x + 1, i) || x >= width - 1)) {
 					depth++;
 				}
 			}
@@ -1420,7 +1206,7 @@ public class Field implements Serializable {
 	 */
 	public void pushUp(int lines) {
 		for (int k = 0; k < lines; k++) {
-			for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor() - 1; i++) {
+			for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor() - 1; i++) {
 				// BlockA1Copy from the bottom stage
 				for (int j = 0; j < width; j++) {
 					Block blk = getBlock(j, i + 1);
@@ -1455,7 +1241,7 @@ public class Field implements Serializable {
 	 */
 	public void pushDown(int lines) {
 		for (int k = 0; k < lines; k++) {
-			for (int i = getHeightWithoutHurryupFloor() - 1; i > hidden_height * -1; i--) {
+			for (int i = getHeightWithoutHurryupFloor() - 1; i > hiddenHeight * -1; i--) {
 				// BlockA1Copied from the rows above
 				for (int j = 0; j < width; j++) {
 					Block blk = getBlock(j, i - 1);
@@ -1469,8 +1255,8 @@ public class Field implements Serializable {
 
 			// Blank to the top
 			for (int j = 0; j < width; j++) {
-				setBlock(j, hidden_height * -1, new Block());
-				setLineFlag(hidden_height * -1, false);
+				setBlock(j, hiddenHeight * -1, new Block());
+				setLineFlag(hiddenHeight * -1, false);
 			}
 		}
 	}
@@ -1490,7 +1276,7 @@ public class Field implements Serializable {
 	 */
 	public void cutLine(int y, int lines) {
 		for (int k = 0; k < lines; k++) {
-			for (int i = y; i > hidden_height * -1; i--) {
+			for (int i = y; i > hiddenHeight * -1; i--) {
 				for (int j = 0; j < width; j++) {
 					Block blk = getBlock(j, i - 1);
 					if (blk == null) {
@@ -1502,8 +1288,8 @@ public class Field implements Serializable {
 			}
 
 			for (int j = 0; j < width; j++) {
-				setBlock(j, hidden_height * -1, new Block());
-				setLineFlag(hidden_height * -1, false);
+				setBlock(j, hiddenHeight * -1, new Block());
+				setLineFlag(hiddenHeight * -1, false);
 			}
 		}
 	}
@@ -1668,7 +1454,7 @@ public class Field implements Serializable {
 	 * @param status After the change state
 	 */
 	public void setAllAttribute(int attr, boolean status) {
-		for (int i = hidden_height * -1; i < height; i++) {
+		for (int i = hiddenHeight * -1; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -1685,7 +1471,7 @@ public class Field implements Serializable {
 	 * @param skin Picture
 	 */
 	public void setAllSkin(int skin) {
-		for (int i = hidden_height * -1; i < height; i++) {
+		for (int i = hiddenHeight * -1; i < height; i++) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -1703,7 +1489,7 @@ public class Field implements Serializable {
 	 */
 	public int getHowManyGems() {
 		int gems = 0;
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -1716,227 +1502,24 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * JewelBlockDisappears or gets the number of
+	 * Get the number of disappeared Gem Blocks
 	 *
-	 * @return gems disappearBlockOfcount
+	 * @return the number of disappeared gem blocks
 	 */
 	public int getHowManyGemClears() {
 		int gems = 0;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			if (getLineFlag(i)) {
 				for (int j = 0; j < width; j++) {
-					Block blk = getBlock(j, i);
-
-					if (blk != null && blk.isGemBlock()) {
+					Block block = getBlock(j, i);
+					if (block != null && block.isGemBlock()) {
 						gems++;
 					}
 				}
 			}
 		}
-
 		return gems;
-	}
-
-	/**
-	 * Checks for item blocks cleared
-	 *
-	 * @return A boolean array with true at each index for which an item block of
-	 *         the corresponding ID number was cleared
-	 */
-	public boolean[] getItemClears() {
-		boolean[] result = new boolean[Block.MAX_ITEM + 1];
-
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			if (getLineFlag(i)) {
-				for (int j = 0; j < width; j++) {
-					Block blk = getBlock(j, i);
-
-					if (blk != null && blk.item > 0 && blk.item <= Block.MAX_ITEM) {
-						result[blk.item] = true;
-					}
-				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * Checks for 4x4 square formations and converts blocks to square blocks if
-	 * needed.
-	 *
-	 * @return Number of square formations (index 0 is gold, index 1 is silver)
-	 */
-	public int[] checkForSquares() {
-		int[] squares = { 0, 0 };
-
-		// Check for gold squares
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor() - 3; i++) {
-			for (int j = 0; j < width - 3; j++) {
-				// rootBlk is the upper-left square
-				Block rootBlk = getBlock(j, i);
-				boolean squareCheck = false;
-
-				/*
-				 * id is the color of the top-left square: if it is a monosquare, every block in
-				 * the 4x4 area will have this color.
-				 */
-				int id = Colors.BLOCK_COLOR_NONE;
-				if (!(rootBlk == null || rootBlk.isEmpty())) {
-					id = rootBlk.color;
-				}
-
-				// This can't be a square if rootBlk doesn't exist or is part of another square.
-				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
-						|| rootBlk.isSilverSquareBlock())) {
-					// A square is innocent until proven guilty.
-					squareCheck = true;
-					for (int k = 0; k < 4; k++) {
-						for (int l = 0; l < 4; l++) {
-							// blk is the current block
-							Block blk = getBlock(j + l, i + k);
-							/*
-							 * Reasons why the entire area would not be a monosquare: this block does not
-							 * exist, it is part of another square, it has been broken by line clears, is a
-							 * garbage block, is not the same color as id, or has connections outside the
-							 * area.
-							 */
-							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
-									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
-									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) || blk.color != id
-									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
-									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
-									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
-									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								squareCheck = false;
-								break;
-							}
-						}
-						if (!squareCheck) {
-							break;
-						}
-					}
-				}
-				// We found a square! Set all the blocks equal to gold blocks.
-				if (squareCheck) {
-					squares[0]++;
-					int[] squareX = new int[] { 0, 1, 1, 2 };
-					int[] squareY = new int[] { 0, 3, 3, 6 };
-					for (int k = 0; k < 4; k++) {
-						for (int l = 0; l < 4; l++) {
-							Block blk = getBlock(j + l, i + k);
-							blk.color = Colors.BLOCK_COLOR_SQUARE_GOLD_1 + squareX[l] + squareY[k];
-							// For stylistic concerns, we attach all blocks in the square together.
-							if (k > 0) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
-							}
-							if (k < 3) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
-							}
-							if (l > 0) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
-							}
-							if (l < 3) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
-							}
-						}
-					}
-				}
-			}
-		}
-		// Check for silver squares
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor() - 3; i++) {
-			for (int j = 0; j < width - 3; j++) {
-				Block rootBlk = getBlock(j, i);
-				boolean squareCheck = false;
-				// We don't have to check colors because this loop checks for multisquares.
-				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
-						|| rootBlk.isSilverSquareBlock())) {
-					// A square is innocent until proven guilty
-					squareCheck = true;
-					for (int k = 0; k < 4; k++) {
-						for (int l = 0; l < 4; l++) {
-							Block blk = getBlock(j + l, i + k);
-							// See above, but without the color checking.
-							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
-									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
-									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)
-									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
-									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
-									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
-									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-								squareCheck = false;
-								break;
-							}
-						}
-						if (!squareCheck) {
-							break;
-						}
-					}
-				}
-				// We found a square! Set all the blocks equal to silver blocks.
-				if (squareCheck) {
-					squares[1]++;
-					int[] squareX = new int[] { 0, 1, 1, 2 };
-					int[] squareY = new int[] { 0, 3, 3, 6 };
-					for (int k = 0; k < 4; k++) {
-						for (int l = 0; l < 4; l++) {
-							Block blk = getBlock(j + l, i + k);
-							blk.color = Colors.BLOCK_COLOR_SQUARE_SILVER_1 + squareX[l] + squareY[k];
-							if (k > 0) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
-							}
-							if (k < 3) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
-							}
-							if (l > 0) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
-							}
-							if (l < 3) {
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		return squares;
-	}
-
-	/**
-	 * Checks the lines that are currently being cleared to see how many strips of
-	 * squares are present in them.
-	 *
-	 * @return +1 for every 1x4 strip of gold (index 0) or silver (index 1)
-	 */
-	public int[] getHowManySquareClears() {
-		int[] squares = { 0, 0 };
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			// Check the lines we are clearing.
-			if (getLineFlag(i)) {
-				for (int j = 0; j < width; j++) {
-					Block blk = getBlock(j, i);
-
-					// Silver blocks are worth 1, gold are worth 2, but not if they are garbage
-					// (avalanche)
-					if (blk != null && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
-						if (blk.isGoldSquareBlock()) {
-							squares[0]++;
-						} else if (blk.isSilverSquareBlock()) {
-							squares[1]++;
-						}
-					}
-				}
-			}
-		}
-		// We have to divide the amount by 4 because it's based on 1x4 strips, not
-		// single blocks.
-		squares[0] /= 4;
-		squares[1] /= 4;
-
-		return squares;
 	}
 
 	/**
@@ -1950,44 +1533,45 @@ public class Field implements Serializable {
 	 */
 	public int clearLineColor(int size, boolean diagonals, boolean gemSame) {
 		int total = 0;
-		Block b, bAdj;
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		Block block;
+		Block bAdj;
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
-				b = getBlock(j, i);
-				if (b == null) {
+				block = getBlock(j, i);
+				if (block == null) {
 					continue;
 				}
-				if (b.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
+				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 					total++;
-					if (b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 						bAdj = getBlock(j, i + 1);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
-					if (b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 						bAdj = getBlock(j, i - 1);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
-					if (b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
 						bAdj = getBlock(j - 1, i);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
-					if (b.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
 						bAdj = getBlock(j + 1, i);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
-					setBlockColor(j, i, Colors.BLOCK_COLOR_NONE);
+					block.color = Colors.BLOCK_COLOR_NONE;
 				}
 			}
 		}
@@ -2018,7 +1602,7 @@ public class Field implements Serializable {
 		}
 		int total = 0;
 		int x, y, count, blockColor, lineColor;
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				lineColor = getBlockColor(j, i, gemSame);
 				if (lineColor == Colors.BLOCK_COLOR_NONE || lineColor == Colors.BLOCK_COLOR_INVALID) {
@@ -2090,7 +1674,7 @@ public class Field implements Serializable {
 		int total = 0;
 		Block b;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				b = getBlock(j, i);
 				if (b == null) {
@@ -2125,7 +1709,7 @@ public class Field implements Serializable {
 	public int clearColor(int size, boolean garbageClear, boolean gemSame, boolean ignoreHidden) {
 		Field temp = new Field(this);
 		int total = 0;
-		for (int i = ignoreHidden ? 0 : hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = ignoreHidden ? 0 : hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				int clear = temp.clearColor(j, i, false, garbageClear, gemSame, ignoreHidden);
 				if (clear >= size) {
@@ -2186,30 +1770,30 @@ public class Field implements Serializable {
 		if (blockColor == Colors.BLOCK_COLOR_INVALID) {
 			return 0;
 		}
-		Block b = getBlock(x, y);
-		if (flag && b.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
+		Block block = getBlock(x, y);
+		if (flag && block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 			return 0;
 		}
-		if (garbageClear && b.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)
-				&& !b.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
+		if (garbageClear && block.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)
+				&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
 			if (flag) {
-				b.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
+				block.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
 				garbageCleared++;
-			} else if (b.hard > 0) {
-				b.hard--;
+			} else if (block.hard > 0) {
+				block.hard--;
 			} else {
-				setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
+				block.color = Colors.BLOCK_COLOR_NONE;
 			}
 		}
 		if (blockColor != targetColor) {
 			return 0;
 		}
 		if (flag) {
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
-		} else if (b.hard > 0) {
-			b.hard--;
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
+		} else if (block.hard > 0) {
+			block.hard--;
 		} else {
-			setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
+			block.color = Colors.BLOCK_COLOR_NONE;
 		}
 		return 1 + clearColor(x + 1, y, targetColor, flag, garbageClear, gemSame, ignoreHidden)
 				+ clearColor(x - 1, y, targetColor, flag, garbageClear, gemSame, ignoreHidden)
@@ -2234,14 +1818,18 @@ public class Field implements Serializable {
 			targetColor = Block.gemToNormalColor(targetColor);
 		}
 		int total = 0;
-		for (int y = -1 * hidden_height; y < height; y++) {
+		for (int y = -1 * hiddenHeight; y < height; y++) {
 			for (int x = 0; x < width; x++) {
-				if (getBlockColor(x, y, gemSame) == targetColor) {
+				Block block = getBlock(x, y);
+				if (block == null) {
+					continue;
+				}
+				if (block.color == targetColor) {
 					total++;
 					if (flag) {
-						getBlock(x, y).setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
+						block.setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
 					} else {
-						setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
+						block.color = Colors.BLOCK_COLOR_NONE;
 					}
 				}
 			}
@@ -2269,7 +1857,7 @@ public class Field implements Serializable {
 
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
 
-		for (int i = getHeightWithoutHurryupFloor() - 1; i >= hidden_height * -1; i--) {
+		for (int i = getHeightWithoutHurryupFloor() - 1; i >= hiddenHeight * -1; i--) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -2277,7 +1865,7 @@ public class Field implements Serializable {
 					boolean fall = true;
 					checkBlockLink(j, i);
 
-					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hidden_height * -1; k--) {
+					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
 						for (int l = 0; l < width; l++) {
 							Block bTemp = getBlock(l, k);
 
@@ -2295,7 +1883,7 @@ public class Field implements Serializable {
 
 					if (fall) {
 						result = true;
-						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hidden_height * -1; k--) {
+						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
 							for (int l = 0; l < width; l++) {
 								Block bTemp = getBlock(l, k);
 								Block bBelow = getBlock(l, k + 1);
@@ -2346,7 +1934,7 @@ public class Field implements Serializable {
 
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -2354,7 +1942,7 @@ public class Field implements Serializable {
 					boolean fall = true;
 					checkBlockLink(j, i);
 
-					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hidden_height * -1; k--) {
+					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
 						for (int l = 0; l < width; l++) {
 							Block bTemp = getBlock(l, k);
 
@@ -2372,7 +1960,7 @@ public class Field implements Serializable {
 
 					if (fall) {
 						result = true;
-						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hidden_height * -1; k--) {
+						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
 							for (int l = 0; l < width; l++) {
 								Block bTemp = getBlock(l, k);
 								Block bBelow = getBlock(l, k + 1);
@@ -2488,7 +2076,7 @@ public class Field implements Serializable {
 	 * Checks the color of blocks and set the connection flags to each block.
 	 */
 	public void setBlockLinkByColor() {
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				setBlockLinkByColor(j, i);
 			}
@@ -2501,7 +2089,7 @@ public class Field implements Serializable {
 	 * @param x X coord
 	 * @param y Y coord
 	 */
-	public void setBlockLinkByColor(int x, int y) {
+	protected void setBlockLinkByColor(int x, int y) {
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
 		setBlockLinkByColorSub(x, y);
 	}
@@ -2619,7 +2207,13 @@ public class Field implements Serializable {
 		return strResult;
 	}
 
-	public Block[] stringToRow(String str) {
+	/**
+	 * @param str
+	 * @return
+	 * @deprecated unused method
+	 */
+	@Deprecated(forRemoval = true)
+	protected Block[] stringToRow(String str) {
 		return stringToRow(str, 0, false, false);
 	}
 
@@ -2630,7 +2224,7 @@ public class Field implements Serializable {
 	 * @param isWall    Row is a wall (i.e. hurry-up rows)
 	 * @return The row array
 	 */
-	public Block[] stringToRow(String str, int skin, boolean isGarbage, boolean isWall) {
+	private Block[] stringToRow(String str, int skin, boolean isGarbage, boolean isWall) {
 		Block[] row = new Block[getWidth()];
 		for (int j = 0; j < getWidth(); j++) {
 
@@ -2738,11 +2332,18 @@ public class Field implements Serializable {
 		return strResult;
 	}
 
-	public Block[] attrStringToRow(String str, int skin) {
+	/**
+	 * @param str
+	 * @param skin
+	 * @return
+	 * @deprecated unused method
+	 */
+	@Deprecated(forRemoval = true)
+	protected Block[] attrStringToRow(String str, int skin) {
 		return attrStringToRow(str.split(";"), skin);
 	}
 
-	public Block[] attrStringToRow(String[] strArray, int skin) {
+	private Block[] attrStringToRow(String[] strArray, int skin) {
 		Block[] row = new Block[getWidth()];
 
 		for (int j = 0; j < getWidth(); j++) {
@@ -2807,7 +2408,7 @@ public class Field implements Serializable {
 	public String toString() {
 		String str = getClass().getName() + "@" + Integer.toHexString(hashCode()) + "\n";
 
-		for (int i = hidden_height * -1; i < height; i++) {
+		for (int i = hiddenHeight * -1; i < height; i++) {
 			str += String.format("%3d:", i);
 
 			for (int j = 0; j < width; j++) {
@@ -2842,7 +2443,7 @@ public class Field implements Serializable {
 			}
 		}
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				int clear = temp.clearColor(j, i, false, garbageClear, gemSame, ignoreHidden);
 				if (clear >= size) {
@@ -2884,9 +2485,9 @@ public class Field implements Serializable {
 		garbageDrop(engine, drop, big, hard, countdown, avoidColumn, Colors.BLOCK_COLOR_GRAY);
 	}
 
-	public void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn,
+	private void garbageDrop(GameEngine engine, int drop, boolean big, int hard, int countdown, int avoidColumn,
 			int color) {
-		int y = -1 * hidden_height;
+		int y = -1 * hiddenHeight;
 		int actualWidth = width;
 		if (big) {
 			actualWidth >>= 1;
@@ -2946,9 +2547,9 @@ public class Field implements Serializable {
 		return garbageDropPlace(x, y, big, hard, color, 0);
 	}
 
-	public boolean garbageDropPlace(int x, int y, boolean big, int hard, int color, int countdown) {
-		Block b = getBlock(x, y);
-		if (b == null) {
+	private boolean garbageDropPlace(int x, int y, boolean big, int hard, int color, int countdown) {
+		Block block = getBlock(x, y);
+		if (block == null) {
 			return false;
 		}
 		if (big) {
@@ -2956,26 +2557,26 @@ public class Field implements Serializable {
 			garbageDropPlace(x, y + 1, false, hard);
 			garbageDropPlace(x + 1, y + 1, false, hard);
 		}
-		if (getBlockEmptyF(x, y)) {
+		if (!getBlockEmpty(x, y)) {
 			setBlockColor(x, y, color);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-			b.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-			b.hard = hard;
-			b.secondaryColor = 0;
-			b.countdown = countdown;
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+			block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+			block.hard = hard;
+			block.secondaryColor = 0;
+			block.countdown = countdown;
 			return true;
 		}
 		return false;
 	}
 
 	public boolean canCascade() {
-		for (int i = getHeightWithoutHurryupFloor() - 1; i >= hidden_height * -1; i--) {
+		for (int i = getHeightWithoutHurryupFloor() - 1; i >= hiddenHeight * -1; i--) {
 			for (int j = 0; j < width; j++) {
 				Block blk = getBlock(j, i);
 
@@ -2983,7 +2584,7 @@ public class Field implements Serializable {
 					boolean fall = true;
 					checkBlockLink(j, i);
 
-					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hidden_height * -1; k--) {
+					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
 						for (int l = 0; l < width; l++) {
 							Block bTemp = getBlock(l, k);
 
@@ -3330,7 +2931,7 @@ public class Field implements Serializable {
 		int total = 0;
 		Block b;
 
-		for (int i = hidden_height * -1; i < getHeightWithoutHurryupFloor(); i++) {
+		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
 			for (int j = 0; j < width; j++) {
 				b = getBlock(j, i);
 				if (b == null) {
@@ -3352,37 +2953,10 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Instant avalanche, skips intermediate (cascade falling animation) steps.
-	 *
-	 * @return true if it affected the field at all, false otherwise.
+	 * @deprecated unused and undocumented method
 	 */
-	public boolean freeFall() {
-		int y1, y2;
-		boolean result = false;
-		for (int x = 0; x < width; x++) {
-			y1 = height - 1;
-			while (!getBlockEmpty(x, y1) && y1 >= -1 * hidden_height) {
-				y1--;
-			}
-			y2 = y1;
-			while (getBlockEmpty(x, y2) && y2 >= -1 * hidden_height) {
-				y2--;
-			}
-			while (y2 >= -1 * hidden_height) {
-				setBlock(x, y1, getBlock(x, y2));
-				setBlock(x, y2, new Block());
-				y1--;
-				y2--;
-				result = true;
-				while (getBlockEmpty(x, y2) && y2 >= -1 * hidden_height) {
-					y2--;
-				}
-			}
-		}
-		return result;
-	}
-
-	public void delEven() {
+	@Deprecated(forRemoval = true)
+	protected void delEven() {
 		for (int y = getHighestBlockY(); y < height; y++) {
 			if ((y & 1) == 0) {
 				delLine(y);
@@ -3390,14 +2964,22 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void delLower() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void delLower() {
 		int rows = height - getHighestBlockY() + 1 >> 1;
 		for (int i = 1; i <= rows; i++) {
 			delLine(height - i);
 		}
 	}
 
-	public void delUpper() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void delUpper() {
 		int maxY = height - getHighestBlockY() >> 1;
 		// TODO: Check if this should round up or down.
 		for (int y = getHighestBlockY(); y <= maxY; y++) {
@@ -3405,7 +2987,11 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void delLine(int y) {
+	/**
+	 * @deprecated undocumented method only used in methods for removal
+	 */
+	@Deprecated(forRemoval = true)
+	protected void delLine(int y) {
 		for (int x = 0; x < width; x++) {
 			Block b = getBlock(x, y);
 			if (b != null) {
@@ -3415,7 +3001,11 @@ public class Field implements Serializable {
 		setLineFlag(y, true);
 	}
 
-	public void moveLeft() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void moveLeft() {
 		int x1, x2;
 		for (int y = getHighestBlockY(); y < height; y++) {
 			x1 = 0;
@@ -3435,7 +3025,11 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void moveRight() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void moveRight() {
 		int x1, x2;
 		for (int y = getHighestBlockY(); y < height; y++) {
 			x1 = width - 1;
@@ -3455,7 +3049,11 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void negaField() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void negaField() {
 		for (int y = getHighestBlockY(); y < height; y--) {
 			for (int x = 0; x < width; x++) {
 				if (getBlockEmpty(x, y)) {
@@ -3467,7 +3065,11 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void flipVertical() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void flipVertical() {
 		Block[] temp;
 		for (int yMin = getHighestBlockY(), yMax = height - 1; yMin < yMax; yMin--, yMax++) {
 			if (yMin < 0) {
@@ -3482,7 +3084,11 @@ public class Field implements Serializable {
 		}
 	}
 
-	public void mirror() {
+	/**
+	 * @deprecated unused and undocumented method
+	 */
+	@Deprecated(forRemoval = true)
+	protected void mirror() {
 		Block temp;
 
 		for (int y = getHighestBlockY(); y < height; y--) {

@@ -67,7 +67,7 @@ public class Statistics implements Serializable {
 	public int level;
 
 	/**
-	 * LevelAdded to the display ofcount (Display levelUse if it is different from
+	 * LevelAdded to the display of count (Display levelUse if it is different from
 	 * the value of the internal)
 	 */
 	public int levelDispAdd;
@@ -78,10 +78,10 @@ public class Statistics implements Serializable {
 	/** The total operating pieces are time */
 	public int totalPieceActiveTime;
 
-	/** The total move the piece count */
+	/** Total piece move count */
 	public int totalPieceMove;
 
-	/** A piecerotationTotal to count */
+	/** Total piece rotation count */
 	public int totalPieceRotate;
 
 	/** 1-line clear count */
@@ -129,25 +129,25 @@ public class Statistics implements Serializable {
 	/** Largest combo */
 	public int maxCombo;
 
-	/** 1LinesScore per (Score Per Line) */
+	/** Score Per Line */
 	public double spl;
 
-	/** 1Score per minute (Score Per Minute) */
+	/** Score Per Minute */
 	public double spm;
 
-	/** 1Scores per second (Score Per Second) */
+	/** Score Per Second */
 	public double sps;
 
-	/** 1Per minuteLinescount (Lines Per Minute) */
+	/** Lines Per Minute */
 	public float lpm;
 
-	/** 1Per secondLinescount (Lines Per Second) */
+	/** Lines Per Second */
 	public float lps;
 
-	/** 1Pieces per minutecount (Pieces Per Minute) */
+	/** Pieces Per Minute */
 	public float ppm;
 
-	/** 1Per second piece ofcount (Pieces Per Second) */
+	/** Pieces Per Second */
 	public float pps;
 
 	/** TAS detection: slowdown rate */
@@ -345,7 +345,7 @@ public class Statistics implements Serializable {
 		p.setProperty(id + ".statistics.maxChain", maxChain);
 		p.setProperty(id + ".statistics.rollclear", rollclear);
 
-		// OldVersionFor compatibility with
+		// Old Version for compatibility
 		if (id == 0) {
 			p.setProperty("result.score", score);
 			p.setProperty("result.totallines", lines);
@@ -406,7 +406,7 @@ public class Statistics implements Serializable {
 	 *
 	 * @param s String Array (String[38])
 	 */
-	public void importStringArray(String[] s) {
+	private void importStringArray(String[] s) {
 		score = Integer.parseInt(s[0]);
 		scoreFromLineClear = Integer.parseInt(s[1]);
 		scoreFromSoftDrop = Integer.parseInt(s[2]);
@@ -454,7 +454,7 @@ public class Statistics implements Serializable {
 	 *
 	 * @param s String (Split by ;)
 	 */
-	public void importString(String s) {
+	private void importString(String s) {
 		importStringArray(s.split(";"));
 	}
 
@@ -463,7 +463,7 @@ public class Statistics implements Serializable {
 	 *
 	 * @return String Array (String[38])
 	 */
-	public String[] exportStringArray() {
+	private String[] exportStringArray() {
 		String[] s = new String[38];
 		s[0] = Integer.toString(score);
 		s[1] = Integer.toString(scoreFromLineClear);

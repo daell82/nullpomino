@@ -50,7 +50,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
@@ -111,10 +111,11 @@ public class RuleSelectFrame extends JFrame implements ActionListener {
 
 		setTitle(NullpoMinoSwing.getUIText("Title_RuleSelect") + " (" + (playerID + 1) + "P)");
 
-		strCurrentFileName = new String[GameEngine.MAX_GAMESTYLE];
-		strCurrentRuleName = new String[GameEngine.MAX_GAMESTYLE];
+		strCurrentFileName = new String[GameStyle.numStyles()];
+		strCurrentRuleName = new String[GameStyle.numStyles()];
 
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
 			if (i == 0) {
 				strCurrentFileName[i] = NullpoMinoSwing.propGlobal.getProperty(playerID + ".rulefile", "");
 				strCurrentRuleName[i] = NullpoMinoSwing.propGlobal.getProperty(playerID + ".rulename", "");
@@ -147,14 +148,15 @@ public class RuleSelectFrame extends JFrame implements ActionListener {
 		this.add(tabPane);
 
 		// Rules
-		listboxRule = new ArrayList<>(GameEngine.MAX_GAMESTYLE);
-		for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+		listboxRule = new ArrayList<>(GameStyle.numStyles());
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.getMode();
 			var jList = new JList<>(extractRuleListFromRuleEntries(i));
 			listboxRule.add(i, jList);
 			JScrollPane scpaneRule = new JScrollPane(jList);
 			scpaneRule.setPreferredSize(new Dimension(380, 250));
 			scpaneRule.setAlignmentX(LEFT_ALIGNMENT);
-			tabPane.addTab(GameEngine.GAMESTYLE_NAMES[i], scpaneRule);
+			tabPane.addTab(style.getName(), scpaneRule);
 		}
 
 		// default Back to button
@@ -261,7 +263,7 @@ public class RuleSelectFrame extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand() == "RuleSelect_OK") {
-			for (int i = 0; i < GameEngine.MAX_GAMESTYLE; i++) {
+			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				int id = listboxRule.get(i).getSelectedIndex();
 				List<RuleEntry> subEntries = getSubsetEntries(i);
 				RuleEntry entry = subEntries.get(id);
@@ -300,6 +302,11 @@ public class RuleSelectFrame extends JFrame implements ActionListener {
 
 	/**
 	 * Rule entry
+	 *
+	 * @param filename plain filename
+	 * @param filepath the absolute path of the rule file
+	 * @param rulename the name of the contained rule
+	 * @param style the {@link GameStyle} of the rule
 	 */
 	private record RuleEntry(String filename, String filepath, String rulename, int style) {
 	}

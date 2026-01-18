@@ -41,15 +41,6 @@ import mu.nu.nullpo.util.CustomProperties;
 @Log4j
 public class GameManager {
 
-	/** Major version */
-	public static final float VERSION_MAJOR = 8.0f;
-
-	/** Minor version */
-	public static final int VERSION_MINOR = 0;
-
-	/** Development-build flag (false:Release-build true:Dev-build) */
-	public static final boolean DEV_BUILD = true;
-
 	/** Game Mode */
 	public GameMode mode;
 
@@ -87,70 +78,6 @@ public class GameManager {
 
 	/** Show input */
 	public boolean showInput;
-
-	/**
-	 * Get major version
-	 *
-	 * @return Major version
-	 */
-	public static float getVersionMajor() {
-		return VERSION_MAJOR;
-	}
-
-	/**
-	 * Get minor version
-	 *
-	 * @return Minor version
-	 */
-	public static int getVersionMinor() {
-		return VERSION_MINOR;
-	}
-
-	/**
-	 * Get minor version (For compatibility with old replays)
-	 *
-	 * @return Minor version
-	 */
-	public static float getVersionMinorOld() {
-		return VERSION_MINOR;
-	}
-
-	/**
-	 * Get version information as String
-	 *
-	 * @return Version information
-	 */
-	public static String getVersionString() {
-		return VERSION_MAJOR + "." + VERSION_MINOR + (DEV_BUILD ? "D" : "");
-	}
-
-	/**
-	 * Is this development build?
-	 *
-	 * @return true if dev build
-	 */
-	public static boolean isDevBuild() {
-		return DEV_BUILD;
-	}
-
-	/**
-	 * Get build type as string
-	 *
-	 * @return Build type as String
-	 */
-	public static String getBuildTypeString() {
-		return DEV_BUILD ? "Development" : "Release";
-	}
-
-	/**
-	 * Get build type name
-	 *
-	 * @param type Build type (false:Release true:Development)
-	 * @return Build type as String
-	 */
-	public static String getBuildTypeString(boolean type) {
-		return type ? "Development" : "Release";
-	}
 
 	/**
 	 * Normal constructor

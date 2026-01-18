@@ -173,27 +173,26 @@
 					<autoDetectDirUpInFilesystem>false</autoDetectDirUpInFilesystem>
 					<!-- if autoDetectOSNatives is 'true' then you don't need the 'osFilters' list -->
 					<!-- we advise you set 'autoDetectOSNatives' to true and forget about osFilters -->
-					<autoDetectOSNatives>false</autoDetectOSNatives>
+					<autoDetectOSNatives>true</autoDetectOSNatives>
 
-					<byTypeFilter>so,dll,jnilib,dylib</byTypeFilter>
+					<!-- byTypeFilter>so,dll,jnilib,dylib</byTypeFilter -->
 
-					<nativesTargetDir>${session.executionRootDirectory}/target/install/lib</nativesTargetDir>
+					<nativesTargetDir>${project.build.directory}/install/lib</nativesTargetDir>
 					<!-- <separateDirs>true</separateDirs> -->
-					<osFilters>
+					<!-- osFilters>
 						<osFilter>
 							<osName>linux</osName>
 							<suffix>linux</suffix>
 						</osFilter>
 						<osFilter>
 							<osName>windows</osName>
-							<!-- <osArch>64</osArch> --> <!-- this line is not mandatory -->
 							<suffix>win</suffix>
 						</osFilter>
 						<osFilter>
 							<osName>macos</osName>
 							<suffix>osx</suffix>
 						</osFilter>
-					</osFilters>
+					</osFilters -->
 				</configuration>
 			</plugin>
 		</plugins>

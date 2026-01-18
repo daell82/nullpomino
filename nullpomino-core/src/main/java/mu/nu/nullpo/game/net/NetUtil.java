@@ -32,6 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -50,11 +51,7 @@ public class NetUtil {
 	 * @return String
 	 */
 	public static String bytesToString(byte[] bytes) {
-		try {
-			return new String(bytes, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
-		}
+		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -64,11 +61,7 @@ public class NetUtil {
 	 * @return Byte array (byte[])
 	 */
 	public static byte[] stringToBytes(String str) {
-		try {
-			return str.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
-		}
+		return str.getBytes(StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -78,11 +71,7 @@ public class NetUtil {
 	 * @return URLEncoder-encoded String
 	 */
 	public static String urlEncode(String str) {
-		try {
-			return URLEncoder.encode(str, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
-		}
+		return URLEncoder.encode(str, StandardCharsets.UTF_8);
 	}
 
 	/**
@@ -92,11 +81,7 @@ public class NetUtil {
 	 * @return Decoded String
 	 */
 	public static String urlDecode(String str) {
-		try {
-			return URLDecoder.decode(str, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
-		}
+		return URLDecoder.decode(str, StandardCharsets.UTF_8);
 	}
 
 	/**

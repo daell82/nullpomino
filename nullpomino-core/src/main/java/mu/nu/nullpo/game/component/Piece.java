@@ -260,7 +260,7 @@ public class Piece implements Serializable {
 	 *
 	 * @param p Copy source
 	 */
-	public void copy(Piece p) {
+	private void copy(Piece p) {
 		id = p.id;
 		direction = p.direction;
 		big = p.big;
@@ -328,30 +328,6 @@ public class Piece implements Serializable {
 		int length = Math.min(block.length, color.length);
 		for (int i = 0; i < length; i++) {
 			block[i].color = color[i];
-		}
-	}
-
-	/**
-	 * Sets all blocks to an item block
-	 *
-	 * @param item ID number of the item
-	 */
-	public void setItem(int item) {
-		for (int i = 0; i < block.length; i++) {
-			block[i].item = item;
-		}
-	}
-
-	/**
-	 * Sets the items of the blocks individually; allows one piece to have different
-	 * item settings for each block
-	 *
-	 * @param item Array with each element specifying a color of a block
-	 */
-	public void setItem(int[] item) {
-		int length = Math.min(block.length, item.length);
-		for (int i = 0; i < length; i++) {
-			block[i].item = item[i];
 		}
 	}
 

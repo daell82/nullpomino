@@ -1,5 +1,7 @@
 package mu.nu.nullpo.gui;
 
+import java.util.Arrays;
+
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -44,9 +46,6 @@ public class GameKeyDummy {
 	/** Button input flag and length */
 	protected int inputstate[];
 
-	/** Button input flag */
-	protected boolean[] pressstate;
-
 	/**
 	 * Default constructor
 	 */
@@ -63,22 +62,17 @@ public class GameKeyDummy {
 		keymap = new int[MAX_BUTTON];
 		keymapNav = new int[MAX_BUTTON];
 		buttonmap = new int[MAX_BUTTON];
+		Arrays.fill(buttonmap, -1);
 		joyBorder = 0;
-		for (int i = 0; i < buttonmap.length; i++) {
-			buttonmap[i] = -1;
-		}
 		player = pl;
 		inputstate = new int[MAX_BUTTON];
-		pressstate = new boolean[MAX_BUTTON];
 	}
 
 	/**
 	 * Clear button input state
 	 */
 	public void clear() {
-		for (int i = 0; i < MAX_BUTTON; i++) {
-			inputstate[i] = 0;
-		}
+		Arrays.fill(inputstate, 0);
 	}
 
 	/**
@@ -108,11 +102,10 @@ public class GameKeyDummy {
 	 * @return If the cursor movestrue
 	 */
 	public boolean isMenuRepeatKey(int key) {
-		if (inputstate[key] == 1 || inputstate[key] >= 25 && inputstate[key] % 3 == 0
-				|| inputstate[key] >= 1 && isPressKey(BUTTON_C)) {
+		int state = inputstate[key];
+		if (state == 1 || state >= 25 && state % 3 == 0 || state >= 1 && isPressKey(BUTTON_C)) {
 			return true;
 		}
-
 		return false;
 	}
 

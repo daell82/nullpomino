@@ -1188,14 +1188,11 @@ public class Field implements Serializable {
 		highest = Math.min(highest, getHighestBlockY(x + 1));
 
 		for (int i = highest; i < getHeightWithoutHurryupFloor(); i++) {
-			if (getLineFlag(i) == false) {
-				if ((getBlockEmpty(x - 1, i) || x <= 0) && !getBlockEmpty(x, i)
-						&& (getBlockEmpty(x + 1, i) || x >= width - 1)) {
-					depth++;
-				}
+			if (!getLineFlag(i) && (getBlockEmpty(x - 1, i) || x <= 0) && !getBlockEmpty(x, i)
+					&& (getBlockEmpty(x + 1, i) || x >= width - 1)) {
+				depth++;
 			}
 		}
-
 		return depth;
 	}
 
@@ -1299,8 +1296,8 @@ public class Field implements Serializable {
 	 *         clear action The TGM attack is the lines of the last line clear
 	 *         flipped vertically and without the blocks that caused it.
 	 */
-	public ArrayList<Block[]> getLastLinesAsTGMAttack() {
-		ArrayList<Block[]> attack = new ArrayList<>();
+	public List<Block[]> getLastLinesAsTGMAttack() {
+		List<Block[]> attack = new ArrayList<>();
 
 		for (Block[] row : lastLinesCleared) {
 			Block[] row2 = new Block[getWidth()];
@@ -1359,28 +1356,28 @@ public class Field implements Serializable {
 			int y = getHeightWithoutHurryupFloor() - 1;
 
 			for (int j = 0; j < width; j++) {
-				if (j != hole) {
-					Block blk = new Block();
-					blk.color = color;
-					blk.skin = skin;
-					blk.attribute = Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE
-							| Block.BLOCK_ATTRIBUTE_GARBAGE;
-					setBlock(j, y, blk);
+				if (j == hole) {
+					continue;
 				}
+				Block blk = new Block();
+				blk.color = color;
+				blk.skin = skin;
+				blk.attribute = Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE
+						| Block.BLOCK_ATTRIBUTE_GARBAGE;
+				setBlock(j, y, blk);
 			}
 
 			// Set connections
 			for (int j = 0; j < width; j++) {
-				if (j != hole) {
-					Block blk = getBlock(j, y);
-					if (blk != null) {
-						if (!getBlockEmpty(j - 1, y)) {
-							blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
-						}
-						if (!getBlockEmpty(j + 1, y)) {
-							blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
-						}
-					}
+				if (j == hole) {
+					continue;
+				}
+				Block blk = getBlock(j, y);
+				if (j > 0 && !getBlockEmpty(j - 1, y)) {
+					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+				}
+				if (j < width -1 && !getBlockEmpty(j + 1, y)) {
+					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
 				}
 			}
 		}

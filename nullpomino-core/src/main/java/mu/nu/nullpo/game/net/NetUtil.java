@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
@@ -40,9 +41,12 @@ import java.util.zip.Inflater;
 
 import org.cacas.java.gnu.tools.Crypt;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * Network utils
  */
+@UtilityClass
 public class NetUtil {
 	/**
 	 * Convert byte[] to String (with UTF-8 encoding)
@@ -125,10 +129,8 @@ public class NetUtil {
 	 */
 	public static String createTripCode(String tripkey, int maxlen) {
 		byte[] bTripKey = stringToShiftJIS(tripkey);
-		byte[] bSaltTemp = new byte[bTripKey.length + 3];
-		for (int i = 0; i < bTripKey.length; i++) {
-			bSaltTemp[i] = bTripKey[i];
-		}
+		byte[] bSaltTemp = Arrays.copyOf(bTripKey, bTripKey.length + 3);
+
 		bSaltTemp[bTripKey.length + 0] = (byte) 'H';
 		bSaltTemp[bTripKey.length + 1] = (byte) '.';
 		bSaltTemp[bTripKey.length + 2] = (byte) '.';

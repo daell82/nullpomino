@@ -74,7 +74,6 @@ import org.apache.log4j.PropertyConfigurator;
 
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetObserverClient;
@@ -86,6 +85,7 @@ import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.gui.net.UpdateChecker;
@@ -126,7 +126,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	private UpdateCheckFrame updateCheckFrame;
 
 	/** Command that was passed to the programLinesArgumentcount */
-	public static String[] programArgs;
+	private static String[] programArgs;
 
 	/** Save settingsUseProperty file */
 	public static CustomProperties propConfig;
@@ -135,29 +135,29 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	public static CustomProperties propGlobal;
 
 	/** ObserverFor the functionProperty file */
-	public static CustomProperties propObserver;
+	private static CustomProperties propObserver;
 
 	/** Default language file */
-	public static CustomProperties propLangDefault;
+	private static CustomProperties propLangDefault;
 
 	/** Language file */
-	public static CustomProperties propLang;
+	private static CustomProperties propLang;
 
 	/** Default game mode description file */
-	public static CustomProperties propDefaultModeDesc;
+	private static CustomProperties propDefaultModeDesc;
 
 	/** Game mode description file */
-	public static CustomProperties propModeDesc;
+	private static CustomProperties propModeDesc;
 
 	/** Mode Management */
-	private static ModeManager modeManager;
+	private ModeManager modeManager;
 
 	/** The main class of the game */
 	@Getter
 	private GameManager gameManager;
 
 	/** GameMode nameAn array of */
-	protected static List<String> modeList;
+	private List<String> modeList;
 
 	/** Mode Selection list box */
 	private JList<String> listboxMode;
@@ -175,10 +175,10 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	public NetLobbyFrame netLobby;
 
 	/** ObserverClient */
-	public NetObserverClient netObserverClient;
+	private NetObserverClient netObserverClient;
 
 	/** Mode Select the on-screen label(NewVersionIf there is it switches) */
-	public JLabel lModeSelect;
+	private JLabel lModeSelect;
 
 	/** HashMap of rules (ModeName->RuleEntry) */
 	protected Map<String, RuleEntry> ruleEntries;
@@ -198,11 +198,6 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		propConfig = load("config/setting/swing.cfg");
 		propGlobal = new CustomProperties();
 		loadGlobalConfig();
-
-		// ModeRead
-		modeManager = new ModeManager();
-		modeManager.loadGameModes("config/list/mode.lst");
-		modeList = modeManager.getModeNames(false);
 
 		// Read language file
 		propLangDefault = load("config/lang/swing_default.properties");
@@ -413,6 +408,11 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	public NullpoMinoSwing() throws HeadlessException {
 		super();
 
+		// ModeRead
+		modeManager = new ModeManager();
+		modeManager.loadGameModes("config/list/mode.lst");
+		modeList = modeManager.getModeNames(false);
+
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -421,7 +421,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			}
 		});
 
-		setTitle(getUIText("Title_Main") + " version" + Version.getVersionString());
+		setTitle(getUIText("Title_Main") + " version " + Version.getVersion());
 		loadRecommendedRuleList();
 
 		initUI();
@@ -650,7 +650,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		try {
 			List<String> lines = Files.readAllLines(Path.of("config/list/recommended_rules.lst"));
 			String gameMode = "";
-			for(String line : lines) {
+			for (String line : lines) {
 				line = line.trim(); // Trim the space
 
 				if (line.isBlank() || line.startsWith("#")) {
@@ -755,131 +755,95 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// OffLinesStart game
-		if (e.getActionCommand() == "Top_StartOffline") {
-			onStartOfflineClicked();
-		}
-		// Open Replay
-		else if (e.getActionCommand() == "Menu_Open") {
-			if (replayFileChooser == null) {
-				File dir = new File(propGlobal.getProperty("custom.replay.directory", "replay"));
-				replayFileChooser = new JFileChooser(dir);
-				replayFileChooser.addChoosableFileFilter(new ReplayFileFilter());
-			}
-			if (replayFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-				startReplayGame(replayFileChooser.getSelectedFile().getPath());
-				if (gameFrame == null) {
-					gameFrame = new GameFrame(this);
-				}
-				if (gameManager != null && gameManager.mode != null) {
-					gameFrame.setTitle(getUIText("Title_Game") + " - " + gameManager.mode.getName() + " (Replay)");
-					gameFrame.maxfps = propConfig.getProperty("option.maxfps", 60);
-					gameFrame.isNetPlay = false;
-				}
-				hideAllSubWindows();
-				setVisible(false);
-				gameFrame.displayWindow();
-			}
-		}
-		// NetPlay start
-		else if (e.getActionCommand() == "Menu_NetPlay") {
-			startNetPlayGame();
-			if (gameFrame == null) {
-				gameFrame = new GameFrame(this);
-			}
-			if (gameManager != null && gameManager.mode != null) {
-				gameFrame.setTitle(getUIText("Title_Game") + " - " + gameManager.mode.getName());
-				gameFrame.maxfps = 60;
-				gameFrame.isNetPlay = true;
-			}
-			hideAllSubWindows();
-			setVisible(false);
-			gameFrame.displayWindow();
-		}
-		// Selection rules
-		else if (e.getActionCommand() == "Menu_RuleSelect") {
+		int player = e.getActionCommand().endsWith("2P") ? 1 : 0;
+
+		switch (e.getActionCommand()) {
+		case "Top_StartOffline" -> onStartOfflineClicked();
+		case "Menu_Open" -> openReplay();
+		case "Menu_NetPlay" -> startNetPlay();
+		case "Menu_RuleSelect", "Menu_RuleSelect2P" -> {
 			if (ruleSelectFrame == null) {
 				ruleSelectFrame = new RuleSelectFrame(this);
 			}
-			ruleSelectFrame.load(0);
+			ruleSelectFrame.load(player);
 			ruleSelectFrame.setVisible(true);
 		}
-		// Selection rules(2P)
-		else if (e.getActionCommand() == "Menu_RuleSelect2P") {
-			if (ruleSelectFrame == null) {
-				ruleSelectFrame = new RuleSelectFrame(this);
-			}
-			ruleSelectFrame.load(1);
-			ruleSelectFrame.setVisible(true);
-		}
-		// Keyboard settings
-		else if (e.getActionCommand() == "Menu_KeyConfig") {
+		case "Menu_KeyConfig", "Menu_KeyConfig2P" -> {
 			if (keyConfigFrame == null) {
 				keyConfigFrame = new KeyConfigFrame(this);
 			}
-			keyConfigFrame.load(0);
+			keyConfigFrame.load(player);
 			keyConfigFrame.setVisible(true);
 		}
-		// Keyboard settings(2P)
-		else if (e.getActionCommand() == "Menu_KeyConfig2P") {
-			if (keyConfigFrame == null) {
-				keyConfigFrame = new KeyConfigFrame(this);
-			}
-			keyConfigFrame.load(1);
-			keyConfigFrame.setVisible(true);
-		}
-		// AISetting
-		else if (e.getActionCommand() == "Menu_AIConfig") {
+		case "Menu_AIConfig", "Menu_AIConfig2P" -> {
 			if (aiSelectFrame == null) {
 				aiSelectFrame = new AISelectFrame(this);
 			}
-			aiSelectFrame.load(0);
+			aiSelectFrame.load(player);
 			aiSelectFrame.setVisible(true);
 		}
-		// AISetting(2P)
-		else if (e.getActionCommand() == "Menu_AIConfig2P") {
-			if (aiSelectFrame == null) {
-				aiSelectFrame = new AISelectFrame(this);
-			}
-			aiSelectFrame.load(1);
-			aiSelectFrame.setVisible(true);
-		}
-		// Tuning settings
-		else if (e.getActionCommand() == "Menu_GameTuning") {
+		case "Menu_GameTuning", "Menu_GameTuning2P" -> {
 			if (gameTuningFrame == null) {
 				gameTuningFrame = new GameTuningFrame(this);
 			}
-			gameTuningFrame.load(0);
+			gameTuningFrame.load(player);
 			gameTuningFrame.setVisible(true);
 		}
-		// Tuning settings(2P)
-		else if (e.getActionCommand() == "Menu_GameTuning2P") {
-			if (gameTuningFrame == null) {
-				gameTuningFrame = new GameTuningFrame(this);
-			}
-			gameTuningFrame.load(1);
-			gameTuningFrame.setVisible(true);
-		}
-		// Update check Setting
-		else if (e.getActionCommand() == "Menu_UpdateCheck") {
+		case "Menu_UpdateCheck" -> {
 			if (updateCheckFrame == null) {
 				updateCheckFrame = new UpdateCheckFrame(this);
 			}
 			updateCheckFrame.load();
 			updateCheckFrame.setVisible(true);
 		}
-		// Other Settings
-		else if (e.getActionCommand() == "Menu_GeneralConfig") {
+		case "Menu_GeneralConfig" -> {
 			if (generalConfigFrame == null) {
 				generalConfigFrame = new GeneralConfigFrame(this);
 			}
 			generalConfigFrame.load();
 			generalConfigFrame.setVisible(true);
 		}
-		// End
-		else if (e.getActionCommand() == "Menu_Exit") {
-			shutdown();
+		case "Menu_Exit" -> shutdown();
+		default -> { // nothing
 		}
+		}
+	}
+
+	private void openReplay() {
+		if (replayFileChooser == null) {
+			File dir = new File(propGlobal.getProperty("custom.replay.directory", "replay"));
+			replayFileChooser = new JFileChooser(dir);
+			replayFileChooser.addChoosableFileFilter(new ReplayFileFilter());
+		}
+		if (replayFileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			startReplayGame(replayFileChooser.getSelectedFile().getPath());
+			if (gameFrame == null) {
+				gameFrame = new GameFrame(this);
+			}
+			if (gameManager != null && gameManager.mode != null) {
+				gameFrame.setTitle(getUIText("Title_Game") + " - " + gameManager.mode.getName() + " (Replay)");
+				gameFrame.maxfps = propConfig.getProperty("option.maxfps", 60);
+				gameFrame.isNetPlay = false;
+			}
+			hideAllSubWindows();
+			setVisible(false);
+			gameFrame.displayWindow();
+		}
+	}
+
+	private void startNetPlay() {
+		startNetPlayGame();
+		if (gameFrame == null) {
+			gameFrame = new GameFrame(this);
+		}
+		if (gameManager != null && gameManager.mode != null) {
+			gameFrame.setTitle(getUIText("Title_Game") + " - " + gameManager.mode.getName());
+			gameFrame.maxfps = 60;
+			gameFrame.isNetPlay = true;
+		}
+		hideAllSubWindows();
+		setVisible(false);
+		gameFrame.displayWindow();
 	}
 
 	/**
@@ -1283,11 +1247,11 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 	@Override
 	public void onUpdateCheckerEnd(int status) {
-		if (UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
+		if (UpdateChecker.isNewVersionAvailable()) {
 			SwingUtilities.invokeLater(() -> {
 				if (lModeSelect != null) {
 					String strTemp = String.format(getUIText("Top_NewVersion"),
-							UpdateChecker.getLatestVersionFullString(), UpdateChecker.getStrReleaseDate());
+							UpdateChecker.getLatestVersionFullString(), UpdateChecker.getReleaseDate());
 					lModeSelect.setText(strTemp);
 				}
 			});
@@ -1304,11 +1268,8 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		@Override
 		public boolean accept(File f) {
 			// If the directory displayed unconditional
-			// Or the end of the file is.repIf it was displayed
-			if (f.isDirectory() || f.getName().endsWith(".rep")) {
-				return true;
-			}
-			return false;
+			// Or the end of the file is.rep If it was displayed
+			return f.isDirectory() || f.getName().endsWith(".rep");
 		}
 
 		/*

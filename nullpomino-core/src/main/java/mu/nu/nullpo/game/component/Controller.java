@@ -82,23 +82,16 @@ public class Controller implements Serializable {
 	public static final int BUTTON_BIT_E = 256;
 	public static final int BUTTON_BIT_F = 512;
 
-	/** ButtonIf you hold down thetrue */
-	public boolean[] buttonPress;
+	/**If you hold down the Button true */
+	private boolean[] buttonPress;
 
-	/** ButtonI have to leave the press time */
-	public int[] buttonTime;
+	/** I have to leave the Button press time */
+	private int[] buttonTime;
 
 	/**
 	 * Constructor
 	 */
 	public Controller() {
-		reset();
-	}
-
-	/**
-	 * Back to the initial state
-	 */
-	public void reset() {
 		buttonPress = new boolean[BUTTON_COUNT];
 		buttonTime = new int[BUTTON_COUNT];
 	}
@@ -123,13 +116,20 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * buttonDetermine whether the state is pressed
+	 * Determine whether the button state is pressed
 	 *
 	 * @param btn Button number
-	 * @return buttonState if you press thetrue
+	 * @return true if you press the button
 	 */
 	public boolean isPress(int btn) {
 		return buttonTime[btn] >= 1;
+	}
+
+	public int buttonTime(int btn) {
+		if (btn >= 0 && btn < buttonTime.length) {
+			return buttonTime[btn];
+		}
+		return 0;
 	}
 
 	/**
@@ -150,12 +150,8 @@ public class Controller implements Serializable {
 	 * @return If the cursor movestrue
 	 */
 	public boolean isMenuRepeatKey(int key, boolean enableCButton) {
-		if (buttonTime[key] == 1 || buttonTime[key] >= 25 && buttonTime[key] % 3 == 0
-				|| buttonTime[key] >= 1 && isPress(BUTTON_C) && enableCButton) {
-			return true;
-		}
-
-		return false;
+		int time = buttonTime[key];
+		return time == 1 || time >= 25 && time % 3 == 0 || time >= 1 && isPress(BUTTON_C) && enableCButton;
 	}
 
 	/**

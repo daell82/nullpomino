@@ -246,7 +246,7 @@ public class FinalMode extends AbstractMode {
 		engine.staffrollEnable = true;
 		engine.staffrollNoDeath = false;
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -378,7 +378,7 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 3);
 
@@ -458,10 +458,8 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
-			if (version >= 3) {
-				engine.bone = true;
-			}
+		if (engine.statc[0] == 0 && version >= 3) {
+			engine.bone = true;
 		}
 		return false;
 	}
@@ -499,8 +497,8 @@ public class FinalMode extends AbstractMode {
 		receiver.drawScoreFont(engine, playerID, 0, 0, "FINAL", Colors.FONT_WHITE);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && startlevel == 0 && !big && engine.ai == null) {
 				if (!isShowBestSectionTime) {
 					// Leaderboard
 					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
@@ -567,7 +565,7 @@ public class FinalMode extends AbstractMode {
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "\n(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "\n(+" + lastscore + ")";
 			}
 			receiver.drawScoreFont(engine, playerID, 0, 6, strScore);
 
@@ -618,7 +616,7 @@ public class FinalMode extends AbstractMode {
 			}
 
 			// Section Time
-			if (showsectiontime == true && sectiontime != null) {
+			if (showsectiontime && sectiontime != null) {
 				int x = receiver.getNextDisplayType() == 2 ? 8 : 12;
 				int x2 = receiver.getNextDisplayType() == 2 ? 9 : 12;
 
@@ -659,22 +657,22 @@ public class FinalMode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// New piece is active
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && engine.statc[0] == 0 && !engine.holdDisable && !lvupflag) {
 			// Level up
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+				if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 					owner.receiver.playSE("levelstop");
 				}
 			}
 			levelUp(engine);
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 2 || engine.holdDisable == false)) {
+		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 2 || !engine.holdDisable)) {
 			lvupflag = false;
 		}
 
 		// Ending start
-		if (engine.ending == 2 && rollstarted == false) {
+		if (engine.ending == 2 && !rollstarted) {
 			rollstarted = true;
 			engine.blockHidden = engine.ruleopt.lockflash;
 			engine.blockHiddenAnim = false;
@@ -694,7 +692,7 @@ public class FinalMode extends AbstractMode {
 		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+				if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 					owner.receiver.playSE("levelstop");
 				}
 			}
@@ -746,7 +744,7 @@ public class FinalMode extends AbstractMode {
 			// 4 lines clear count
 			if (lines >= 4) {
 				// SK medal
-				if (big == true) {
+				if (big) {
 					if (engine.statistics.totalFour == 1 || engine.statistics.totalFour == 2
 							|| engine.statistics.totalFour == 4) {
 						receiver.playSE("medal");
@@ -770,7 +768,7 @@ public class FinalMode extends AbstractMode {
 			}
 
 			// CO medal
-			if (big == true) {
+			if (big) {
 				if (engine.combo >= 2 && medalCO < 1) {
 					receiver.playSE("medal");
 					medalCO = 1;
@@ -846,13 +844,13 @@ public class FinalMode extends AbstractMode {
 				if (nextseclv > 999) {
 					nextseclv = 999;
 				}
-			} else if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+			} else if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 				receiver.playSE("levelstop");
 			}
 
 			// Add score
 			int manuallock = 0;
-			if (engine.manualLock == true) {
+			if (engine.manualLock) {
 				manuallock = 1;
 			}
 
@@ -1038,7 +1036,7 @@ public class FinalMode extends AbstractMode {
 		owner.replayProp.setProperty("final.version", version);
 
 		// Updates leaderboard and best section time records
-		if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null) {
+		if (!owner.replayMode && startlevel == 0 && !big && engine.ai == null) {
 			updateRanking(grade, engine.statistics.level, engine.statistics.time, rollclear);
 			if (medalST == 3) {
 				updateBestSectionTime();

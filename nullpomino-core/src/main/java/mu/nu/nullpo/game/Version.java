@@ -66,7 +66,7 @@ public class Version {
 	 * @return Minor version
 	 */
 	public static float getMinorVersionOld() {
-		return MINOR_VERSION;
+		return getMinorVersion();
 	}
 
 	/**

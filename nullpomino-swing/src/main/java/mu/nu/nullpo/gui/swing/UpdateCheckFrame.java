@@ -46,9 +46,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import org.apache.log4j.Logger;
-
-import mu.nu.nullpo.game.Version;
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.gui.net.UpdateChecker;
 import mu.nu.nullpo.gui.net.UpdateCheckerListener;
 import mu.nu.nullpo.gui.swing.ext.BareBonesBrowserLaunch;
@@ -56,9 +54,8 @@ import mu.nu.nullpo.gui.swing.ext.BareBonesBrowserLaunch;
 /**
  * Update check Setting screen
  */
+@Log4j
 public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCheckerListener {
-	/** Log */
-	static Logger log = Logger.getLogger(UpdateCheckFrame.class);
 
 	/** Serial version ID */
 	private static final long serialVersionUID = 1L;
@@ -90,7 +87,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	/** Installer download button */
 	protected JButton btnOpenInstallerURL;
 
-	/** Update check  is enabled */
+	/** Update check is enabled */
 	protected JCheckBox chkboxEnable;
 
 	/** XMLOfURL */
@@ -101,8 +98,10 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 
 	/**
 	 * Constructor
+	 *
 	 * @param owner Parent window
-	 * @throws HeadlessException Keyboard, Mouse, Exceptions such as the display if there is no
+	 * @throws HeadlessException Keyboard, Mouse, Exceptions such as the display if
+	 *                           there is no
 	 */
 	public UpdateCheckFrame(NullpoMinoSwing owner) throws HeadlessException {
 		super();
@@ -204,7 +203,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 		btnOpenDownloadURL.addActionListener(this);
 		btnOpenDownloadURL.setActionCommand("OpenDownloadURL");
 		btnOpenDownloadURL.setEnabled(false);
-		//btnOpenDownloadURL.setVisible(Desktop.isDesktopSupported());
+		// btnOpenDownloadURL.setVisible(Desktop.isDesktopSupported());
 		pUpdateInfo.add(btnOpenDownloadURL);
 
 		// * Installer Download
@@ -223,13 +222,14 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 		pSetting.setAlignmentX(0f);
 		tabPane.addTab(NullpoMinoSwing.getUIText("UpdateCheck_Tab_Setting"), pSetting);
 
-		// * Anymore because I would have been stretched vertically with it as it is1Using a panel sheet
+		// * Anymore because I would have been stretched vertically with it as it
+		// is1Using a panel sheet
 		JPanel spSetting = new JPanel();
 		spSetting.setAlignmentX(0f);
 		spSetting.setLayout(new BoxLayout(spSetting, BoxLayout.Y_AXIS));
 		pSetting.add(spSetting, BorderLayout.NORTH);
 
-		// * Update check  is enabled
+		// * Update check is enabled
 		chkboxEnable = new JCheckBox(NullpoMinoSwing.getUIText("UpdateCheck_CheckBox_Enable"));
 		chkboxEnable.setAlignmentX(0f);
 		chkboxEnable.setMnemonic('E');
@@ -282,12 +282,12 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	 */
 	public void load() {
 		txtfldLatestVersion.setForeground(Color.black);
-		if(UpdateChecker.isCompleted()) {
+		if (UpdateChecker.isCompleted()) {
 			txtfldLatestVersion.setText(UpdateChecker.getLatestVersionFullString());
-			txtfldReleaseDate.setText(UpdateChecker.getStrReleaseDate());
-			txtfldDownloadURL.setText(UpdateChecker.getStrDownloadURL());
+			txtfldReleaseDate.setText(UpdateChecker.getReleaseDate());
+			txtfldDownloadURL.setText(UpdateChecker.getDownloadURL());
 
-			if(UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
+			if (UpdateChecker.isNewVersionAvailable()) {
 				txtfldLatestVersion.setForeground(Color.red);
 			}
 			btnOpenDownloadURL.setEnabled(true);
@@ -303,9 +303,9 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		// Update Now check
-		switch(e.getActionCommand()) {
+		switch (e.getActionCommand()) {
 		case "CheckNow" -> {
-			if(!UpdateChecker.isRunning()) { // NOSONAR
+			if (!UpdateChecker.isRunning()) {// NOSONAR
 				txtfldLatestVersion.setForeground(Color.black);
 				UpdateChecker.addListener(this);
 				UpdateChecker.startCheckForUpdates(txtfldXMLURL.getText());
@@ -313,42 +313,46 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 			}
 		}
 		case "OpenDownloadURL" -> BareBonesBrowserLaunch.openURL(txtfldDownloadURL.getText());
-		case  "OpenInstallerURL" -> BareBonesBrowserLaunch.openURL(txtfldWindowsInstallerURL.getText());
+		case "OpenInstallerURL" -> BareBonesBrowserLaunch.openURL(txtfldWindowsInstallerURL.getText());
 		case "Save" -> {
 			NullpoMinoSwing.propGlobal.setProperty("updatechecker.enable", chkboxEnable.isSelected());
 			NullpoMinoSwing.propGlobal.setProperty("updatechecker.url", txtfldXMLURL.getText());
-			NullpoMinoSwing.propGlobal.setProperty("updatechecker.startupMax", NullpoMinoSwing.getIntTextField(20, txtfldStartupMax));
+			NullpoMinoSwing.propGlobal.setProperty("updatechecker.startupMax",
+					NullpoMinoSwing.getIntTextField(20, txtfldStartupMax));
 			NullpoMinoSwing.saveConfig();
 		}
 		// Close
-		case "Close" ->	setVisible(false);
-		default -> {}
+		case "Close" -> setVisible(false);
+		default -> { //nothing
+		}
 		}
 	}
 
 	@Override
 	public void onUpdateCheckerStart() {
-		SwingUtilities.invokeLater(() -> lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Checking")));
+		SwingUtilities
+				.invokeLater(() -> lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Checking")));
 	}
 
 	@Override
 	public void onUpdateCheckerEnd(int status) {
 		btnCheckNow.setEnabled(true);
 
-		if(status == UpdateChecker.STATUS_ERROR) {
-			SwingUtilities.invokeLater(() -> lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Failed")));
-		} else if(status == UpdateChecker.STATUS_COMPLETE) {
+		if (status == UpdateChecker.STATUS_ERROR) {
+			SwingUtilities
+					.invokeLater(() -> lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Failed")));
+		} else if (status == UpdateChecker.STATUS_COMPLETE) {
 			SwingUtilities.invokeLater(() -> {
-				String strURL = UpdateChecker.getStrDownloadURL();
-				String strInstaller = UpdateChecker.getStrWindowsInstallerURL();
+				String strURL = UpdateChecker.getDownloadURL();
+				String strInstaller = UpdateChecker.getWindowsInstallerURL();
 
 				lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Complete"));
 				txtfldLatestVersion.setText(UpdateChecker.getLatestVersionFullString());
-				txtfldReleaseDate.setText(UpdateChecker.getStrReleaseDate());
+				txtfldReleaseDate.setText(UpdateChecker.getReleaseDate());
 				txtfldDownloadURL.setText(strURL);
 				txtfldWindowsInstallerURL.setText(strInstaller);
 
-				if(UpdateChecker.isNewVersionAvailable(Version.getMajorVersion(), Version.getMinorVersion())) {
+				if (UpdateChecker.isNewVersionAvailable()) {
 					txtfldLatestVersion.setForeground(Color.red);
 					txtfldWindowsInstallerURL.setForeground(Color.red);
 				}

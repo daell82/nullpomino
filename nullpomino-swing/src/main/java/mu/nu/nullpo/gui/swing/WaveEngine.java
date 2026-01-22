@@ -148,6 +148,7 @@ public class WaveEngine implements SoundManager, LineListener {
 		load("hurryup", resourcesDir + "/se/hurryup.wav");
 		load("square_s", resourcesDir + "/se/square_s.wav");
 		load("square_g", resourcesDir + "/se/square_g.wav");
+		load("slide", resourcesDir + "/se/slide.wav");
 
 		for (int i = 1; i < 21; i++) {
 			load("combo" + i, resourcesDir + "/se/combo" + i + ".wav");

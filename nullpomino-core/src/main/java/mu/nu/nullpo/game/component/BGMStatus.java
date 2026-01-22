@@ -38,7 +38,7 @@ public class BGMStatus implements Serializable {
 	/** Serial version ID */
 	private static final long serialVersionUID = -1003092972570497408L;
 
-	/** Constant musiccount */
+	/** Constant music count */
 	public static final int BGM_NOTHING = -1;
 	public static final int BGM_NORMAL1 = 0;
 	public static final int BGM_NORMAL2 = 1;

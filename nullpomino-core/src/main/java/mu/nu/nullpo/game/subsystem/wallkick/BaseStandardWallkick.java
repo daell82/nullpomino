@@ -11,7 +11,7 @@ import mu.nu.nullpo.game.component.WallkickResult;
 public class BaseStandardWallkick implements Wallkick {
 	/**
 	 * Get wallkick table. Used from executeWallkick.
-	 * 
+	 *
 	 * @param x           X-coordinate
 	 * @param y           Y-coordinate
 	 * @param rtDir       Rotation button used (-1: left rotation, 1: right
@@ -34,6 +34,7 @@ public class BaseStandardWallkick implements Wallkick {
 	/*
 	 * Wallkick
 	 */
+	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
 			Piece piece, Field field, Controller ctrl) {
 		int[][][] kicktable = getKickTable(x, y, rtDir, rtOld, rtNew, allowUpward, piece, field, ctrl);
@@ -43,13 +44,13 @@ public class BaseStandardWallkick implements Wallkick {
 				int x2 = kicktable[rtOld][i][0];
 				int y2 = kicktable[rtOld][i][1];
 
-				if (piece.big == true) {
+				if (piece.big) {
 					x2 *= 2;
 					y2 *= 2;
 				}
 
-				if ((y2 >= 0) || (allowUpward)) {
-					if (piece.checkCollision(x + x2, y + y2, rtNew, field) == false) {
+				if (y2 >= 0 || allowUpward) {
+					if (!piece.checkCollision(x + x2, y + y2, rtNew, field)) {
 						return new WallkickResult(x2, y2, rtNew);
 					}
 				}

@@ -39,7 +39,7 @@ import lombok.RequiredArgsConstructor;
 public enum GameStyle {
 
 	/** classical tetris variants */
-	TRETROMINO(0, "TETROMINO"),
+	TETROMINO(0, "TETROMINO"),
 
 	/** avalanche game mode */
 	AVALANCHE(1, "AVALANCHE"),

@@ -38,12 +38,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum DisplaySize {
 
-	SMALL(8),
+	SMALL(8, 0.5f),
 
-	NORMAL(16),
+	NORMAL(16, 1f),
 
-	BIG(32);
+	BIG(32, 2f);
 
 	private final int blockSize;
+
+	private final float scale;
 
 }

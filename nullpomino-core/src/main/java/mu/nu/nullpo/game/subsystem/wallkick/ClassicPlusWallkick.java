@@ -51,21 +51,19 @@ public class ClassicPlusWallkick implements Wallkick {
 		}
 
 		// NormalWallkick (IOther)
-		if (piece.id != Piece.PIECE_I) {
-			if (checkCollisionKick(piece, x, y, rtNew, field) || piece.id == Piece.PIECE_I2
-					|| piece.id == Piece.PIECE_L3) {
-				int temp = 0;
+		if (piece.id != Piece.PIECE_I && checkCollisionKick(piece, x, y, rtNew, field) || piece.id == Piece.PIECE_I2
+				|| piece.id == Piece.PIECE_L3) {
+			int temp = 0;
 
-				if (!piece.checkCollision(x - 1 - check, y, rtNew, field)) {
-					temp = -1 - check;
-				}
-				if (!piece.checkCollision(x + 1 + check, y, rtNew, field)) {
-					temp = 1 + check;
-				}
+			if (!piece.checkCollision(x - 1 - check, y, rtNew, field)) {
+				temp = -1 - check;
+			}
+			if (!piece.checkCollision(x + 1 + check, y, rtNew, field)) {
+				temp = 1 + check;
+			}
 
-				if (temp != 0) {
-					return new WallkickResult(temp, 0, rtNew);
-				}
+			if (temp != 0) {
+				return new WallkickResult(temp, 0, rtNew);
 			}
 		}
 

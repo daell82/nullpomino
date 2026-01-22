@@ -850,7 +850,7 @@ public class Piece implements Serializable {
 	 */
 	public boolean checkCollision(int x, int y, int rt, Field fld) {
 		// BigThe only treatment
-		if (big == true) {
+		if (big) {
 			return checkCollisionBig(x, y, rt, fld);
 		}
 

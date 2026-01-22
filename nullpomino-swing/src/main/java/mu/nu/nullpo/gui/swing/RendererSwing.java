@@ -877,28 +877,28 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				int x2 = x + j * blksize;
 				int y2 = y + i * blksize;
 
-				Block blk = null;
+				Block block = null;
 				if (field != null) {
-					blk = field.getBlock(j, i);
+					block = field.getBlock(j, i);
 				}
 
-				if (field != null && blk != null && blk.color > Colors.BLOCK_COLOR_NONE) {
-					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, blk.skin,
-								blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness, blk.alpha, scale,
-								blk.attribute);
+				if (field != null && block != null && block.color > Colors.BLOCK_COLOR_NONE) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
+						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, block.skin,
+								block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), block.darkness, block.alpha, scale,
+								block.attribute);
 					} else if (showfieldblockgraphics && engine.owner.replayMode && engine.owner.replayShowInvisible) {
-						drawBlockForceVisible(x2, y2, blk, scale);
-					} else if (showfieldblockgraphics && blk.getAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE)) {
-						drawBlock(x2, y2, blk, scale);
+						drawBlockForceVisible(x2, y2, block, scale);
+					} else if (showfieldblockgraphics && block.getAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE)) {
+						drawBlock(x2, y2, block, scale);
 					} else if (width > 10 && height > 20 || !showfieldbggrid) {
 						int sx = i % 2 == 0 && j % 2 == 0 || i % 2 != 0 && j % 2 != 0 ? 0 : 16;
 						graphics.drawImage(resourceManager.getImgFieldbg(), x2, y2, x2 + blksize, y2 + blksize, sx, 0,
 								sx + 16, 16, null);
 					}
 
-					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE)
-							&& !blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE)
+							&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 						graphics.setColor(Color.white);
 						int ls = blksize - 1;
 						switch (outlineType) {
@@ -917,30 +917,30 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 							}
 							break;
 						case GameEngine.BLOCK_OUTLINE_CONNECT:
-							if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+							if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 								graphics.drawLine(x2, y2, x2 + ls, y2);
 							}
-							if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+							if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
 								graphics.drawLine(x2, y2 + ls, x2 + ls, y2 + ls);
 							}
-							if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+							if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
 								graphics.drawLine(x2, y2, x2, y2 + ls);
 							}
-							if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+							if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
 								graphics.drawLine(x2 + ls, y2, x2 + ls, y2 + ls);
 							}
 							break;
 						case GameEngine.BLOCK_OUTLINE_SAMECOLOR:
-							if (field.getBlockColor(j, i - 1) != blk.color) {
+							if (field.getBlockColor(j, i - 1) != block.color) {
 								graphics.drawLine(x2, y2, x2 + ls, y2);
 							}
-							if (field.getBlockColor(j, i + 1) != blk.color) {
+							if (field.getBlockColor(j, i + 1) != block.color) {
 								graphics.drawLine(x2, y2 + ls, x2 + ls, y2 + ls);
 							}
-							if (field.getBlockColor(j - 1, i) != blk.color) {
+							if (field.getBlockColor(j - 1, i) != block.color) {
 								graphics.drawLine(x2, y2, x2, y2 + ls);
 							}
-							if (field.getBlockColor(j + 1, i) != blk.color) {
+							if (field.getBlockColor(j + 1, i) != block.color) {
 								graphics.drawLine(x2 + ls, y2, x2 + ls, y2 + ls);
 							}
 							break;
@@ -1681,24 +1681,24 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * Render effects
 	 */
 	protected void effectRender() {
-		for (EffectObject obj : effects) {
+		for (EffectObject effect : effects) {
 			// Normal Block
-			if (obj.effect == 1) {
-				int x = obj.x - 40;
-				int y = obj.y - 15;
-				int color = obj.param - Colors.BLOCK_COLOR_GRAY;
+			if (effect.effect == 1) {
+				int x = effect.x - 40;
+				int y = effect.y - 15;
+				int color = effect.param - Colors.BLOCK_COLOR_GRAY;
 
-				if (obj.anim < 30) {
-					int srcx = (obj.anim - 1) % 6 * 96;
-					int srcy = (obj.anim - 1) / 6 * 96;
+				if (effect.anim < 30) {
+					int srcx = (effect.anim - 1) % 6 * 96;
+					int srcy = (effect.anim - 1) / 6 * 96;
 					try {
 						graphics.drawImage(resourceManager.getImgBreak()[color][0], x, y, x + 96, y + 96, srcx, srcy,
 								srcx + 96, srcy + 96, null);
 					} catch (Exception e) {
 					}
 				} else {
-					int srcx = (obj.anim - 30) % 6 * 96;
-					int srcy = (obj.anim - 30) / 6 * 96;
+					int srcx = (effect.anim - 30) % 6 * 96;
+					int srcy = (effect.anim - 30) / 6 * 96;
 					try {
 						graphics.drawImage(resourceManager.getImgBreak()[color][1], x, y, x + 96, y + 96, srcx, srcy,
 								srcx + 96, srcy + 96, null);
@@ -1707,12 +1707,12 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				}
 			}
 			// Gem Block
-			if (obj.effect == 2) {
-				int x = obj.x - 8;
-				int y = obj.y - 8;
-				int srcx = (obj.anim - 1) % 10 * 32;
-				int srcy = (obj.anim - 1) / 10 * 32;
-				int color = obj.param - Colors.BLOCK_COLOR_GEM_RED;
+			if (effect.effect == 2) {
+				int x = effect.x - 8;
+				int y = effect.y - 8;
+				int srcx = (effect.anim - 1) % 10 * 32;
+				int srcy = (effect.anim - 1) / 10 * 32;
+				int color = effect.param - Colors.BLOCK_COLOR_GEM_RED;
 
 				try {
 					graphics.drawImage(resourceManager.getImgPErase()[color], x, y, x + 32, y + 32, srcx, srcy,

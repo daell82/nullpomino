@@ -302,7 +302,7 @@ public class NetServer {
 		}
 
 		try (var txtRuleList = new BufferedReader(new FileReader("config/etc/netserver_rulelist.lst"))) {
-			GameStyle style = GameStyle.TRETROMINO;
+			GameStyle style = GameStyle.TETROMINO;
 
 			String str = null;
 			while ((str = txtRuleList.readLine()) != null) {
@@ -314,7 +314,7 @@ public class NetServer {
 					style = GameStyle.valueOf(strStyle);
 					if (style == null) {
 						log.warn("{StyleChange} Unknown Style:" + str);
-						style = GameStyle.TRETROMINO;
+						style = GameStyle.TETROMINO;
 					} else {
 						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + strStyle);
 					}
@@ -366,7 +366,7 @@ public class NetServer {
 			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_multimode.lst"));
 
 			String str = null;
-			GameStyle style = GameStyle.TRETROMINO;
+			GameStyle style = GameStyle.TETROMINO;
 
 			while ((str = in.readLine()) != null) {
 				if (str.length() <= 0 || str.startsWith("#")) {
@@ -377,7 +377,7 @@ public class NetServer {
 
 					style = GameStyle.valueOf(strStyle);
 					if (style == null) {
-						style = GameStyle.TRETROMINO;
+						style = GameStyle.TETROMINO;
 					}
 				} else {
 					// Game mode name
@@ -553,7 +553,7 @@ public class NetServer {
 			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_singlemode.lst"));
 
 			String str = null;
-			GameStyle style = GameStyle.TRETROMINO;
+			GameStyle style = GameStyle.TETROMINO;
 			while ((str = in.readLine()) != null) {
 				if (str.length() <= 0 || str.startsWith("#")) {
 					// Empty line or comment line. Ignore it.
@@ -563,7 +563,7 @@ public class NetServer {
 					style = GameStyle.valueOf(str);
 					if (style == null) {
 						log.warn("{StyleChange} Unknown Style:" + str);
-						style = GameStyle.TRETROMINO;
+						style = GameStyle.TETROMINO;
 					} else {
 						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + str);
 					}
@@ -1307,7 +1307,7 @@ public class NetServer {
 		}
 
 		// Place new incomplete packet buffer
-		if (packetBuffer.length() > 0) {
+		if (!packetBuffer.isEmpty()) {
 			notCompletePacketMap.put(socketChannel, packetBuffer);
 		}
 	}
@@ -1353,8 +1353,8 @@ public class NetServer {
 		key.cancel();
 
 		SelectableChannel ch = key.channel();
-		if (ch instanceof SocketChannel) {
-			logout((SocketChannel) ch);
+		if (ch instanceof SocketChannel channel) {
+			logout(channel);
 		}
 	}
 

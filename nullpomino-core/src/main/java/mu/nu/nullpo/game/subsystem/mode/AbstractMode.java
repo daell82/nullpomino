@@ -137,7 +137,7 @@ public abstract class AbstractMode implements GameMode {
 
 	@Override
 	public GameStyle getGameStyle() {
-		return GameStyle.TRETROMINO;
+		return GameStyle.TETROMINO;
 	}
 
 	@Override
@@ -435,8 +435,8 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawMenuCompact(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color, int statc,
-			String... str) {
+	protected void drawMenuCompact(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+			int statc, String... str) {
 		menuY = y;
 		menuColor = color;
 		statcMenu = statc;
@@ -455,7 +455,8 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawResultRank(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color, int rank) {
+	protected void drawResultRank(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+			int rank) {
 		drawResultRankScale(engine, playerID, receiver, y, color, 1.0f, rank);
 	}
 
@@ -499,84 +500,77 @@ public abstract class AbstractMode implements GameMode {
 	}
 
 	protected void drawResultStatsScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
-			float scale, Statistic... stats) {
-		for (Statistic stat : stats) {
+			float scale, Statistic... statistics) {
+		var stats = engine.statistics;
+		for (Statistic stat : statistics) {
 			switch (stat) {
 			case SCORE -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.score),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.score), scale);
 			}
 			case LINES -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LINES", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.lines),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.lines), scale);
 			}
 			case TIME -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "TIME", color, scale);
 				receiver.drawMenuFont(engine, playerID, 0, y + 1,
-						String.format("%10s", GeneralUtil.getTime(engine.statistics.time)), scale);
+						String.format("%10s", GeneralUtil.getTime(stats.time)), scale);
 			}
 			case LEVEL -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.level + 1),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level + 1), scale);
 			}
 			case LEVEL_MANIA -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.level),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level), scale);
 			}
 			case PIECE -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1,
-						String.format("%10d", engine.statistics.totalPieceLocked), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.totalPieceLocked), scale);
 			}
 			case MAXCOMBO -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "MAX COMBO", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.maxCombo - 1),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxCombo - 1), scale);
 			}
 			case SPL -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/LINE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.spl), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spl), scale);
 			}
 			case SPM -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.spm), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spm), scale);
 			}
 			case SPS -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.sps), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.sps), scale);
 			}
 			case LPM -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LINE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.lpm), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lpm), scale);
 			}
 			case LPS -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LINE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.lps), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lps), scale);
 			}
 			case PPM -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.ppm), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.ppm), scale);
 			}
 			case PPS -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", engine.statistics.pps), scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.pps), scale);
 			}
 			case MAXCHAIN -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "MAX CHAIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", engine.statistics.maxChain),
-						scale);
+				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxChain), scale);
 			}
 			case LEVEL_ADD_DISP -> {
 				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
 				receiver.drawMenuFont(engine, playerID, 0, y + 1,
-						String.format("%10d", engine.statistics.level + engine.statistics.levelDispAdd), scale);
+						String.format("%10d", stats.level + stats.levelDispAdd), scale);
 			}
 			}
-			;
 			y += 2;
 		}
 	}

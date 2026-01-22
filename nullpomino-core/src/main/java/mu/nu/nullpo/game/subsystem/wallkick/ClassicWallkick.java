@@ -78,7 +78,7 @@ public class ClassicWallkick implements Wallkick {
 	 */
 	private boolean checkCollisionKick(Piece piece, int x, int y, int rt, Field fld) {
 		// BigThe only treatment
-		if (piece.big == true) {
+		if (piece.big) {
 			return checkCollisionKickBig(piece, x, y, rt, fld);
 		}
 
@@ -87,10 +87,7 @@ public class ClassicWallkick implements Wallkick {
 				int x2 = x + piece.dataX[rt][i];
 				int y2 = y + piece.dataY[rt][i];
 
-				if (x2 >= fld.getWidth()) {
-					return true;
-				}
-				if (y2 >= fld.getHeight()) {
+				if (x2 >= fld.getWidth() || y2 >= fld.getHeight()) {
 					return true;
 				}
 				if (fld.getCoordAttribute(x2, y2) == Field.COORD_WALL) {
@@ -118,34 +115,31 @@ public class ClassicWallkick implements Wallkick {
 	 */
 	private boolean checkCollisionKickBig(Piece piece, int x, int y, int rt, Field fld) {
 		for (int i = 0; i < piece.getMaxBlock(); i++) {
-			if (piece.dataX[rt][i] != 1 + piece.dataOffsetX[rt]) {
-				int x2 = x + piece.dataX[rt][i] * 2;
-				int y2 = y + piece.dataY[rt][i] * 2;
+			if (piece.dataX[rt][i] == 1 + piece.dataOffsetX[rt]) {
+				return false;
+			}
+			int x2 = x + piece.dataX[rt][i] * 2;
+			int y2 = y + piece.dataY[rt][i] * 2;
 
-				// 4BlockMinutes to examine
-				for (int k = 0; k < 2; k++) {
-					for (int l = 0; l < 2; l++) {
-						int x3 = x2 + k;
-						int y3 = y2 + l;
+			// 4BlockMinutes to examine
+			for (int k = 0; k < 2; k++) {
+				for (int l = 0; l < 2; l++) {
+					int x3 = x2 + k;
+					int y3 = y2 + l;
 
-						if (x3 >= fld.getWidth()) {
-							return true;
-						}
-						if (y3 >= fld.getHeight()) {
-							return true;
-						}
-						if (fld.getCoordAttribute(x3, y3) == Field.COORD_WALL) {
-							return true;
-						}
-						if (fld.getCoordAttribute(x3, y3) != Field.COORD_VANISH
-								&& fld.getBlockColor(x3, y3) != Colors.BLOCK_COLOR_NONE) {
-							return true;
-						}
+					if (x3 >= fld.getWidth() || y3 >= fld.getHeight()) {
+						return true;
+					}
+					if (fld.getCoordAttribute(x3, y3) == Field.COORD_WALL) {
+						return true;
+					}
+					if (fld.getCoordAttribute(x3, y3) != Field.COORD_VANISH
+							&& fld.getBlockColor(x3, y3) != Colors.BLOCK_COLOR_NONE) {
+						return true;
 					}
 				}
 			}
 		}
-
 		return false;
 	}
 }

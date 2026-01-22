@@ -44,9 +44,11 @@ public class DTETWallkick implements Wallkick {
 	/*
 	 * Wallkick main method
 	 */
+	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
 			Piece piece, Field field, Controller ctrl) {
-		int x2, y2;
+		int x2;
+		int y2;
 
 		for (int i = 0; i < WALLKICK.length; i++) {
 			if (rtDir < 0 || rtDir == 2) {
@@ -61,7 +63,7 @@ public class DTETWallkick implements Wallkick {
 				y2 *= 2;
 			}
 
-			if (piece.checkCollision(x + x2, y + y2, rtNew, field) == false) {
+			if (!piece.checkCollision(x + x2, y + y2, rtNew, field)) {
 				return new WallkickResult(x2, y2, rtNew);
 			}
 		}

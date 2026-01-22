@@ -198,13 +198,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	public RuleOptions ruleOptPlayer, ruleOptLock;
 
 	/** Map list */
-	public LinkedList<String> mapList;
+	public final List<String> mapList = new LinkedList<>();
 
 	/** Event listeners */
-	protected LinkedList<NetLobbyListener> listeners = new LinkedList<>();
+	protected final List<NetLobbyListener> listeners = new LinkedList<>();
 
 	/** Preset info */
-	protected LinkedList<NetRoomInfo> presets = new LinkedList<>();
+	protected final List<NetRoomInfo> presets = new LinkedList<>();
 
 	/** Current game mode (act as special NetLobbyListener) */
 	protected NetDummyMode netDummyMode;
@@ -646,80 +646,18 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public void init() {
 		// Read configuration file
-		propConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netlobby.cfg");
-			propConfig.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
-		// Load global settings
-		propGlobal = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/global.cfg");
-			propGlobal.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
-		// SwingRead version of the configuration file
-		propSwingConfig = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/swing.cfg");
-			propSwingConfig.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
-		// ObserverFunction read configuration file
-		propObserver = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/setting/netobserver.cfg");
-			propObserver.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
-		// Game mode description
-		propDefaultModeDesc = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/modedesc_default.properties");
-			propDefaultModeDesc.load(in);
-			in.close();
-		} catch (IOException e) {
-			log.error("Couldn't load default mode description file", e);
-		}
-		propModeDesc = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream(
-					"config/lang/modedesc_" + Locale.getDefault().getCountry() + ".properties");
-			propModeDesc.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
+		propConfig = CustomProperties.load("config/setting/netlobby.cfg");
+		propGlobal = CustomProperties.load("config/setting/global.cfg");
+		propSwingConfig = CustomProperties.load("config/setting/swing.cfg");
+		propObserver = CustomProperties.load("config/setting/netobserver.cfg");
+		propDefaultModeDesc = CustomProperties.load("config/lang/modedesc_default.properties");
+		propModeDesc = CustomProperties
+				.load("config/lang/modedesc_" + Locale.getDefault().getCountry() + ".properties");
 		// Read language file
-		propLangDefault = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream("config/lang/netlobby_default.properties");
-			propLangDefault.load(in);
-			in.close();
-		} catch (Exception e) {
-			log.error("Couldn't load default UI language file", e);
-		}
-
-		propLang = new CustomProperties();
-		try {
-			FileInputStream in = new FileInputStream(
-					"config/lang/netlobby_" + Locale.getDefault().getCountry() + ".properties");
-			propLang.load(in);
-			in.close();
-		} catch (IOException e) {
-		}
-
+		propLangDefault = CustomProperties.load("config/lang/netlobby_default.properties");
+		propLang = CustomProperties.load("config/lang/netlobby_" + Locale.getDefault().getCountry() + ".properties");
 		// Look&FeelSetting
-		if (propSwingConfig.getProperty("option.usenativelookandfeel", true) == true) {
+		if (propSwingConfig.getProperty("option.usenativelookandfeel", true)) {
 			try {
 				UIManager.getInstalledLookAndFeels();
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -742,9 +680,6 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			listRatedRuleName.put(style, new LinkedList<>());
 		}
 
-		// Map list
-		mapList = new LinkedList<>();
-
 		// Rule files
 		String[] strRuleFileList = getRuleFileList();
 		if (strRuleFileList == null) {
@@ -766,12 +701,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		this.setLocation(propConfig.getProperty("mainwindow.x", 0), propConfig.getProperty("mainwindow.y", 0));
 
 		// ListenerCall
-		if (listeners != null) {
-			for (NetLobbyListener l : listeners) {
-				if (l != null) {
-					l.netlobbyOnInit(this);
-				}
-			}
+		for (NetLobbyListener listener : listeners) {
+			listener.netlobbyOnInit(this);
 		}
 		if (netDummyMode != null) {
 			netDummyMode.netlobbyOnInit(this);
@@ -2179,7 +2110,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			JScrollPane spMPRanking = new JScrollPane(tableMPRanking[i]);
 			tabMPRanking.addTab(style.getName(), spMPRanking);
 
-			if (style != GameStyle.TRETROMINO) {
+			if (style != GameStyle.TETROMINO) {
 				tabMPRanking.setEnabledAt(i, false); // TODO: Add non-tetromino leaderboard
 			}
 		}
@@ -2291,6 +2222,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 		DefaultComboBoxModel<ComboLabel> model = new DefaultComboBoxModel<>();
 		model.addElement(new ComboLabel(getUIText("GameTuning_Skin_Auto"), null));
+
 		for (int i = 0; i < imgTuningBlockSkins.length; i++) {
 			model.addElement(new ComboLabel("" + i, new ImageIcon(imgTuningBlockSkins[i])));
 		}
@@ -2367,6 +2299,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	}
 
 	/**
+	 * FIXME use ressourceManagerSwing instead
+	 *
 	 * Load block skins
 	 */
 	protected void loadBlockSkins() {
@@ -2513,54 +2447,24 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			setJMenuBar(menuBar[cardNumber]);
 
 			// Set default button
-			JButton defaultButton = null;
-			switch (currentScreenCardNumber) {
-			case SCREENCARD_SERVERSELECT:
-				defaultButton = btnServerConnect;
-				break;
-			case SCREENCARD_LOBBY:
-				if (tabLobbyAndRoom.getSelectedIndex() == 0) {
-					defaultButton = btnLobbyChatSend;
-				} else {
-					defaultButton = btnRoomChatSend;
-				}
-				break;
-			case SCREENCARD_SERVERADD:
-				defaultButton = btnServerAddOK;
-				break;
-			case SCREENCARD_CREATERATED_WAITING:
-				defaultButton = btnCreateRatedWaitingCancel;
-				break;
-			case SCREENCARD_CREATERATED:
-				defaultButton = btnCreateRatedOK;
-				break;
-			case SCREENCARD_CREATEROOM:
-				if (btnCreateRoomOK.isVisible()) {
-					defaultButton = btnCreateRoomOK;
-				} else {
-					defaultButton = btnCreateRoomCancel;
-				}
-				break;
-			case SCREENCARD_CREATEROOM1P:
-				if (btnCreateRoom1POK.isVisible()) {
-					defaultButton = btnCreateRoom1POK;
-				} else {
-					defaultButton = btnCreateRoom1PCancel;
-				}
-				break;
-			case SCREENCARD_MPRANKING:
-				defaultButton = btnMPRankingOK;
-				break;
-			case SCREENCARD_RULECHANGE:
-				defaultButton = btnRuleChangeOK;
-				break;
-			}
+			JButton defaultButton = switch (currentScreenCardNumber) {
+			case SCREENCARD_SERVERSELECT -> btnServerConnect;
+			case SCREENCARD_LOBBY -> tabLobbyAndRoom.getSelectedIndex() == 0 ? btnLobbyChatSend : btnRoomChatSend;
+			case SCREENCARD_SERVERADD -> btnServerAddOK;
+			case SCREENCARD_CREATERATED_WAITING -> btnCreateRatedWaitingCancel;
+			case SCREENCARD_CREATERATED -> btnCreateRatedOK;
+			case SCREENCARD_CREATEROOM -> btnCreateRoomOK.isVisible() ? btnCreateRoomOK : btnCreateRoomCancel;
+			case SCREENCARD_CREATEROOM1P -> btnCreateRoom1POK.isVisible() ? btnCreateRoom1POK : btnCreateRoom1PCancel;
+			case SCREENCARD_MPRANKING -> btnMPRankingOK;
+			case SCREENCARD_RULECHANGE -> btnRuleChangeOK;
+			default -> null;
+			};
 
 			if (defaultButton != null) {
 				getRootPane().setDefaultButton(defaultButton);
 			}
 		} catch (Exception e) {
-			// TODO: There are several threading issue here
+			// XXX: There are several threading issue here
 			log.debug("changeCurrentScreenCard failed; Possible threading issue", e);
 		}
 	}
@@ -2618,7 +2522,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param pInfo PlayerInformation
 	 * @return PlayerOfName(Translated symbol trip)
 	 */
-	public String getPlayerNameWithTripCode(NetPlayerInfo pInfo) {
+	private String getPlayerNameWithTripCode(NetPlayerInfo pInfo) {
 		return convTripCode(pInfo.strName);
 	}
 
@@ -2628,8 +2532,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param s String to be converted(MostName)
 	 * @return The converted string
 	 */
-	public String convTripCode(String s) {
-		if (propLang.getProperty("TripSeparator_EnableConvert", false) == false) {
+	private String convTripCode(String s) {
+		if (!propLang.getProperty("TripSeparator_EnableConvert", false)) {
 			return s;
 		}
 		String strName = s;
@@ -2645,7 +2549,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param txtpane Chat log
 	 * @param str     The string to add
 	 */
-	public void addSystemChatLog(JTextPane txtpane, String str) {
+	private void addSystemChatLog(JTextPane txtpane, String str) {
 		addSystemChatLog(txtpane, str, null);
 	}
 
@@ -2656,7 +2560,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param str     The string to add
 	 * @param fgcolor Letter color(nullYes)
 	 */
-	public void addSystemChatLog(JTextPane txtpane, String str, Color fgcolor) {
+	private void addSystemChatLog(JTextPane txtpane, String str, Color fgcolor) {
 		String strTime = getCurrentTimeAsString();
 
 		SimpleAttributeSet sas = null;
@@ -2679,6 +2583,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				writerLobbyLog.flush();
 			}
 		} catch (Exception e) {
+			log.debug("inserting contents failed", e);
 		}
 	}
 
@@ -2739,6 +2644,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				writerLobbyLog.flush();
 			}
 		} catch (Exception e) {
+			log.debug("inserting contents failed", e);
 		}
 	}
 
@@ -2793,6 +2699,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				writerLobbyLog.flush();
 			}
 		} catch (Exception e) {
+			log.debug("inserting contents failed", e);
 		}
 	}
 
@@ -3442,12 +3349,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		}
 
 		// ListenerCall
-		if (listeners != null) {
-			for (NetLobbyListener l : listeners) {
-				l.netlobbyOnExit(this);
-			}
-			listeners = null;
+		for (NetLobbyListener l : listeners) {
+			l.netlobbyOnExit(this);
 		}
+		listeners.clear();
+
 		if (netDummyMode != null) {
 			netDummyMode.netlobbyOnExit(this);
 			netDummyMode = null;
@@ -4467,7 +4373,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				listRatedRuleName.get(style).add(name);
 			}
 
-			if (style == GameStyle.TRETROMINO) {
+			if (style == GameStyle.TETROMINO) {
 				listmodelCreateRoom1PRuleList.clear();
 				listmodelCreateRoom1PRuleList.addElement(getUIText("CreateRoom1P_YourRule"));
 				listboxCreateRoom1PRuleList.setSelectedIndex(0);

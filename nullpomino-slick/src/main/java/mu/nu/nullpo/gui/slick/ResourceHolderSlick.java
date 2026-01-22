@@ -242,6 +242,7 @@ public class ResourceHolderSlick {
 			soundManager.load("hurryup", skindir + "/se/hurryup.wav");
 			soundManager.load("square_s", skindir + "/se/square_s.wav");
 			soundManager.load("square_g", skindir + "/se/square_g.wav");
+			soundManager.load("slide", skindir + "/se/slide.wav");
 
 			for (int i = 0; i < 20; i++) {
 				soundManager.load("combo" + (i + 1), skindir + "/se/combo" + (i + 1) + ".wav");

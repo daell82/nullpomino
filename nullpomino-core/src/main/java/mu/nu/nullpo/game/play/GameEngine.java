@@ -57,19 +57,8 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 @Log4j
 public class GameEngine {
 
-	/** Constants of main game status */
-	public enum Status {
-		NOTHING, SETTING, READY, MOVE, LOCKFLASH, LINECLEAR, ARE, ENDINGSTART, CUSTOM, EXCELLENT, GAMEOVER, RESULT,
-		FIELDEDIT, INTERRUPTITEM
-	}
-
 	/** Number of free status counters (used by statc array) */
 	public static final int MAX_STATC = 10;
-
-	/** Constants of last successful movements */
-	public enum LastMove {
-		NONE, FALL_AUTO, FALL_SELF, SLIDE_AIR, SLIDE_GROUND, ROTATE_AIR, ROTATE_GROUND
-	}
 
 	/** Constants of block outline type */
 	public static final int BLOCK_OUTLINE_AUTO = -1;
@@ -111,12 +100,23 @@ public class GameEngine {
 		LINE, COLOR, LINE_COLOR, GEM_COLOR
 	}
 
+	/** Constants of main game status */
+	public enum Status {
+		NOTHING, SETTING, READY, MOVE, LOCKFLASH, LINECLEAR, ARE, ENDINGSTART, CUSTOM, EXCELLENT, GAMEOVER, RESULT,
+		FIELDEDIT, INTERRUPTITEM
+	}
+
+	/** Constants of last successful movements */
+	public enum LastMove {
+		NONE, FALL_AUTO, FALL_SELF, SLIDE_AIR, SLIDE_GROUND, ROTATE_AIR, ROTATE_GROUND
+	}
+
 	/** Table for color-block item */
-	public static final int[] ITEM_COLOR_BRIGHT_TABLE = { 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4,
+	private static final int[] ITEM_COLOR_BRIGHT_TABLE = { 10, 10, 9, 9, 8, 8, 8, 7, 7, 7, 6, 6, 6, 5, 5, 5, 4, 4, 4, 4,
 			3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/** Default list of block colors to use for random block colors. */
-	public static final int[] BLOCK_COLORS_DEFAULT = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
+	private  static final int[] BLOCK_COLORS_DEFAULT = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
 			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_BLUE,
 			Colors.BLOCK_COLOR_PURPLE };
 
@@ -222,15 +222,19 @@ public class GameEngine {
 	public long endTime;
 
 	/** Major version */
+	@Deprecated(forRemoval = true)
 	public float versionMajor;
 
 	/** Minor version */
+	@Deprecated(forRemoval = true)
 	public int versionMinor;
 
 	/** OLD minor version (Used for 6.9 or earlier replays) */
+	@Deprecated(forRemoval = true)
 	public float versionMinorOld;
 
 	/** Dev build flag */
+	@Deprecated(forRemoval = true)
 	public boolean versionIsDevBuild;
 
 	/** Game quit flag */
@@ -706,7 +710,7 @@ public class GameEngine {
 		gcount = 0;
 		replayData = new ReplayData();
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			versionMajor = Version.getMajorVersion();
 			versionMinor = Version.getMinorVersion();
 			versionMinorOld = Version.getMinorVersionOld();
@@ -1046,7 +1050,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Current ARE after line clearGets the value of the (Also consider setting
+	 * Gets the value of the current ARE after line clear (Also considers setting
 	 * rules)
 	 *
 	 * @return Current ARE after line clear
@@ -1062,7 +1066,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Current Line clear timeGets the value of the (Also consider setting rules)
+	 * Gets the value of the current Line clear time (Also consider setting rules)
 	 *
 	 * @return Current Line clear time
 	 */
@@ -1077,7 +1081,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Current Fixation timeGets the value of the (Also consider setting rules)
+	 * Gets the value of the current Fixation time (Also consider setting rules)
 	 *
 	 * @return Current Fixation time
 	 */
@@ -1092,7 +1096,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Current DASGets the value of the (Also consider setting rules)
+	 * Gets the value of the current DAS (Also consider setting rules)
 	 *
 	 * @return Current DAS
 	 */
@@ -1116,7 +1120,7 @@ public class GameEngine {
 	 * @return Controller.BUTTON_UP if controls are normal, Controller.BUTTON_DOWN
 	 *         if up/down are reversed
 	 */
-	public int getUp() {
+	protected int getUp() {
 		return owReverseUpDown ? Controller.BUTTON_DOWN : Controller.BUTTON_UP;
 	}
 
@@ -1124,7 +1128,7 @@ public class GameEngine {
 	 * @return Controller.BUTTON_DOWN if controls are normal, Controller.BUTTON_UP
 	 *         if up/down are reversed
 	 */
-	public int getDown() {
+	protected int getDown() {
 		return owReverseUpDown ? Controller.BUTTON_UP : Controller.BUTTON_DOWN;
 	}
 
@@ -1141,7 +1145,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * In current useBlockSkin numberGet the
+	 * Get the BlockSkin number in current use
 	 *
 	 * @return BlockSkin number
 	 */
@@ -1158,7 +1162,7 @@ public class GameEngine {
 	 */
 	public boolean isRotateButtonDefaultRight() {
 		if (ruleopt == null || owRotateButtonDefaultRight >= 0) {
-			return !(owRotateButtonDefaultRight == 0);
+			return owRotateButtonDefaultRight != 0;
 		}
 		return ruleopt.rotateButtonDefaultRight;
 	}
@@ -1182,13 +1186,13 @@ public class GameEngine {
 		if (field != null) {
 			for (int x = 0; x < field.getWidth(); x++) {
 				for (int y = 0; y < field.getHeight(); y++) {
-					Block blk = field.getBlock(x, y);
+					Block block = field.getBlock(x, y);
 
-					if (blk != null && blk.color > Colors.BLOCK_COLOR_NONE) {
-						blk.alpha = 1f;
-						blk.darkness = 0f;
-						blk.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-						blk.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
+					if (block != null && block.color > Colors.BLOCK_COLOR_NONE) {
+						block.alpha = 1f;
+						block.darkness = 0f;
+						block.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+						block.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
 					}
 				}
 			}
@@ -1200,33 +1204,34 @@ public class GameEngine {
 	 * release
 	 */
 	public void checkDropContinuousUse() {
-		if (gameActive) {
-			if (!ctrl.isPress(getDown()) || !ruleopt.softdropLimit) {
-				softdropContinuousUse = false;
+		if (!gameActive) {
+			return;
+		}
+		if (!ctrl.isPress(getDown()) || !ruleopt.softdropLimit) {
+			softdropContinuousUse = false;
+		}
+		if (!ctrl.isPress(getUp()) || !ruleopt.harddropLimit) {
+			harddropContinuousUse = false;
+		}
+		if (!ctrl.isPress(Controller.BUTTON_D) || !ruleopt.holdInitialLimit) {
+			initialHoldContinuousUse = false;
+		}
+		if (!ruleopt.rotateInitialLimit) {
+			initialRotateContinuousUse = false;
+		}
+
+		if (initialRotateContinuousUse) {
+			int dir = 0;
+			if (ctrl.isPress(Controller.BUTTON_A) || ctrl.isPress(Controller.BUTTON_C)) {
+				dir = -1;
+			} else if (ctrl.isPress(Controller.BUTTON_B)) {
+				dir = 1;
+			} else if (ctrl.isPress(Controller.BUTTON_E)) {
+				dir = 2;
 			}
-			if (!ctrl.isPress(getUp()) || !ruleopt.harddropLimit) {
-				harddropContinuousUse = false;
-			}
-			if (!ctrl.isPress(Controller.BUTTON_D) || !ruleopt.holdInitialLimit) {
-				initialHoldContinuousUse = false;
-			}
-			if (!ruleopt.rotateInitialLimit) {
+
+			if (initialRotateLastDirection != dir || dir == 0) {
 				initialRotateContinuousUse = false;
-			}
-
-			if (initialRotateContinuousUse) {
-				int dir = 0;
-				if (ctrl.isPress(Controller.BUTTON_A) || ctrl.isPress(Controller.BUTTON_C)) {
-					dir = -1;
-				} else if (ctrl.isPress(Controller.BUTTON_B)) {
-					dir = 1;
-				} else if (ctrl.isPress(Controller.BUTTON_E)) {
-					dir = 2;
-				}
-
-				if (initialRotateLastDirection != dir || dir == 0) {
-					initialRotateContinuousUse = false;
-				}
 			}
 		}
 	}
@@ -1238,19 +1243,21 @@ public class GameEngine {
 	 */
 	public int getMoveDirection() {
 		if (ctrl.isPress(Controller.BUTTON_LEFT) && ctrl.isPress(Controller.BUTTON_RIGHT)) {
-			if (ruleopt.moveLeftAndRightAllow) {
-				if (ctrl.buttonTime[Controller.BUTTON_LEFT] > ctrl.buttonTime[Controller.BUTTON_RIGHT]) {
-					return ruleopt.moveLeftAndRightUsePreviousInput ? -1 : 1;
-				} else if (ctrl.buttonTime[Controller.BUTTON_LEFT] < ctrl.buttonTime[Controller.BUTTON_RIGHT]) {
-					return ruleopt.moveLeftAndRightUsePreviousInput ? 1 : -1;
-				}
+			if (!ruleopt.moveLeftAndRightAllow) {
+				return 0;
 			}
-		} else if (ctrl.isPress(Controller.BUTTON_LEFT)) {
+			if (ctrl.buttonTime(Controller.BUTTON_LEFT) > ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
+				return ruleopt.moveLeftAndRightUsePreviousInput ? -1 : 1;
+			} else if (ctrl.buttonTime(Controller.BUTTON_LEFT) < ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
+				return ruleopt.moveLeftAndRightUsePreviousInput ? 1 : -1;
+			}
+		}
+		if (ctrl.isPress(Controller.BUTTON_LEFT)) {
 			return -1;
-		} else if (ctrl.isPress(Controller.BUTTON_RIGHT)) {
+		}
+		if (ctrl.isPress(Controller.BUTTON_RIGHT)) {
 			return 1;
 		}
-
 		return 0;
 	}
 
@@ -1344,7 +1351,7 @@ public class GameEngine {
 			int[] ty = new int[4];
 
 			// Setup 4-point coordinates
-			if (piece.big == true) {
+			if (piece.big) {
 				tx[0] = 1;
 				ty[0] = 1;
 				tx[1] = 4;
@@ -1391,10 +1398,10 @@ public class GameEngine {
 				tspin = true;
 				Field copyField = new Field(fld);
 				piece.placeToField(x, y, copyField);
-				if (copyField.checkLineNoFlag() == 1 && kickused == true) {
+				if (copyField.checkLineNoFlag() == 1 && kickused) {
 					tspinmini = true;
 				}
-			} else if (tspinEnableEZ && kickused == true) {
+			} else if (tspinEnableEZ && kickused) {
 				tspin = true;
 				tspinez = true;
 			}
@@ -1471,12 +1478,12 @@ public class GameEngine {
 				tspin = true;
 				Field copyField = new Field(fld);
 				piece.placeToField(x, y, copyField);
-				if (piece.getHeight() + 1 != copyField.checkLineNoFlag() && kickused == true) {
+				if (piece.getHeight() + 1 != copyField.checkLineNoFlag() && kickused) {
 					tspinmini = true;
 					// if((copyField.checkLineNoFlag() == 1) && (kickused == true)) tspinmini =
 					// true;
 				}
-			} else if (tspinEnableEZ && kickused == true) {
+			} else if (tspinEnableEZ && kickused) {
 				tspin = true;
 				tspinez = true;
 			}
@@ -1507,11 +1514,11 @@ public class GameEngine {
 	public int getSpawnPosX(Field fld, Piece piece) {
 		int x = -1 + (fld.getWidth() - piece.getWidth() + 1) / 2;
 
-		if (big == true && bigmove == true && x % 2 != 0) {
+		if (big && bigmove && x % 2 != 0) {
 			x++;
 		}
 
-		if (big == true) {
+		if (big) {
 			x += ruleopt.pieceSpawnXBig[piece.id][piece.direction];
 		} else {
 			x += ruleopt.pieceSpawnX[piece.id][piece.direction];
@@ -1529,16 +1536,16 @@ public class GameEngine {
 	public int getSpawnPosY(Piece piece) {
 		int y = 0;
 
-		if (ruleopt.pieceEnterAboveField == true && ruleopt.fieldCeiling == false) {
+		if (ruleopt.pieceEnterAboveField && !ruleopt.fieldCeiling) {
 			y = -1 - piece.getMaximumBlockY();
-			if (big == true) {
+			if (big) {
 				y--;
 			}
 		} else {
 			y = -piece.getMinimumBlockY();
 		}
 
-		if (big == true) {
+		if (big) {
 			y += ruleopt.pieceSpawnYBig[piece.id][piece.direction];
 		} else {
 			y += ruleopt.pieceSpawnY[piece.id][piece.direction];
@@ -1554,9 +1561,9 @@ public class GameEngine {
 	 * @return rotation buttonPiece after pressing theDirection
 	 */
 	public int getRotateDirection(int move) {
-		int rt = 0 + move;
+		int rt = move;
 		if (nowPieceObject != null) {
-			rt = nowPieceObject.direction + move;
+			rt += nowPieceObject.direction;
 		}
 
 		if (move == 2) {
@@ -1585,7 +1592,7 @@ public class GameEngine {
 		initialRotateDirection = 0;
 		initialHoldFlag = false;
 
-		if (ruleopt.rotateInitial == true && initialRotateContinuousUse == false) {
+		if (ruleopt.rotateInitial && !initialRotateContinuousUse) {
 			int dir = 0;
 			if (ctrl.isPress(Controller.BUTTON_A) || ctrl.isPress(Controller.BUTTON_C)) {
 				dir = -1;
@@ -1597,7 +1604,7 @@ public class GameEngine {
 			initialRotateDirection = dir;
 		}
 
-		if (ctrl.isPress(Controller.BUTTON_D) && ruleopt.holdInitial == true && isHoldOK()) {
+		if (ctrl.isPress(Controller.BUTTON_D) && ruleopt.holdInitial && isHoldOK()) {
 			initialHoldFlag = true;
 			initialHoldContinuousUse = true;
 			playSE("initialhold");
@@ -1642,8 +1649,8 @@ public class GameEngine {
 							}
 						}
 
-						if (blockHidden != -1 && blk.elapsedFrames >= blockHidden - 10 && gameActive == true) {
-							if (blockHiddenAnim == true) {
+						if (blockHidden != -1 && blk.elapsedFrames >= blockHidden - 10 && gameActive) {
+							if (blockHiddenAnim) {
 								blk.alpha -= 0.1f;
 								if (blk.alpha < 0.0f) {
 									blk.alpha = 0.0f;
@@ -1838,7 +1845,7 @@ public class GameEngine {
 			if (!owner.replayMode || owner.replayRerecord) {
 				// AIOf buttonProcessing
 				if (ai != null) {
-					if (aiShowHint == false) {
+					if (!aiShowHint) {
 						ai.setControl(this, playerID, ctrl);
 					} else {
 						aiHintReady = ai.thinkComplete
@@ -2058,11 +2065,10 @@ public class GameEngine {
 	 */
 	public void statSetting() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onSetting(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onSetting(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onSetting(this, playerID);
 
 		// Mode側が何もしない場合はReady画面へ移動
@@ -2075,11 +2081,10 @@ public class GameEngine {
 	 */
 	public void statReady() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onReady(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onReady(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onReady(this, playerID);
 
 		// Horizontal reservoir
@@ -2099,12 +2104,12 @@ public class GameEngine {
 				// Peace is possible emergence1If no one is to be able to all appearance
 				boolean allDisable = true;
 				for (boolean element : nextPieceEnable) {
-					if (element == true) {
+					if (element) {
 						allDisable = false;
 						break;
 					}
 				}
-				if (allDisable == true) {
+				if (allDisable) {
 					for (int i = 0; i < nextPieceEnable.length; i++) {
 						nextPieceEnable[i] = true;
 					}
@@ -2156,7 +2161,7 @@ public class GameEngine {
 
 			if (!readyDone) {
 				// button inputReset state
-				ctrl.reset();
+				ctrl = new Controller();
 				// Game flagON
 				gameActive = true;
 				gameStarted = true;
@@ -2224,18 +2229,16 @@ public class GameEngine {
 		// Horizontal reservoir Initialization
 		int moveDirection = getMoveDirection();
 
-		if (statc[0] > 0 || ruleopt.dasInMoveFirstFrame) {
-			if (dasDirection != moveDirection) {
-				dasDirection = moveDirection;
-				if (!(dasDirection == 0 && ruleopt.dasStoreChargeOnNeutral)) {
-					dasCount = 0;
-				}
+		if ((statc[0] > 0 || ruleopt.dasInMoveFirstFrame) && dasDirection != moveDirection) {
+			dasDirection = moveDirection;
+			if (!(dasDirection == 0 && ruleopt.dasStoreChargeOnNeutral)) {
+				dasCount = 0;
 			}
 		}
 
 		// Processing at the time of emergence
 		if (statc[0] == 0) {
-			if (statc[1] == 0 && initialHoldFlag == false) {
+			if (statc[1] == 0 && !initialHoldFlag) {
 				// Normal appearance
 				nowPieceObject = getNextObjectCopy(nextPieceCount);
 				nextPieceCount++;
@@ -2257,7 +2260,7 @@ public class GameEngine {
 							nextPieceCount = 0;
 						}
 
-						if (bone == true) {
+						if (bone) {
 							getNextObject(nextPieceCount + ruleopt.nextDisplay - 1)
 									.setAttribute(Block.BLOCK_ATTRIBUTE_BONE, true);
 						}
@@ -2314,7 +2317,7 @@ public class GameEngine {
 			}
 			playSE("piece" + getNextObject(nextPieceCount).id);
 
-			if (nowPieceObject.offsetApplied == false) {
+			if (!nowPieceObject.offsetApplied) {
 				nowPieceObject.applyOffsetArray(ruleopt.pieceOffsetX[nowPieceObject.id],
 						ruleopt.pieceOffsetY[nowPieceObject.id]);
 			}
@@ -2420,7 +2423,7 @@ public class GameEngine {
 				initialRotateLastDirection = initialRotateDirection;
 				initialRotateContinuousUse = true;
 				playSE("initialrotate");
-			} else if (statc[0] > 0 || ruleopt.moveFirstFrame == true) {
+			} else if (statc[0] > 0 || ruleopt.moveFirstFrame) {
 				if (itemRollRollEnable && replayTimer % itemRollRollInterval == 0) {
 					move = 1; // Roll Roll
 				}
@@ -2440,10 +2443,10 @@ public class GameEngine {
 				}
 			}
 
-			if (ruleopt.rotateButtonAllowDouble == false && move == 2) {
+			if (!ruleopt.rotateButtonAllowDouble && move == 2) {
 				move = -1;
 			}
-			if (ruleopt.rotateButtonAllowReverse == false && move == 1) {
+			if (!ruleopt.rotateButtonAllowReverse && move == 1) {
 				move = -1;
 			}
 			if (isRotateButtonDefaultRight() && move != 2) {
@@ -2455,16 +2458,16 @@ public class GameEngine {
 				int rt = getRotateDirection(move);
 
 				// rotationYou can determine whether the
-				if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, rt, field) == false) {
+				if (!nowPieceObject.checkCollision(nowPieceX, nowPieceY, rt, field)) {
 					// WallkickWithoutrotationwhen you can
 					rotated = true;
 					kickused = false;
 					nowPieceObject.direction = rt;
 					nowPieceObject.updateConnectData();
-				} else if (ruleopt.rotateWallkick == true && wallkick != null
-						&& (initialRotateDirection == 0 || ruleopt.rotateInitialWallkick == true)
+				} else if (ruleopt.rotateWallkick && wallkick != null
+						&& (initialRotateDirection == 0 || ruleopt.rotateInitialWallkick)
 						&& (ruleopt.lockresetLimitOver != RuleOptions.LOCKRESET_LIMIT_OVER_NOWALLKICK
-								|| isRotateCountExceed() == false)) {
+								|| !isRotateCountExceed())) {
 					// WallkickAttempt to
 					boolean allowUpward = ruleopt.rotateMaxUpwardWallkick < 0
 							|| nowUpwardWallkickCount < ruleopt.rotateMaxUpwardWallkick;
@@ -2499,18 +2502,18 @@ public class GameEngine {
 					nowPieceObject.updateConnectData();
 					nowPieceRotateFailCount = 0;
 
-					if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, rt, field) == true) {
+					if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, rt, field)) {
 						nowPieceY--;
 					} else if (onGroundBeforeRotate) {
 						nowPieceY++;
 					}
 				}
 
-				if (rotated == true) {
+				if (rotated) {
 					// rotationSuccess
 					nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
 
-					if (ruleopt.lockresetRotate == true && isRotateCountExceed() == false) {
+					if (ruleopt.lockresetRotate && !isRotateCountExceed()) {
 						lockDelayNow = 0;
 						nowPieceObject.setDarkness(0f);
 					}
@@ -2539,7 +2542,7 @@ public class GameEngine {
 			initialRotateDirection = 0;
 
 			// game over check
-			if (statc[0] == 0 && nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true) {
+			if (statc[0] == 0 && nowPieceObject.checkCollision(nowPieceX, nowPieceY, field)) {
 				// BlockSo if you can shift on the position of the emergence of
 				for (int i = 0; i < ruleopt.pieceEnterMaxDistanceY; i++) {
 					if (nowPieceObject.big) {
@@ -2548,14 +2551,14 @@ public class GameEngine {
 						nowPieceY--;
 					}
 
-					if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == false) {
+					if (!nowPieceObject.checkCollision(nowPieceX, nowPieceY, field)) {
 						nowPieceBottomY = nowPieceObject.getBottom(nowPieceX, nowPieceY, field);
 						break;
 					}
 				}
 
 				// Death
-				if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, field) == true) {
+				if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, field)) {
 					nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
 					nowPieceObject = null;
 					stat = Status.GAMEOVER;
@@ -2572,7 +2575,7 @@ public class GameEngine {
 		int move = 0;
 		boolean sidemoveflag = false; // This frame I moved next totrue
 
-		if (statc[0] > 0 || ruleopt.moveFirstFrame == true) {
+		if (statc[0] > 0 || ruleopt.moveFirstFrame) {
 			// Lateral motion
 			boolean onGroundBeforeMove = nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field);
 
@@ -2615,21 +2618,18 @@ public class GameEngine {
 							dasSpeedCount = 1;
 						}
 
-						if (nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false) {
+						if (!nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field)) {
 							nowPieceX += move;
 
 							if (getDASDelay() == 0 && dasCount > 0
-									&& nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field) == false) {
-//								if (!dasInstant) {
-//									playSE("move");
-//								}
+									&& !nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field)) {
 								dasRepeat = true;
 								dasInstant = true;
 							}
 
 							// log.debug("Successful movement: move="+move);
 
-							if (ruleopt.lockresetMove == true && isMoveCountExceed() == false) {
+							if (ruleopt.lockresetMove && !isMoveCountExceed()) {
 								lockDelayNow = 0;
 								nowPieceObject.setDarkness(0f);
 							}
@@ -2643,6 +2643,7 @@ public class GameEngine {
 							if (onGroundBeforeMove) {
 								extendedMoveCount++;
 								lastmove = LastMove.SLIDE_GROUND;
+								playSE("slide");
 							} else {
 								lastmove = LastMove.SLIDE_AIR;
 							}
@@ -2663,9 +2664,9 @@ public class GameEngine {
 
 			if (!dasRepeat || versionMajor < 7.6f) {
 				// Hard drop
-				if (ctrl.isPress(getUp()) == true && harddropContinuousUse == false && ruleopt.harddropEnable == true
-						&& (isDiagonalMoveEnabled() == true || sidemoveflag == false)
-						&& (ruleopt.moveUpAndDown == true || updown == false) && nowPieceY < nowPieceBottomY) {
+				if (ctrl.isPress(getUp()) && !harddropContinuousUse && ruleopt.harddropEnable
+						&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)
+						&& nowPieceY < nowPieceBottomY) {
 					harddropFall += nowPieceBottomY - nowPieceY;
 
 					if (nowPieceY != nowPieceBottomY) {
@@ -2679,7 +2680,7 @@ public class GameEngine {
 					owner.receiver.afterHardDropFall(this, playerID, harddropFall);
 
 					lastmove = LastMove.FALL_SELF;
-					if (ruleopt.lockresetFall == true) {
+					if (ruleopt.lockresetFall) {
 						lockDelayNow = 0;
 						nowPieceObject.setDarkness(0f);
 						extendedMoveCount = 0;
@@ -2689,11 +2690,9 @@ public class GameEngine {
 
 				if (!ruleopt.softdropGravitySpeedLimit || ruleopt.softdropSpeed < 1.0f) {
 					// Old Soft Drop codes
-					if (ctrl.isPress(getDown()) == true && softdropContinuousUse == false
-							&& ruleopt.softdropEnable == true
-							&& (isDiagonalMoveEnabled() == true || sidemoveflag == false)
-							&& (ruleopt.moveUpAndDown == true || updown == false)) {
-						if (ruleopt.softdropMultiplyNativeSpeed == true || speed.denominator <= 0) {
+					if (ctrl.isPress(getDown()) && !softdropContinuousUse && ruleopt.softdropEnable
+							&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)) {
+						if (ruleopt.softdropMultiplyNativeSpeed || speed.denominator <= 0) {
 							gcount += (int) (speed.gravity * ruleopt.softdropSpeed);
 						} else {
 							gcount += (int) (speed.denominator * ruleopt.softdropSpeed);
@@ -2706,11 +2705,11 @@ public class GameEngine {
 						&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)
 						&& (ruleopt.softdropMultiplyNativeSpeed
 								|| speed.gravity < (int) (speed.denominator * ruleopt.softdropSpeed))) {
-					if (ruleopt.softdropMultiplyNativeSpeed == true || speed.denominator <= 0) {
-						// gcount += (int)(speed.gravity * ruleopt.softdropSpeed);
+					if (ruleopt.softdropMultiplyNativeSpeed || speed.denominator <= 0) {
+						// gcount += (int)(speed.gravity * ruleopt.softdropSpeed)
 						gcount = (int) (speed.gravity * ruleopt.softdropSpeed);
 					} else {
-						// gcount += (int)(speed.denominator * ruleopt.softdropSpeed);
+						// gcount += (int)(speed.denominator * ruleopt.softdropSpeed)
 						gcount = (int) (speed.denominator * ruleopt.softdropSpeed);
 					}
 
@@ -2732,13 +2731,13 @@ public class GameEngine {
 		}
 
 		while (gcount >= speed.denominator || speed.gravity < 0) {
-			if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == false) {
+			if (!nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field)) {
 				if (speed.gravity >= 0) {
 					gcount -= speed.denominator;
 				}
 				nowPieceY++;
 
-				if (ruleopt.lockresetFall == true) {
+				if (ruleopt.lockresetFall) {
 					lockDelayNow = 0;
 					nowPieceObject.setDarkness(0f);
 				}
@@ -2749,7 +2748,7 @@ public class GameEngine {
 					extendedRotateCount = 0;
 				}
 
-				if (softdropUsed == true) {
+				if (softdropUsed) {
 					lastmove = LastMove.FALL_SELF;
 					softdropFall++;
 					softdropFallNow++;
@@ -2770,8 +2769,8 @@ public class GameEngine {
 		}
 
 		// And fixed ground
-		if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) == true
-				&& (statc[0] > 0 || ruleopt.moveFirstFrame == true)) {
+		if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field)
+				&& (statc[0] > 0 || ruleopt.moveFirstFrame)) {
 			if (lockDelayNow == 0 && getLockDelay() > 0) {
 				playSE("step");
 			}
@@ -2788,7 +2787,7 @@ public class GameEngine {
 				if (lockDelayNow >= getLockDelay() - 1) {
 					nowPieceObject.setDarkness(0.5f);
 				} else {
-					nowPieceObject.setDarkness(lockDelayNow * 7 / getLockDelay() * 0.05f);
+					nowPieceObject.setDarkness(lockDelayNow * 7f / getLockDelay() * 0.05f);
 				}
 			}
 
@@ -2800,33 +2799,32 @@ public class GameEngine {
 			boolean instantlock = false;
 
 			// Hard dropFixation
-			if (ctrl.isPress(getUp()) == true && harddropContinuousUse == false && ruleopt.harddropEnable == true
-					&& (isDiagonalMoveEnabled() == true || sidemoveflag == false)
-					&& (ruleopt.moveUpAndDown == true || updown == false) && ruleopt.harddropLock == true) {
+			if (ctrl.isPress(getUp()) && !harddropContinuousUse && ruleopt.harddropEnable
+					&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)
+					&& ruleopt.harddropLock) {
 				harddropContinuousUse = true;
 				manualLock = true;
 				instantlock = true;
 			}
 
 			// Soft dropFixation
-			if (ctrl.isPress(getDown()) == true && softdropContinuousUse == false && ruleopt.softdropEnable == true
-					&& (isDiagonalMoveEnabled() == true || sidemoveflag == false)
-					&& (ruleopt.moveUpAndDown == true || updown == false) && ruleopt.softdropLock == true) {
+			if (ctrl.isPress(getDown()) && !softdropContinuousUse && ruleopt.softdropEnable
+					&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)
+					&& ruleopt.softdropLock) {
 				softdropContinuousUse = true;
 				manualLock = true;
 				instantlock = true;
 			}
 
 			// Soft-drop fixed in the ground state
-			if (ctrl.isPush(getDown()) == true && ruleopt.softdropEnable == true
-					&& (isDiagonalMoveEnabled() == true || sidemoveflag == false)
-					&& (ruleopt.moveUpAndDown == true || updown == false) && ruleopt.softdropSurfaceLock == true) {
+			if (ctrl.isPush(getDown()) && ruleopt.softdropEnable && (isDiagonalMoveEnabled() || !sidemoveflag)
+					&& (ruleopt.moveUpAndDown || !updown) && ruleopt.softdropSurfaceLock) {
 				softdropContinuousUse = true;
 				manualLock = true;
 				instantlock = true;
 			}
 
-			if (manualLock == true && ruleopt.shiftLockEnable) {
+			if (manualLock && ruleopt.shiftLockEnable) {
 				// bit 1 and 2 are button_up and button_down currently
 				shiftLock = ctrl.getButtonBit() & 3;
 			}
@@ -2843,13 +2841,13 @@ public class GameEngine {
 			}
 
 			// Fixation
-			if (lockDelayNow >= getLockDelay() && getLockDelay() > 0 || instantlock == true) {
+			if (lockDelayNow >= getLockDelay() && getLockDelay() > 0 || instantlock) {
 				if (ruleopt.lockflash > 0) {
 					nowPieceObject.setDarkness(-0.8f);
 				}
 
 				// T-Spin判定
-				if ((lastmove == LastMove.ROTATE_GROUND || lastmove == LastMove.ROTATE_AIR) && tspinEnable == true) {
+				if ((lastmove == LastMove.ROTATE_GROUND || lastmove == LastMove.ROTATE_AIR) && tspinEnable) {
 					if (useAllSpinBonus) {
 						setAllSpin(nowPieceX, nowPieceY, nowPieceObject, field);
 					} else {
@@ -2959,7 +2957,7 @@ public class GameEngine {
 					} else {
 						// AREなし
 						stat = Status.MOVE;
-						if (ruleopt.moveFirstFrame == false) {
+						if (!ruleopt.moveFirstFrame) {
 							statMove();
 						}
 					}
@@ -2969,12 +2967,10 @@ public class GameEngine {
 		}
 
 		// Horizontal reservoir
-		if (statc[0] > 0 || ruleopt.dasInMoveFirstFrame) {
-			if (moveDirection != 0 && moveDirection == dasDirection && (dasCount < getDAS() || getDAS() <= 0)) {
-				dasCount++;
-			}
+		if ((statc[0] > 0 || ruleopt.dasInMoveFirstFrame) && moveDirection != 0 && moveDirection == dasDirection
+				&& (dasCount < getDAS() || getDAS() <= 0)) {
+			dasCount++;
 		}
-
 		statc[0]++;
 	}
 
@@ -2983,11 +2979,10 @@ public class GameEngine {
 	 */
 	public void statLockFlash() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onLockFlash(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onLockFlash(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onLockFlash(this, playerID);
 
 		statc[0]++;
@@ -3014,7 +3009,6 @@ public class GameEngine {
 				statc[1] = getARE();
 				stat = Status.ARE;
 			}
-			return;
 		}
 	}
 
@@ -3023,11 +3017,10 @@ public class GameEngine {
 	 */
 	public void statLineClear() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onLineClear(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onLineClear(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onLineClear(this, playerID);
 
 		checkDropContinuousUse();
@@ -3154,10 +3147,8 @@ public class GameEngine {
 					playSE("combo" + cmbse);
 				}
 
-				if (ending == 0 || staffrollEnableStatistics) {
-					if (combo > statistics.maxCombo) {
-						statistics.maxCombo = combo;
-					}
+				if ((ending == 0 || staffrollEnableStatistics) && combo > statistics.maxCombo) {
+					statistics.maxCombo = combo;
 				}
 			}
 
@@ -3361,11 +3352,10 @@ public class GameEngine {
 	 */
 	public void statARE() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onARE(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onARE(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onARE(this, playerID);
 
 		statc[0]++;
@@ -3418,13 +3408,10 @@ public class GameEngine {
 	 */
 	public void statEndingStart() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onEndingStart(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onEndingStart(this, playerID)) {
+			return;
 		}
 		owner.receiver.onEndingStart(this, playerID);
-
 		checkDropContinuousUse();
 
 		// Horizontal reservoir
@@ -3483,11 +3470,10 @@ public class GameEngine {
 	 */
 	public void statCustom() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onCustom(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onCustom(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onCustom(this, playerID);
 	}
 
@@ -3496,11 +3482,10 @@ public class GameEngine {
 	 */
 	public void statExcellent() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onExcellent(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onExcellent(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onExcellent(this, playerID);
 
 		if (statc[0] == 0) {
@@ -3529,11 +3514,10 @@ public class GameEngine {
 	 */
 	public void statGameOver() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onGameOver(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onGameOver(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onGameOver(this, playerID);
 
 		if (lives <= 0) {
@@ -3630,11 +3614,10 @@ public class GameEngine {
 	 */
 	public void statResult() {
 		// Event
-		if (owner.mode != null) {
-			if (owner.mode.onResult(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onResult(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onResult(this, playerID);
 
 		// Turn-off in-game flags
@@ -3669,11 +3652,10 @@ public class GameEngine {
 	 */
 	public void statFieldEdit() {
 		// event 発生
-		if (owner.mode != null) {
-			if (owner.mode.onFieldEdit(this, playerID) == true) {
-				return;
-			}
+		if (owner.mode != null && owner.mode.onFieldEdit(this, playerID)) {
+			return;
 		}
+
 		owner.receiver.onFieldEdit(this, playerID);
 
 		fldeditFrames++;
@@ -3764,10 +3746,9 @@ public class GameEngine {
 	public void statInterruptItem() {
 		boolean contFlag = false; // Continue flag
 
-		switch (interruptItemNumber) {
-		case INTERRUPTITEM_MIRROR: // Miller
+		if (interruptItemNumber == INTERRUPTITEM_MIRROR) {
+			// Miller
 			contFlag = interruptItemMirrorProc();
-			break;
 		}
 
 		if (!contFlag) {

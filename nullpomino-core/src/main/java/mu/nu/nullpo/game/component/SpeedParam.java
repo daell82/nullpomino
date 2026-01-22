@@ -44,7 +44,7 @@ public class SpeedParam implements Serializable {
 	/** Denominator of the rate of fall (gravity==denominatorIf1GBecome) */
 	public int denominator = 256;
 
-	/** Wait appearance time */
+	/** Entry delay for the next block */
 	public int are = 24;
 
 	/** Line clearAfter waiting for the emergence of time */

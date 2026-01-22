@@ -263,7 +263,7 @@ public class GameKeyDummy {
 	 */
 	public void inputStatusUpdate(Controller ctrl) {
 		for (int i = 0; i < Controller.BUTTON_COUNT; i++) {
-			ctrl.buttonPress[i] = isPressKey(i);
+			ctrl.setButtonState(i, isPressKey(i));
 		}
 	}
 }

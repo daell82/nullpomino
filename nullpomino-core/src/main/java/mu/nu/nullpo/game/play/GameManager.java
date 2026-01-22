@@ -28,6 +28,8 @@
 */
 package mu.nu.nullpo.game.play;
 
+import java.io.Serializable;
+
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.BackgroundStatus;
@@ -39,7 +41,10 @@ import mu.nu.nullpo.util.CustomProperties;
  * GameManager: The container of the game
  */
 @Log4j
-public class GameManager {
+public class GameManager implements Serializable {
+
+	/** @generated */
+	private static final long serialVersionUID = 3555624847180077434L;
 
 	/** Game Mode */
 	public GameMode mode;

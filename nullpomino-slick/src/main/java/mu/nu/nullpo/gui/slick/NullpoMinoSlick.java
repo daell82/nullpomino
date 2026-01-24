@@ -51,6 +51,7 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.ScalableGame;
 import org.newdawn.slick.SlickException;
+import org.newdawn.slick.imageout.ImageOut;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.util.Log;
 
@@ -312,8 +313,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 									propDefaultRule.getProperty("default.rulename", ""));
 						}
 					} else if (propGlobal.getProperty(pl + ".rule." + i) == null) {
-						propGlobal.setProperty(pl + ".rule." + i,
-								propDefaultRule.getProperty("default.rule." + i, ""));
+						propGlobal.setProperty(pl + ".rule." + i, propDefaultRule.getProperty("default.rule." + i, ""));
 						propGlobal.setProperty(pl + ".rulefile." + i,
 								propDefaultRule.getProperty("default.rulefile." + i, ""));
 						propGlobal.setProperty(pl + ".rulename." + i,
@@ -546,7 +546,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 			g.copyArea(screenImage, 0, 0);
 
 			// Upside down and the following way
-			// ImageOut.write(screenImage, filename);
+			ImageOut.write(screenImage, filename + ".png");
 
 			// Copy the screen on their own so
 			if (ssImage == null) {
@@ -556,10 +556,8 @@ public class NullpoMinoSlick extends StateBasedGame {
 			for (int i = 0; i < screenWidth; i++) {
 				for (int j = 0; j < screenHeight; j++) {
 					Color color = screenImage.getColor(i, j + 1); // SomehowY-coordinateThe+1I seem not to deviate
-
 					int rgb = (color.getRed() & 0x000000FF) << 16 | (color.getGreen() & 0x000000FF) << 8
 							| (color.getBlue() & 0x000000FF) << 0;
-
 					ssImage.setRGB(i, j, rgb);
 				}
 			}
@@ -787,7 +785,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 	 * @param container GameContainer
 	 */
 	public static void drawFPS(GameContainer container, boolean ingame) {
-		if (propConfig.getProperty("option.showfps", true) == true) {
+		if (propConfig.getProperty("option.showfps", true)) {
 			if (!alternateFPSDynamicAdjust || alternateFPSPerfectMode || !ingame) {
 				NormalFontSlick.printFont(0, 480 - 16, df.format(actualFPS), NormalFontSlick.COLOR_BLUE);
 			} else {
@@ -811,7 +809,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 		} catch (IOException e) {
 		}
 
-		if (propObserver.getProperty("observer.enable", false) == false) {
+		if (!propObserver.getProperty("observer.enable", false)) {
 			return;
 		}
 		if (netObserverClient != null && netObserverClient.isConnected()) {
@@ -821,7 +819,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 		String host = propObserver.getProperty("observer.host", "");
 		int port = propObserver.getProperty("observer.port", NetBaseClient.DEFAULT_PORT);
 
-		if (host.length() > 0 && port > 0) {
+		if (!host.isEmpty() && port > 0) {
 			netObserverClient = new NetObserverClient(host, port);
 			netObserverClient.start();
 		}

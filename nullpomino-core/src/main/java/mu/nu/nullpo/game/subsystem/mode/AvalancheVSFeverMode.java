@@ -32,6 +32,7 @@ import mu.nu.nullpo.game.component.BGMStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -619,7 +620,7 @@ public class AvalancheVSFeverMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == 1) {
+		if (engine.displaysize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,

@@ -33,6 +33,7 @@ import java.util.Random;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -476,14 +477,15 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 			}
 
 			int textHeight = 13;
+			int baseX = 0;
 			if (engine.field != null) {
 				textHeight = engine.field.getHeight() + 1;
 			}
-			if (engine.displaysize == 1) {
+			if (engine.displaysize == DisplaySize.BIG) {
 				textHeight = 11;
+				baseX = 1;
 			}
 
-			int baseX = engine.displaysize == 1 ? 1 : 0;
 			if (engine.chain > 0 && chainDisplay > 0 && chainDisplayType != 0) {
 				int color = Colors.FONT_YELLOW;
 				if (chainDisplayType == 2) {
@@ -515,7 +517,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
 		for (int i = 0; i < 2; i++) {
 			if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
-				if (engine.displaysize == 1) {
+				if (engine.displaysize == DisplaySize.BIG) {
 					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "" + strFeverTimer.charAt(i),
 							timeLimit < 360 ? Colors.FONT_RED : Colors.FONT_WHITE, 2.0f);
 				} else {

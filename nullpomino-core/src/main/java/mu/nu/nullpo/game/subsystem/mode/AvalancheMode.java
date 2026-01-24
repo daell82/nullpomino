@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -124,7 +125,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		rankingScore = new int[SCORETYPE_MAX][3][RANKING_TYPE][RANKING_MAX];
 		rankingTime = new int[SCORETYPE_MAX][3][RANKING_TYPE][RANKING_MAX];
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -154,7 +155,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Up
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 				menuCursor--;
@@ -434,14 +435,15 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 
 			int textHeight = 13;
+			int baseX = 0;
 			if (engine.field != null) {
 				textHeight = engine.field.getHeight() + 1;
 			}
-			if (engine.displaysize == 1) {
+			if (engine.displaysize == DisplaySize.BIG) {
 				textHeight = 11;
+				baseX = 1;
 			}
 
-			int baseX = engine.displaysize == 1 ? 1 : 0;
 			if (engine.chain > 0 && chainDisplay > 0 && showChains) {
 				receiver.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight,
 						engine.chain + " CHAIN!", Colors.FONT_YELLOW);
@@ -459,10 +461,11 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	 * @param playerID Player ID
 	 */
 	protected void drawXorTimer(GameEngine engine, int playerID) {
+		float scale = engine.displaysize == DisplaySize.BIG ? 2.0f : 1.0f;
 		for (int i = 0; i < (dangerColumnDouble ? 2 : 1); i++) {
 			if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
-				if (engine.displaysize == 1) {
-					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, 2.0f);
+				if (engine.displaysize == DisplaySize.BIG) {
+					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, scale);
 				} else {
 					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
 				}
@@ -506,7 +509,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 		} else if (gametype == 2) {
 			int remainScore = SPRINT_MAX_SCORE[sprintTarget] - engine.statistics.score;
-			if (engine.timerActive == false) {
+			if (!engine.timerActive) {
 				remainScore = 0;
 			}
 			engine.meterValue = remainScore * receiver.getMeterMax(engine) / SPRINT_MAX_SCORE[sprintTarget];
@@ -610,7 +613,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		saveSetting(prop);
 
 		// Update rankings
-		if (owner.replayMode == false && engine.ai == null && engine.colorClearSize == 4) {
+		if (!owner.replayMode && engine.ai == null && engine.colorClearSize == 4) {
 			updateRanking(engine.statistics.score, engine.statistics.time, gametype, scoreType, numColors);
 
 			if (rankingRank != -1) {

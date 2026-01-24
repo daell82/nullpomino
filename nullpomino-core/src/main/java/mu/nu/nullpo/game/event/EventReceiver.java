@@ -38,6 +38,7 @@ import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -224,7 +225,11 @@ public class EventReceiver<T> {
 	 * @param flag     Any boolean variable
 	 * @param colorF   Font color when flag is false
 	 * @param colorT   Font color when flag is true
+	 * @deprecated resolve the color in the calling method and use
+	 *             {@link #drawMenuFont(GameEngine, int, int, int, String, int)}
+	 *             instead
 	 */
+	@Deprecated(forRemoval = true)
 	public void drawMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
 			int colorT) {
 		if (!flag) {
@@ -313,6 +318,7 @@ public class EventReceiver<T> {
 	 * @param colorF   Font color when flag is false
 	 * @param colorT   Font color when flag is true
 	 */
+	@Deprecated(forRemoval = true)
 	public void drawTTFMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
 			int colorT) {
 		if (!flag) {
@@ -757,13 +763,7 @@ public class EventReceiver<T> {
 		if (!showMeter) {
 			return 0;
 		}
-		int blksize = 16;
-		if (engine.displaysize == -1) {
-			blksize = 8;
-		} else if (engine.displaysize == 1) {
-			blksize = 32;
-		}
-		return engine.fieldHeight * blksize;
+		return engine.fieldHeight * engine.displaysize.getBlockSize();
 	}
 
 	/**
@@ -774,13 +774,7 @@ public class EventReceiver<T> {
 	 * @return Width of block image
 	 */
 	public int getBlockGraphicsWidth(GameEngine engine, int playerID) {
-		if (engine.displaysize == -1) {
-			return 8;
-		} else if (engine.displaysize == 1) {
-			return 32;
-		} else {
-			return 16;
-		}
+		return engine.displaysize.getBlockSize();
 	}
 
 	/**
@@ -791,13 +785,7 @@ public class EventReceiver<T> {
 	 * @return Height of block image
 	 */
 	public int getBlockGraphicsHeight(GameEngine engine, int playerID) {
-		if (engine.displaysize == -1) {
-			return 8;
-		} else if (engine.displaysize == 1) {
-			return 32;
-		} else {
-			return 16;
-		}
+		return engine.displaysize.getBlockSize();
 	}
 
 	/**
@@ -810,9 +798,9 @@ public class EventReceiver<T> {
 	public int getFieldDisplayPositionX(GameEngine engine, int playerID) {
 		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_X_BSP[style][engine.displaysize + 1][playerID];
+			return NEW_FIELD_OFFSET_X_BSP[style][engine.displaysize.ordinal()][playerID];
 		}
-		return NEW_FIELD_OFFSET_X[style][engine.displaysize + 1][playerID];
+		return NEW_FIELD_OFFSET_X[style][engine.displaysize.ordinal()][playerID];
 	}
 
 	/**
@@ -825,9 +813,9 @@ public class EventReceiver<T> {
 	public int getFieldDisplayPositionY(GameEngine engine, int playerID) {
 		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_Y_BSP[style][engine.displaysize + 1][playerID];
+			return NEW_FIELD_OFFSET_Y_BSP[style][engine.displaysize.ordinal()][playerID];
 		}
-		return NEW_FIELD_OFFSET_Y[style][engine.displaysize + 1][playerID];
+		return NEW_FIELD_OFFSET_Y[style][engine.displaysize.ordinal()][playerID];
 	}
 
 	/**
@@ -839,7 +827,7 @@ public class EventReceiver<T> {
 	 */
 	public int getScoreDisplayPositionX(GameEngine engine, int playerID) {
 		int xOffset = getNextDisplayType() == 2 ? 256 : 216;
-		if (engine.displaysize == 1) {
+		if (engine.displaysize == DisplaySize.BIG) {
 			xOffset += 32;
 		}
 		return getFieldDisplayPositionX(engine, playerID) + xOffset;

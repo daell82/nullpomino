@@ -36,6 +36,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
@@ -522,7 +523,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		engine.numColors = numColors[playerID];
 		engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW
 				: GameEngine.LineGravity.CASCADE;
-		engine.displaysize = bigDisplay ? 1 : 0;
+		engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 		engine.sticky = 2;
 
 		if (outlineType[playerID] == 0) {
@@ -540,7 +541,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			engine.fieldWidth = 3;
 			engine.field = null;
 			engine.colorClearSize = 3;
-			engine.displaysize = 1;
+			engine.displaysize = DisplaySize.BIG;
 			engine.createFieldIfNeeded();
 			zenKeshiType[playerID] = ZENKESHI_MODE_OFF;
 			ojamaHard[playerID] = 0;
@@ -872,11 +873,11 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			textHeight = engine.field.getHeight();
 			textHeight += 3;
 		}
-		if (engine.displaysize == 1) {
+		int baseX = -2;
+		if (engine.displaysize == DisplaySize.BIG) {
 			textHeight = 11;
+			baseX = 1;
 		}
-
-		int baseX = engine.displaysize == 1 ? 1 : -2;
 
 		if (engine.chain > 0 && chainDisplay[playerID] > 0 && chainDisplayType[playerID] != CHAIN_DISPLAY_NONE) {
 			receiver.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight,
@@ -908,7 +909,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			if (engine.field == null || engine.field.getBlockEmpty(baseX + i, 0)) {
 				if (big[playerID]) {
 					receiver.drawMenuFont(engine, playerID, 2, 0, "e", Colors.FONT_RED, 2.0f);
-				} else if (engine.displaysize == 1) {
+				} else if (engine.displaysize == DisplaySize.BIG) {
 					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, 2.0f);
 				} else {
 					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
@@ -923,7 +924,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 				for (int y = 0; y < engine.field.getHeight(); y++) {
 					int hard = engine.field.getBlock(x, y).hard;
 					if (hard > 0) {
-						if (engine.displaysize == 1) {
+						if (engine.displaysize == DisplaySize.BIG) {
 							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(hard),
 									Colors.FONT_YELLOW, 2.0f);
 						} else {

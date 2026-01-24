@@ -13,6 +13,7 @@ import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -397,7 +398,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 			int fontcolor = NETVS_TEAM_FONT_COLORS[fontcolorNum];
 
-			if (engine.displaysize == -1) {
+			if (engine.displaysize == DisplaySize.SMALL) {
 				if (name.length() > 7) {
 					name = name.substring(0, 7) + "..";
 				}
@@ -489,10 +490,10 @@ public class NetDummyVSMode extends NetDummyMode {
 		// Set display size
 		if (engine.playerID == 0 && !netvsIsWatch()
 				|| netCurrentRoomInfo != null && netCurrentRoomInfo.maxPlayers == 2 && engine.playerID <= 1) {
-			engine.displaysize = 0;
+			engine.displaysize = DisplaySize.NORMAL;
 			engine.enableSE = true;
 		} else {
-			engine.displaysize = -1;
+			engine.displaysize = DisplaySize.SMALL;
 			engine.enableSE = false;
 		}
 
@@ -731,7 +732,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (netCurrentRoomInfo != null && playerID == 0 && !netvsIsWatch()) {
 			netvsPlayerExist[0] = true;
 
-			engine.displaysize = 0;
+			engine.displaysize = DisplaySize.NORMAL;
 			engine.enableSE = true;
 			engine.isVisible = true;
 
@@ -797,7 +798,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 		if (netCurrentRoomInfo != null) {
 			if (netvsPlayerReady[playerID] && netvsPlayerExist[playerID]) {
-				if (engine.displaysize != -1) {
+				if (engine.displaysize != DisplaySize.SMALL) {
 					owner.receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 				} else {
 					owner.receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", Colors.FONT_YELLOW,
@@ -1078,7 +1079,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		int y = owner.receiver.getFieldDisplayPositionY(engine, playerID);
 		int place = netvsPlayerPlace[playerID];
 
-		if (engine.displaysize != -1) {
+		if (engine.displaysize != DisplaySize.SMALL) {
 			if (netvsPlayerReady[playerID] && !netvsIsGameActive) {
 				owner.receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 			} else if (netvsNumNowPlayers == 2 || netCurrentRoomInfo.maxPlayers == 2) {
@@ -1192,7 +1193,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		int x = owner.receiver.getFieldDisplayPositionX(engine, playerID);
 		int y = owner.receiver.getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.displaysize != -1) {
+		if (engine.displaysize != DisplaySize.SMALL) {
 			if (playerID == 0 && netvsIsPractice && !netvsIsWatch()) {
 				owner.receiver.drawDirectFont(engine, playerID, x + 4, y + 204, "EXCELLENT!",
 						Colors.FONT_YELLOW);
@@ -1251,7 +1252,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		float scale = 1.0f;
-		if (engine.displaysize == -1) {
+		if (engine.displaysize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
 
@@ -1307,7 +1308,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			int x = owner.receiver.getFieldDisplayPositionX(engine, playerID);
 			int y = owner.receiver.getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaysize != -1) {
+			if (engine.displaysize != DisplaySize.SMALL) {
 				owner.receiver.drawDirectFont(engine, playerID, x + 68, y + 356, "OK", Colors.FONT_YELLOW);
 			} else {
 				owner.receiver.drawDirectFont(engine, playerID, x + 36, y + 156, "OK", Colors.FONT_YELLOW,
@@ -1464,7 +1465,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 					if (netCurrentRoomInfo.maxPlayers == 2 && netvsNumPlayers == 2) {
 						engine.isVisible = true;
-						engine.displaysize = 0;
+						engine.displaysize = DisplaySize.NORMAL;
 
 						if (netCurrentRoomInfo.ruleLock || i == 0 && !netvsIsWatch()) {
 							engine.isNextVisible = true;

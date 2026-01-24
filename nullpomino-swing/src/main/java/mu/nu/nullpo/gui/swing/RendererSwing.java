@@ -43,6 +43,7 @@ import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.EffectObject;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
@@ -118,7 +119,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int y2 = scale == 0.5f ? y * 8 : y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == -1) {
+			if (engine.displaysize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -136,7 +137,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int y2 = y * 16 + 12;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == -1) {
+			if (engine.displaysize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -839,22 +840,15 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
 	 */
-	protected void drawField(int x, int y, GameEngine engine, int size) {
+	protected void drawField(int x, int y, GameEngine engine) {
 		if (graphics == null) {
 			return;
 		}
 
-		int blksize = 16;
-		float scale = 1.0f;
-		if (size == -1) {
-			blksize = 8;
-			scale = 0.5f;
-		} else if (size == 1) {
-			blksize = 32;
-			scale = 2.0f;
-		}
-
+		int blksize = engine.displaysize.getBlockSize();
+		float scale = engine.displaysize.getScale();
 		Field field = engine.field;
+
 		int width = 10;
 		int height = 20;
 		int viewHeight = 20;
@@ -978,17 +972,13 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * @param y      Y-coordinate
 	 * @param engine GameEngineInstance of
 	 */
-	protected void drawFrame(int x, int y, GameEngine engine, int displaysize) {
+	protected void drawFrame(int x, int y, GameEngine engine) {
 		if (graphics == null) {
 			return;
 		}
 
-		int size = 4;
-		if (displaysize == -1) {
-			size = 2;
-		} else if (displaysize == 1) {
-			size = 8;
-		}
+		int size = (int) (4 * engine.displaysize.getScale());
+
 		int width = 10;
 		int height = 20;
 		int offsetX = 0;
@@ -1001,14 +991,11 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 		// Field Background
 		if (width <= 10 && height <= 20 && showfieldbggrid) {
-			Image img = resourceManager.getImgFieldbg2();
-			if (displaysize == -1) {
-				img = resourceManager.getImgFieldbg2Small();
-			}
-			if (displaysize == 1) {
-				img = resourceManager.getImgFieldbg2Big();
-			}
-
+			Image img = switch (engine.displaysize) {
+			case SMALL -> resourceManager.getImgFieldbg2Small();
+			case NORMAL -> resourceManager.getImgFieldbg2();
+			case BIG -> resourceManager.getImgFieldbg2Big();
+			};
 			graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size * 4, y + 4 + height * size * 4, 0, 0,
 					width * size * 4, height * size * 4, null);
 		}
@@ -1154,8 +1141,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int meterWidth = showMeter ? 8 : 0;
 		if (engine != null && engine.field != null) {
 			fldWidth = engine.field.getWidth();
-			if (engine.displaysize == 1) {
-				fldBlkSize = 32;
+			if (engine.displaysize == DisplaySize.BIG) {
+				fldBlkSize = engine.displaysize.getBlockSize();
 			}
 		}
 
@@ -1354,7 +1341,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				Piece next = engine.getNextObject(engine.nextPieceCount + i);
 
 				if (next != null) {
-					int size = piece.big || engine.displaysize == 1 ? 2 : 1;
+					int size = piece.big || engine.displaysize == DisplaySize.BIG ? 2 : 1;
 					int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
 					int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
 					int vPos = blksize * shadowY - (i + 1) * 24 - 8;
@@ -1402,13 +1389,13 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaysize != -1) {
+			if (engine.displaysize != DisplaySize.SMALL) {
 				drawNext(offsetX, offsetY, engine);
-				drawFrame(offsetX, offsetY + 48, engine, engine.displaysize);
-				drawField(offsetX + 4, offsetY + 52, engine, engine.displaysize);
+				drawFrame(offsetX, offsetY + 48, engine);
+				drawField(offsetX + 4, offsetY + 52, engine);
 			} else {
-				drawFrame(offsetX, offsetY, engine, -1);
-				drawField(offsetX + 4, offsetY + 4, engine, -1);
+				drawFrame(offsetX, offsetY, engine);
+				drawField(offsetX + 4, offsetY + 4, engine);
 			}
 		}
 	}
@@ -1421,7 +1408,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		if (graphics == null) {
 			return;
 		}
-		if (engine.allowTextRenderByReceiver == false) {
+		if (!engine.allowTextRenderByReceiver) {
 			return;
 			// if(engine.isVisible == false) return;
 		}
@@ -1431,7 +1418,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
 			if (engine.statc[0] > 0) {
-				if (engine.displaysize != -1) {
+				if (engine.displaysize != DisplaySize.SMALL) {
 					if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
 						NormalFontSwing.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
 					} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
@@ -1451,46 +1438,30 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public void renderMove(GameEngine engine, int playerID) {
-		if (engine.isVisible == false) {
+		if (!engine.isVisible) {
 			return;
 		}
 
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.statc[0] > 1 || engine.ruleopt.moveFirstFrame) {
-			if (engine.displaysize == 1) {
-				if (nextShadow) {
-					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-			} else if (engine.displaysize == 0) {
-				if (nextShadow) {
-					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-			} else {
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-			}
+		if (engine.statc[0] <= 1 && !engine.ruleopt.moveFirstFrame) {
+			return;
 		}
+		var size = engine.displaysize;
+		float scale = size.getScale();
+		int yAdd = size == DisplaySize.SMALL ? 4 : 52;
+
+		if (nextShadow && size != DisplaySize.SMALL) {
+			drawShadowNexts(offsetX + 4, offsetY + yAdd, engine, scale);
+		}
+		if (engine.ghost && engine.ruleopt.ghost) {
+			drawGhostPiece(offsetX + 4, offsetY + yAdd, engine, scale);
+		}
+		if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
+			drawHintPiece(offsetX + 4, offsetY + yAdd, engine, scale);
+		}
+		drawCurrentPiece(offsetX + 4, offsetY + yAdd, engine, scale);
 	}
 
 	/*
@@ -1498,21 +1469,22 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public void blockBreak(GameEngine engine, int playerID, int x, int y, Block block) {
-		if (showlineeffect && block != null && engine.displaysize != -1) {
-			int color = block.getDrawColor();
-			// Normal Block
-			if (color >= Colors.BLOCK_COLOR_GRAY && color <= Colors.BLOCK_COLOR_PURPLE
-					&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-				EffectObject effect = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
-						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effects.add(effect);
-			}
-			// Gem Block
-			else if (block.isGemBlock()) {
-				EffectObject effect = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
-						getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-				effects.add(effect);
-			}
+		if (!showlineeffect || block == null || engine.displaysize == DisplaySize.SMALL) {
+			return;
+		}
+		int color = block.getDrawColor();
+		// Normal Block
+		if (color >= Colors.BLOCK_COLOR_GRAY && color <= Colors.BLOCK_COLOR_PURPLE
+				&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+			EffectObject effect = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
+					getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
+			effects.add(effect);
+		}
+		// Gem Block
+		else if (block.isGemBlock()) {
+			EffectObject effect = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
+					getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
+			effects.add(effect);
 		}
 	}
 
@@ -1530,7 +1502,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.displaysize != -1) {
+		if (engine.displaysize != DisplaySize.SMALL) {
 			if (engine.statc[1] == 0) {
 				NormalFontSwing.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", Colors.FONT_ORANGE, 1.0f);
 			} else if (engine.owner.getPlayers() < 3) {
@@ -1563,7 +1535,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaysize != -1) {
+			if (engine.displaysize != DisplaySize.SMALL) {
 				if (engine.owner.getPlayers() < 2) {
 					NormalFontSwing.printFont(offsetX + 12, offsetY + 204, "GAME OVER", Colors.FONT_WHITE, 1.0f);
 				} else if (engine.owner.getWinner() == -2) {

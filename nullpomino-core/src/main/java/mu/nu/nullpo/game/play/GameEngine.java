@@ -46,6 +46,7 @@ import mu.nu.nullpo.game.component.Statistics;
 import mu.nu.nullpo.game.component.WallkickResult;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.MemorylessRandomizer;
@@ -516,7 +517,7 @@ public class GameEngine {
 	private boolean lagStop;
 
 	/** Field display size (-1 for mini, 1 for big, 0 for normal) */
-	public int displaysize;
+	public DisplaySize displaysize;
 
 	/** Sound effects enable flag */
 	public boolean enableSE;
@@ -889,7 +890,7 @@ public class GameEngine {
 
 		lagARE = false;
 		lagStop = false;
-		displaysize = playerID >= 2 ? -1 : 0;
+		displaysize = playerID >= 2 ? DisplaySize.SMALL : DisplaySize.NORMAL;
 
 		enableSE = true;
 		gameoverAll = true;
@@ -3186,23 +3187,23 @@ public class GameEngine {
 				}
 			} else if (clearMode == ClearType.LINE_COLOR || clearMode == ClearType.COLOR
 					|| clearMode == ClearType.GEM_COLOR) {
-				for (int i = 0; i < field.getHeight(); i++) {
-					for (int j = 0; j < field.getWidth(); j++) {
-						Block blk = field.getBlock(j, i);
-						if (blk == null) {
+				for (int y = 0; y < field.getHeight(); y++) {
+					for (int x = 0; x < field.getWidth(); x++) {
+						Block block = field.getBlock(x, y);
+						if (block == null) {
 							continue;
 						}
-						if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
+						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 							if (owner.mode != null) {
-								owner.mode.blockBreak(this, playerID, j, i, blk);
+								owner.mode.blockBreak(this, playerID, x, y, block);
 							}
-							if (displaysize == 1) {
-								owner.receiver.blockBreak(this, playerID, 2 * j, 2 * i, blk);
-								owner.receiver.blockBreak(this, playerID, 2 * j + 1, 2 * i, blk);
-								owner.receiver.blockBreak(this, playerID, 2 * j, 2 * i + 1, blk);
-								owner.receiver.blockBreak(this, playerID, 2 * j + 1, 2 * i + 1, blk);
+							if (displaysize == DisplaySize.BIG) {
+								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y, block);
+								owner.receiver.blockBreak(this, playerID, 2 * x + 1, 2 * y, block);
+								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y + 1, block);
+								owner.receiver.blockBreak(this, playerID, 2 * x + 1, 2 * y + 1, block);
 							} else {
-								owner.receiver.blockBreak(this, playerID, j, i, blk);
+								owner.receiver.blockBreak(this, playerID, x, y, block);
 							}
 						}
 					}
@@ -3546,7 +3547,7 @@ public class GameEngine {
 								blk.color = Colors.BLOCK_COLOR_GRAY;
 								blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
 							}
-							if (displaysize != -1) {
+							if (displaysize != DisplaySize.SMALL) {
 								blk.darkness = 0.3f;
 							}
 							blk.elapsedFrames = -1;

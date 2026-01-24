@@ -5,6 +5,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 
 public abstract class AbstractRenderer<T> extends EventReceiver<T> {
@@ -15,14 +16,13 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 		super(graphics);
 	}
 
-
 	@Override
 	public void drawMenuFont(GameEngine engine, int playerID, int x, int y, String str, int color, float scale) {
 		int x2 = scale == 0.5f ? x * 8 : x * 16;
 		int y2 = scale == 0.5f ? y * 8 : y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == -1) {
+			if (engine.displaysize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -37,7 +37,7 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 		int y2 = y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == -1) {
+			if (engine.displaysize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -378,30 +378,28 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 	 */
 	protected void drawShadowNexts(int x, int y, GameEngine engine, float scale) {
 		Piece piece = engine.nowPieceObject;
+		if (piece == null) {
+			return;
+		}
 		int blksize = (int) (16 * scale);
+		int shadowX = engine.nowPieceX;
+		int shadowY = engine.nowPieceBottomY + piece.getMinimumBlockY();
 
-		if (piece != null) {
-			int shadowX = engine.nowPieceX;
-			int shadowY = engine.nowPieceBottomY + piece.getMinimumBlockY();
+		for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
+			if (i >= 3) {
+				break;
+			}
+			Piece next = engine.getNextObject(engine.nextPieceCount + i);
+			if (next == null) {
+				return;
+			}
+			int size = piece.big || engine.displaysize == DisplaySize.BIG ? 2 : 1;
+			int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
+			int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
+			int vPos = blksize * shadowY - (i + 1) * 24 - 8;
 
-			for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
-				if (i >= 3) {
-					break;
-				}
-
-				Piece next = engine.getNextObject(engine.nextPieceCount + i);
-
-				if (next != null) {
-					int size = piece.big || engine.displaysize == 1 ? 2 : 1;
-					int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
-					int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
-					int vPos = blksize * shadowY - (i + 1) * 24 - 8;
-
-					if (vPos >= -blksize / 2) {
-						drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y + vPos, next, 0.5f * scale,
-								0.1f);
-					}
-				}
+			if (vPos >= -blksize / 2) {
+				drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y + vPos, next, 0.5f * scale, 0.1f);
 			}
 		}
 	}

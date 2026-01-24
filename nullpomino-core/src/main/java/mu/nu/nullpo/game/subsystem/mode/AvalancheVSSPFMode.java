@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -878,7 +879,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 
 		String strOjama = String.valueOf(ojama[playerID]);
 		if (ojamaAdd[playerID] > 0) {
-			strOjama = strOjama + "(+" + String.valueOf(ojamaAdd[playerID]) + ")";
+			strOjama = strOjama + "(+" + ojamaAdd[playerID] + ")";
 		}
 
 		if (!strOjama.equals("0")) {
@@ -891,7 +892,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == 1) {
+		if (engine.displaysize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,
@@ -915,7 +916,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 		Block b;
 		int blockColor;
 		int textColor;
-		int d = engine.displaysize == 1 ? 2 : 1;
+		int d = engine.displaysize == DisplaySize.BIG ? 2 : 1;
 		String str;
 		if (engine.field != null && engine.stat != GameEngine.Status.RESULT && engine.gameStarted) {
 			for (int x = 0; x < engine.field.getWidth(); x++) {

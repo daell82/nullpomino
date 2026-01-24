@@ -35,6 +35,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -995,7 +996,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == 1) {
+		if (engine.displaysize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,
@@ -1010,7 +1011,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 		// Fever
 		if (feverThreshold[playerID] > 0) {
 			// Timer
-			if (engine.displaysize == 1) {
+			if (engine.displaysize == DisplaySize.BIG) {
 				receiver.drawDirectFont(engine, playerID, fldPosX + 224, fldPosY + 200, "REST", playerColor, 0.5f);
 				receiver.drawDirectFont(engine, playerID, fldPosX + 216, fldPosY + 216,
 						String.format("%2d", feverTime[playerID] / 60));
@@ -1035,7 +1036,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 			}
 
 			// Points
-			if (feverShowMeter[playerID] && engine.displaysize == 1) {
+			if (feverShowMeter[playerID] && engine.displaysize == DisplaySize.BIG) {
 				if (inFever[playerID]) {
 					int color = (engine.statistics.time >> 2) % FEVER_METER_COLORS.length;
 					for (int i = 0; i < feverThreshold[playerID]; i++) {
@@ -1056,7 +1057,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 								FEVER_METER_COLORS[color]);
 					}
 				}
-			} else if (engine.displaysize == 1) {
+			} else if (engine.displaysize == DisplaySize.BIG) {
 				receiver.drawDirectFont(engine, playerID, fldPosX + 220, fldPosY + 240, "FEVER", playerColor, 0.5f);
 				receiver.drawDirectFont(engine, playerID, fldPosX + 228, fldPosY + 256,
 						feverPoints[playerID] + "/" + feverThreshold[playerID], 0.5f);
@@ -1090,7 +1091,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 
 			for (int i = 0; i < 2; i++) {
 				if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
-					if (engine.displaysize == 1) {
+					if (engine.displaysize == DisplaySize.BIG) {
 						receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "" + strFeverTimer.charAt(i),
 								feverTime[playerID] < 360 ? Colors.FONT_RED : Colors.FONT_WHITE, 2.0f);
 					} else {

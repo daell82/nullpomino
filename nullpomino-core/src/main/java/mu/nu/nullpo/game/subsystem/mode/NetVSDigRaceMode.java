@@ -3,6 +3,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -349,7 +350,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 
 				String strLines = String.valueOf(remainLines);
 
-				if (engine.displaysize != -1) {
+				if (engine.displaysize != DisplaySize.SMALL) {
 					if (strLines.length() == 1) {
 						owner.receiver.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
 					} else if (strLines.length() == 2) {
@@ -373,7 +374,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 					place = netvsPlayerPlace[playerID];
 				}
 
-				if (engine.displaysize != -1) {
+				if (engine.displaysize != DisplaySize.SMALL) {
 					switch (place) {
 					case 0:
 						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
@@ -431,7 +432,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 			else if (!netvsIsPractice || playerID != 0) {
 				String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
 
-				if (engine.displaysize != -1) {
+				if (engine.displaysize != DisplaySize.SMALL) {
 					int y2 = 21;
 					if (engine.stat == GameEngine.Status.RESULT) {
 						y2 = 22;
@@ -453,7 +454,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 		super.renderResult(engine, playerID);
 
 		float scale = 1.0f;
-		if (engine.displaysize == -1) {
+		if (engine.displaysize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
 

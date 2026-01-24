@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -218,7 +219,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	protected boolean readyInit(GameEngine engine, int playerID) {
 		engine.numColors = numColors;
 		engine.lineGravityType = cascadeSlow ? GameEngine.LineGravity.CASCADE_SLOW : GameEngine.LineGravity.CASCADE;
-		engine.displaysize = bigDisplay ? 1 : 0;
+		engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 
 		switch (outlinetype) {
 		case 0:

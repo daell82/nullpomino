@@ -1044,14 +1044,14 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 						engine.holdPieceObject.updateConnectData();
 					}
 				} else {
-					if (engine.nextPieceArrayObject == null || engine.nextPieceArrayObject.length < maxNext) {
-						engine.nextPieceArrayObject = new Piece[maxNext];
+					if (engine.nextPieces == null || engine.nextPieces.length < maxNext) {
+						engine.nextPieces = new Piece[maxNext];
 					}
-					engine.nextPieceArrayObject[i - 1] = new Piece(pieceID);
-					engine.nextPieceArrayObject[i - 1].direction = pieceDirection;
-					engine.nextPieceArrayObject[i - 1].setColor(pieceColor);
-					engine.nextPieceArrayObject[i - 1].setSkin(netPlayerSkin);
-					engine.nextPieceArrayObject[i - 1].updateConnectData();
+					engine.nextPieces[i - 1] = new Piece(pieceID);
+					engine.nextPieces[i - 1].direction = pieceDirection;
+					engine.nextPieces[i - 1].setColor(pieceColor);
+					engine.nextPieces[i - 1].setSkin(netPlayerSkin);
+					engine.nextPieces[i - 1].updateConnectData();
 				}
 			}
 		}

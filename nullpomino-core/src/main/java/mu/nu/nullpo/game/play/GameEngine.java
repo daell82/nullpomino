@@ -34,7 +34,7 @@ import java.util.Random;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.Version;
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -49,6 +49,7 @@ import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.SpinBonus;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.MemorylessRandomizer;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 
@@ -266,10 +267,10 @@ public class GameEngine {
 	public int nextPieceArraySize;
 
 	/** Array of next piece IDs */
-	public int[] nextPieceArrayID;
+	public int[] nextPieceIDs;
 
 	/** Array of next piece Objects */
-	public Piece[] nextPieceArrayObject;
+	public Piece[] nextPieces;
 
 	/** Number of pieces put (Used by next piece sequence) */
 	public int nextPieceCount;
@@ -775,8 +776,8 @@ public class GameEngine {
 		nextPieceEnable = new boolean[Piece.PIECE_COUNT];
 		Arrays.fill(nextPieceEnable, 0, Piece.PIECE_STANDARD_COUNT, true);
 
-		nextPieceArrayID = null;
-		nextPieceArrayObject = null;
+		nextPieceIDs = null;
+		nextPieces = null;
 		nextPieceCount = 0;
 
 		holdPieceObject = null;
@@ -993,14 +994,14 @@ public class GameEngine {
 	 * @return NEXTOf PeaceID
 	 */
 	public int getNextID(int c) {
-		if (nextPieceArrayID == null) {
+		if (nextPieceIDs == null) {
 			return Piece.PIECE_NONE;
 		}
 		int c2 = c;
-		while (c2 >= nextPieceArrayID.length) {
-			c2 = c2 - nextPieceArrayID.length;
+		while (c2 >= nextPieceIDs.length) {
+			c2 = c2 - nextPieceIDs.length;
 		}
-		return nextPieceArrayID[c2];
+		return nextPieceIDs[c2];
 	}
 
 	/**
@@ -1010,14 +1011,14 @@ public class GameEngine {
 	 * @return NEXTObject of Peace
 	 */
 	public Piece getNextObject(int c) {
-		if (nextPieceArrayObject == null) {
+		if (nextPieces == null) {
 			return null;
 		}
 		int c2 = c;
-		while (c2 >= nextPieceArrayObject.length) {
-			c2 = c2 - nextPieceArrayObject.length;
+		while (c2 >= nextPieces.length) {
+			c2 = c2 - nextPieces.length;
 		}
-		return nextPieceArrayObject[c2];
+		return nextPieces[c2];
 	}
 
 	/**
@@ -1242,7 +1243,7 @@ public class GameEngine {
 	 *
 	 * @return -1:Left 0:No 1:Right
 	 */
-	public int getMoveDirection() {
+	protected int getMoveDirection() {
 		if (ctrl.isPress(Controller.BUTTON_LEFT) && ctrl.isPress(Controller.BUTTON_RIGHT)) {
 			if (!ruleopt.moveLeftAndRightAllow) {
 				return 0;
@@ -1288,7 +1289,7 @@ public class GameEngine {
 	 *
 	 * @return Move countI have exceeded the limittrue
 	 */
-	public boolean isMoveCountExceed() {
+	protected boolean isMoveCountExceed() {
 		if (ruleopt.lockresetLimitShareCount == true) {
 			if (extendedMoveCount + extendedRotateCount >= ruleopt.lockresetLimitMove
 					&& ruleopt.lockresetLimitMove >= 0) {
@@ -1306,7 +1307,7 @@ public class GameEngine {
 	 *
 	 * @return rotation countI have exceeded the limittrue
 	 */
-	public boolean isRotateCountExceed() {
+	protected boolean isRotateCountExceed() {
 		if (ruleopt.lockresetLimitShareCount == true) {
 			if (extendedMoveCount + extendedRotateCount >= ruleopt.lockresetLimitMove
 					&& ruleopt.lockresetLimitMove >= 0) {
@@ -1422,13 +1423,7 @@ public class GameEngine {
 		tspinmini = false;
 		tspinez = false;
 
-		if (piece == null) {
-			return;
-		}
-		if (!tspinAllowKick && kickused) {
-			return;
-		}
-		if (piece.big) {
+		if (piece == null || !tspinAllowKick && kickused || piece.big) {
 			return;
 		}
 
@@ -1437,26 +1432,26 @@ public class GameEngine {
 			int offsetX = ruleopt.pieceOffsetX[piece.id][piece.direction];
 			int offsetY = ruleopt.pieceOffsetY[piece.id][piece.direction];
 
-			for (int i = 0; i < Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction].length / 2; i++) {
+			for (int i = 0; i < SpinBonus.HIGH_X[piece.id][piece.direction].length / 2; i++) {
 				boolean isHighSpot1 = false;
 				boolean isHighSpot2 = false;
 				boolean isLowSpot1 = false;
 				boolean isLowSpot2 = false;
 
-				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
-						y + Piece.SPINBONUSDATA_HIGH_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
+				if (!fld.getBlockEmpty(x + SpinBonus.HIGH_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
+						y + SpinBonus.HIGH_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
 					isHighSpot1 = true;
 				}
-				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_HIGH_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
-						y + Piece.SPINBONUSDATA_HIGH_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
+				if (!fld.getBlockEmpty(x + SpinBonus.HIGH_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
+						y + SpinBonus.HIGH_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
 					isHighSpot2 = true;
 				}
-				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
-						y + Piece.SPINBONUSDATA_LOW_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
+				if (!fld.getBlockEmpty(x + SpinBonus.LOW_X[piece.id][piece.direction][i * 2 + 0] + offsetX,
+						y + SpinBonus.LOW_Y[piece.id][piece.direction][i * 2 + 0] + offsetY)) {
 					isLowSpot1 = true;
 				}
-				if (!fld.getBlockEmpty(x + Piece.SPINBONUSDATA_LOW_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
-						y + Piece.SPINBONUSDATA_LOW_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
+				if (!fld.getBlockEmpty(x + SpinBonus.LOW_X[piece.id][piece.direction][i * 2 + 1] + offsetX,
+						y + SpinBonus.LOW_Y[piece.id][piece.direction][i * 2 + 1] + offsetY)) {
 					isLowSpot2 = true;
 				}
 
@@ -1556,34 +1551,17 @@ public class GameEngine {
 	}
 
 	/**
-	 * rotation buttonPiece after pressing theDirectionGet the
+	 * Get the Piece rotation Direction after pressing the button
 	 *
 	 * @param move rotationDirection (-1:Left 1:Right 2:180Degrees)
 	 * @return rotation buttonPiece after pressing theDirection
 	 */
 	public int getRotateDirection(int move) {
-		int rt = move;
+		int direction = 0;
 		if (nowPieceObject != null) {
-			rt += nowPieceObject.direction;
+			direction = nowPieceObject.direction;
 		}
-
-		if (move == 2) {
-			if (rt > 3) {
-				rt -= 4;
-			}
-			if (rt < 0) {
-				rt += 4;
-			}
-		} else {
-			if (rt > 3) {
-				rt = 0;
-			}
-			if (rt < 0) {
-				rt = 3;
-			}
-		}
-
-		return rt;
+		return Piece.getRotateDirection(move, direction);
 	}
 
 	/**
@@ -2101,7 +2079,7 @@ public class GameEngine {
 			createFieldIfNeeded();
 
 			// NEXTCreating Peace
-			if (nextPieceArrayID == null) {
+			if (nextPieceIDs == null) {
 				// Peace is possible emergence1If no one is to be able to all appearance
 				boolean allDisable = true;
 				for (boolean element : nextPieceEnable) {
@@ -2122,33 +2100,33 @@ public class GameEngine {
 				} else {
 					randomizer.setState(nextPieceEnable, randSeed);
 				}
-				nextPieceArrayID = new int[nextPieceArraySize];
+				nextPieceIDs = new int[nextPieceArraySize];
 				for (int i = 0; i < nextPieceArraySize; i++) {
-					nextPieceArrayID[i] = randomizer.next();
+					nextPieceIDs[i] = randomizer.next();
 				}
 			}
 			// NEXTCreate an object of Peace
-			if (nextPieceArrayObject == null) {
-				nextPieceArrayObject = new Piece[nextPieceArrayID.length];
+			if (nextPieces == null) {
+				nextPieces = new Piece[nextPieceIDs.length];
 
-				for (int i = 0; i < nextPieceArrayObject.length; i++) {
-					nextPieceArrayObject[i] = new Piece(nextPieceArrayID[i]);
-					nextPieceArrayObject[i].direction = ruleopt.pieceDefaultDirection[nextPieceArrayObject[i].id];
-					if (nextPieceArrayObject[i].direction >= Piece.DIRECTION_COUNT) {
-						nextPieceArrayObject[i].direction = random.nextInt(Piece.DIRECTION_COUNT);
+				for (int i = 0; i < nextPieces.length; i++) {
+					nextPieces[i] = new Piece(nextPieceIDs[i]);
+					nextPieces[i].direction = ruleopt.pieceDefaultDirection[nextPieces[i].id];
+					if (nextPieces[i].direction >= Piece.DIRECTION_COUNT) {
+						nextPieces[i].direction = random.nextInt(Piece.DIRECTION_COUNT);
 					}
-					nextPieceArrayObject[i].connectBlocks = connectBlocks;
-					nextPieceArrayObject[i].setColor(ruleopt.pieceColor[nextPieceArrayObject[i].id]);
-					nextPieceArrayObject[i].setSkin(getSkin());
-					nextPieceArrayObject[i].updateConnectData();
-					nextPieceArrayObject[i].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-					nextPieceArrayObject[i].setAttribute(Block.BLOCK_ATTRIBUTE_BONE, bone);
+					nextPieces[i].connectBlocks = connectBlocks;
+					nextPieces[i].setColor(ruleopt.pieceColor[nextPieces[i].id]);
+					nextPieces[i].setSkin(getSkin());
+					nextPieces[i].updateConnectData();
+					nextPieces[i].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+					nextPieces[i].setAttribute(Block.BLOCK_ATTRIBUTE_BONE, bone);
 				}
 				if (randomBlockColor) {
 					if (blockColors.length < numColors || numColors < 1) {
 						numColors = blockColors.length;
 					}
-					for (Piece element : nextPieceArrayObject) {
+					for (Piece element : nextPieces) {
 						int size = element.getMaxBlock();
 						int[] colors = new int[size];
 						for (int j = 0; j < size; j++) {
@@ -3424,7 +3402,7 @@ public class GameEngine {
 
 		if (statc[2] == 0) {
 			timerActive = false;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			playSE("endingstart");
 			statc[2] = 1;
 		}
@@ -3527,7 +3505,7 @@ public class GameEngine {
 				gameEnded();
 				blockShowOutlineOnly = false;
 				if (owner.getPlayers() < 2) {
-					owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+					owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				}
 
 				if (field.isEmpty()) {

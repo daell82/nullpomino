@@ -142,11 +142,11 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * With parametersConstructor
+	 * Constructor with parameters
 	 *
-	 * @param w  fieldThe width of the
+	 * @param w  The width of the field
 	 * @param h  Field height
-	 * @param hh fieldThe height of the invisible part of the above
+	 * @param hh The height of the invisible part of the field above
 	 * @param c  Presence or absence of a ceiling
 	 */
 	public Field(int w, int h, int hh, boolean c) {
@@ -323,7 +323,7 @@ public class Field implements Serializable {
 		}
 
 		// Usually
-		if (y >= 0 && y < height) {
+		if (y >= 0) {
 			return COORD_NORMAL;
 		}
 

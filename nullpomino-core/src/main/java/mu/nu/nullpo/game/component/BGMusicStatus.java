@@ -31,76 +31,72 @@ package mu.nu.nullpo.game.component;
 import java.io.Serializable;
 
 /**
- * BackgroundImage state
+ * Class that manages the state of music playback
  */
-public class BackgroundStatus implements Serializable {
+public class BGMusicStatus implements Serializable {
 
 	/** Serial version ID */
-	private static final long serialVersionUID = 2159669210087818385L;
+	private static final long serialVersionUID = -1003092972570497408L;
 
-	/** Background number */
-	public int bg;
+	/** Constant music count */
+	public static final int BGM_NOTHING = -1;
+	public static final int BGM_NORMAL1 = 0;
+	public static final int BGM_NORMAL2 = 1;
+	public static final int BGM_NORMAL3 = 2;
+	public static final int BGM_NORMAL4 = 3;
+	public static final int BGM_NORMAL5 = 4;
+	public static final int BGM_NORMAL6 = 5;
+	public static final int BGM_PUZZLE1 = 6;
+	public static final int BGM_PUZZLE2 = 7;
+	public static final int BGM_PUZZLE3 = 8;
+	public static final int BGM_PUZZLE4 = 9;
+	public static final int BGM_ENDING1 = 10;
+	public static final int BGM_ENDING2 = 11;
+	public static final int BGM_SPECIAL1 = 12;
+	public static final int BGM_SPECIAL2 = 13;
+	public static final int BGM_SPECIAL3 = 14;
+	public static final int BGM_SPECIAL4 = 15;
 
-	/** Background fade flag */
-	public boolean fadesw;
+	/** MusicalMaximumcount */
+	public static final int BGM_COUNT = 16;
 
-	/** Background fade state (false for fadeout, true for fade-in) */
-	public boolean fadestat;
+	/** Current BGM number */
+	public int bgm = BGM_NOTHING;
 
-	/** Background fade usage counter */
-	public int fadecount;
+	/** Volume (1f=100%, 0.5f=50%) */
+	public float volume = 1f;
 
-	/** Background after fade */
-	public int fadebg;
+	/** BGM fadeoutSwitch */
+	public boolean fadesw = false;
 
 	/**
-	 * Default constructor
+	 * Constructor
 	 */
-	public BackgroundStatus() {
+	public BGMusicStatus() {
 		reset();
-	}
-
-	/**
-	 * Copy constructor
-	 *
-	 * @param b Copy source
-	 */
-	public BackgroundStatus(BackgroundStatus b) {
-		bg = b.bg;
-		fadesw = b.fadesw;
-		fadestat = b.fadestat;
-		fadecount = b.fadecount;
-		fadebg = b.fadebg;
 	}
 
 	/**
 	 * Reset to defaults
 	 */
 	public void reset() {
-		bg = 0;
+		bgm = BGM_NOTHING;
+		volume = 1f;
 		fadesw = false;
-		fadestat = false;
-		fadecount = 0;
-		fadebg = 0;
 	}
 
-
 	/**
-	 * Update background fade state
+	 * BGM fadeUpdate of state and volume
 	 */
 	public void fadeUpdate() {
-		if (fadesw == true) {
-			if (fadecount < 100) {
-				fadecount += 10;
-			} else if (fadestat == false) {
-				bg = fadebg;
-				fadestat = true;
-				fadecount = 0;
-			} else {
-				fadesw = false;
-				fadestat = false;
-				fadecount = 0;
+		if (fadesw) {
+			if (volume > 0f) {
+				volume -= 0.005f;
+			} else if (volume < 0f) {
+				volume = 0f;
 			}
+		} else if (volume < 1f) {
+			volume = 1f;
 		}
 	}
 }

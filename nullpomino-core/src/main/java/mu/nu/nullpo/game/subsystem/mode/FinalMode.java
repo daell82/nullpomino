@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -486,7 +486,7 @@ public class FinalMode extends AbstractMode {
 		engine.big = big;
 
 		setSpeed(engine);
-		owner.bgmStatus.bgm = BGMStatus.BGM_NORMAL6;
+		owner.bgmStatus.bgm = BGMusicStatus.BGM_NORMAL6;
 	}
 
 	/**
@@ -677,7 +677,7 @@ public class FinalMode extends AbstractMode {
 			engine.blockHidden = engine.ruleopt.lockflash;
 			engine.blockHiddenAnim = false;
 			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 
 		return false;
@@ -747,22 +747,22 @@ public class FinalMode extends AbstractMode {
 				if (big) {
 					if (engine.statistics.totalFour == 1 || engine.statistics.totalFour == 2
 							|| engine.statistics.totalFour == 4) {
-						receiver.playSE("medal");
+						engine.playSE("medal");
 						medalSK++;
 					}
 				} else if (engine.statistics.totalFour == 5 || engine.statistics.totalFour == 10
 						|| engine.statistics.totalFour == 17) {
-					receiver.playSE("medal");
+					engine.playSE("medal");
 					medalSK++;
 				}
 			}
 
 			// AC medal
 			if (engine.field.isEmpty()) {
-				receiver.playSE("bravo");
+				engine.playSE("bravo");
 
 				if (medalAC < 3) {
-					receiver.playSE("medal");
+					engine.playSE("medal");
 					medalAC++;
 				}
 			}
@@ -770,23 +770,23 @@ public class FinalMode extends AbstractMode {
 			// CO medal
 			if (big) {
 				if (engine.combo >= 2 && medalCO < 1) {
-					receiver.playSE("medal");
+					engine.playSE("medal");
 					medalCO = 1;
 				} else if (engine.combo >= 3 && medalCO < 2) {
-					receiver.playSE("medal");
+					engine.playSE("medal");
 					medalCO = 2;
 				} else if (engine.combo >= 4 && medalCO < 3) {
-					receiver.playSE("medal");
+					engine.playSE("medal");
 					medalCO = 3;
 				}
 			} else if (engine.combo >= 4 && medalCO < 1) {
-				receiver.playSE("medal");
+				engine.playSE("medal");
 				medalCO = 1;
 			} else if (engine.combo >= 5 && medalCO < 2) {
-				receiver.playSE("medal");
+				engine.playSE("medal");
 				medalCO = 2;
 			} else if (engine.combo >= 7 && medalCO < 3) {
-				receiver.playSE("medal");
+				engine.playSE("medal");
 				medalCO = 3;
 			}
 

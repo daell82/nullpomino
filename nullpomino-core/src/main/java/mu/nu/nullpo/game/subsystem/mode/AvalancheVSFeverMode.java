@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
@@ -390,9 +390,9 @@ public class AvalancheVSFeverMode extends AvalancheVSDummyMode {
 				case 25:
 					bgmno += change;
 					if (bgmno < 0) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = 0;
 					}
 					break;

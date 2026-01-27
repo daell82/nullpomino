@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetUtil;
@@ -315,9 +315,9 @@ public class UltraMode extends NetDummyMode {
 				case 7:
 					bgmno += change;
 					if (bgmno < 0) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = 0;
 					}
 					break;
@@ -495,7 +495,7 @@ public class UltraMode extends NetDummyMode {
 		engine.meterColor = Colors.METER_COLOR_GREEN;
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = bgmno;
 		}

@@ -244,7 +244,8 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		// Load images
 		try {
 			ResourceHolderSwing resourceManager = ResourceHolderSwing.getInstance();
-			resourceManager.load();
+			String skinDir = propConfig.getProperty("custom.skin.directory", "res");
+			resourceManager.load(skinDir);
 		} catch (Exception e) {
 			log.error("Image load failed", e);
 		}

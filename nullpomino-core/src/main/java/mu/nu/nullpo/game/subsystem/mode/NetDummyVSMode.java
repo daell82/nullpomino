@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.net.NetPlayerClient;
@@ -877,9 +877,9 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (playerID == 0) {
 			// Set BGM
 			if (netvsIsPractice) {
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			} else {
-				owner.bgmStatus.bgm = BGMStatus.BGM_NORMAL1;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NORMAL1;
 				owner.bgmStatus.fadesw = false;
 			}
 
@@ -960,7 +960,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				&& engine.ctrl.isPush(Controller.BUTTON_F)) {
 			netvsIsPractice = false;
 			netvsIsPracticeExitAllowed = false;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			engine.field.reset();
 			engine.gameEnded();
 			engine.stat = GameEngine.Status.SETTING;
@@ -1020,7 +1020,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			engine.gameEnded();
 		}
 		engine.allowTextRenderByReceiver = false;
-		owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+		owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		engine.resetFieldVisible();
 
 		// Practice
@@ -1157,7 +1157,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 		if (engine.statc[0] == 0) {
 			engine.gameEnded();
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			engine.resetFieldVisible();
 			engine.playSE("excellent");
 		}
@@ -1539,7 +1539,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			if (netvsIsPractice) {
 				netvsIsPractice = false;
 				netvsIsPracticeExitAllowed = false;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				owner.engine[0].gameEnded();
 				owner.engine[0].stat = GameEngine.Status.SETTING;
 				owner.engine[0].resetStatc();

@@ -342,7 +342,6 @@ public class Block implements Serializable {
 	}
 
 	public static void updateRainbowPhase(GameEngine engine) {
-		System.out.println("Block.updateRainbowPhase()");
 		if (engine != null && engine.timerActive) {
 			rainbowPhase = engine.statistics.time % 21;
 		} else {

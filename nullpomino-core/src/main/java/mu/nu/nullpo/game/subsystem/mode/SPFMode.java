@@ -32,7 +32,7 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -690,9 +690,9 @@ public class SPFMode extends AbstractMode {
 				case 9:
 					bgmno += change;
 					if (bgmno < 0) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = 0;
 					}
 					break;
@@ -994,7 +994,7 @@ public class SPFMode extends AbstractMode {
 			}
 		} else if (engine.statc[0] == 1 && diamondPower[playerID] > 0) {
 			for (int x = 24; x < engine.nextPieceArraySize; x += 25) {
-				engine.nextPieceArrayObject[x].block[1].color = DIAMOND_COLOR;
+				engine.nextPieces[x].block[1].color = DIAMOND_COLOR;
 			}
 		}
 		return false;
@@ -1640,7 +1640,7 @@ public class SPFMode extends AbstractMode {
 				winnerID = -1;
 				owner.engine[0].gameEnded();
 				owner.engine[1].gameEnded();
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			} else if (owner.engine[0].stat != GameEngine.Status.GAMEOVER
 					&& owner.engine[1].stat == GameEngine.Status.GAMEOVER) {
 				// 1P win
@@ -1650,7 +1650,7 @@ public class SPFMode extends AbstractMode {
 				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[0].resetStatc();
 				owner.engine[0].statc[1] = 1;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			} else if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
 					&& owner.engine[1].stat != GameEngine.Status.GAMEOVER) {
 				// 2P win
@@ -1660,7 +1660,7 @@ public class SPFMode extends AbstractMode {
 				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[1].resetStatc();
 				owner.engine[1].statc[1] = 1;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
 	}

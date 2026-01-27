@@ -35,7 +35,7 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -59,7 +59,7 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
  * @deprecated Replaced with the current NetVSBattleMode which uses
  *             NetDummyVSMode.
  */
-@Deprecated
+@Deprecated(since = "7.6")
 public class LegacyNetVSBattleMode extends NetDummyMode {
 	/** Log */
 	static final Logger log = Logger.getLogger(LegacyNetVSBattleMode.class);
@@ -1157,9 +1157,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			targetTimer = 0;
 		}
 		if (isPractice) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NORMAL1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NORMAL1;
 			owner.bgmStatus.fadesw = false;
 		}
 		pieceMoveTimer = 0;
@@ -1654,7 +1654,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		// End practice mode
 		if (playerID == 0 && isPractice && isPracticeExitAllowed && engine.ctrl.isPush(Controller.BUTTON_F)) {
 			engine.timerActive = false;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			isPracticeExitAllowed = false;
 
 			if (isPractice) {
@@ -2014,7 +2014,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		}
 
 		if (playerID == 0 && !isDead[playerID]) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			engine.resetFieldVisible();
 
 			sendField(engine);
@@ -2148,7 +2148,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 		if (engine.statc[0] == 0) {
 			// if((playerID == 0) && (playerSeatNumber != -1)) numWins++;
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			if (engine.ai != null) {
 				engine.ai.shutdown(engine, playerID);
 			}
@@ -2566,7 +2566,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 			if (isPractice) {
 				isPractice = false;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				owner.engine[0].gameEnded();
 				owner.engine[0].stat = GameEngine.Status.SETTING;
 				owner.engine[0].resetStatc();
@@ -2806,15 +2806,15 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 								owner.engine[playerID].holdPieceObject.updateConnectData();
 							}
 						} else {
-							if (owner.engine[playerID].nextPieceArrayObject == null
-									|| owner.engine[playerID].nextPieceArrayObject.length < maxNext) {
-								owner.engine[playerID].nextPieceArrayObject = new Piece[maxNext];
+							if (owner.engine[playerID].nextPieces == null
+									|| owner.engine[playerID].nextPieces.length < maxNext) {
+								owner.engine[playerID].nextPieces = new Piece[maxNext];
 							}
-							owner.engine[playerID].nextPieceArrayObject[i - 1] = new Piece(pieceID);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].direction = pieceDirection;
-							owner.engine[playerID].nextPieceArrayObject[i - 1].setColor(pieceColor);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].setSkin(playerSkin[playerID]);
-							owner.engine[playerID].nextPieceArrayObject[i - 1].updateConnectData();
+							owner.engine[playerID].nextPieces[i - 1] = new Piece(pieceID);
+							owner.engine[playerID].nextPieces[i - 1].direction = pieceDirection;
+							owner.engine[playerID].nextPieces[i - 1].setColor(pieceColor);
+							owner.engine[playerID].nextPieces[i - 1].setSkin(playerSkin[playerID]);
+							owner.engine[playerID].nextPieces[i - 1].updateConnectData();
 						}
 					}
 				}

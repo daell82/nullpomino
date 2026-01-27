@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
@@ -163,17 +163,17 @@ public class TimeAttackMode extends NetDummyMode {
 
 	/** BGM kind table */
 	private static final int tableBGMNumber[][] = {
-			{ BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2, BGMStatus.BGM_NORMAL3 }, // NORMAL
-			{ BGMStatus.BGM_NORMAL1, BGMStatus.BGM_NORMAL3, BGMStatus.BGM_NORMAL6 }, // HI-SPEED 1
-			{ BGMStatus.BGM_NORMAL3, BGMStatus.BGM_NORMAL6, BGMStatus.BGM_NORMAL4 }, // HI-SPEED 2
-			{ BGMStatus.BGM_NORMAL6, BGMStatus.BGM_NORMAL4, BGMStatus.BGM_NORMAL5 }, // ANOTHER
-			{ BGMStatus.BGM_NORMAL6, BGMStatus.BGM_NORMAL4, BGMStatus.BGM_NORMAL5 }, // ANOTHER2
-			{ BGMStatus.BGM_SPECIAL1, BGMStatus.BGM_NORMAL2, BGMStatus.BGM_NORMAL3 }, // NORMAL 200
-			{ BGMStatus.BGM_NORMAL6, BGMStatus.BGM_NORMAL4, BGMStatus.BGM_NORMAL5 }, // ANOTHER 200
-			{ BGMStatus.BGM_NORMAL1, BGMStatus.BGM_NORMAL2, BGMStatus.BGM_NORMAL3 }, // BASIC
-			{ BGMStatus.BGM_PUZZLE4, BGMStatus.BGM_SPECIAL4, BGMStatus.BGM_SPECIAL2 }, // HELL
-			{ BGMStatus.BGM_NORMAL4, BGMStatus.BGM_NORMAL5, BGMStatus.BGM_SPECIAL3 }, // HELL-X
-			{ BGMStatus.BGM_NORMAL6 }, // VOID
+			{ BGMusicStatus.BGM_SPECIAL1, BGMusicStatus.BGM_NORMAL2, BGMusicStatus.BGM_NORMAL3 }, // NORMAL
+			{ BGMusicStatus.BGM_NORMAL1, BGMusicStatus.BGM_NORMAL3, BGMusicStatus.BGM_NORMAL6 }, // HI-SPEED 1
+			{ BGMusicStatus.BGM_NORMAL3, BGMusicStatus.BGM_NORMAL6, BGMusicStatus.BGM_NORMAL4 }, // HI-SPEED 2
+			{ BGMusicStatus.BGM_NORMAL6, BGMusicStatus.BGM_NORMAL4, BGMusicStatus.BGM_NORMAL5 }, // ANOTHER
+			{ BGMusicStatus.BGM_NORMAL6, BGMusicStatus.BGM_NORMAL4, BGMusicStatus.BGM_NORMAL5 }, // ANOTHER2
+			{ BGMusicStatus.BGM_SPECIAL1, BGMusicStatus.BGM_NORMAL2, BGMusicStatus.BGM_NORMAL3 }, // NORMAL 200
+			{ BGMusicStatus.BGM_NORMAL6, BGMusicStatus.BGM_NORMAL4, BGMusicStatus.BGM_NORMAL5 }, // ANOTHER 200
+			{ BGMusicStatus.BGM_NORMAL1, BGMusicStatus.BGM_NORMAL2, BGMusicStatus.BGM_NORMAL3 }, // BASIC
+			{ BGMusicStatus.BGM_PUZZLE4, BGMusicStatus.BGM_SPECIAL4, BGMusicStatus.BGM_SPECIAL2 }, // HELL
+			{ BGMusicStatus.BGM_NORMAL4, BGMusicStatus.BGM_NORMAL5, BGMusicStatus.BGM_SPECIAL3 }, // HELL-X
+			{ BGMusicStatus.BGM_NORMAL6 }, // VOID
 	};
 
 	/** Game types */
@@ -609,7 +609,7 @@ public class TimeAttackMode extends NetDummyMode {
 	@Override
 	public void startGame(GameEngine engine, int playerID) {
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = tableBGMNumber[goaltype][bgmlv];
 		}
@@ -743,7 +743,7 @@ public class TimeAttackMode extends NetDummyMode {
 		// Ending start
 		if (engine.ending == 2 && engine.staffrollEnable == true && rollstarted == false && !netIsWatch) {
 			rollstarted = true;
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 			owner.bgmStatus.fadesw = false;
 
 			// VOID ending

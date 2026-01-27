@@ -30,7 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -469,9 +469,9 @@ public class PracticeMode extends AbstractMode {
 				case 7:
 					bgmno += change;
 					if (bgmno < 0) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = 0;
 					}
 					break;
@@ -1377,7 +1377,7 @@ public class PracticeMode extends AbstractMode {
 				}
 			}
 
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 
 		return false;

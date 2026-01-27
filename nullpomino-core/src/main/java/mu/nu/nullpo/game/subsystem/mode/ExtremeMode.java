@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetUtil;
@@ -379,7 +379,7 @@ public class ExtremeMode extends NetDummyMode {
 		engine.big = big;
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = bgmlv + 2;
 		}
@@ -756,7 +756,7 @@ public class ExtremeMode extends NetDummyMode {
 				// Ending
 				engine.playSE("levelup");
 				engine.playSE("endingstart");
-				owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 				owner.bgmStatus.fadesw = false;
 				engine.bone = true;
 				engine.ending = 2;

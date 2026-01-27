@@ -1,10 +1,35 @@
-/**
- *
- */
+/*
+    Copyright (c) 2010, NullNoname
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of NullNoname nor the names of its
+          contributors may be used to endorse or promote products derived from
+          this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+*/
 package mu.nu.nullpo.util;
 
 /**
- *
+ * @author daell
  */
 public class Colors {
 
@@ -53,6 +78,7 @@ public class Colors {
 	public static final int BLOCK_COLOR_CYAN = 6;
 	public static final int BLOCK_COLOR_BLUE = 7;
 	public static final int BLOCK_COLOR_PURPLE = 8;
+
 	public static final int BLOCK_COLOR_GEM_RED = 9;
 	public static final int BLOCK_COLOR_GEM_ORANGE = 10;
 	public static final int BLOCK_COLOR_GEM_YELLOW = 11;
@@ -60,6 +86,7 @@ public class Colors {
 	public static final int BLOCK_COLOR_GEM_CYAN = 13;
 	public static final int BLOCK_COLOR_GEM_BLUE = 14;
 	public static final int BLOCK_COLOR_GEM_PURPLE = 15;
+
 	public static final int BLOCK_COLOR_SQUARE_GOLD_1 = 16;
 	public static final int BLOCK_COLOR_SQUARE_GOLD_2 = 17;
 	public static final int BLOCK_COLOR_SQUARE_GOLD_3 = 18;
@@ -69,6 +96,7 @@ public class Colors {
 	public static final int BLOCK_COLOR_SQUARE_GOLD_7 = 22;
 	public static final int BLOCK_COLOR_SQUARE_GOLD_8 = 23;
 	public static final int BLOCK_COLOR_SQUARE_GOLD_9 = 24;
+
 	public static final int BLOCK_COLOR_SQUARE_SILVER_1 = 25;
 	public static final int BLOCK_COLOR_SQUARE_SILVER_2 = 26;
 	public static final int BLOCK_COLOR_SQUARE_SILVER_3 = 27;
@@ -78,8 +106,10 @@ public class Colors {
 	public static final int BLOCK_COLOR_SQUARE_SILVER_7 = 31;
 	public static final int BLOCK_COLOR_SQUARE_SILVER_8 = 32;
 	public static final int BLOCK_COLOR_SQUARE_SILVER_9 = 33;
+
 	public static final int BLOCK_COLOR_RAINBOW = 34;
 	public static final int BLOCK_COLOR_GEM_RAINBOW = 35;
+
 	/** NormalBlock colorOfMaximumcount */
 	public static final int BLOCK_COLOR_COUNT = 9;
 	/** + Normal GemBlock colorOfMaximumcount */

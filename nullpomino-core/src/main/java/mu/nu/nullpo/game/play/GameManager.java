@@ -31,8 +31,8 @@ package mu.nu.nullpo.game.play;
 import java.io.Serializable;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.component.BGMStatus;
-import mu.nu.nullpo.game.component.BackgroundStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
+import mu.nu.nullpo.game.component.BGImageStatus;
 import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.util.CustomProperties;
@@ -70,10 +70,10 @@ public class GameManager implements Serializable {
 	public final EventReceiver<?> receiver;
 
 	/** BGMStatus: Manages the status of background music */
-	public BGMStatus bgmStatus;
+	public BGMusicStatus bgmStatus;
 
 	/** BackgroundStatus: Manages the status of background image */
-	public BackgroundStatus backgroundStatus;
+	public BGImageStatus backgroundStatus;
 
 	/** GameEngine: This is where the most action takes place */
 	public GameEngine[] engine;
@@ -99,7 +99,7 @@ public class GameManager implements Serializable {
 	public void init() {
 		log.debug("GameManager init()");
 
-		modeConfig = receiver.loadModeConfig();
+		modeConfig = CustomProperties.load("config/setting/mode.cfg");;
 
 		if (replayProp == null) {
 			replayProp = new CustomProperties();
@@ -109,8 +109,8 @@ public class GameManager implements Serializable {
 		replayRerecord = false;
 		menuOnly = false;
 
-		bgmStatus = new BGMStatus();
-		backgroundStatus = new BackgroundStatus();
+		bgmStatus = new BGMusicStatus();
+		backgroundStatus = new BGImageStatus();
 
 		int players = 1;
 		if (mode != null) {

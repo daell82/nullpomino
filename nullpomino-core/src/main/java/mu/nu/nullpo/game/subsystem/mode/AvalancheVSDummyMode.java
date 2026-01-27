@@ -30,7 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import java.util.Random;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
@@ -50,8 +50,8 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	public static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
 	/** Block colors */
-	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_BLUE,
-			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
+	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
+			Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
 
 	/** Fever map files list */
 	public static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Compendium" };
@@ -827,7 +827,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 				owner.engine[1].resetStatc();
 				owner.engine[0].statc[1] = 1;
 				owner.engine[1].statc[1] = 1;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
 	}
@@ -919,17 +919,18 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	}
 
 	protected void drawHardOjama(GameEngine engine, int playerID) {
-		if (engine.field != null) {
-			for (int x = 0; x < engine.field.getWidth(); x++) {
-				for (int y = 0; y < engine.field.getHeight(); y++) {
-					int hard = engine.field.getBlock(x, y).hard;
-					if (hard > 0) {
-						if (engine.displaysize == DisplaySize.BIG) {
-							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(hard),
-									Colors.FONT_YELLOW, 2.0f);
-						} else {
-							receiver.drawMenuFont(engine, playerID, x, y, String.valueOf(hard), Colors.FONT_YELLOW);
-						}
+		if (engine.field == null) {
+			return;
+		}
+		for (int x = 0; x < engine.field.getWidth(); x++) {
+			for (int y = 0; y < engine.field.getHeight(); y++) {
+				int hard = engine.field.getBlock(x, y).hard;
+				if (hard > 0) {
+					String text = String.valueOf(hard);
+					if (engine.displaysize == DisplaySize.BIG) {
+						receiver.drawMenuFont(engine, playerID, x * 2, y * 2, text, Colors.FONT_YELLOW, 2.0f);
+					} else {
+						receiver.drawMenuFont(engine, playerID, x, y, text, Colors.FONT_YELLOW);
 					}
 				}
 			}

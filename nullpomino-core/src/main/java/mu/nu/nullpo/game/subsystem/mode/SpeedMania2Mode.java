@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
@@ -553,7 +553,7 @@ public class SpeedMania2Mode extends AbstractMode {
 			rollclear = 1;
 			rollstarted = true;
 			engine.big = true;
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 	}
 
@@ -769,7 +769,7 @@ public class SpeedMania2Mode extends AbstractMode {
 		if (engine.ending == 2 && rollstarted == false) {
 			rollstarted = true;
 			engine.big = true;
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 
 		return false;
@@ -1113,7 +1113,7 @@ public class SpeedMania2Mode extends AbstractMode {
 				engine.gameEnded();
 				engine.resetStatc();
 				engine.stat = GameEngine.Status.EXCELLENT;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
 	}

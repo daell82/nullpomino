@@ -884,14 +884,6 @@ public class EventReceiver<T> {
 	public void playSE(String name) {
 	}
 
-	/**
-	 * Load properties from "config/setting/mode.cfg"
-	 *
-	 * @return Properties from "config/setting/mode.cfg".
-	 */
-	public CustomProperties loadModeConfig() {
-		return CustomProperties.load("config/setting/mode.cfg");
-	}
 
 	/**
 	 * Save properties to "config/setting/mode.cfg"

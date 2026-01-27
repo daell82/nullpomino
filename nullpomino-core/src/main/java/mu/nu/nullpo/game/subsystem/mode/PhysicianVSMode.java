@@ -32,7 +32,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -487,9 +487,9 @@ public class PhysicianVSMode extends AbstractMode {
 				case 13:
 					bgmno += change;
 					if (bgmno < 0) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = 0;
 					}
 					break;
@@ -951,7 +951,7 @@ public class PhysicianVSMode extends AbstractMode {
 				owner.engine[1].resetStatc();
 				owner.engine[0].statc[1] = 1;
 				owner.engine[1].statc[1] = 1;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
 	}

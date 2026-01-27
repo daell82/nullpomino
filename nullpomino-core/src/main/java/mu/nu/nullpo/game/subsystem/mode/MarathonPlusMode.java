@@ -30,7 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import java.io.IOException;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
@@ -424,7 +424,7 @@ public class MarathonPlusMode extends NetDummyMode {
 		setStartBgmlv(engine);
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = bgmlv;
 		}
@@ -818,7 +818,7 @@ public class MarathonPlusMode extends NetDummyMode {
 			if (engine.statistics.level >= 20) {
 				// Bonus level unlocked
 				engine.meterValue = 0;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				engine.timerActive = false;
 				engine.ending = 1;
 			} else {
@@ -1156,7 +1156,7 @@ public class MarathonPlusMode extends NetDummyMode {
 			// Bonus level entered
 			if (message[3].equals("bonuslevelenter")) {
 				engine.meterValue = 0;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				engine.timerActive = false;
 				engine.ending = 1;
 				engine.stat = GameEngine.Status.CUSTOM;

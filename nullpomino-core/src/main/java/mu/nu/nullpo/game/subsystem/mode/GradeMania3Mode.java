@@ -32,7 +32,7 @@ import java.util.Random;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -955,7 +955,7 @@ public class GradeMania3Mode extends AbstractMode {
 				engine.blockHiddenAnim = true;
 			}
 
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 	}
 
@@ -1255,7 +1255,7 @@ public class GradeMania3Mode extends AbstractMode {
 				engine.blockHiddenAnim = true;
 			}
 
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 
 		return false;
@@ -1722,7 +1722,7 @@ public class GradeMania3Mode extends AbstractMode {
 				engine.gameEnded();
 				engine.resetStatc();
 				engine.stat = GameEngine.Status.EXCELLENT;
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
 	}

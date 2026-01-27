@@ -2418,19 +2418,16 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	/**
 	 * Get int value from JTextField
 	 *
-	 * @param value  Default Value (used if convertion fails)
+	 * @param value  Default Value (used if conversion fails)
 	 * @param txtfld JTextField
 	 * @return int value (or default value if fails)
 	 */
 	public static int getIntTextField(int value, JTextField txtfld) {
-		int v = value;
-
 		try {
-			v = Integer.parseInt(txtfld.getText());
+			return Integer.parseInt(txtfld.getText());
 		} catch (NumberFormatException e) {
 		}
-
-		return v;
+		return value;
 	}
 
 	/**

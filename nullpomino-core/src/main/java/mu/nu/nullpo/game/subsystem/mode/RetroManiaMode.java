@@ -289,7 +289,7 @@ public class RetroManiaMode extends AbstractMode {
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
 		if (engine.statc[0] == 0 && poweron) {
-			engine.nextPieceArrayID = GeneralUtil.createNextPieceArrayFromNumberString(STRING_POWERON_PATTERN);
+			engine.nextPieceIDs = GeneralUtil.createNextPieceArrayFromNumberString(STRING_POWERON_PATTERN);
 		}
 		return false;
 	}

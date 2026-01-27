@@ -977,7 +977,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			return;
 		}
 
-		int size = (int) (4 * engine.displaysize.getScale());
+		int size = (int) (16 * engine.displaysize.getScale());
 
 		int width = 10;
 		int height = 20;
@@ -996,14 +996,14 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			case NORMAL -> resourceManager.getImgFieldbg2();
 			case BIG -> resourceManager.getImgFieldbg2Big();
 			};
-			graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size * 4, y + 4 + height * size * 4, 0, 0,
-					width * size * 4, height * size * 4, null);
+			graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0, width * size,
+					height * size, null);
 		}
 
 		// UpAnd the lower
-		int maxWidth = width * size * 4;
+		int maxWidth = width * size;
 		if (showMeter) {
-			maxWidth = width * size * 4 + 2 * 4;
+			maxWidth = width * size + 2 * 4;
 		}
 
 		int tmpX = 0;
@@ -1015,21 +1015,21 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		Image frame = resourceManager.getImgFrame();
 
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 0, offsetX + 4 + 4, 4, null);
-		tmpY = y + height * size * 4 + 4;
+		tmpY = y + height * size + 4;
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 8, offsetX + 4 + 4, 8 + 4, null);
 
 		// Left and Right
 		tmpX = x;
 		tmpY = y + 4;
-		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX, 4, offsetX + 4, 4 + 4, null);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX, 4, offsetX + 4, 4 + 4, null);
 
 		if (showMeter) {
-			tmpX = x + width * size * 4 + 12;
+			tmpX = x + width * size + 12;
 		} else {
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 		}
-		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 8, 4, offsetX + 8 + 4,
-				4 + 4, null);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 8, 4, offsetX + 8 + 4, 4 + 4,
+				null);
 
 		// Upper left
 		tmpX = x;
@@ -1038,41 +1038,41 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 		// Lower left
 		tmpX = x;
-		tmpY = y + height * size * 4 + 4;
+		tmpY = y + height * size + 4;
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 8, offsetX + 4, 8 + 4, null);
 
 		if (showMeter) {
 			// MeterONWhen the upper right corner of the
-			tmpX = x + width * size * 4 + 12;
+			tmpX = x + width * size + 12;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4, null);
 
 			// MeterONWhen the lower-right corner of
-			tmpX = x + width * size * 4 + 12;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 12;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4, null);
 
 			// RightMeterFrame
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y + 4;
-			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 12, 4, offsetX + 12 + 4,
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 12, 4, offsetX + 12 + 4,
 					4 + 4, null);
 
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 0, offsetX + 12 + 4, 4, null);
 
-			tmpX = x + width * size * 4 + 4;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 4;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 8, offsetX + 12 + 4, 8 + 4, null);
 
 			// RightMeter
-			int maxHeight = height * size * 4;
-			if (engine != null && (engine.meterValueSub > 0 || engine.meterValue > 0)) {
+			int maxHeight = height * size;
+			if (engine.meterValueSub > 0 || engine.meterValue > 0) {
 				maxHeight -= Math.max(engine.meterValue, engine.meterValueSub);
 			}
 
-			tmpX = x + width * size * 4 + 8;
+			tmpX = x + width * size + 8;
 			tmpY = y + 4;
 
 			if (maxHeight > 0) {
@@ -1081,45 +1081,43 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				graphics.setColor(Color.white);
 			}
 
-			if (engine != null) {
-				if (engine.meterValueSub > Math.max(engine.meterValue, 0)) {
-					int value = engine.meterValueSub;
-					if (value > height * size * 4) {
-						value = height * size * 4;
-					}
-					if (value > 0) {
-						tmpX = x + width * size * 4 + 8;
-						tmpY = y + height * size * 4 + 3 - (value - 1);
-
-						graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColorSub));
-						graphics.fillRect(tmpX, tmpY, 4, value);
-						graphics.setColor(Color.white);
-					}
+			if (engine.meterValueSub > Math.max(engine.meterValue, 0)) {
+				int value = engine.meterValueSub;
+				if (value > height * size) {
+					value = height * size;
 				}
-				if (engine.meterValue > 0) {
-					int value = engine.meterValue;
-					if (value > height * size * 4) {
-						value = height * size * 4;
-					}
-					if (value > 0) {
-						tmpX = x + width * size * 4 + 8;
-						tmpY = y + height * size * 4 + 3 - (value - 1);
+				if (value > 0) {
+					tmpX = x + width * size + 8;
+					tmpY = y + height * size + 3 - (value - 1);
 
-						graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColor));
-						graphics.fillRect(tmpX, tmpY, 4, value);
-						graphics.setColor(Color.white);
-					}
+					graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColorSub));
+					graphics.fillRect(tmpX, tmpY, 4, value);
+					graphics.setColor(Color.white);
+				}
+			}
+			if (engine.meterValue > 0) {
+				int value = engine.meterValue;
+				if (value > height * size) {
+					value = height * size;
+				}
+				if (value > 0) {
+					tmpX = x + width * size + 8;
+					tmpY = y + height * size + 3 - (value - 1);
+
+					graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColor));
+					graphics.fillRect(tmpX, tmpY, 4, value);
+					graphics.setColor(Color.white);
 				}
 			}
 		} else {
 			// MeterOFFWhen the upper right corner of the
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4, null);
 
 			// MeterOFFWhen the lower-right corner of
-			tmpX = x + width * size * 4 + 4;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 4;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4, null);
 		}
 	}
@@ -1234,11 +1232,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				}
 
 				// NEXT2·3
-				for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
-					if (i >= 2) {
-						break;
-					}
-
+				for (int i = 0; i < engine.ruleopt.nextDisplay - 1 && i >= 2; i++) {
 					Piece piece = engine.getNextObject(engine.nextPieceCount + i + 1);
 
 					if (piece != null) {
@@ -1249,68 +1243,72 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				// NEXT4~
 				for (int i = 0; i < engine.ruleopt.nextDisplay - 3; i++) {
 					Piece piece = engine.getNextObject(engine.nextPieceCount + i + 3);
-
-					if (piece != null) {
-						if (showMeter) {
-							drawPiece(x + 176, y + i * 40 + 88 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f);
-						} else {
-							drawPiece(x + 168, y + i * 40 + 88 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f);
-						}
+					if (piece == null) {
+						continue;
+					}
+					if (showMeter) {
+						drawPiece(x + 176, y + i * 40 + 88 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f);
+					} else {
+						drawPiece(x + 168, y + i * 40 + 88 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f);
 					}
 				}
 			}
 		}
 
 		if (engine.isHoldVisible) {
-			// HOLD
-			int holdRemain = engine.ruleopt.holdLimit - engine.holdUsedCount;
-			int x2 = sidenext ? x - 32 : x;
-			int y2 = sidenext ? y + 40 : y;
-			if (getNextDisplayType() == 2) {
-				x2 = x - 48;
+			drawHold(x, y, engine);
+		}
+	}
+
+	protected void drawHold(int x, int y, GameEngine engine) {
+		// HOLD
+		int holdRemain = engine.ruleopt.holdLimit - engine.holdUsedCount;
+		int x2 = sidenext ? x - 32 : x;
+		int y2 = sidenext ? y + 40 : y;
+		if (getNextDisplayType() == 2) {
+			x2 = x - 48;
+		}
+
+		if (engine.ruleopt.holdEnable == true && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
+			int tempColor = Colors.FONT_GREEN;
+			if (engine.holdDisable) {
+				tempColor = Colors.FONT_WHITE;
 			}
 
-			if (engine.ruleopt.holdEnable == true && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
-				int tempColor = Colors.FONT_GREEN;
+			if (engine.ruleopt.holdLimit < 0) {
+				NormalFontSwing.printFont(x2, y2, NullpoMinoSwing.getUIText("InGame_Hold"), tempColor, 0.5f);
+			} else {
+				if (!engine.holdDisable) {
+					if (holdRemain > 0 && holdRemain <= 10) {
+						tempColor = Colors.FONT_YELLOW;
+					}
+					if (holdRemain > 0 && holdRemain <= 5) {
+						tempColor = Colors.FONT_RED;
+					}
+				}
+
+				NormalFontSwing.printFont(x2, y2, NullpoMinoSwing.getUIText("InGame_Hold") + "\ne " + holdRemain,
+						tempColor, 0.5f);
+			}
+
+			if (engine.holdPieceObject != null) {
+				float dark = 0f;
 				if (engine.holdDisable) {
-					tempColor = Colors.FONT_WHITE;
+					dark = 0.3f;
 				}
+				Piece piece = new Piece(engine.holdPieceObject);
+				piece.resetOffsetArray();
 
-				if (engine.ruleopt.holdLimit < 0) {
-					NormalFontSwing.printFont(x2, y2, NullpoMinoSwing.getUIText("InGame_Hold"), tempColor, 0.5f);
+				if (getNextDisplayType() == 2) {
+					int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
+					int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
+					drawPiece(x - 64 + centerX, y + 48 + centerY, piece, 1.0f, dark);
+				} else if (getNextDisplayType() == 1) {
+					int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
+					int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
+					drawPiece(x2 + centerX, y + 48 + centerY, piece, 0.5f, dark);
 				} else {
-					if (!engine.holdDisable) {
-						if (holdRemain > 0 && holdRemain <= 10) {
-							tempColor = Colors.FONT_YELLOW;
-						}
-						if (holdRemain > 0 && holdRemain <= 5) {
-							tempColor = Colors.FONT_RED;
-						}
-					}
-
-					NormalFontSwing.printFont(x2, y2, NullpoMinoSwing.getUIText("InGame_Hold") + "\ne " + holdRemain,
-							tempColor, 0.5f);
-				}
-
-				if (engine.holdPieceObject != null) {
-					float dark = 0f;
-					if (engine.holdDisable) {
-						dark = 0.3f;
-					}
-					Piece piece = new Piece(engine.holdPieceObject);
-					piece.resetOffsetArray();
-
-					if (getNextDisplayType() == 2) {
-						int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
-						int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
-						drawPiece(x - 64 + centerX, y + 48 + centerY, piece, 1.0f, dark);
-					} else if (getNextDisplayType() == 1) {
-						int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
-						int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
-						drawPiece(x2 + centerX, y + 48 + centerY, piece, 0.5f, dark);
-					} else {
-						drawPiece(x2, y + 48 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f, dark);
-					}
+					drawPiece(x2, y + 48 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f, dark);
 				}
 			}
 		}

@@ -43,7 +43,7 @@ import org.newdawn.slick.font.effects.ShadowEffect;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 
 /**
  * Class to the management of image and sound
@@ -250,11 +250,11 @@ public class ResourceHolderSlick {
 		}
 
 		// Music
-		bgm = new Music[BGMStatus.BGM_COUNT];
+		bgm = new Music[BGMusicStatus.BGM_COUNT];
 		bgmPlaying = -1;
 
 		if (NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == true) {
-			for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+			for (int i = 0; i < BGMusicStatus.BGM_COUNT; i++) {
 				bgmLoad(i, false);
 			}
 		}
@@ -474,7 +474,7 @@ public class ResourceHolderSlick {
 	 * BGMStop
 	 */
 	public static void bgmStop() {
-		for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+		for (int i = 0; i < BGMusicStatus.BGM_COUNT; i++) {
 			if (bgm[i] != null) {
 				bgm[i].pause();
 				bgm[i].stop();
@@ -486,7 +486,7 @@ public class ResourceHolderSlick {
 	 * AllBGMFreed from memory
 	 */
 	public static void bgmUnloadAll() {
-		for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+		for (int i = 0; i < BGMusicStatus.BGM_COUNT; i++) {
 			if (bgm[i] == null) {
 				continue;
 			}

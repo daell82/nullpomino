@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetUtil;
@@ -45,18 +45,18 @@ public class MarathonMode extends NetDummyMode {
 	private static final int CURRENT_VERSION = 2;
 
 	/** Fall velocity table (numerators) */
-	private static final int tableGravity[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 465, 731, 1280, 1707, -1, -1,
+	private static final int[] tableGravity = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 465, 731, 1280, 1707, -1, -1,
 			-1 };
 
 	/** Fall velocity table (denominators) */
-	private static final int tableDenominator[] = { 63, 50, 39, 30, 22, 16, 12, 8, 6, 4, 3, 2, 1, 256, 256, 256, 256,
+	private static final int[] tableDenominator = { 63, 50, 39, 30, 22, 16, 12, 8, 6, 4, 3, 2, 1, 256, 256, 256, 256,
 			256, 256, 256 };
 
 	/** Line counts when BGM changes occur */
-	private static final int tableBGMChange[] = { 50, 100, 150, 200, -1 };
+	private static final int[] tableBGMChange = { 50, 100, 150, 200, -1 };
 
 	/** Line counts when game ending occurs */
-	private static final int tableGameClearLines[] = { 150, 200, -1 };
+	private static final int[] tableGameClearLines = { 150, 200, -1 };
 
 	/** Number of entries in rankings */
 	private static final int RANKING_MAX = 10;
@@ -407,7 +407,7 @@ public class MarathonMode extends NetDummyMode {
 		setSpeed(engine);
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		}
 	}
 

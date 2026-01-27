@@ -58,7 +58,7 @@ import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
@@ -168,10 +168,10 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		pMusicSetting.setAlignmentX(LEFT_ALIGNMENT);
 		this.add(pMusicSetting);
 
-		txtfldMusicFileNames = new JTextField[BGMStatus.BGM_COUNT];
-		chkboxNoLoop = new JCheckBox[BGMStatus.BGM_COUNT];
+		txtfldMusicFileNames = new JTextField[BGMusicStatus.BGM_COUNT];
+		chkboxNoLoop = new JCheckBox[BGMusicStatus.BGM_COUNT];
 
-		for (int i = 0; i < BGMStatus.BGM_COUNT; i++) {
+		for (int i = 0; i < BGMusicStatus.BGM_COUNT; i++) {
 			JPanel pMusicTemp = new JPanel(new BorderLayout());
 			pMusicSetting.add(pMusicTemp);
 

@@ -64,12 +64,12 @@ public class ResourceHolderSwing {
 	private static final ResourceHolderSwing INSTANCE = new ResourceHolderSwing();
 
 	/** Block images */
-	private List<Image> normalBlockImages;
-	private List<Image> smallBlockImages;
-	private List<Image> bigBlockImages;
+	private final List<Image> normalBlockImages = new LinkedList<>();
+	private final List<Image> smallBlockImages = new LinkedList<>();
+	private final List<Image> bigBlockImages = new LinkedList<>();
 
 	/** Block sticky flag */
-	private List<Boolean> blockStickyFlags;
+	private final List<Boolean> blockStickyFlags = new LinkedList<>();
 
 	/** Regular font */
 	private Image imgFont;
@@ -112,15 +112,15 @@ public class ResourceHolderSwing {
 
 	/**
 	 * Loading images and sound files
+	 * @param skinDir the resource directory for graphical skins
 	 */
-	public void load() {
-		String skindir = NullpoMinoSwing.propConfig.getProperty("custom.skin.directory", "res");
+	public void load(String skinDir) {
 
 		// Blocks
 		int numBlocks = 0;
 		File file = null;
 		while (true) {
-			file = new File(skindir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
+			file = new File(skinDir + "/graphics/blockskin/normal/n" + numBlocks + ".png");
 			if (file.canRead()) {
 				numBlocks++;
 			} else {
@@ -129,16 +129,11 @@ public class ResourceHolderSwing {
 		}
 		log.debug(numBlocks + " block skins found");
 
-		normalBlockImages = new LinkedList<>();
-		smallBlockImages = new LinkedList<>();
-		bigBlockImages = new LinkedList<>();
-		blockStickyFlags = new LinkedList<>();
-
 		for (int i = 0; i < numBlocks; i++) {
-			Image imgNormal = loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
+			Image imgNormal = loadImage(getURL(skinDir + "/graphics/blockskin/normal/n" + i + ".png"));
 			normalBlockImages.add(imgNormal);
-			smallBlockImages.add(loadImage(getURL(skindir + "/graphics/blockskin/small/s" + i + ".png")));
-			bigBlockImages.add(loadImage(getURL(skindir + "/graphics/blockskin/big/b" + i + ".png")));
+			smallBlockImages.add(loadImage(getURL(skinDir + "/graphics/blockskin/small/s" + i + ".png")));
+			bigBlockImages.add(loadImage(getURL(skinDir + "/graphics/blockskin/big/b" + i + ".png")));
 
 			if (imgNormal.getWidth(null) >= 400 && imgNormal.getHeight(null) >= 304) {
 				blockStickyFlags.add(Boolean.TRUE);
@@ -148,13 +143,13 @@ public class ResourceHolderSwing {
 		}
 
 		// Other images
-		imgFont = loadImage(getURL(skindir + "/graphics/font.png"));
-		imgFontSmall = loadImage(getURL(skindir + "/graphics/font_small.png"));
-		imgFrame = loadImage(getURL(skindir + "/graphics/frame.png"));
-		imgFieldbg = loadImage(getURL(skindir + "/graphics/fieldbg.png"));
-		imgFieldbg2 = loadImage(getURL(skindir + "/graphics/fieldbg2.png"));
-		imgFieldbg2Small = loadImage(getURL(skindir + "/graphics/fieldbg2_small.png"));
-		imgFieldbg2Big = loadImage(getURL(skindir + "/graphics/fieldbg2_big.png"));
+		imgFont = loadImage(getURL(skinDir + "/graphics/font.png"));
+		imgFontSmall = loadImage(getURL(skinDir + "/graphics/font_small.png"));
+		imgFrame = loadImage(getURL(skinDir + "/graphics/frame.png"));
+		imgFieldbg = loadImage(getURL(skinDir + "/graphics/fieldbg.png"));
+		imgFieldbg2 = loadImage(getURL(skinDir + "/graphics/fieldbg2.png"));
+		imgFieldbg2Small = loadImage(getURL(skinDir + "/graphics/fieldbg2_small.png"));
+		imgFieldbg2Big = loadImage(getURL(skinDir + "/graphics/fieldbg2_big.png"));
 
 		if (NullpoMinoSwing.propConfig.getProperty("option.showlineeffect", false)) {
 			loadLineClearEffectImages();
@@ -212,7 +207,7 @@ public class ResourceHolderSwing {
 	 * @param url Image filesURL
 	 * @return Image file (Failurenull)
 	 */
-	public static BufferedImage loadImage(URL url) {
+	protected static BufferedImage loadImage(URL url) {
 		BufferedImage img = null;
 		try {
 			img = ImageIO.read(url);

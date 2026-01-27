@@ -986,7 +986,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			return;
 		}
 
-		int size = (int) (4 * engine.displaysize.getScale());
+		int size = (int) (16 * engine.displaysize.getScale());
 		int width = 10;
 		int height = 20;
 		int offsetX = 0;
@@ -1009,21 +1009,21 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				case BIG -> ResourceHolderSlick.imgFieldbg2Big;
 				};
 
-				graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size * 4, y + 4 + height * size * 4, 0, 0,
-						width * size * 4, height * size * 4, filter);
+				graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0,
+						width * size, height * size, filter);
 			} else if (showbg) {
 				Color filter = new Color(Color.black);
 				filter.a = fieldBGBright;
 				graphics.setColor(filter);
-				graphics.fillRect(x + 4, y + 4, width * size * 4, height * size * 4);
+				graphics.fillRect(x + 4, y + 4, width * size, height * size);
 				graphics.setColor(Color.white);
 			}
 		}
 
 		// UpAnd the lower
-		int maxWidth = width * size * 4;
+		int maxWidth = width * size;
 		if (showMeter) {
-			maxWidth = width * size * 4 + 2 * 4;
+			maxWidth = width * size + 2 * 4;
 		}
 
 		int tmpX = 0;
@@ -1035,20 +1035,20 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		Image frame = ResourceHolderSlick.imgFrame;
 
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 0, offsetX + 4 + 4, 4);
-		tmpY = y + height * size * 4 + 4;
+		tmpY = y + height * size + 4;
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + maxWidth, tmpY + 4, offsetX + 4, 8, offsetX + 4 + 4, 8 + 4);
 
 		// Left and Right
 		tmpX = x;
 		tmpY = y + 4;
-		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX, 4, offsetX + 4, 4 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX, 4, offsetX + 4, 4 + 4);
 
 		if (showMeter) {
-			tmpX = x + width * size * 4 + 12;
+			tmpX = x + width * size + 12;
 		} else {
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 		}
-		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 8, 4, offsetX + 8 + 4,
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 8, 4, offsetX + 8 + 4,
 				4 + 4);
 
 		// Upper left
@@ -1058,41 +1058,41 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 		// Lower left
 		tmpX = x;
-		tmpY = y + height * size * 4 + 4;
+		tmpY = y + height * size + 4;
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 8, offsetX + 4, 8 + 4);
 
 		if (showMeter) {
 			// MeterONWhen the upper right corner of the
-			tmpX = x + width * size * 4 + 12;
+			tmpX = x + width * size + 12;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4);
 
 			// MeterONWhen the lower-right corner of
-			tmpX = x + width * size * 4 + 12;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 12;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4);
 
 			// RightMeterFrame
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y + 4;
-			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size * 4, offsetX + 12, 4, offsetX + 12 + 4,
+			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 12, 4, offsetX + 12 + 4,
 					4 + 4);
 
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 0, offsetX + 12 + 4, 4);
 
-			tmpX = x + width * size * 4 + 4;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 4;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 12, 8, offsetX + 12 + 4, 8 + 4);
 
 			// RightMeter
-			int maxHeight = height * size * 4;
+			int maxHeight = height * size;
 			if (engine != null && (engine.meterValueSub > 0 || engine.meterValue > 0)) {
 				maxHeight -= Math.max(engine.meterValue, engine.meterValueSub);
 			}
 
-			tmpX = x + width * size * 4 + 8;
+			tmpX = x + width * size + 8;
 			tmpY = y + 4;
 
 			if (maxHeight > 0) {
@@ -1104,12 +1104,12 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			if (engine != null) {
 				if (engine.meterValueSub > Math.max(engine.meterValue, 0)) {
 					int value = engine.meterValueSub;
-					if (value > height * size * 4) {
-						value = height * size * 4;
+					if (value > height * size) {
+						value = height * size;
 					}
 					if (value > 0) {
-						tmpX = x + width * size * 4 + 8;
-						tmpY = y + height * size * 4 + 3 - (value - 1);
+						tmpX = x + width * size + 8;
+						tmpY = y + height * size + 3 - (value - 1);
 
 						graphics.setColor(getMeterColorAsColor(engine.meterColorSub));
 						graphics.fillRect(tmpX, tmpY, 4, value);
@@ -1118,12 +1118,12 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				}
 				if (engine.meterValue > 0) {
 					int value = engine.meterValue;
-					if (value > height * size * 4) {
-						value = height * size * 4;
+					if (value > height * size) {
+						value = height * size;
 					}
 					if (value > 0) {
-						tmpX = x + width * size * 4 + 8;
-						tmpY = y + height * size * 4 + 3 - (value - 1);
+						tmpX = x + width * size + 8;
+						tmpY = y + height * size + 3 - (value - 1);
 
 						graphics.setColor(getMeterColorAsColor(engine.meterColor));
 						graphics.fillRect(tmpX, tmpY, 4, value);
@@ -1133,13 +1133,13 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			}
 		} else {
 			// MeterOFFWhen the upper right corner of the
-			tmpX = x + width * size * 4 + 4;
+			tmpX = x + width * size + 4;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4);
 
 			// MeterOFFWhen the lower-right corner of
-			tmpX = x + width * size * 4 + 4;
-			tmpY = y + height * size * 4 + 4;
+			tmpX = x + width * size + 4;
+			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4);
 		}
 	}
@@ -1346,55 +1346,60 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		}
 
 		if (engine.isHoldVisible) {
-			// HOLD
-			int holdRemain = engine.ruleopt.holdLimit - engine.holdUsedCount;
-			int x2 = sidenext ? x - 32 : x;
-			int y2 = sidenext ? y + 40 : y;
-			if (getNextDisplayType() == 2) {
-				x2 = x - 48;
+			drawHold(x, y, engine);
+		}
+	}
+
+	protected void drawHold(int x, int y, GameEngine engine) {
+
+		// HOLD
+		int holdRemain = engine.ruleopt.holdLimit - engine.holdUsedCount;
+		int x2 = sidenext ? x - 32 : x;
+		int y2 = sidenext ? y + 40 : y;
+		if (getNextDisplayType() == 2) {
+			x2 = x - 48;
+		}
+
+		if (engine.ruleopt.holdEnable && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
+			int tempColor = Colors.FONT_GREEN;
+			if (engine.holdDisable) {
+				tempColor = Colors.FONT_WHITE;
 			}
 
-			if (engine.ruleopt.holdEnable == true && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
-				int tempColor = Colors.FONT_GREEN;
+			if (engine.ruleopt.holdLimit < 0) {
+				NormalFontSlick.printFont(x2, y2, NullpoMinoSlick.getUIText("InGame_Hold"), tempColor, 0.5f);
+			} else {
+				if (!engine.holdDisable) {
+					if (holdRemain > 0 && holdRemain <= 10) {
+						tempColor = Colors.FONT_YELLOW;
+					}
+					if (holdRemain > 0 && holdRemain <= 5) {
+						tempColor = Colors.FONT_RED;
+					}
+				}
+
+				NormalFontSlick.printFont(x2, y2, NullpoMinoSlick.getUIText("InGame_Hold") + "\ne " + holdRemain,
+						tempColor, 0.5f);
+			}
+
+			if (engine.holdPieceObject != null) {
+				float dark = 0f;
 				if (engine.holdDisable) {
-					tempColor = Colors.FONT_WHITE;
+					dark = 0.3f;
 				}
+				Piece piece = new Piece(engine.holdPieceObject);
+				piece.resetOffsetArray();
 
-				if (engine.ruleopt.holdLimit < 0) {
-					NormalFontSlick.printFont(x2, y2, NullpoMinoSlick.getUIText("InGame_Hold"), tempColor, 0.5f);
+				if (getNextDisplayType() == 2) {
+					int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
+					int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
+					drawPiece(x - 64 + centerX, y + 48 + centerY, piece, 1.0f, dark);
+				} else if (getNextDisplayType() == 1) {
+					int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
+					int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
+					drawPiece(x2 + centerX, y + 48 + centerY, piece, 0.5f, dark);
 				} else {
-					if (!engine.holdDisable) {
-						if (holdRemain > 0 && holdRemain <= 10) {
-							tempColor = Colors.FONT_YELLOW;
-						}
-						if (holdRemain > 0 && holdRemain <= 5) {
-							tempColor = Colors.FONT_RED;
-						}
-					}
-
-					NormalFontSlick.printFont(x2, y2, NullpoMinoSlick.getUIText("InGame_Hold") + "\ne " + holdRemain,
-							tempColor, 0.5f);
-				}
-
-				if (engine.holdPieceObject != null) {
-					float dark = 0f;
-					if (engine.holdDisable) {
-						dark = 0.3f;
-					}
-					Piece piece = new Piece(engine.holdPieceObject);
-					piece.resetOffsetArray();
-
-					if (getNextDisplayType() == 2) {
-						int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
-						int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
-						drawPiece(x - 64 + centerX, y + 48 + centerY, piece, 1.0f, dark);
-					} else if (getNextDisplayType() == 1) {
-						int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
-						int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
-						drawPiece(x2 + centerX, y + 48 + centerY, piece, 0.5f, dark);
-					} else {
-						drawPiece(x2, y + 48 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f, dark);
-					}
+					drawPiece(x2, y + 48 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f, dark);
 				}
 			}
 		}
@@ -1508,28 +1513,26 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (graphics == null) {
 			return;
 		}
-		if (engine.allowTextRenderByReceiver == false) {
+		if (!engine.allowTextRenderByReceiver) {
 			return;
-			// if(engine.isVisible == false) return;
 		}
 
-		if (engine.statc[0] > 0) {
-			int offsetX = getFieldDisplayPositionX(engine, playerID);
-			int offsetY = getFieldDisplayPositionY(engine, playerID);
+		if (engine.statc[0] <= 0) {
+			return;
+		}
+		int offsetX = getFieldDisplayPositionX(engine, playerID);
+		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.statc[0] > 0) {
-				if (engine.displaysize != DisplaySize.SMALL) {
-					if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
-						NormalFontSlick.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
-					} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
-						NormalFontSlick.printFont(offsetX + 62, offsetY + 204, "GO!", Colors.FONT_WHITE, 1.0f);
-					}
-				} else if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
-					NormalFontSlick.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
-				} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
-					NormalFontSlick.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
-				}
+		if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
+				NormalFontSlick.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
+			} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
+				NormalFontSlick.printFont(offsetX + 62, offsetY + 204, "GO!", Colors.FONT_WHITE, 1.0f);
 			}
+		} else if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
+			NormalFontSlick.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
+		} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
+			NormalFontSlick.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
 		}
 	}
 
@@ -1541,43 +1544,26 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (!engine.isVisible) {
 			return;
 		}
-
-		int offsetX = getFieldDisplayPositionX(engine, playerID);
-		int offsetY = getFieldDisplayPositionY(engine, playerID);
-
-		if (engine.statc[0] > 1 || engine.ruleopt.moveFirstFrame) {
-			if (engine.displaysize == DisplaySize.BIG) {
-				if (nextShadow) {
-					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 52, engine, 2.0f);
-			} else if (engine.displaysize == DisplaySize.NORMAL) {
-				if (nextShadow) {
-					drawShadowNexts(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 52, engine, 1.0f);
-			} else {
-				if (engine.ghost && engine.ruleopt.ghost) {
-					drawGhostPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-				}
-				if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-					drawHintPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-				}
-				drawCurrentPiece(offsetX + 4, offsetY + 4, engine, 0.5f);
-			}
+		if (engine.statc[0] <= 1 && !engine.ruleopt.moveFirstFrame) {
+			return;
 		}
+		int offsetX = getFieldDisplayPositionX(engine, playerID) + 4;
+		int offsetY = getFieldDisplayPositionY(engine, playerID) + 4;
+		if (engine.displaysize != DisplaySize.SMALL) {
+			offsetY += 48;
+		}
+		float scale = engine.displaysize.getScale();
+
+		if (nextShadow) {
+			drawShadowNexts(offsetX, offsetY, engine, scale);
+		}
+		if (engine.ghost && engine.ruleopt.ghost) {
+			drawGhostPiece(offsetX, offsetY, engine, scale);
+		}
+		if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
+			drawHintPiece(offsetX, offsetY, engine, scale);
+		}
+		drawCurrentPiece(offsetX, offsetY, engine, scale);
 	}
 
 	/*
@@ -1766,43 +1752,46 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * Render effects
 	 */
 	protected void effectRender() {
-		for (EffectObject obj : effects) {
+		for (EffectObject effect : effects) {
 			// Normal Block
-			if (obj.effect == 1) {
-				int x = obj.x - 40;
-				int y = obj.y - 15;
-				int color = obj.param - Colors.BLOCK_COLOR_GRAY;
+			if (effect.effect == 1) {
+				int x = effect.x - 40;
+				int y = effect.y - 15;
+				int color = effect.param - Colors.BLOCK_COLOR_GRAY;
 
-				if (obj.anim < 30) {
-					int srcx = (obj.anim - 1) % 6 * 96;
-					int srcy = (obj.anim - 1) / 6 * 96;
+				if (effect.anim < 30) {
+					int srcx = (effect.anim - 1) % 6 * 96;
+					int srcy = (effect.anim - 1) / 6 * 96;
 					try {
-						graphics.drawImage(ResourceHolderSlick.imgBreak[color][0], x, y, x + 96, y + 96, srcx, srcy,
-								srcx + 96, srcy + 96);
-					} catch (Exception e) {
+						graphics.drawImage(ResourceHolderSlick.imgBreak[color][0], x, y, x + 96F, y + 96F, srcx, srcy,
+								srcx + 96F, srcy + 96F);
+					} catch (Exception _) {
+						// nuttin
 					}
 				} else {
-					int srcx = (obj.anim - 30) % 6 * 96;
-					int srcy = (obj.anim - 30) / 6 * 96;
+					int srcx = (effect.anim - 30) % 6 * 96;
+					int srcy = (effect.anim - 30) / 6 * 96;
 					try {
-						graphics.drawImage(ResourceHolderSlick.imgBreak[color][1], x, y, x + 96, y + 96, srcx, srcy,
-								srcx + 96, srcy + 96);
-					} catch (Exception e) {
+						graphics.drawImage(ResourceHolderSlick.imgBreak[color][1], x, y, x + 96F, y + 96F, srcx, srcy,
+								srcx + 96F, srcy + 96F);
+					} catch (Exception _) {
+						// nuttin
 					}
 				}
 			}
 			// Gem Block
-			if (obj.effect == 2) {
-				int x = obj.x - 8;
-				int y = obj.y - 8;
-				int srcx = (obj.anim - 1) % 10 * 32;
-				int srcy = (obj.anim - 1) / 10 * 32;
-				int color = obj.param - Colors.BLOCK_COLOR_GEM_RED;
+			if (effect.effect == 2) {
+				int x = effect.x - 8;
+				int y = effect.y - 8;
+				int srcx = (effect.anim - 1) % 10 * 32;
+				int srcy = (effect.anim - 1) / 10 * 32;
+				int color = effect.param - Colors.BLOCK_COLOR_GEM_RED;
 
 				try {
-					graphics.drawImage(ResourceHolderSlick.imgPErase[color], x, y, x + 32, y + 32, srcx, srcy,
-							srcx + 32, srcy + 32);
-				} catch (Exception e) {
+					graphics.drawImage(ResourceHolderSlick.imgPErase[color], x, y, x + 32F, y + 32F, srcx, srcy,
+							srcx + 32F, srcy + 32F);
+				} catch (Exception _) {
+					// nuttin
 				}
 			}
 		}

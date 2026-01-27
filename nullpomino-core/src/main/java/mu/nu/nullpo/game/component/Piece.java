@@ -63,7 +63,7 @@ public class Piece implements Serializable {
 	public static final int PIECE_COUNT = 11;
 
 	/** default OfBlockOf Peace data (X-coordinate) */
-	public static final int[][][] DEFAULT_PIECE_DATA_X = {
+	private static final int[][][] DEFAULT_PIECE_DATA_X = {
 			{ { 0, 1, 2, 3 }, { 2, 2, 2, 2 }, { 3, 2, 1, 0 }, { 1, 1, 1, 1 } }, // I
 			{ { 2, 2, 1, 0 }, { 2, 1, 1, 1 }, { 0, 0, 1, 2 }, { 0, 1, 1, 1 } }, // L
 			{ { 0, 1, 1, 0 }, { 1, 1, 0, 0 }, { 1, 0, 0, 1 }, { 0, 0, 1, 1 } }, // O
@@ -78,7 +78,7 @@ public class Piece implements Serializable {
 	};
 
 	/** default OfBlockOf Peace data (Y-coordinate) */
-	public static final int[][][] DEFAULT_PIECE_DATA_Y = {
+	private static final int[][][] DEFAULT_PIECE_DATA_Y = {
 			{ { 1, 1, 1, 1 }, { 0, 1, 2, 3 }, { 2, 2, 2, 2 }, { 3, 2, 1, 0 } }, // I
 			{ { 0, 1, 1, 1 }, { 2, 2, 1, 0 }, { 2, 1, 1, 1 }, { 0, 0, 1, 2 } }, // L
 			{ { 0, 0, 1, 1 }, { 0, 1, 1, 0 }, { 1, 1, 0, 0 }, { 1, 0, 0, 1 } }, // O
@@ -92,69 +92,12 @@ public class Piece implements Serializable {
 			{ { 1, 1, 0 }, { 1, 0, 0 }, { 0, 0, 1 }, { 0, 1, 1 } }, // L3
 	};
 
-	/** New Spin bonusUse coordinate dataA(X-coordinate) */
-	public static final int[][][] SPINBONUSDATA_HIGH_X = {
-			{ { 1, 2, 2, 1 }, { 1, 3, 1, 3 }, { 1, 2, 2, 1 }, { 0, 2, 0, 2 } }, // I
-			{ { 1, 0 }, { 2, 2 }, { 1, 2 }, { 0, 0 } }, // L
-			{ {}, {}, {}, {} }, // O
-			{ { 2, 0 }, { 2, 1 }, { 0, 2 }, { 0, 1 } }, // Z
-			{ { 0, 2 }, { 2, 2 }, { 0, 2 }, { 0, 0 } }, // T
-			{ { 1, 2 }, { 2, 2 }, { 1, 0 }, { 0, 0 } }, // J
-			{ { 0, 2 }, { 1, 2 }, { 2, 0 }, { 1, 0 } }, // S
-			{ {}, {}, {}, {} }, // I1
-			{ {}, {}, {}, {} }, // I2
-			{ {}, {}, {}, {} }, // I3
-			{ {}, {}, {}, {} }, // L3
-	};
-
-	/** New Spin bonusUse coordinate dataA(Y-coordinate) */
-	public static final int[][][] SPINBONUSDATA_HIGH_Y = {
-			{ { 0, 2, 0, 2 }, { 1, 2, 2, 1 }, { 1, 3, 1, 3 }, { 1, 2, 2, 1 } }, // I
-			{ { 0, 0 }, { 1, 0 }, { 2, 2 }, { 1, 2 } }, // L
-			{ {}, {}, {}, {} }, // O
-			{ { 0, 1 }, { 2, 0 }, { 2, 1 }, { 0, 2 } }, // Z
-			{ { 0, 0 }, { 0, 2 }, { 2, 2 }, { 0, 2 } }, // T
-			{ { 0, 0 }, { 1, 2 }, { 2, 2 }, { 1, 0 } }, // J
-			{ { 0, 1 }, { 2, 0 }, { 2, 1 }, { 0, 2 } }, // S
-			{ {}, {}, {}, {} }, // I1
-			{ {}, {}, {}, {} }, // I2
-			{ {}, {}, {}, {} }, // I3
-			{ {}, {}, {}, {} }, // L3
-	};
-
-	/** New Spin bonusUse coordinate dataB(X-coordinate) */
-	public static final int[][][] SPINBONUSDATA_LOW_X = {
-			{ { -1, 4, -1, 4 }, { 2, 2, 2, 2 }, { -1, 4, -1, 4 }, { 1, 1, 1, 1 } }, // I
-			{ { 2, 0 }, { 0, 0 }, { 0, 2 }, { 2, 2 } }, // L
-			{ {}, {}, {}, {} }, // O
-			{ { -1, 3 }, { 2, 1 }, { 3, -1 }, { 0, 1 } }, // Z
-			{ { 0, 2 }, { 0, 0 }, { 0, 2 }, { 2, 2 } }, // T
-			{ { 0, 2 }, { 0, 0 }, { 2, 0 }, { 2, 2 } }, // J
-			{ { 3, -1 }, { 1, 2 }, { -1, 3 }, { 1, 0 } }, // S
-			{ {}, {}, {}, {} }, // I1
-			{ {}, {}, {}, {} }, // I2
-			{ {}, {}, {}, {} }, // I3
-			{ {}, {}, {}, {} }, // L3
-	};
-
-	/** New Spin bonusUse coordinate dataB(Y-coordinate) */
-	public static final int[][][] SPINBONUSDATA_LOW_Y = {
-			{ { 1, 1, 1, 1 }, { -1, 4, -1, 4 }, { 2, 2, 2, 2 }, { -1, 4, -1, 4 } }, // I
-			{ { 2, 2 }, { 2, 0 }, { 0, 0 }, { 0, 3 } }, // L
-			{ {}, {}, {}, {} }, // O
-			{ { 0, 1 }, { -1, 3 }, { 2, 1 }, { 3, -1 } }, // Z
-			{ { 2, 2 }, { 0, 2 }, { 0, 0 }, { 0, 2 } }, // T
-			{ { 2, 2 }, { 0, 2 }, { 0, 0 }, { 2, 0 } }, // J
-			{ { 0, 1 }, { -1, 3 }, { 2, 1 }, { 3, -1 } }, // S
-			{ {}, {}, {}, {} }, // I1
-			{ {}, {}, {}, {} }, // I2
-			{ {}, {}, {}, {} }, // I3
-			{ {}, {}, {}, {} }, // L3
-	};
-
 	/** DirectionConstantcount */
-	public static final int DIRECTION_UP = 0, DIRECTION_RIGHT = 1, DIRECTION_DOWN = 2, DIRECTION_LEFT = 3,
-			DIRECTION_RANDOM = 4;
+	public static final int DIRECTION_UP = 0;
+	public static final int DIRECTION_RIGHT = 1;
+	public static final int DIRECTION_DOWN = 2;
+	public static final int DIRECTION_LEFT = 3;
+	public static final int DIRECTION_RANDOM = 4;
 
 	/** DirectionOfMaximumcount */
 	public static final int DIRECTION_COUNT = 4;
@@ -441,7 +384,7 @@ public class Piece implements Serializable {
 	 *
 	 * @param offsetX XArray of position correction amount (int[DIRECTION_COUNT])
 	 */
-	public void applyOffsetArrayX(int[] offsetX) {
+	private void applyOffsetArrayX(int[] offsetX) {
 		offsetApplied = true;
 
 		for (int i = 0; i < DIRECTION_COUNT; i++) {
@@ -457,7 +400,7 @@ public class Piece implements Serializable {
 	 *
 	 * @param offsetY YArray of position correction amount (int[DIRECTION_COUNT])
 	 */
-	public void applyOffsetArrayY(int[] offsetY) {
+	private void applyOffsetArrayY(int[] offsetY) {
 		offsetApplied = true;
 
 		for (int i = 0; i < DIRECTION_COUNT; i++) {
@@ -896,10 +839,7 @@ public class Piece implements Serializable {
 					int x3 = x2 + k;
 					int y3 = y2 + l;
 
-					if (x3 >= fld.getWidth()) {
-						return true;
-					}
-					if (y3 >= fld.getHeight()) {
+					if (x3 >= fld.getWidth() || y3 >= fld.getHeight()) {
 						return true;
 					}
 					if (fld.getCoordAttribute(x3, y3) == Field.COORD_WALL) {
@@ -928,7 +868,7 @@ public class Piece implements Serializable {
 	public int getBottom(int x, int y, int rt, Field fld) {
 		int y2 = y;
 
-		while (checkCollision(x, y2, rt, fld) == false) {
+		while (!checkCollision(x, y2, rt, fld)) {
 			y2++;
 		}
 
@@ -1010,7 +950,7 @@ public class Piece implements Serializable {
 		}
 
 		int wide = 1;
-		if (big == true) {
+		if (big) {
 			wide = 2;
 		}
 
@@ -1032,7 +972,7 @@ public class Piece implements Serializable {
 		}
 
 		int wide = 1;
-		if (big == true) {
+		if (big) {
 			wide = 2;
 		}
 
@@ -1054,7 +994,7 @@ public class Piece implements Serializable {
 		}
 
 		int wide = 1;
-		if (big == true) {
+		if (big) {
 			wide = 2;
 		}
 
@@ -1075,12 +1015,7 @@ public class Piece implements Serializable {
 			max = Math.max(by, max);
 		}
 
-		int wide = 1;
-		if (big == true) {
-			wide = 2;
-		}
-
-		return max * wide;
+		return big ? max * 2 : max;
 	}
 
 	/**
@@ -1123,26 +1058,9 @@ public class Piece implements Serializable {
 	 * @param move rotationDirection (-1:Left 1:Right 2:180Degrees)
 	 * @return rotation buttonPiece after pressing theDirection
 	 */
-	public int getRotateDirection(int move) {
-		int rt = direction + move;
-
-		if (move == 2) {
-			if (rt > 3) {
-				rt -= 4;
-			}
-			if (rt < 0) {
-				rt += 4;
-			}
-		} else {
-			if (rt > 3) {
-				rt = 0;
-			}
-			if (rt < 0) {
-				rt = 3;
-			}
-		}
-
-		return rt;
+	@Deprecated(forRemoval = true)
+	protected int getRotateDirection(int move) {
+		return getRotateDirection(move, direction);
 	}
 
 	/**
@@ -1152,7 +1070,7 @@ public class Piece implements Serializable {
 	 * @param dir  OriginalDirection
 	 * @return rotation buttonPiece after pressing theDirection
 	 */
-	public int getRotateDirection(int move, int dir) {
+	public static int getRotateDirection(int move, int dir) {
 		int rt = dir + move;
 
 		if (move == 2) {

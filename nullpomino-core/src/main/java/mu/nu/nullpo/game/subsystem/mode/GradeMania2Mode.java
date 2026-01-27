@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.subsystem.mode.menu.IntegerMenuItem;
@@ -633,7 +633,7 @@ public class GradeMania2Mode extends AbstractMode {
 				engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
 			}
 
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 	}
 
@@ -877,7 +877,7 @@ public class GradeMania2Mode extends AbstractMode {
 				engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
 			}
 
-			owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 		}
 
 		return false;

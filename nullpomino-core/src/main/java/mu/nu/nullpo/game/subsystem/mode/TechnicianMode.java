@@ -28,7 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetUtil;
@@ -461,7 +461,7 @@ public class TechnicianMode extends NetDummyMode {
 		setSpeed(engine);
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			setStartBgmlv(engine);
 			owner.bgmStatus.bgm = bgmlv;
@@ -1003,7 +1003,7 @@ public class TechnicianMode extends NetDummyMode {
 					// Ending (SPECIAL)
 					engine.ending = 2;
 					engine.timerActive = false;
-					owner.bgmStatus.bgm = BGMStatus.BGM_ENDING1;
+					owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 					owner.bgmStatus.fadesw = false;
 					engine.playSE("endingstart");
 				} else {

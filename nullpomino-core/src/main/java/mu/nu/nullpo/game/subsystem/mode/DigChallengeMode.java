@@ -1,6 +1,6 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -253,9 +253,9 @@ public class DigChallengeMode extends NetDummyMode {
 				case 2:
 					bgmno += change;
 					if (bgmno < -1) {
-						bgmno = BGMStatus.BGM_COUNT - 1;
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (bgmno > BGMStatus.BGM_COUNT - 1) {
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
 						bgmno = -1;
 					}
 					break;
@@ -411,7 +411,7 @@ public class DigChallengeMode extends NetDummyMode {
 		setSpeed(engine);
 
 		if (netIsWatch) {
-			owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 		} else {
 			owner.bgmStatus.bgm = bgmno;
 		}

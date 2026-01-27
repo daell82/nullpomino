@@ -30,7 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.component.BGMStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -436,7 +436,7 @@ public class GemManiaMode extends AbstractMode {
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_SELFPLACED, false);
 		limittimeStart = prop.getProperty(id + ".gemmania.limittimeStart", 3600 * 3);
 		stagetimeStart = prop.getProperty(id + ".gemmania.stagetimeStart", 3600 * 1);
-		stagebgm = prop.getProperty(id + ".gemmania.stagebgm", BGMStatus.BGM_PUZZLE1);
+		stagebgm = prop.getProperty(id + ".gemmania.stagebgm", BGMusicStatus.BGM_PUZZLE1);
 		gimmickMirror = prop.getProperty(id + ".gemmania.gimmickMirror", 0);
 		gimmickRoll = prop.getProperty(id + ".gemmania.gimmickRoll", 0);
 		gimmickBig = prop.getProperty(id + ".gemmania.gimmickBig", 0);
@@ -704,9 +704,9 @@ public class GemManiaMode extends AbstractMode {
 				case 3:
 					stagebgm += change;
 					if (stagebgm < 0) {
-						stagebgm = BGMStatus.BGM_COUNT - 1;
+						stagebgm = BGMusicStatus.BGM_COUNT - 1;
 					}
-					if (stagebgm > BGMStatus.BGM_COUNT - 1) {
+					if (stagebgm > BGMusicStatus.BGM_COUNT - 1) {
 						stagebgm = 0;
 					}
 					break;
@@ -933,7 +933,7 @@ public class GemManiaMode extends AbstractMode {
 				engine.nextPieceCount = startnextc;
 
 				if (!randomnext) {
-					engine.nextPieceArrayID = GeneralUtil
+					engine.nextPieceIDs = GeneralUtil
 							.createNextPieceArrayFromNumberString(STRING_DEFAULT_NEXT_LIST);
 				}
 			}
@@ -1580,7 +1580,7 @@ public class GemManiaMode extends AbstractMode {
 		if (engine.ending == 0 && !noContinue) {
 			if (engine.statc[0] == 0) {
 				engine.playSE("died");
-				owner.bgmStatus.bgm = BGMStatus.BGM_NOTHING;
+				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 
 				engine.timerActive = false;
 				engine.blockShowOutlineOnly = false;
@@ -1686,14 +1686,14 @@ public class GemManiaMode extends AbstractMode {
 			if (engine.statc[1] < 0) {
 				engine.statc[1] = 2;
 			}
-			receiver.playSE("change");
+			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 			engine.statc[1]++;
 			if (engine.statc[1] > 2) {
 				engine.statc[1] = 0;
 			}
-			receiver.playSE("change");
+			engine.playSE("change");
 		}
 
 		return false;

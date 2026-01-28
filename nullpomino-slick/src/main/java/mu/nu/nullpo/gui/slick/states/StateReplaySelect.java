@@ -26,7 +26,7 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,6 +44,10 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Statistics;
+import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
+import mu.nu.nullpo.gui.slick.NormalFontSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 

@@ -26,12 +26,17 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+
+import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
+import mu.nu.nullpo.gui.slick.NormalFontSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 
 /**
  * Options screen

@@ -26,7 +26,7 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import java.io.IOException;
 
@@ -49,6 +49,10 @@ import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.gui.net.NetLobbyListener;
+import mu.nu.nullpo.gui.slick.GameKeySlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.RendererSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 

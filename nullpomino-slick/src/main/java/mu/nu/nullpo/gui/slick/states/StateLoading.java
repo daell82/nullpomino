@@ -26,7 +26,7 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import org.apache.log4j.Logger;
 import org.newdawn.slick.AppGameContainer;
@@ -38,6 +38,10 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import mu.nu.nullpo.game.Version;
+import mu.nu.nullpo.gui.slick.GameKeySlick;
+import mu.nu.nullpo.gui.slick.MouseInputSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 
 /**
  * State of the loading screen

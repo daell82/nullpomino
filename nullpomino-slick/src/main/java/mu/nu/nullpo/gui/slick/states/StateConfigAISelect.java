@@ -26,7 +26,7 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -34,6 +34,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import mu.nu.nullpo.game.subsystem.ai.AIPlayer;
+import mu.nu.nullpo.gui.slick.BaseGameState;
+import mu.nu.nullpo.gui.slick.GameKeySlick;
+import mu.nu.nullpo.gui.slick.NormalFontSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.GeneralUtil;
 
 import org.apache.log4j.Logger;

@@ -1,4 +1,4 @@
-package mu.nu.nullpo.gui.slick;
+package mu.nu.nullpo.gui.slick.states;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -17,6 +17,10 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
+import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
+import mu.nu.nullpo.gui.slick.NormalFontSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**

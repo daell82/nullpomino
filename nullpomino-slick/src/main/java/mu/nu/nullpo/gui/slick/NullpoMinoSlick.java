@@ -78,6 +78,7 @@ import mu.nu.nullpo.gui.slick.states.StateSelectMode;
 import mu.nu.nullpo.gui.slick.states.StateSelectModeFolder;
 import mu.nu.nullpo.gui.slick.states.StateSelectRuleFromList;
 import mu.nu.nullpo.gui.slick.states.StateTitle;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.ModeManager;
 
@@ -807,10 +808,9 @@ public class NullpoMinoSlick extends StateBasedGame {
 	public static void drawFPS(GameContainer container, boolean ingame) {
 		if (propConfig.getProperty("option.showfps", true)) {
 			if (!alternateFPSDynamicAdjust || alternateFPSPerfectMode || !ingame) {
-				NormalFontSlick.printFont(0, 480 - 16, df.format(actualFPS), NormalFontSlick.COLOR_BLUE);
+				NormalFontSlick.printFont(0, 480 - 16, df.format(actualFPS), Colors.FONT_BLUE);
 			} else {
-				NormalFontSlick.printFont(0, 480 - 16, df.format(actualFPS) + "/" + altMaxFPSCurrent,
-						NormalFontSlick.COLOR_BLUE);
+				NormalFontSlick.printFont(0, 480 - 16, df.format(actualFPS) + "/" + altMaxFPSCurrent, Colors.FONT_BLUE);
 			}
 		}
 	}
@@ -867,12 +867,12 @@ public class NullpoMinoSlick extends StateBasedGame {
 	 */
 	public static void drawObserverClient() {
 		if (netObserverClient != null && netObserverClient.isConnected()) {
-			int fontcolor = NormalFontSlick.COLOR_BLUE;
+			int fontcolor = Colors.FONT_BLUE;
 			if (netObserverClient.getObserverCount() > 1) {
-				fontcolor = NormalFontSlick.COLOR_GREEN;
+				fontcolor = Colors.FONT_GREEN;
 			}
 			if (netObserverClient.getObserverCount() > 0 && netObserverClient.getPlayerCount() > 0) {
-				fontcolor = NormalFontSlick.COLOR_RED;
+				fontcolor = Colors.FONT_RED;
 			}
 			String strObserverInfo = String.format("%d/%d", netObserverClient.getObserverCount(),
 					netObserverClient.getPlayerCount());

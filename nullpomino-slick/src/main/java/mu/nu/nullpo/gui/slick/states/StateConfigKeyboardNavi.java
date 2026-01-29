@@ -33,11 +33,13 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
+import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
 import mu.nu.nullpo.gui.slick.GameKeySlick;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * State of the keyboard setting screen
@@ -52,7 +54,7 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
 	/** StateBasedGame */
 	protected StateBasedGame gameObj;
 
-	public StateConfigKeyboardNavi () {
+	public StateConfigKeyboardNavi() {
 		maxCursor = 1;
 		minChoiceY = 1;
 	}
@@ -75,12 +77,13 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
 
 	/**
 	 * Get key name
+	 *
 	 * @param key Keycode
 	 * @return Key name
 	 */
 	protected String getKeyName(int key) {
 		String str = org.lwjgl.input.Keyboard.getKeyName(key);
-		return (str == null) ? String.valueOf(key) : str.toUpperCase();
+		return str == null ? String.valueOf(key) : str.toUpperCase();
 	}
 
 	/*
@@ -90,18 +93,18 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
 	protected void renderImpl(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		g.drawImage(ResourceHolderSlick.imgMenu, 0, 0);
 
-		NormalFontSlick.printFontGrid(1, 1, "KEYBOARD NAVIGATION SETTING (" + (player + 1) + "P)", NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, "KEYBOARD NAVIGATION SETTING (" + (player + 1) + "P)", Colors.FONT_ORANGE);
 
-		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
-		NormalFontSlick.printFontGrid(2, 3, "COPY FROM GAME KEYS", (cursor == 0));
-		NormalFontSlick.printFontGrid(2, 4, "CUSTOMIZE", (cursor == 1));
+		NormalFontSlick.printFontGrid(2, 3, "COPY FROM GAME KEYS", cursor == 0);
+		NormalFontSlick.printFontGrid(2, 4, "CUSTOMIZE", cursor == 1);
 	}
 
 	@Override
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
 		if (cursor == 0) {
-			for(int i = 0; i < GameKeySlick.MAX_BUTTON; i++) {
+			for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
 				GameKeySlick.gamekey[player].keymapNav[i] = GameKeySlick.gamekey[player].keymap[i];
 			}
 		} else if (cursor == 1) {

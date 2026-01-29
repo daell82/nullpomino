@@ -10,6 +10,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Style select menu
@@ -51,9 +52,8 @@ public class StateConfigRuleStyleSelect extends DummyMenuChooseState {
 		g.drawImage(ResourceHolderSlick.imgMenu, 0, 0);
 
 		// Menu
-		NormalFontSlick.printFontGrid(1, 1, "SELECT " + (player+1) + "P STYLE", NormalFontSlick.COLOR_ORANGE);
-
-		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 1, "SELECT " + (player+1) + "P STYLE", Colors.FONT_ORANGE);
+		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
 		for(GameStyle style : GameStyle.values()) {
 			int i = style.getMode();

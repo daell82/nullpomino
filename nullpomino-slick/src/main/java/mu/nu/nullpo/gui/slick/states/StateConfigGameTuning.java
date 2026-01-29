@@ -49,6 +49,7 @@ import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.RendererSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
@@ -287,7 +288,7 @@ public class StateConfigGameTuning extends BaseGameState {
 			try {
 				String strButtonF = gameManager.receiver.getKeyNameByButtonID(gameManager.engine[0], Controller.BUTTON_F);
 				int fontY = gameManager.receiver.getNextDisplayType() == 2 ? 1 : 27;
-				NormalFontSlick.printFontGrid(1, fontY, "PUSH F BUTTON (" + strButtonF.toUpperCase() + " KEY) TO EXIT", NormalFontSlick.COLOR_YELLOW);
+				NormalFontSlick.printFontGrid(1, fontY, "PUSH F BUTTON (" + strButtonF.toUpperCase() + " KEY) TO EXIT", Colors.FONT_YELLOW);
 
 				gameManager.renderAll();
 			} catch (Exception e) {
@@ -297,8 +298,8 @@ public class StateConfigGameTuning extends BaseGameState {
 			// Menu
 			String strTemp = "";
 
-			NormalFontSlick.printFontGrid(1, 1, "GAME TUNING (" + (player+1) + "P)", NormalFontSlick.COLOR_ORANGE);
-			NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, "GAME TUNING (" + (player+1) + "P)", Colors.FONT_ORANGE);
+			NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
 			if(owRotateButtonDefaultRight == -1) {
 				strTemp = "AUTO";

@@ -9,13 +9,15 @@ import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
+import mu.nu.nullpo.util.Colors;
+
 /**
  * Dummy class for menus with a scroll bar
  */
 public abstract class DummyMenuScrollState extends DummyMenuChooseState {
 	/** Scroll bar attributes */
 	protected static final int SB_TEXT_X = 38;
-	protected static final int SB_TEXT_COLOR = NormalFontSlick.COLOR_BLUE;
+	protected static final int SB_TEXT_COLOR = Colors.FONT_BLUE;
 	protected static final int SB_MIN_X = SB_TEXT_X << 4;
 	protected static final int SB_MIN_Y = 65;
 	protected static final int LINE_WIDTH = 2;
@@ -62,9 +64,9 @@ public abstract class DummyMenuScrollState extends DummyMenuChooseState {
 
 		// Menu
 		if (list == null) {
-			NormalFontSlick.printFontGrid(1, 1, nullError, NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, nullError, Colors.FONT_RED);
 		} else if (list.isEmpty()) {
-			NormalFontSlick.printFontGrid(1, 1, emptyError, NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, emptyError, Colors.FONT_RED);
 		} else {
 			if (cursor >= list.size()) {
 				cursor = 0;
@@ -143,7 +145,7 @@ public abstract class DummyMenuScrollState extends DummyMenuChooseState {
 			if (i < length) {
 				NormalFontSlick.printFontGrid(2, 3 + y, list.get(i).toUpperCase(), cursor == i);
 				if (cursor == i) {
-					NormalFontSlick.printFontGrid(1, 3 + y, "b", NormalFontSlick.COLOR_RED);
+					NormalFontSlick.printFontGrid(1, 3 + y, "b", Colors.FONT_RED);
 				}
 			}
 		}

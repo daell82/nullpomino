@@ -44,6 +44,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
@@ -182,12 +183,10 @@ public class StateConfigRuleSelect extends DummyMenuScrollState {
 	@Override
 	protected void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
 		String title = "SELECT " + (player + 1) + "P RULE (" + (cursor + 1) + "/" + list.size() + ")";
-		NormalFontSlick.printFontGrid(1, 1, title, NormalFontSlick.COLOR_ORANGE);
-
-		NormalFontSlick.printFontGrid(1, 25, "CURRENT:" + strCurrentRuleName.toUpperCase(), NormalFontSlick.COLOR_BLUE);
-		NormalFontSlick.printFontGrid(9, 26, strCurrentFileName.toUpperCase(), NormalFontSlick.COLOR_BLUE);
-
-		NormalFontSlick.printFontGrid(1, 28, "A:OK B:CANCEL D:TOGGLE-VIEW", NormalFontSlick.COLOR_GREEN);
+		NormalFontSlick.printFontGrid(1, 1, title, Colors.FONT_ORANGE);
+		NormalFontSlick.printFontGrid(1, 25, "CURRENT:" + strCurrentRuleName.toUpperCase(), Colors.FONT_BLUE);
+		NormalFontSlick.printFontGrid(9, 26, strCurrentFileName.toUpperCase(), Colors.FONT_BLUE);
+		NormalFontSlick.printFontGrid(1, 28, "A:OK B:CANCEL D:TOGGLE-VIEW", Colors.FONT_GREEN);
 	}
 
 	/*

@@ -48,6 +48,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -162,19 +163,19 @@ public class StateReplaySelect extends DummyMenuScrollState {
 	protected void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
 		String title = "SELECT REPLAY FILE";
 		title += " (" + (cursor + 1) + "/" + list.size() + ")";
-		NormalFontSlick.printFontGrid(1, 1, title, NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, title, Colors.FONT_ORANGE);
 
 		NormalFontSlick.printFontGrid(1, 24, "MODE:" + modeNames.get(cursor) + " RULE:" + ruleNames.get(cursor),
-				NormalFontSlick.COLOR_CYAN);
+				Colors.FONT_CYAN);
 		NormalFontSlick.printFontGrid(1, 25,
 				"SCORE:" + statsistics[cursor].score + " LINE:" + statsistics[cursor].lines,
-				NormalFontSlick.COLOR_CYAN);
+				Colors.FONT_CYAN);
 		NormalFontSlick.printFontGrid(1, 26, "LEVEL:" + (statsistics[cursor].level + statsistics[cursor].levelDispAdd)
-				+ " TIME:" + GeneralUtil.getTime(statsistics[cursor].time), NormalFontSlick.COLOR_CYAN);
+				+ " TIME:" + GeneralUtil.getTime(statsistics[cursor].time), Colors.FONT_CYAN);
 		NormalFontSlick.printFontGrid(1, 27,
 				"GAME RATE:"
 						+ (statsistics[cursor].gamerate == 0f ? "UNKNOWN" : 100 * statsistics[cursor].gamerate + "%"),
-				NormalFontSlick.COLOR_CYAN);
+				Colors.FONT_CYAN);
 	}
 
 	@Override

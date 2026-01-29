@@ -31,24 +31,13 @@ package mu.nu.nullpo.gui.slick;
 import org.newdawn.slick.Color;
 
 import lombok.experimental.UtilityClass;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Normal display class string
  */
 @UtilityClass
 public class NormalFontSlick {
-
-	/** Character constant colorcount */
-	public static final int COLOR_WHITE = 0;
-	public static final int COLOR_BLUE = 1;
-	public static final int COLOR_RED = 2;
-	public static final int COLOR_PINK = 3;
-	public static final int COLOR_GREEN = 4;
-	public static final int COLOR_YELLOW = 5;
-	public static final int COLOR_CYAN = 6;
-	public static final int COLOR_ORANGE = 7;
-	public static final int COLOR_PURPLE = 8;
-	public static final int COLOR_DARKBLUE = 9;
 
 	/**
 	 * Specified font ColorSlickUseColorObtained as
@@ -58,15 +47,15 @@ public class NormalFontSlick {
 	 */
 	public static Color getFontColorAsColor(int fontColor) {
 		return switch (fontColor) {
-		case COLOR_BLUE -> new Color(0, 0, 255);
-		case COLOR_RED -> new Color(255, 0, 0);
-		case COLOR_PINK -> new Color(255, 128, 128);
-		case COLOR_GREEN -> new Color(0, 255, 0);
-		case COLOR_YELLOW -> new Color(255, 255, 0);
-		case COLOR_CYAN -> new Color(0, 255, 255);
-		case COLOR_ORANGE -> new Color(255, 128, 0);
-		case COLOR_PURPLE -> new Color(255, 0, 255);
-		case COLOR_DARKBLUE -> new Color(0, 0, 128);
+		case Colors.FONT_BLUE -> new Color(0, 0, 255);
+		case Colors.FONT_RED -> new Color(255, 0, 0);
+		case Colors.FONT_PINK -> new Color(255, 128, 128);
+		case Colors.FONT_GREEN -> new Color(0, 255, 0);
+		case Colors.FONT_YELLOW -> new Color(255, 255, 0);
+		case Colors.FONT_CYAN -> new Color(0, 255, 255);
+		case Colors.FONT_ORANGE -> new Color(255, 128, 0);
+		case Colors.FONT_PURPLE -> new Color(255, 0, 255);
+		case Colors.FONT_DARKBLUE -> new Color(0, 0, 128);
 		default -> new Color(255, 255, 255);
 		};
 	}
@@ -96,7 +85,7 @@ public class NormalFontSlick {
 	 * @param fontStr String
 	 */
 	public static void printTTFFont(int fontX, int fontY, String fontStr) {
-		printTTFFont(fontX, fontY, fontStr, COLOR_WHITE);
+		printTTFFont(fontX, fontY, fontStr, Colors.FONT_WHITE);
 	}
 
 	/**
@@ -159,7 +148,7 @@ public class NormalFontSlick {
 	 * @param fontStr String
 	 */
 	public static void printFont(int fontX, int fontY, String fontStr) {
-		printFont(fontX, fontY, fontStr, COLOR_WHITE);
+		printFont(fontX, fontY, fontStr, Colors.FONT_WHITE);
 	}
 
 	/**
@@ -191,7 +180,7 @@ public class NormalFontSlick {
 	 * @param flag    Conditional expression
 	 */
 	public static void printFont(int fontX, int fontY, String fontStr, boolean flag) {
-		printFont(fontX, fontY, fontStr, flag, COLOR_WHITE, COLOR_RED);
+		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED);
 	}
 
 	/**
@@ -227,7 +216,7 @@ public class NormalFontSlick {
 	 * @param scale   Enlargement factor
 	 */
 	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, float scale) {
-		printFont(fontX, fontY, fontStr, flag, COLOR_WHITE, COLOR_RED, scale);
+		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED, scale);
 	}
 
 	/**
@@ -250,7 +239,7 @@ public class NormalFontSlick {
 	 * @param fontStr String
 	 */
 	public static void printFontGrid(int fontX, int fontY, String fontStr) {
-		printFont(fontX * 16, fontY * 16, fontStr, COLOR_WHITE);
+		printFont(fontX * 16, fontY * 16, fontStr, Colors.FONT_WHITE);
 	}
 
 	/**
@@ -279,6 +268,6 @@ public class NormalFontSlick {
 	 * @param flag    Conditional expression
 	 */
 	public static void printFontGrid(int fontX, int fontY, String fontStr, boolean flag) {
-		printFont(fontX * 16, fontY * 16, fontStr, flag, COLOR_WHITE, COLOR_RED);
+		printFont(fontX * 16, fontY * 16, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED);
 	}
 }

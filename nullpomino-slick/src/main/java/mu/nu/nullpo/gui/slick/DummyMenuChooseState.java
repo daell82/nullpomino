@@ -34,6 +34,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
 import mu.nu.nullpo.gui.GameKeyDummy;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Dummy class for menus where the player picks from a list of options
@@ -148,7 +149,7 @@ public abstract class DummyMenuChooseState extends BaseGameState {
 	}
 
 	protected void renderChoices(int x, int y, String[] choices) {
-		NormalFontSlick.printFontGrid(x - 1, y + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(x - 1, y + cursor, "b", Colors.FONT_RED);
 		for (int i = 0; i < choices.length; i++) {
 			NormalFontSlick.printFontGrid(x, y + i, choices[i], cursor == i);
 		}

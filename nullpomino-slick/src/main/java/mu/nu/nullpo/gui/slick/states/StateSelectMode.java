@@ -41,6 +41,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Mode select screen
@@ -164,10 +165,10 @@ public class StateSelectMode extends DummyMenuScrollState {
 	public void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
 		if (!isTopLevel && !currentFolder.isEmpty()) {
 			NormalFontSlick.printFontGrid(1, 1, currentFolder + " (" + (cursor + 1) + "/" + list.size() + ")",
-					NormalFontSlick.COLOR_ORANGE);
+					Colors.FONT_ORANGE);
 		} else {
 			NormalFontSlick.printFontGrid(1, 1, "MODE SELECT (" + (cursor + 1) + "/" + list.size() + ")",
-					NormalFontSlick.COLOR_ORANGE);
+					Colors.FONT_ORANGE);
 		}
 
 		NormalFontSlick.printTTFFont(16, 440, getModeDesc(list.get(cursor)));

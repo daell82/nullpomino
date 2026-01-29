@@ -21,6 +21,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuScrollState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
@@ -160,7 +161,7 @@ public class StateSelectRuleFromList extends DummyMenuScrollState {
 	@Override
 	protected void onRenderSuccess(GameContainer container, StateBasedGame game, Graphics graphics) {
 		NormalFontSlick.printFontGrid(1, 1, currentMode + " (" + (cursor + 1) + "/" + list.size() + ")",
-				NormalFontSlick.COLOR_ORANGE);
+				Colors.FONT_ORANGE);
 	}
 
 	/*

@@ -28,18 +28,20 @@
 */
 package mu.nu.nullpo.gui.slick.states;
 
+import org.newdawn.slick.GameContainer;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.state.StateBasedGame;
+
+import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.gui.slick.BaseGameState;
 import mu.nu.nullpo.gui.slick.GameKeySlick;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
-
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.state.StateBasedGame;
 
 /**
  * State of the general settings screen
@@ -213,7 +215,9 @@ public class StateConfigGeneral extends BaseGameState {
 			fieldbgbright = prop.getProperty("option.fieldbgbright2", 128);
 		} else {
 			fieldbgbright = prop.getProperty("option.fieldbgbright", 64) * 2;
-			if(fieldbgbright > 255) fieldbgbright = 255;
+			if(fieldbgbright > 255) {
+				fieldbgbright = 255;
+			}
 		}
 		showfieldbggrid = prop.getProperty("option.showfieldbggrid", true);
 		darknextarea = prop.getProperty("option.darknextarea", true);
@@ -225,9 +229,9 @@ public class StateConfigGeneral extends BaseGameState {
 		outlineghost = prop.getProperty("option.outlineghost", false);
 		showInput = prop.getProperty("option.showInput", false);
 		nexttype = 0;
-		if((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == false)) {
+		if(prop.getProperty("option.sidenext", false) == true && prop.getProperty("option.bigsidenext", false) == false) {
 			nexttype = 1;
-		} else if((prop.getProperty("option.sidenext", false) == true) && (prop.getProperty("option.bigsidenext", false) == true)) {
+		} else if(prop.getProperty("option.sidenext", false) == true && prop.getProperty("option.bigsidenext", false) == true) {
 			nexttype = 2;
 		}
 		alternateFPSTiming = prop.getProperty("option.alternateFPSTiming", false);
@@ -239,7 +243,7 @@ public class StateConfigGeneral extends BaseGameState {
 		int sWidth = prop.getProperty("option.screenwidth", -1);
 		int sHeight = prop.getProperty("option.screenheight", -1);
 		for(int i = 0; i < SCREENSIZE_TABLE.length; i++) {
-			if((sWidth == SCREENSIZE_TABLE[i][0]) && (sHeight == SCREENSIZE_TABLE[i][1])) {
+			if(sWidth == SCREENSIZE_TABLE[i][0] && sHeight == SCREENSIZE_TABLE[i][1]) {
 				screenSizeType = i;
 				break;
 			}
@@ -273,22 +277,28 @@ public class StateConfigGeneral extends BaseGameState {
 		prop.setProperty("option.nextshadow", nextshadow);
 		prop.setProperty("option.outlineghost", outlineghost);
 		prop.setProperty("option.showInput", showInput);
-		if(nexttype == 0) {
+		switch (nexttype) {
+		case 0:
 			prop.setProperty("option.sidenext", false);
 			prop.setProperty("option.bigsidenext", false);
-		} else if(nexttype == 1) {
+			break;
+		case 1:
 			prop.setProperty("option.sidenext", true);
 			prop.setProperty("option.bigsidenext", false);
-		} else if(nexttype == 2) {
+			break;
+		case 2:
 			prop.setProperty("option.sidenext", true);
 			prop.setProperty("option.bigsidenext", true);
+			break;
+		default:
+			break;
 		}
 		prop.setProperty("option.alternateFPSTiming", alternateFPSTiming);
 		prop.setProperty("option.alternateFPSDynamicAdjust", alternateFPSDynamicAdjust);
 		prop.setProperty("option.alternateFPSPerfectMode", alternateFPSPerfectMode);
 		prop.setProperty("option.alternateFPSPerfectYield", alternateFPSPerfectYield);
 
-		if((screenSizeType >= 0) && (screenSizeType < SCREENSIZE_TABLE.length)) {
+		if(screenSizeType >= 0 && screenSizeType < SCREENSIZE_TABLE.length) {
 			prop.setProperty("option.screenwidth", SCREENSIZE_TABLE[screenSizeType][0]);
 			prop.setProperty("option.screenheight", SCREENSIZE_TABLE[screenSizeType][1]);
 		}
@@ -304,53 +314,55 @@ public class StateConfigGeneral extends BaseGameState {
 
 		// Basic Options
 		if(cursor < 17) {
-			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: BASIC (1/3)", NormalFontSlick.COLOR_ORANGE);
-			NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: BASIC (1/3)", Colors.FONT_ORANGE);
+			NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
-			NormalFontSlick.printFontGrid(2,  3, "SE:" + GeneralUtil.getOorX(se), (cursor == 0));
-			NormalFontSlick.printFontGrid(2,  4, "BGM:" + GeneralUtil.getOorX(bgm), (cursor == 1));
-			NormalFontSlick.printFontGrid(2,  5, "BGM PRELOAD:" + GeneralUtil.getOorX(bgmpreload), (cursor == 2));
-			NormalFontSlick.printFontGrid(2,  6, "SE VOLUME:" + sevolume + "("+ (sevolume * 100 / 128) + "%)", (cursor == 3));
-			NormalFontSlick.printFontGrid(2,  7, "BGM VOLUME:" + bgmvolume + "(" + (bgmvolume * 100 / 128) + "%)", (cursor == 4));
-			NormalFontSlick.printFontGrid(2,  8, "SHOW BACKGROUND:" + GeneralUtil.getOorX(showbg), (cursor == 5));
-			NormalFontSlick.printFontGrid(2,  9, "USE BACKGROUND FADE:" + GeneralUtil.getOorX(heavyeffect), (cursor == 6));
-			NormalFontSlick.printFontGrid(2, 10, "SHOW LINE EFFECT:" + GeneralUtil.getOorX(showlineeffect), (cursor == 7));
-			NormalFontSlick.printFontGrid(2, 11, "LINE EFFECT SPEED:" + "X " + (lineeffectspeed+1), (cursor == 8));
-			NormalFontSlick.printFontGrid(2, 12, "SHOW METER:" + GeneralUtil.getOorX(showmeter), (cursor == 9));
-			NormalFontSlick.printFontGrid(2, 13, "DARK NEXT AREA:" + GeneralUtil.getOorX(darknextarea), (cursor == 10));
-			NormalFontSlick.printFontGrid(2, 14, "SHOW NEXT ABOVE SHADOW:" + GeneralUtil.getOorX(nextshadow), (cursor == 11));
-			NormalFontSlick.printFontGrid(2, 15, "NEXT DISPLAY TYPE:" + NEXTTYPE_OPTIONS[nexttype], (cursor == 12));
-			NormalFontSlick.printFontGrid(2, 16, "OUTLINE GHOST PIECE:" + GeneralUtil.getOorX(outlineghost), (cursor == 13));
-			NormalFontSlick.printFontGrid(2, 17, "FIELD BG BRIGHT:" + fieldbgbright + "(" + (fieldbgbright * 100 / 255) + "%)", (cursor == 14));
-			NormalFontSlick.printFontGrid(2, 18, "SHOW FIELD BG GRID:" + GeneralUtil.getOorX(showfieldbggrid), (cursor == 15));
-			NormalFontSlick.printFontGrid(2, 19, "SHOW CONTROLLER INPUT:" + GeneralUtil.getOorX(showInput), (cursor == 16));
+			NormalFontSlick.printFontGrid(2,  3, "SE:" + GeneralUtil.getOorX(se), cursor == 0);
+			NormalFontSlick.printFontGrid(2,  4, "BGM:" + GeneralUtil.getOorX(bgm), cursor == 1);
+			NormalFontSlick.printFontGrid(2,  5, "BGM PRELOAD:" + GeneralUtil.getOorX(bgmpreload), cursor == 2);
+			NormalFontSlick.printFontGrid(2,  6, "SE VOLUME:" + sevolume + "("+ sevolume * 100 / 128 + "%)", cursor == 3);
+			NormalFontSlick.printFontGrid(2,  7, "BGM VOLUME:" + bgmvolume + "(" + bgmvolume * 100 / 128 + "%)", cursor == 4);
+			NormalFontSlick.printFontGrid(2,  8, "SHOW BACKGROUND:" + GeneralUtil.getOorX(showbg), cursor == 5);
+			NormalFontSlick.printFontGrid(2,  9, "USE BACKGROUND FADE:" + GeneralUtil.getOorX(heavyeffect), cursor == 6);
+			NormalFontSlick.printFontGrid(2, 10, "SHOW LINE EFFECT:" + GeneralUtil.getOorX(showlineeffect), cursor == 7);
+			NormalFontSlick.printFontGrid(2, 11, "LINE EFFECT SPEED:" + "X " + (lineeffectspeed+1), cursor == 8);
+			NormalFontSlick.printFontGrid(2, 12, "SHOW METER:" + GeneralUtil.getOorX(showmeter), cursor == 9);
+			NormalFontSlick.printFontGrid(2, 13, "DARK NEXT AREA:" + GeneralUtil.getOorX(darknextarea), cursor == 10);
+			NormalFontSlick.printFontGrid(2, 14, "SHOW NEXT ABOVE SHADOW:" + GeneralUtil.getOorX(nextshadow), cursor == 11);
+			NormalFontSlick.printFontGrid(2, 15, "NEXT DISPLAY TYPE:" + NEXTTYPE_OPTIONS[nexttype], cursor == 12);
+			NormalFontSlick.printFontGrid(2, 16, "OUTLINE GHOST PIECE:" + GeneralUtil.getOorX(outlineghost), cursor == 13);
+			NormalFontSlick.printFontGrid(2, 17, "FIELD BG BRIGHT:" + fieldbgbright + "(" + fieldbgbright * 100 / 255 + "%)", cursor == 14);
+			NormalFontSlick.printFontGrid(2, 18, "SHOW FIELD BG GRID:" + GeneralUtil.getOorX(showfieldbggrid), cursor == 15);
+			NormalFontSlick.printFontGrid(2, 19, "SHOW CONTROLLER INPUT:" + GeneralUtil.getOorX(showInput), cursor == 16);
 		}
 		// Advanced Options
 		else if(cursor < 23) {
-			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: ADVANCED (2/3)", NormalFontSlick.COLOR_ORANGE);
-			NormalFontSlick.printFontGrid(1, 3 + (cursor - 17), "b", NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: ADVANCED (2/3)", Colors.FONT_ORANGE);
+			NormalFontSlick.printFontGrid(1, 3 + cursor - 17, "b", Colors.FONT_RED);
 
-			NormalFontSlick.printFontGrid(2,  3, "FULLSCREEN:" + GeneralUtil.getOorX(fullscreen), (cursor == 17));
-			NormalFontSlick.printFontGrid(2,  4, "SHOW FPS:" + GeneralUtil.getOorX(showfps), (cursor == 18));
-			NormalFontSlick.printFontGrid(2,  5, "MAX FPS:" + maxfps, (cursor == 19));
-			NormalFontSlick.printFontGrid(2,  6, "FRAME STEP:" + GeneralUtil.getOorX(enableframestep), (cursor == 20));
-			NormalFontSlick.printFontGrid(2,  7, "FPS PERFECT MODE:" + GeneralUtil.getOorX(alternateFPSPerfectMode), (cursor == 21));
-			NormalFontSlick.printFontGrid(2,  8, "FPS PERFECT YIELD:" + GeneralUtil.getOorX(alternateFPSPerfectYield), (cursor == 22));
+			NormalFontSlick.printFontGrid(2,  3, "FULLSCREEN:" + GeneralUtil.getOorX(fullscreen), cursor == 17);
+			NormalFontSlick.printFontGrid(2,  4, "SHOW FPS:" + GeneralUtil.getOorX(showfps), cursor == 18);
+			NormalFontSlick.printFontGrid(2,  5, "MAX FPS:" + maxfps, cursor == 19);
+			NormalFontSlick.printFontGrid(2,  6, "FRAME STEP:" + GeneralUtil.getOorX(enableframestep), cursor == 20);
+			NormalFontSlick.printFontGrid(2,  7, "FPS PERFECT MODE:" + GeneralUtil.getOorX(alternateFPSPerfectMode), cursor == 21);
+			NormalFontSlick.printFontGrid(2,  8, "FPS PERFECT YIELD:" + GeneralUtil.getOorX(alternateFPSPerfectYield), cursor == 22);
 		}
 		// Slick Options
 		else {
-			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: SLICK (3/3)", NormalFontSlick.COLOR_ORANGE);
-			NormalFontSlick.printFontGrid(1, 3 + (cursor - 23), "b", NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 1, "GENERAL OPTIONS: SLICK (3/3)", Colors.FONT_ORANGE);
+			NormalFontSlick.printFontGrid(1, 3 + cursor - 23, "b", Colors.FONT_RED);
 
-			NormalFontSlick.printFontGrid(2,  3, "BGM STREAMING:" + GeneralUtil.getOorX(bgmstreaming), (cursor == 23));
-			NormalFontSlick.printFontGrid(2,  4, "VSYNC:" + GeneralUtil.getOorX(vsync), (cursor == 24));
-			NormalFontSlick.printFontGrid(2,  5, "FPS SLEEP TIMING:" + (alternateFPSTiming ? "UPDATE" : "RENDER"), (cursor == 25));
-			NormalFontSlick.printFontGrid(2,  6, "FPS DYNAMIC ADJUST:" + GeneralUtil.getOorX(alternateFPSDynamicAdjust), (cursor == 26));
+			NormalFontSlick.printFontGrid(2,  3, "BGM STREAMING:" + GeneralUtil.getOorX(bgmstreaming), cursor == 23);
+			NormalFontSlick.printFontGrid(2,  4, "VSYNC:" + GeneralUtil.getOorX(vsync), cursor == 24);
+			NormalFontSlick.printFontGrid(2,  5, "FPS SLEEP TIMING:" + (alternateFPSTiming ? "UPDATE" : "RENDER"), cursor == 25);
+			NormalFontSlick.printFontGrid(2,  6, "FPS DYNAMIC ADJUST:" + GeneralUtil.getOorX(alternateFPSDynamicAdjust), cursor == 26);
 			NormalFontSlick.printFontGrid(2,  7, "SCREEN SIZE:" + SCREENSIZE_TABLE[screenSizeType][0] + "e" + SCREENSIZE_TABLE[screenSizeType][1],
-									 (cursor == 27));
+									 cursor == 27);
 		}
 
-		if((cursor >= 0) && (cursor < UI_TEXT.length)) NormalFontSlick.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
+		if(cursor >= 0 && cursor < UI_TEXT.length) {
+			NormalFontSlick.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
+		}
 	}
 
 	/*
@@ -359,27 +371,37 @@ public class StateConfigGeneral extends BaseGameState {
 	@Override
 	protected void updateImpl(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		// TTF font
-		if(ResourceHolderSlick.ttfFont != null) ResourceHolderSlick.ttfFont.loadGlyphs();
+		if(ResourceHolderSlick.ttfFont != null) {
+			ResourceHolderSlick.ttfFont.loadGlyphs();
+		}
 
 		// Update key input states
 		GameKeySlick.gamekey[0].update(container.getInput());
 
 		// Cursor movement
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_UP)) {
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_UP)) {
 		    cursor--;
-			if(cursor < 0) cursor = 27;
+			if(cursor < 0) {
+				cursor = 27;
+			}
 			ResourceHolderSlick.soundManager.play("cursor");
 		}
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_DOWN)) {
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_DOWN)) {
 			cursor++;
-			if(cursor > 27) cursor = 0;
+			if(cursor > 27) {
+				cursor = 0;
+			}
 			ResourceHolderSlick.soundManager.play("cursor");
 		}
 
 		// Configuration changes
 		int change = 0;
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_LEFT)) change = -1;
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_RIGHT)) change = 1;
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_LEFT)) {
+			change = -1;
+		}
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_RIGHT)) {
+			change = 1;
+		}
 
 		if(change != 0) {
 			ResourceHolderSlick.soundManager.play("change");
@@ -396,13 +418,21 @@ public class StateConfigGeneral extends BaseGameState {
 				break;
 			case 3:
 				sevolume += change;
-				if(sevolume < 0) sevolume = 128;
-				if(sevolume > 128) sevolume = 0;
+				if(sevolume < 0) {
+					sevolume = 128;
+				}
+				if(sevolume > 128) {
+					sevolume = 0;
+				}
 				break;
 			case 4:
 				bgmvolume += change;
-				if(bgmvolume < 0) bgmvolume = 128;
-				if(bgmvolume > 128) bgmvolume = 0;
+				if(bgmvolume < 0) {
+					bgmvolume = 128;
+				}
+				if(bgmvolume > 128) {
+					bgmvolume = 0;
+				}
 				break;
 			case 5:
 				showbg = !showbg;
@@ -415,8 +445,12 @@ public class StateConfigGeneral extends BaseGameState {
 				break;
 			case 8:
 				lineeffectspeed += change;
-				if(lineeffectspeed < 0) lineeffectspeed = 9;
-				if(lineeffectspeed > 9) lineeffectspeed = 0;
+				if(lineeffectspeed < 0) {
+					lineeffectspeed = 9;
+				}
+				if(lineeffectspeed > 9) {
+					lineeffectspeed = 0;
+				}
 				break;
 			case 9:
 				showmeter = !showmeter;
@@ -429,16 +463,24 @@ public class StateConfigGeneral extends BaseGameState {
 				break;
 			case 12:
 				nexttype += change;
-				if(nexttype < 0) nexttype = 2;
-				if(nexttype > 2) nexttype = 0;
+				if(nexttype < 0) {
+					nexttype = 2;
+				}
+				if(nexttype > 2) {
+					nexttype = 0;
+				}
 				break;
 			case 13:
 				outlineghost = !outlineghost;
 				break;
 			case 14:
 				fieldbgbright += change;
-				if(fieldbgbright < 0) fieldbgbright = 255;
-				if(fieldbgbright > 255) fieldbgbright = 0;
+				if(fieldbgbright < 0) {
+					fieldbgbright = 255;
+				}
+				if(fieldbgbright > 255) {
+					fieldbgbright = 0;
+				}
 				break;
 			case 15:
 				showfieldbggrid = !showfieldbggrid;
@@ -454,8 +496,12 @@ public class StateConfigGeneral extends BaseGameState {
 				break;
 			case 19:
 				maxfps += change;
-				if(maxfps < 0) maxfps = 99;
-				if(maxfps > 99) maxfps = 0;
+				if(maxfps < 0) {
+					maxfps = 99;
+				}
+				if(maxfps > 99) {
+					maxfps = 0;
+				}
 				break;
 			case 20:
 				enableframestep = !enableframestep;
@@ -480,25 +526,33 @@ public class StateConfigGeneral extends BaseGameState {
 				break;
 			case 27:
 				screenSizeType += change;
-				if(screenSizeType < 0) screenSizeType = SCREENSIZE_TABLE.length - 1;
-				if(screenSizeType > SCREENSIZE_TABLE.length - 1) screenSizeType = 0;
+				if(screenSizeType < 0) {
+					screenSizeType = SCREENSIZE_TABLE.length - 1;
+				}
+				if(screenSizeType > SCREENSIZE_TABLE.length - 1) {
+					screenSizeType = 0;
+				}
 				break;
 			}
 		}
 
 		// Confirm button
-		if(GameKeySlick.gamekey[0].isPushKey(GameKeySlick.BUTTON_A)) {
+		if(GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_A)) {
 			ResourceHolderSlick.soundManager.play("decide");
 			saveConfig(NullpoMinoSlick.propConfig);
 			NullpoMinoSlick.saveConfig();
 			NullpoMinoSlick.setGeneralConfig();
-			if(showlineeffect) ResourceHolderSlick.loadLineClearEffectImages();
-			if(showbg) ResourceHolderSlick.loadBackgroundImages();
+			if(showlineeffect) {
+				ResourceHolderSlick.loadLineClearEffectImages();
+			}
+			if(showbg) {
+				ResourceHolderSlick.loadBackgroundImages();
+			}
 			game.enterState(StateConfigMainMenu.ID);
 		}
 
 		// Cancel button
-		if(GameKeySlick.gamekey[0].isPushKey(GameKeySlick.BUTTON_B)) {
+		if(GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_B)) {
 		    loadConfig(NullpoMinoSlick.propConfig);
 			game.enterState(StateConfigMainMenu.ID);
 		}

@@ -10,6 +10,7 @@ import mu.nu.nullpo.gui.slick.GameKeySlick;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Keyboard Reset menu
@@ -54,15 +55,15 @@ public class StateConfigKeyboardReset extends DummyMenuChooseState {
 		g.drawImage(ResourceHolderSlick.imgMenu, 0, 0);
 
 		// Menu
-		NormalFontSlick.printFontGrid(1, 1, "KEYBOARD RESET (" + (player+1) + "P)", NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, "KEYBOARD RESET (" + (player+1) + "P)", Colors.FONT_ORANGE);
 
-		NormalFontSlick.printFontGrid(1, 3, "RESET SETTINGS TO...", NormalFontSlick.COLOR_GREEN);
+		NormalFontSlick.printFontGrid(1, 3, "RESET SETTINGS TO...", Colors.FONT_GREEN);
 
-		NormalFontSlick.printFontGrid(1, 4 + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 4 + cursor, "b", Colors.FONT_RED);
 
-		NormalFontSlick.printFontGrid(2, 4, "BLOCKBOX STYLE (DEFAULT)", (cursor == 0));
-		NormalFontSlick.printFontGrid(2, 5, "GUIDELINE STYLE", (cursor == 1));
-		NormalFontSlick.printFontGrid(2, 6, "NULLPOMINO CLASSIC STYLE", (cursor == 2));
+		NormalFontSlick.printFontGrid(2, 4, "BLOCKBOX STYLE (DEFAULT)", cursor == 0);
+		NormalFontSlick.printFontGrid(2, 5, "GUIDELINE STYLE", cursor == 1);
+		NormalFontSlick.printFontGrid(2, 6, "NULLPOMINO CLASSIC STYLE", cursor == 2);
 	}
 
 	/*

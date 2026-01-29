@@ -47,6 +47,7 @@ import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.RendererSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
@@ -350,8 +351,7 @@ public class StateInGame extends BasicGameState {
 
 				// Pause menu
 				if (pause && !enableframestep && !pauseMessageHide) {
-					NormalFontSlick.printFont(offsetX + 12, offsetY + 188 + cursor * 16, "b",
-							NormalFontSlick.COLOR_RED);
+					NormalFontSlick.printFont(offsetX + 12, offsetY + 188 + cursor * 16, "b", Colors.FONT_RED);
 
 					NormalFontSlick.printFont(offsetX + 28, offsetY + 188, "CONTINUE", cursor == 0);
 					NormalFontSlick.printFont(offsetX + 28, offsetY + 204, "RETRY", cursor == 1);
@@ -363,11 +363,10 @@ public class StateInGame extends BasicGameState {
 
 				// Fast forward
 				if (fastforward != 0) {
-					NormalFontSlick.printFont(offsetX, offsetY + 376, "e" + (fastforward + 1),
-							NormalFontSlick.COLOR_ORANGE);
+					NormalFontSlick.printFont(offsetX, offsetY + 376, "e" + (fastforward + 1), Colors.FONT_ORANGE);
 				}
 				if (gameManager.replayShowInvisible) {
-					NormalFontSlick.printFont(offsetX, offsetY + 392, "SHOW INVIS", NormalFontSlick.COLOR_ORANGE);
+					NormalFontSlick.printFont(offsetX, offsetY + 392, "SHOW INVIS", Colors.FONT_ORANGE);
 				}
 			}
 		}

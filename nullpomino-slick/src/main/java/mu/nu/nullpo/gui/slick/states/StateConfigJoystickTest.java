@@ -41,6 +41,7 @@ import mu.nu.nullpo.gui.slick.JInputManager;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Joystick State of the test screen
@@ -84,6 +85,7 @@ public class StateConfigJoystickTest extends BasicGameState {
 	/*
 	 * State initialization
 	 */
+	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 		gameObj = game;
 	}
@@ -105,22 +107,25 @@ public class StateConfigJoystickTest extends BasicGameState {
 	/*
 	 * Draw the screen
 	 */
+	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		if(!container.hasFocus()) {
-			if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+			if(!NullpoMinoSlick.alternateFPSTiming) {
+				NullpoMinoSlick.alternateFPSSleep();
+			}
 			return;
 		}
 
 		ResourceHolderSlick.imgMenu.draw(0, 0);
 
-		NormalFontSlick.printFontGrid(1, 1, "JOYSTICK INPUT TEST (" + (player + 1) + "P)", NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, "JOYSTICK INPUT TEST (" + (player + 1) + "P)", Colors.FONT_ORANGE);
 
 		if(joyNumber < 0) {
-			NormalFontSlick.printFontGrid(1, 3, "NO JOYSTICK", NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 3, "NO JOYSTICK", Colors.FONT_RED);
 		} else if(frame >= KEYACCEPTFRAME) {
-			NormalFontSlick.printFontGrid(1, 3, "JOYSTICK NUMBER:" + joyNumber, NormalFontSlick.COLOR_RED);
+			NormalFontSlick.printFontGrid(1, 3, "JOYSTICK NUMBER:" + joyNumber, Colors.FONT_RED);
 
-			NormalFontSlick.printFontGrid(1, 5, "LAST PRESSED BUTTON:" + ((lastPressButton == -1) ? "NONE" : String.valueOf(lastPressButton)));
+			NormalFontSlick.printFontGrid(1, 5, "LAST PRESSED BUTTON:" + (lastPressButton == -1 ? "NONE" : String.valueOf(lastPressButton)));
 
 			Controller controller = ControllerManager.controllers.get(joyNumber);
 
@@ -132,22 +137,27 @@ public class StateConfigJoystickTest extends BasicGameState {
 		}
 
 		if(frame >= KEYACCEPTFRAME) {
-			NormalFontSlick.printFontGrid(1, 23, "ENTER/BACKSPACE: EXIT", NormalFontSlick.COLOR_GREEN);
+			NormalFontSlick.printFontGrid(1, 23, "ENTER/BACKSPACE: EXIT", Colors.FONT_GREEN);
 		}
 
 		// FPS
 		NullpoMinoSlick.drawFPS(container);
 		// Observer
 		NullpoMinoSlick.drawObserverClient();
-		if(!NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+		if(!NullpoMinoSlick.alternateFPSTiming) {
+			NullpoMinoSlick.alternateFPSSleep();
+		}
 	}
 
 	/*
 	 * Update game state
 	 */
+	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		if(!container.hasFocus()) {
-			if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+			if(NullpoMinoSlick.alternateFPSTiming) {
+				NullpoMinoSlick.alternateFPSSleep();
+			}
 			return;
 		}
 
@@ -179,7 +189,9 @@ public class StateConfigJoystickTest extends BasicGameState {
 			}
 		}
 
-		if(NullpoMinoSlick.alternateFPSTiming) NullpoMinoSlick.alternateFPSSleep();
+		if(NullpoMinoSlick.alternateFPSTiming) {
+			NullpoMinoSlick.alternateFPSSleep();
+		}
 	}
 
 	/*
@@ -199,7 +211,7 @@ public class StateConfigJoystickTest extends BasicGameState {
 	protected void onKey(int key) {
 		if(frame >= KEYACCEPTFRAME) {
 			// Backspace & Enter/Return
-			if((key == Input.KEY_BACK) || (key == Input.KEY_RETURN)) {
+			if(key == Input.KEY_BACK || key == Input.KEY_RETURN) {
 				gameObj.enterState(StateConfigJoystickMain.ID);
 			}
 		}

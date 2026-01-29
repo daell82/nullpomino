@@ -37,6 +37,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Options screen
@@ -82,9 +83,9 @@ public class StateConfigMainMenu extends DummyMenuChooseState {
 		g.drawImage(ResourceHolderSlick.imgMenu, 0, 0);
 
 		// Menu
-		NormalFontSlick.printFontGrid(1, 1, "OPTIONS", NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, "OPTIONS", Colors.FONT_ORANGE);
 
-		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
 		NormalFontSlick.printFontGrid(2, 3, "[GENERAL OPTIONS]", cursor == 0);
 		NormalFontSlick.printFontGrid(2, 4, "[RULE SELECT]:" + (player + 1) + "P", cursor == 1);

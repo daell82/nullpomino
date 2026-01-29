@@ -33,19 +33,21 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import mu.nu.nullpo.game.subsystem.ai.AIPlayer;
-import mu.nu.nullpo.gui.slick.BaseGameState;
-import mu.nu.nullpo.gui.slick.GameKeySlick;
-import mu.nu.nullpo.gui.slick.NormalFontSlick;
-import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
-import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
-import mu.nu.nullpo.util.GeneralUtil;
-
 import org.apache.log4j.Logger;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
+
+import mu.nu.nullpo.game.subsystem.ai.AIPlayer;
+import mu.nu.nullpo.gui.GameKeyDummy;
+import mu.nu.nullpo.gui.slick.BaseGameState;
+import mu.nu.nullpo.gui.slick.GameKeySlick;
+import mu.nu.nullpo.gui.slick.NormalFontSlick;
+import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
+import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.GeneralUtil;
 
 /**
  * AI config screen state
@@ -85,9 +87,9 @@ public class StateConfigAISelect extends BaseGameState {
 	protected boolean aiUseThread = false;
 
 	protected boolean aiShowHint = false;
-	
+
 	protected boolean aiPrethink = false;
-	
+
 	protected boolean aiShowState = false;
 
 	/** Cursor position */
@@ -131,7 +133,9 @@ public class StateConfigAISelect extends BaseGameState {
 
 		aiID = -1;
 		for(int i = 0; i < aiPathList.length; i++) {
-			if(currentAI.equals(aiPathList[i])) aiID = i;
+			if(currentAI.equals(aiPathList[i])) {
+				aiID = i;
+			}
 		}
 	}
 
@@ -141,7 +145,7 @@ public class StateConfigAISelect extends BaseGameState {
 	 * @return AIList
 	 */
 	public String[] loadAIList(BufferedReader bf) {
-		ArrayList<String> aiArrayList = new ArrayList<String>();
+		ArrayList<String> aiArrayList = new ArrayList<>();
 
 		while(true) {
 			String name = null;
@@ -150,15 +154,22 @@ public class StateConfigAISelect extends BaseGameState {
 			} catch (Exception e) {
 				break;
 			}
-			if(name == null) break;
-			if(name.length() == 0) break;
+			if(name == null) {
+				break;
+			}
+			if(name.length() == 0) {
+				break;
+			}
 
-			if(!name.startsWith("#"))
+			if(!name.startsWith("#")) {
 				aiArrayList.add(name);
+			}
 		}
 
 		String[] aiStringList = new String[aiArrayList.size()];
-		for(int i = 0; i < aiArrayList.size(); i++) aiStringList[i] = aiArrayList.get(i);
+		for(int i = 0; i < aiArrayList.size(); i++) {
+			aiStringList[i] = aiArrayList.get(i);
+		}
 
 		return aiStringList;
 	}
@@ -199,22 +210,25 @@ public class StateConfigAISelect extends BaseGameState {
 		g.drawImage(ResourceHolderSlick.imgMenu, 0, 0);
 
 		// Menu
-		NormalFontSlick.printFontGrid(1, 1, (player + 1) + "P AI SETTING", NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, player + 1 + "P AI SETTING", Colors.FONT_ORANGE);
 
-		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 3 + cursor, "b", Colors.FONT_RED);
 
 		String aiName = "";
-		if(aiID < 0) aiName = "(DISABLE)";
-		else aiName = aiNameList[aiID].toUpperCase();
-		NormalFontSlick.printFontGrid(2, 3, "AI TYPE:" + aiName, (cursor == 0));
-		NormalFontSlick.printFontGrid(2, 4, "AI MOVE DELAY:" + aiMoveDelay, (cursor == 1));
-		NormalFontSlick.printFontGrid(2, 5, "AI THINK DELAY:" + aiThinkDelay, (cursor == 2));
-		NormalFontSlick.printFontGrid(2, 6, "AI USE THREAD:" + GeneralUtil.getONorOFF(aiUseThread), (cursor == 3));
-		NormalFontSlick.printFontGrid(2, 7, "AI SHOW HINT:" + GeneralUtil.getONorOFF(aiShowHint), (cursor == 4));
-		NormalFontSlick.printFontGrid(2, 8, "AI PRE-THINK:" + GeneralUtil.getONorOFF(aiPrethink), (cursor == 5));
-		NormalFontSlick.printFontGrid(2, 9, "AI SHOW INFO:" + GeneralUtil.getONorOFF(aiShowState), (cursor == 6));
+		if(aiID < 0) {
+			aiName = "(DISABLE)";
+		} else {
+			aiName = aiNameList[aiID].toUpperCase();
+		}
+		NormalFontSlick.printFontGrid(2, 3, "AI TYPE:" + aiName, cursor == 0);
+		NormalFontSlick.printFontGrid(2, 4, "AI MOVE DELAY:" + aiMoveDelay, cursor == 1);
+		NormalFontSlick.printFontGrid(2, 5, "AI THINK DELAY:" + aiThinkDelay, cursor == 2);
+		NormalFontSlick.printFontGrid(2, 6, "AI USE THREAD:" + GeneralUtil.getONorOFF(aiUseThread), cursor == 3);
+		NormalFontSlick.printFontGrid(2, 7, "AI SHOW HINT:" + GeneralUtil.getONorOFF(aiShowHint), cursor == 4);
+		NormalFontSlick.printFontGrid(2, 8, "AI PRE-THINK:" + GeneralUtil.getONorOFF(aiPrethink), cursor == 5);
+		NormalFontSlick.printFontGrid(2, 9, "AI SHOW INFO:" + GeneralUtil.getONorOFF(aiShowState), cursor == 6);
 
-		NormalFontSlick.printFontGrid(1, 28, "A:OK B:CANCEL", NormalFontSlick.COLOR_GREEN);
+		NormalFontSlick.printFontGrid(1, 28, "A:OK B:CANCEL", Colors.FONT_GREEN);
 	}
 
 	/*
@@ -226,21 +240,29 @@ public class StateConfigAISelect extends BaseGameState {
 		GameKeySlick.gamekey[0].update(container.getInput());
 
 		// Cursor movement
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_UP)) {
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_UP)) {
 			cursor--;
-			if(cursor < 0) cursor = 6;
+			if(cursor < 0) {
+				cursor = 6;
+			}
 			ResourceHolderSlick.soundManager.play("cursor");
 		}
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_DOWN)) {
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_DOWN)) {
 			cursor++;
-			if(cursor > 6) cursor = 0;
+			if(cursor > 6) {
+				cursor = 0;
+			}
 			ResourceHolderSlick.soundManager.play("cursor");
 		}
 
 		// Configuration changes
 		int change = 0;
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_LEFT)) change = -1;
-		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeySlick.BUTTON_RIGHT)) change = 1;
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_LEFT)) {
+			change = -1;
+		}
+		if(GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_RIGHT)) {
+			change = 1;
+		}
 
 		if(change != 0) {
 			ResourceHolderSlick.soundManager.play("change");
@@ -248,18 +270,30 @@ public class StateConfigAISelect extends BaseGameState {
 			switch(cursor) {
 			case 0:
 				aiID += change;
-				if(aiID < -1) aiID = aiNameList.length - 1;
-				if(aiID > aiNameList.length - 1) aiID = -1;
+				if(aiID < -1) {
+					aiID = aiNameList.length - 1;
+				}
+				if(aiID > aiNameList.length - 1) {
+					aiID = -1;
+				}
 				break;
 			case 1:
 				aiMoveDelay += change;
-				if(aiMoveDelay < -1) aiMoveDelay = 99;
-				if(aiMoveDelay > 99) aiMoveDelay = -1;
+				if(aiMoveDelay < -1) {
+					aiMoveDelay = 99;
+				}
+				if(aiMoveDelay > 99) {
+					aiMoveDelay = -1;
+				}
 				break;
 			case 2:
 				aiThinkDelay += change * 10;
-				if(aiThinkDelay < 0) aiThinkDelay = 1000;
-				if(aiThinkDelay > 1000) aiThinkDelay = 0;
+				if(aiThinkDelay < 0) {
+					aiThinkDelay = 1000;
+				}
+				if(aiThinkDelay > 1000) {
+					aiThinkDelay = 0;
+				}
 				break;
 			case 3:
 				aiUseThread = !aiUseThread;
@@ -277,11 +311,14 @@ public class StateConfigAISelect extends BaseGameState {
 		}
 
 		// Confirm button
-		if(GameKeySlick.gamekey[0].isPushKey(GameKeySlick.BUTTON_A)) {
+		if(GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_A)) {
 		    ResourceHolderSlick.soundManager.play("decide");
 
-			if(aiID >= 0) NullpoMinoSlick.propGlobal.setProperty(player + ".ai", aiPathList[aiID]);
-			else NullpoMinoSlick.propGlobal.setProperty(player + ".ai", "");
+			if(aiID >= 0) {
+				NullpoMinoSlick.propGlobal.setProperty(player + ".ai", aiPathList[aiID]);
+			} else {
+				NullpoMinoSlick.propGlobal.setProperty(player + ".ai", "");
+			}
 			NullpoMinoSlick.propGlobal.setProperty(player + ".aiMoveDelay", aiMoveDelay);
 			NullpoMinoSlick.propGlobal.setProperty(player + ".aiThinkDelay", aiThinkDelay);
 			NullpoMinoSlick.propGlobal.setProperty(player + ".aiUseThread", aiUseThread);
@@ -295,7 +332,7 @@ public class StateConfigAISelect extends BaseGameState {
 		}
 
 		// Cancel button
-		if(GameKeySlick.gamekey[0].isPushKey(GameKeySlick.BUTTON_B)) {
+		if(GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_B)) {
 		    game.enterState(StateConfigMainMenu.ID);
 			return;
 		}

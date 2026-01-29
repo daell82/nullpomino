@@ -37,7 +37,7 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import mu.nu.nullpo.game.Version;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.gui.slick.GameKeySlick;
 import mu.nu.nullpo.gui.slick.MouseInputSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
@@ -67,6 +67,7 @@ public class StateLoading extends BasicGameState {
 	/*
 	 * State initialization
 	 */
+	@Override
 	public void init(GameContainer container, StateBasedGame game) throws SlickException {
 	}
 
@@ -98,6 +99,7 @@ public class StateLoading extends BasicGameState {
 	/*
 	 * Draw the screen
 	 */
+	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g) throws SlickException {
 		// Be cached in memory by drawing on a huge screen image in advance
 		if(preloadSet == 0) {
@@ -145,11 +147,12 @@ public class StateLoading extends BasicGameState {
 	/*
 	 * Update game
 	 */
+	@Override
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		if(preloadSet > 2) {
 			// Change title bar caption
 			if(container instanceof AppGameContainer) {
-				((AppGameContainer) container).setTitle("NullpoMino version" + Version.getVersionString());
+				((AppGameContainer) container).setTitle("NullpoMino version" + Version.getCurrent());
 				((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
 			}
 

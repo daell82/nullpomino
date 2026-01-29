@@ -41,6 +41,7 @@ import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 
 /**
  * Title screen state
@@ -50,12 +51,11 @@ public class StateTitle extends DummyMenuChooseState {
 	public static final int ID = 1;
 
 	/** Strings for menu choices */
-	private static final String[] CHOICES = {"START", "REPLAY", "NETPLAY", "OPTIONS", "EXIT"};
+	private static final String[] CHOICES = { "START", "REPLAY", "NETPLAY", "OPTIONS", "EXIT" };
 
 	/** UI Text identifier Strings */
-	private static final String[] UI_TEXT = {
-        "Title_Start", "Title_Replay", "Title_NetPlay", "Title_Config", "Title_Exit"
-	};
+	private static final String[] UI_TEXT = { "Title_Start", "Title_Replay", "Title_NetPlay", "Title_Config",
+			"Title_Exit" };
 
 	/** Log */
 	static Logger log = Logger.getLogger(StateTitle.class);
@@ -63,7 +63,7 @@ public class StateTitle extends DummyMenuChooseState {
 	/** true when new version is already checked */
 	protected boolean isNewVersionChecked = false;
 
-	public StateTitle () {
+	public StateTitle() {
 		maxCursor = 4;
 		minChoiceY = 4;
 	}
@@ -94,19 +94,19 @@ public class StateTitle extends DummyMenuChooseState {
 		System.gc();
 
 		// Update title bar
-		if(container instanceof AppGameContainer appContainer) {
-			appContainer.setTitle("NullpoMino v" + Version.getVersion());
+		if (container instanceof AppGameContainer appContainer) {
+			appContainer.setTitle("NullpoMino v" + Version.getCurrent());
 			appContainer.setUpdateOnlyWhenVisible(true);
 		}
 
 		// New Version check
-		if(!isNewVersionChecked && NullpoMinoSlick.propGlobal.getProperty("updatechecker.enable", true)) {
+		if (!isNewVersionChecked && NullpoMinoSlick.propGlobal.getProperty("updatechecker.enable", true)) {
 			isNewVersionChecked = true;
 
 			int startupCount = NullpoMinoSlick.propGlobal.getProperty("updatechecker.startupCount", 0);
 			int startupMax = NullpoMinoSlick.propGlobal.getProperty("updatechecker.startupMax", 20);
 
-			if(startupCount >= startupMax) {
+			if (startupCount >= startupMax) {
 				String strURL = NullpoMinoSlick.propGlobal.getProperty("updatechecker.url", "");
 				UpdateChecker.startCheckForUpdates(strURL);
 				startupCount = 0;
@@ -114,7 +114,7 @@ public class StateTitle extends DummyMenuChooseState {
 				startupCount++;
 			}
 
-			if(startupMax >= 1) {
+			if (startupMax >= 1) {
 				NullpoMinoSlick.propGlobal.setProperty("updatechecker.startupCount", startupCount);
 				NullpoMinoSlick.saveConfig();
 			}
@@ -130,14 +130,14 @@ public class StateTitle extends DummyMenuChooseState {
 		g.drawImage(ResourceHolderSlick.imgTitle, 0, 0);
 
 		// Menu
-		NormalFontSlick.printFontGrid(1, 1, "NULLPOMINO", NormalFontSlick.COLOR_ORANGE);
-		NormalFontSlick.printFontGrid(1, 2, "VERSION " + Version.getVersion(), NormalFontSlick.COLOR_ORANGE);
+		NormalFontSlick.printFontGrid(1, 1, "NULLPOMINO", Colors.FONT_ORANGE);
+		NormalFontSlick.printFontGrid(1, 2, "VERSION " + Version.getCurrent(), Colors.FONT_ORANGE);
 
 		renderChoices(2, 4, CHOICES);
 
 		NormalFontSlick.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
 
-		if(UpdateChecker.isNewVersionAvailable()) {
+		if (UpdateChecker.isNewVersionAvailable()) {
 			String strTemp = String.format(NullpoMinoSlick.getUIText("Title_NewVersion"),
 					UpdateChecker.getLatestVersionFullString(), UpdateChecker.getReleaseDate());
 			NormalFontSlick.printTTFFont(16, 416, strTemp);
@@ -148,7 +148,7 @@ public class StateTitle extends DummyMenuChooseState {
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
 		ResourceHolderSlick.soundManager.play("decide");
 
-		switch(cursor) {
+		switch (cursor) {
 		case 0:
 			StateSelectMode.isTopLevel = true;
 			game.enterState(StateSelectMode.ID);

@@ -41,6 +41,7 @@ import mu.nu.nullpo.gui.slick.JInputManager;
 import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
+import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 
 /**
@@ -144,15 +145,15 @@ public class StateConfigKeyboard extends BasicGameState {
 
 		if (!isNavSetting) {
 			NormalFontSlick.printFontGrid(1, 1, "KEYBOARD SETTING (" + (player + 1) + "P)",
-					NormalFontSlick.COLOR_ORANGE);
+					Colors.FONT_ORANGE);
 		} else {
 			NormalFontSlick.printFontGrid(1, 1, "KEYBOARD NAVIGATION SETTING (" + (player + 1) + "P)",
-					NormalFontSlick.COLOR_ORANGE);
+					Colors.FONT_ORANGE);
 		}
 		if (!NullpoMinoSlick.useJInputKeyboard) {
-			NormalFontSlick.printFontGrid(1, 2, "SLICK NATIVE MODE", NormalFontSlick.COLOR_CYAN);
+			NormalFontSlick.printFontGrid(1, 2, "SLICK NATIVE MODE", Colors.FONT_CYAN);
 		} else {
-			NormalFontSlick.printFontGrid(1, 2, "JINPUT MODE", NormalFontSlick.COLOR_PINK);
+			NormalFontSlick.printFontGrid(1, 2, "JINPUT MODE", Colors.FONT_PINK);
 		}
 
 		NormalFontSlick.printFontGrid(2, 4, "UP          : " + getKeyName(keymap[GameKeyDummy.BUTTON_UP]),
@@ -202,21 +203,21 @@ public class StateConfigKeyboard extends BasicGameState {
 				keynum == 15);
 		NormalFontSlick.printFontGrid(2, 20, "[SAVE & EXIT]", keynum == 16);
 
-		NormalFontSlick.printFontGrid(1, 4 + keynum, "b", NormalFontSlick.COLOR_RED);
+		NormalFontSlick.printFontGrid(1, 4 + keynum, "b", Colors.FONT_RED);
 
 		if (frame >= KEYACCEPTFRAME) {
 			if (keyConfigRestFrame > 0) {
 				NormalFontSlick.printFontGrid(1, 22, "PUSH KEY... " + GeneralUtil.getTime(keyConfigRestFrame),
-						NormalFontSlick.COLOR_PINK);
+						Colors.FONT_PINK);
 			} else if (keynum < NUM_KEYS) {
-				NormalFontSlick.printFontGrid(1, 22, "UP/DOWN:   MOVE CURSOR", NormalFontSlick.COLOR_GREEN);
-				NormalFontSlick.printFontGrid(1, 23, "ENTER:     SET KEY", NormalFontSlick.COLOR_GREEN);
-				NormalFontSlick.printFontGrid(1, 24, "DELETE:    SET TO NONE", NormalFontSlick.COLOR_GREEN);
-				NormalFontSlick.printFontGrid(1, 25, "BACKSPACE: CANCEL", NormalFontSlick.COLOR_GREEN);
+				NormalFontSlick.printFontGrid(1, 22, "UP/DOWN:   MOVE CURSOR", Colors.FONT_GREEN);
+				NormalFontSlick.printFontGrid(1, 23, "ENTER:     SET KEY", Colors.FONT_GREEN);
+				NormalFontSlick.printFontGrid(1, 24, "DELETE:    SET TO NONE", Colors.FONT_GREEN);
+				NormalFontSlick.printFontGrid(1, 25, "BACKSPACE: CANCEL", Colors.FONT_GREEN);
 			} else {
-				NormalFontSlick.printFontGrid(1, 22, "UP/DOWN:   MOVE CURSOR", NormalFontSlick.COLOR_GREEN);
-				NormalFontSlick.printFontGrid(1, 23, "ENTER:     SAVE & EXIT", NormalFontSlick.COLOR_GREEN);
-				NormalFontSlick.printFontGrid(1, 24, "BACKSPACE: CANCEL", NormalFontSlick.COLOR_GREEN);
+				NormalFontSlick.printFontGrid(1, 22, "UP/DOWN:   MOVE CURSOR", Colors.FONT_GREEN);
+				NormalFontSlick.printFontGrid(1, 23, "ENTER:     SAVE & EXIT", Colors.FONT_GREEN);
+				NormalFontSlick.printFontGrid(1, 24, "BACKSPACE: CANCEL", Colors.FONT_GREEN);
 			}
 		}
 

@@ -33,6 +33,11 @@ package mu.nu.nullpo.util;
  */
 public class SpinBonus {
 
+	/** Spin detection type */
+	public static final int SPINTYPE_4POINT = 0;
+	/** Spin detection type */
+	public static final int SPINTYPE_IMMOBILE = 1;
+
 	/** New Spin bonusUse coordinate dataA(X-coordinate) */
 	public static final int[][][] HIGH_X = {
 			{ { 1, 2, 2, 1 }, { 1, 3, 1, 3 }, { 1, 2, 2, 1 }, { 0, 2, 0, 2 } }, // I
@@ -90,4 +95,5 @@ public class SpinBonus {
 			{ {}, {}, {}, {} }, // I3
 			{ {}, {}, {}, {} }, // L3
 	};
+
 }

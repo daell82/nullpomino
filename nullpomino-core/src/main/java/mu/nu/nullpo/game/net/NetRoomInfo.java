@@ -34,6 +34,7 @@ import java.util.List;
 
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.util.SpinBonus;
 
 /**
  * Room Information
@@ -78,10 +79,7 @@ public class NetRoomInfo implements Serializable {
 	/** Flag for types of T-Spins allowed (0=none, 1=normal, 2=all spin) */
 	public int tspinEnableType = 1;
 
-	/** Spin detection type */
-	public static final int SPINTYPE_4POINT = 0, SPINTYPE_IMMOBILE = 1;
-
-	public int spinCheckType = SPINTYPE_4POINT;
+	public int spinCheckType = SpinBonus.SPINTYPE_4POINT;
 
 	/** Allow EZ-spins in spinCheckType 2 */
 	public boolean tspinEnableEZ = false;

@@ -79,10 +79,6 @@ public class GameEngine {
 	private static final int TSPINMINI_TYPE_ROTATECHECK = 0;
 	private static final int TSPINMINI_TYPE_WALLKICKFLAG = 1;
 
-	/** Spin detection type */
-	private static final int SPINTYPE_4POINT = 0;
-	private static final int SPINTYPE_IMMOBILE = 1;
-
 	/** Constants of combo type */
 	public static final int COMBO_TYPE_DISABLE = 0;
 	public static final int COMBO_TYPE_NORMAL = 1;
@@ -825,7 +821,7 @@ public class GameEngine {
 		tspinEnableEZ = false;
 		tspinAllowKick = true;
 		tspinminiType = TSPINMINI_TYPE_ROTATECHECK;
-		spinCheckType = SPINTYPE_4POINT;
+		spinCheckType = SpinBonus.SPINTYPE_4POINT;
 		useAllSpinBonus = false;
 		b2bEnable = false;
 		comboType = COMBO_TYPE_DISABLE;
@@ -1328,7 +1324,7 @@ public class GameEngine {
 			return;
 		}
 
-		if (spinCheckType == SPINTYPE_4POINT) {
+		if (spinCheckType == SpinBonus.SPINTYPE_4POINT) {
 			if (tspinminiType == TSPINMINI_TYPE_ROTATECHECK) {
 				if (nowPieceObject.checkCollision(nowPieceX, nowPieceY, getRotateDirection(-1), field)
 						&& nowPieceObject.checkCollision(nowPieceX, nowPieceY, getRotateDirection(1), field)) {
@@ -1383,7 +1379,7 @@ public class GameEngine {
 			if (count >= 3) {
 				tspin = true;
 			}
-		} else if (spinCheckType == SPINTYPE_IMMOBILE) {
+		} else if (spinCheckType == SpinBonus.SPINTYPE_IMMOBILE) {
 			if (piece.checkCollision(x, y - 1, fld) && piece.checkCollision(x + 1, y, fld)
 					&& piece.checkCollision(x - 1, y, fld)) {
 				tspin = true;
@@ -1416,7 +1412,7 @@ public class GameEngine {
 			return;
 		}
 
-		if (spinCheckType == SPINTYPE_4POINT) {
+		if (spinCheckType == SpinBonus.SPINTYPE_4POINT) {
 
 			int offsetX = ruleopt.pieceOffsetX[piece.id][piece.direction];
 			int offsetY = ruleopt.pieceOffsetY[piece.id][piece.direction];
@@ -1454,7 +1450,7 @@ public class GameEngine {
 					tspinmini = true;
 				}
 			}
-		} else if (spinCheckType == SPINTYPE_IMMOBILE) {
+		} else if (spinCheckType == SpinBonus.SPINTYPE_IMMOBILE) {
 			// int y2 = y - 1;
 			// log.debug(x + "," + y2 + ":" + piece.checkCollision(x, y2, fld));
 

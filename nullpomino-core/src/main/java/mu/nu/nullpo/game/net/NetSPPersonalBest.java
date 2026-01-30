@@ -18,7 +18,7 @@ public class NetSPPersonalBest implements Serializable {
 	public String strPlayerName;
 
 	/** Records */
-	public List<NetSPRecord> listRecord;
+	public List<NetSPRecord> records;
 
 	/**
 	 * Constructor
@@ -59,7 +59,7 @@ public class NetSPPersonalBest implements Serializable {
 	 */
 	public void reset() {
 		strPlayerName = "";
-		listRecord = new LinkedList<>();
+		records = new LinkedList<>();
 	}
 
 	/**
@@ -69,9 +69,9 @@ public class NetSPPersonalBest implements Serializable {
 	 */
 	public void copy(NetSPPersonalBest s) {
 		strPlayerName = s.strPlayerName;
-		listRecord = new LinkedList<>();
-		for (int i = 0; i < s.listRecord.size(); i++) {
-			listRecord.add(new NetSPRecord(s.listRecord.get(i)));
+		records = new LinkedList<>();
+		for (int i = 0; i < s.records.size(); i++) {
+			records.add(new NetSPRecord(s.records.get(i)));
 		}
 	}
 
@@ -84,7 +84,7 @@ public class NetSPPersonalBest implements Serializable {
 	 * @return NetSPRecord (null if not found)
 	 */
 	public NetSPRecord getRecord(String rule, String mode, int gtype) {
-		for (NetSPRecord r : listRecord) {
+		for (NetSPRecord r : records) {
 			if (r.strRuleName.equals(rule) && r.strModeName.equals(mode) && r.gameType == gtype) {
 				return r;
 			}
@@ -127,7 +127,7 @@ public class NetSPPersonalBest implements Serializable {
 			}
 		} else {
 			// Register a new record
-			listRecord.add(r1);
+			records.add(r1);
 		}
 
 		return true;
@@ -140,10 +140,10 @@ public class NetSPPersonalBest implements Serializable {
 	 */
 	public void writeProperty(CustomProperties prop) {
 		String strKey = "sppersonal." + strPlayerName + ".";
-		prop.setProperty(strKey + "numRecords", listRecord.size());
+		prop.setProperty(strKey + "numRecords", records.size());
 
-		for (int i = 0; i < listRecord.size(); i++) {
-			NetSPRecord netRecord = listRecord.get(i);
+		for (int i = 0; i < records.size(); i++) {
+			NetSPRecord netRecord = records.get(i);
 			String strRecordCompressed = NetUtil.compressString(netRecord.exportString());
 			prop.setProperty(strKey + i, strRecordCompressed);
 		}
@@ -158,13 +158,13 @@ public class NetSPPersonalBest implements Serializable {
 		String strKey = "sppersonal." + strPlayerName + ".";
 		int numRecords = prop.getProperty(strKey + "numRecords", 0);
 
-		listRecord.clear();
+		records.clear();
 		for (int i = 0; i < numRecords; i++) {
 			String strRecordCompressed = prop.getProperty(strKey + i);
 			if (strRecordCompressed != null) {
 				String strRecord = NetUtil.decompressString(strRecordCompressed);
 				NetSPRecord netRecord = new NetSPRecord(strRecord);
-				listRecord.add(netRecord);
+				records.add(netRecord);
 			}
 		}
 	}
@@ -176,11 +176,11 @@ public class NetSPPersonalBest implements Serializable {
 	 */
 	public String exportListRecord() {
 		String strResult = "";
-		for (int i = 0; i < listRecord.size(); i++) {
+		for (int i = 0; i < records.size(); i++) {
 			if (i > 0) {
 				strResult += ";";
 			}
-			strResult += NetUtil.compressString(listRecord.get(i).exportString());
+			strResult += NetUtil.compressString(records.get(i).exportString());
 		}
 		return strResult;
 	}
@@ -191,13 +191,13 @@ public class NetSPPersonalBest implements Serializable {
 	 * @param s String (Split by ;)
 	 */
 	public void importListRecord(String s) {
-		listRecord.clear();
+		records.clear();
 
 		String[] array = s.split(";");
 		for (String element : array) {
 			String strTemp = NetUtil.decompressString(element);
 			NetSPRecord netRecord = new NetSPRecord(strTemp);
-			listRecord.add(netRecord);
+			records.add(netRecord);
 		}
 	}
 

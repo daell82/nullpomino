@@ -144,7 +144,7 @@ public class UpdateChecker implements Runnable {
 		if (!isCompleted() || latestVersion == null) {
 			return false;
 		}
-		return latestVersion.isNewer(Version.getVersion());
+		return latestVersion.compareTo(Version.getCurrent()) > 0;
 	}
 
 	/**

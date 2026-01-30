@@ -1,12 +1,13 @@
 package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import mu.nu.nullpo.game.component.Statistics;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
@@ -50,8 +51,8 @@ public class NetSPRecord implements Serializable {
 	/** Game Type ID */
 	public int gameType;
 
-	/** Game Style ID */
-	public int style;
+	/** Game Style */
+	public GameStyle style;
 
 	/**
 	 * Compare 2 records
@@ -198,7 +199,7 @@ public class NetSPRecord implements Serializable {
 		strReplayProp = "";
 		strTimeStamp = "";
 		gameType = 0;
-		style = 0;
+		style = GameStyle.TETROMINO;
 	}
 
 	/**
@@ -246,7 +247,7 @@ public class NetSPRecord implements Serializable {
 			return;
 		}
 		String[] array = s.split(",");
-		Stream.of(array).forEach(customStats::add);
+		Arrays.stream(array).forEach(customStats::add);
 	}
 
 	/**
@@ -285,7 +286,7 @@ public class NetSPRecord implements Serializable {
 		s[4] = customStats == null || customStats.size() <= 0 ? "" : NetUtil.compressString(exportCustomStats());
 		s[5] = strReplayProp;
 		s[6] = Integer.toString(gameType);
-		s[7] = Integer.toString(style);
+		s[7] = Integer.toString(style.ordinal());
 		s[8] = strTimeStamp;
 		return s;
 	}
@@ -330,7 +331,7 @@ public class NetSPRecord implements Serializable {
 		}
 		strReplayProp = s[5];
 		gameType = Integer.parseInt(s[6]);
-		style = Integer.parseInt(s[7]);
+		style = GameStyle.values()[Integer.parseInt(s[7])];
 		strTimeStamp = s.length > 8 ? s[8] : "";
 	}
 

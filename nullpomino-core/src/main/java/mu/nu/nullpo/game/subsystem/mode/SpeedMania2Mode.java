@@ -514,9 +514,8 @@ public class SpeedMania2Mode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
 				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"BIG", GeneralUtil.getONorOFF(big), "LV500LIMIT",
-				torikan == 0 ? "NONE" : GeneralUtil.getTime(torikan), "GRADE DISP",
-				GeneralUtil.getONorOFF(gradedisp));
+				"BIG", GeneralUtil.getONorOFF(big), "LV500LIMIT", torikan == 0 ? "NONE" : GeneralUtil.getTime(torikan),
+				"GRADE DISP", GeneralUtil.getONorOFF(gradedisp));
 	}
 
 	/*
@@ -571,8 +570,7 @@ public class SpeedMania2Mode extends AbstractMode {
 					// Rankings
 					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 					int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
-					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE,
-							scale);
+					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE, scale);
 
 					for (int i = 0; i < RANKING_MAX; i++) {
 						int gcolor = Colors.FONT_WHITE;
@@ -668,14 +666,13 @@ public class SpeedMania2Mode extends AbstractMode {
 					time = 0;
 				}
 				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time),
-						time > 0 && time < 10 * 60);
+				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
 			}
 
 			// REGRETDisplay
 			if (regretdispframe > 0) {
-				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", regretdispframe % 4 == 0,
-						Colors.FONT_WHITE, Colors.FONT_ORANGE);
+				int color = regretdispframe % 4 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", color);
 			}
 
 			// medal
@@ -1134,8 +1131,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3",
-				Colors.FONT_RED);
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
 
 		if (engine.statc[1] == 0) {
 			int gcolor = Colors.FONT_WHITE;

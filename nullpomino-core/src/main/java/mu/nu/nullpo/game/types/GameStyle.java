@@ -54,6 +54,9 @@ public enum GameStyle {
 
 	final String name;
 
+	/**
+	 * @return the number of {@link GameStyle styles}
+	 */
 	public static int numStyles() {
 		return values().length;
 	}

@@ -414,8 +414,8 @@ public class TechnicianMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[goaltype],
-					"LEVEL", String.valueOf(startlevel + 1), "SPIN BONUS", strTSpinEnable, "EZ SPIN",
+			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[goaltype], "LEVEL",
+					String.valueOf(startlevel + 1), "SPIN BONUS", strTSpinEnable, "EZ SPIN",
 					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
 					"EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ), "B2B", GeneralUtil.getONorOFF(enableB2B),
 					"COMBO", GeneralUtil.getONorOFF(enableCombo), "BIG", GeneralUtil.getONorOFF(big));
@@ -498,8 +498,7 @@ public class TechnicianMode extends NetDummyMode {
 			if (owner.replayMode == false && big == false && startlevel == 0 && engine.ai == null) {
 				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = receiver.getNextDisplayType() == 2 ? 6 : 4;
-				receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE   LINE TIME", Colors.FONT_BLUE,
-						scale);
+				receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE   LINE TIME", Colors.FONT_BLUE, scale);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
 					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
@@ -581,8 +580,7 @@ public class TechnicianMode extends NetDummyMode {
 
 			// +30sec
 			if (goaltype == GAMETYPE_SPECIAL && lasttimebonus > 0 && scgettime < 120 && engine.ending == 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 17, "+" + lasttimebonus / 60 + "SEC.",
-						Colors.FONT_YELLOW);
+				receiver.drawScoreFont(engine, playerID, 0, 17, "+" + lasttimebonus / 60 + "SEC.", Colors.FONT_YELLOW);
 			}
 
 			// Ending time
@@ -599,8 +597,8 @@ public class TechnicianMode extends NetDummyMode {
 
 			if (regretdispframe > 0) {
 				// REGRET
-				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", regretdispframe % 4 == 0,
-						Colors.FONT_WHITE, Colors.FONT_ORANGE);
+				int color = regretdispframe % 4 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", color);
 			} else if (lastevent != EVENT_NONE && scgettime < 120) {
 				// Most recent event
 				String strPieceName = Piece.getPieceName(lastpiece);
@@ -630,55 +628,44 @@ public class TechnicianMode extends NetDummyMode {
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_EZ:
 					if (lastb2b) {
 						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
-								Colors.FONT_ORANGE);
+						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
 					break;
 				}
@@ -1215,8 +1202,7 @@ public class TechnicianMode extends NetDummyMode {
 				return i;
 			} else if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i]
-					&& time < rankingTime[type][i]) {
+			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i] && time < rankingTime[type][i]) {
 				return i;
 			}
 		}

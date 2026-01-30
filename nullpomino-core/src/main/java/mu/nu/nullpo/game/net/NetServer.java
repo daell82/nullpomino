@@ -60,13 +60,13 @@ import java.util.Random;
 import java.util.TimeZone;
 import java.util.zip.Adler32;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.cacas.java.gnu.tools.Crypt;
 
-import mu.nu.nullpo.game.Version;
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.clarenceho.crypto.RC4;
@@ -77,9 +77,8 @@ import net.clarenceho.crypto.RC4;
  * <a href="http://rox-xmlrpc.sourceforge.net/niotut/">James Greenfield's The
  * Rox Java NIO Tutorial</a>
  */
+@Log4j
 public class NetServer {
-	/** Log */
-	static Logger log = Logger.getLogger(NetServer.class);
 
 	/** Default port number */
 	public static final int DEFAULT_PORT = 9200;
@@ -118,100 +117,100 @@ public class NetServer {
 	private static CustomProperties propServer;
 
 	/** Properties of player data list (mainly for rating) */
-	private static CustomProperties propPlayerData;
+	private CustomProperties propPlayerData;
 
 	/** Properties of multiplayer leaderboard */
-	private static CustomProperties propMPRanking;
+	private CustomProperties propMPRanking;
 
 	/** Properties of single player all-time leaderboard */
-	private static CustomProperties propSPRankingAlltime;
+	private CustomProperties propSPRankingAlltime;
 
 	/** Properties of single player daily leaderboard */
-	private static CustomProperties propSPRankingDaily;
+	private CustomProperties propSPRankingDaily;
 
 	/** Properties of single player personal best */
 //	private static CustomProperties propSPPersonalBest;
 
 	/** True to allow hostname display (If false, it will display IP only) */
-	private static boolean allowDNSAccess;
+	private boolean allowDNSAccess;
 
 	/** Timeout time (0=Disable) */
-	private static long timeoutTime;
+	private long timeoutTime;
 
 	/** Client's ping interval */
-	private static long clientPingInterval;
+	private long clientPingInterval;
 
 	/** Default rating */
-	private static int ratingDefault;
+	private int ratingDefault;
 
 	/** The maximum possible adjustment per game. (K-value) */
-	private static double ratingNormalMaxDiff;
+	private double ratingNormalMaxDiff;
 
 	/**
 	 * After playing this number of games, the rating logic will take account of
 	 * number of games played.
 	 */
-	private static int ratingProvisionalGames;
+	private int ratingProvisionalGames;
 
 	/** Min/Max range of rating */
-	private static int ratingMin, ratingMax;
+	private int ratingMin, ratingMax;
 
 	/** Allow same IP player for rating change */
-	private static boolean ratingAllowSameIP;
+	private boolean ratingAllowSameIP;
 
 	/** Max entry of multiplayer leaderboard */
-	private static int maxMPRanking;
+	private int maxMPRanking;
 
 	/** Max entry of singleplayer leaderboard */
-	private static int maxSPRanking;
+	private int maxSPRanking;
 
 	/** TimeZone of daily single player leaderboard */
-	private static String spDailyTimeZone;
+	private String spDailyTimeZone;
 
 	/** Minimum game rate of single player leaderboard */
-	private static float spMinGameRate;
+	private float spMinGameRate;
 
 	/** Max entry of lobby chat history */
-	private static int maxLobbyChatHistory;
+	private int maxLobbyChatHistory;
 
 	/** Max entry of room chat history */
-	private static int maxRoomChatHistory;
+	private int maxRoomChatHistory;
 
 	/** Rated room info presets (compressed NetRoomInfo Strings) */
-	private static LinkedList<String> ratedInfoList;
+	private List<String> ratedInfoList;
 
 	/** Rule list for rated game. */
-	private static LinkedList<RuleOptions>[] ruleList;
+	private EnumMap<GameStyle, List<RuleOptions>> ruleList;
 
 	/** Setting ID list for rated game. */
-	private static LinkedList<Integer>[] ruleSettingIDList;
+	private EnumMap<GameStyle, List<Integer>> ruleSettingIDList;
 
 	/** Multiplayer leaderboard list. */
-	private static LinkedList<NetPlayerInfo>[] mpRankingList;
+	private EnumMap<GameStyle, List<NetPlayerInfo>> mpRankings;
 
 	/** Multiplayer mode list */
-	private static EnumMap<GameStyle, List<String>> mpModeList;
+	private EnumMap<GameStyle, List<String>> mpModeList;
 
 	/** Multiplayer race mode flag */
-	private static LinkedList<Boolean>[] mpModeIsRace;
+	private EnumMap<GameStyle, List<Boolean>> mpModeIsRace;
 
 	/** Single player mode list. */
-	private static EnumMap<GameStyle, List<String>> spModeList;
+	private EnumMap<GameStyle, List<String>> spModeList;
 
 	/** Single player all-time leaderboard list */
-	private static List<NetSPRanking> spRankingListAlltime;
+	private List<NetSPRanking> spRankingListAlltime;
 
 	/** Single player daily leaderboard list */
-	private static List<NetSPRanking> spRankingListDaily;
+	private List<NetSPRanking> spRankingListDaily;
 
 	/** Last-update time of single player daily leaderboard */
-	private static Calendar spDailyLastUpdate;
+	private Calendar spDailyLastUpdate;
 
 	/** Ban list */
-	private static List<NetServerBan> banList;
+	private List<NetServerBan> banList;
 
 	/** Lobby chat message history */
-	private static List<NetChatMessage> lobbyChats = new LinkedList<>();
+	private List<NetChatMessage> lobbyChats = new LinkedList<>();
 
 	/** List of SocketChannel */
 	private List<SocketChannel> channels = new LinkedList<>();
@@ -264,10 +263,13 @@ public class NetServer {
 	/** Maps a SocketChannel to a list of ByteBuffer instances */
 	private HashMap<SocketChannel, List<ByteBuffer>> pendingData = new HashMap<>();
 
+	/** current version of the server */
+	private Version version = Version.getCurrent();
+
 	/**
 	 * Load rated-game room presets from the server config
 	 */
-	private static void loadPresetList() {
+	private void loadPresetList() {
 		CustomProperties propPresets = new CustomProperties();
 		try (var in = new FileInputStream("config/etc/netserver_presets.cfg")) {
 			propPresets.load(in);
@@ -291,14 +293,14 @@ public class NetServer {
 	/**
 	 * Load rated-game rule list
 	 */
-	private static void loadRuleList() {
+	private void loadRuleList() {
 		log.info("Loading Rule List...");
 
-		ruleList = new LinkedList[GameStyle.numStyles()];
-		ruleSettingIDList = new LinkedList[GameStyle.numStyles()];
-		for (int i = 0; i < GameStyle.numStyles(); i++) {
-			ruleList[i] = new LinkedList<>();
-			ruleSettingIDList[i] = new LinkedList<>();
+		ruleList = new EnumMap<>(GameStyle.class);
+		ruleSettingIDList = new EnumMap<>(GameStyle.class);
+		for (GameStyle style : GameStyle.values()) {
+			ruleList.put(style, new LinkedList<>());
+			ruleSettingIDList.put(style, new LinkedList<>());
 		}
 
 		try (var txtRuleList = new BufferedReader(new FileReader("config/etc/netserver_rulelist.lst"))) {
@@ -338,8 +340,8 @@ public class NetServer {
 						RuleOptions rule = new RuleOptions();
 						rule.readProperty(prop, 0);
 
-						ruleList[style.getMode()].add(rule);
-						ruleSettingIDList[style.getMode()].add(settingID);
+						ruleList.get(style).add(rule);
+						ruleSettingIDList.get(style).add(settingID);
 					} catch (Exception e2) {
 						log.warn("Failed to load rule file", e2);
 					}
@@ -353,13 +355,13 @@ public class NetServer {
 	/**
 	 * Load multiplayer leaderboard
 	 */
-	private static void loadMPRankingList() {
+	private void loadMPRankingList() {
 		// Load mode list
 		mpModeList = new EnumMap<>(GameStyle.class);
-		mpModeIsRace = new LinkedList[GameStyle.numStyles()];
+		mpModeIsRace = new EnumMap<>(GameStyle.class);
 		for (GameStyle style : GameStyle.values()) {
-			mpModeList.put(style,  new LinkedList<>());
-			mpModeIsRace[style.getMode()] = new LinkedList<>();
+			mpModeList.put(style, new LinkedList<>());
+			mpModeIsRace.put(style, new LinkedList<>());
 		}
 
 		try {
@@ -389,7 +391,7 @@ public class NetServer {
 					}
 
 					mpModeList.get(style).add(strModeName);
-					mpModeIsRace[style.getMode()].add(isRace);
+					mpModeIsRace.get(style).add(isRace);
 				}
 			}
 
@@ -400,40 +402,23 @@ public class NetServer {
 
 		// Load leaderboard
 		log.info("Loading Multiplayer Ranking...");
-		mpRankingList = new LinkedList[GameStyle.numStyles()];
-		for (int i = 0; i < mpRankingList.length; i++) {
-			mpRankingList[i] = new LinkedList<>();
-		}
-
-		for (int style = 0; style < mpRankingList.length; style++) {
+		mpRankings = new EnumMap<>(GameStyle.class);
+		for (GameStyle style : GameStyle.values()) {
+			mpRankings.put(style, new LinkedList<>());
 			int count = propMPRanking.getProperty(style + ".mpranking.count", 0);
 			if (count > maxMPRanking) {
 				count = maxMPRanking;
 			}
-
+			int idx = style.ordinal();
 			for (int i = 0; i < count; i++) {
 				NetPlayerInfo p = new NetPlayerInfo();
 				p.strName = propMPRanking.getProperty(style + ".mpranking.strName." + i, "");
-				p.rating[style] = propMPRanking.getProperty(style + ".mpranking.rating." + i, ratingDefault);
-				p.playCount[style] = propMPRanking.getProperty(style + ".mpranking.playCount." + i, 0);
-				p.winCount[style] = propMPRanking.getProperty(style + ".mpranking.winCount." + i, 0);
-				mpRankingList[style].add(p);
+				p.rating[idx] = propMPRanking.getProperty(style + ".mpranking.rating." + i, ratingDefault);
+				p.playCount[idx] = propMPRanking.getProperty(style + ".mpranking.playCount." + i, 0);
+				p.winCount[idx] = propMPRanking.getProperty(style + ".mpranking.winCount." + i, 0);
+				mpRankings.get(style).add(p);
 			}
 		}
-	}
-
-	/**
-	 * Find a player in multiplayer leaderboard.
-	 *
-	 * @param style Game Style
-	 * @param p     NetPlayerInfo (can be null, returns -1 if so)
-	 * @return Index in mpRankingList[style] (-1 if not found)
-	 */
-	private static int mpRankingIndexOf(int style, NetPlayerInfo p) {
-		if (p == null) {
-			return -1;
-		}
-		return mpRankingIndexOf(style, p.strName);
 	}
 
 	/**
@@ -443,14 +428,15 @@ public class NetServer {
 	 * @param name  Player name in String (can be null, returns -1 if so)
 	 * @return Index in mpRankingList[style] (-1 if not found)
 	 */
-	private static int mpRankingIndexOf(int style, String name) {
-		if (name == null) {
+	private int getMPRanking(GameStyle style, NetPlayerInfo player) {
+		if (player == null) {
 			return -1;
 		}
-		for (int i = 0; i < mpRankingList[style].size(); i++) {
-			NetPlayerInfo p2 = mpRankingList[style].get(i);
-			if (name.equals(p2.strName)) {
-				return i;
+		int rank = -1;
+		for (NetPlayerInfo pInfo : mpRankings.get(style)) {
+			rank++;
+			if (player.strName.equals(pInfo.strName)) {
+				return rank;
 			}
 		}
 		return -1;
@@ -459,58 +445,61 @@ public class NetServer {
 	/**
 	 * Update multiplayer leaderboard.
 	 *
-	 * @param style Game Style
-	 * @param p     NetPlayerInfo
+	 * @param style  Game Style
+	 * @param player NetPlayerInfo
 	 * @return New place (-1 if not ranked)
 	 */
-	private static int mpRankingUpdate(int style, NetPlayerInfo p) {
+	private int mpRankingUpdate(GameStyle style, NetPlayerInfo player) {
 		// Remove existing record
-		int prevRecord = mpRankingIndexOf(style, p);
+		int prevRecord = getMPRanking(style, player);
 		if (prevRecord != -1) {
-			mpRankingList[style].remove(prevRecord);
+			mpRankings.get(style).remove(prevRecord);
 		}
-
+		int styleIdx = style.ordinal();
+		List<NetPlayerInfo> gameStyleRanking = mpRankings.get(style);
 		// Insert new record
-		int place = -1;
-		boolean rankin = false;
-		for (int i = 0; i < mpRankingList[style].size(); i++) {
-			NetPlayerInfo p2 = mpRankingList[style].get(i);
-			if (p.rating[style] > p2.rating[style]) {
-				mpRankingList[style].add(i, p);
-				place = i;
-				rankin = true;
+		int rank = -1;
+		for (int i = 0; i < gameStyleRanking.size(); i++) {
+			NetPlayerInfo p2 = gameStyleRanking.get(i);
+			if (player.rating[styleIdx] > p2.rating[styleIdx]) {
+				gameStyleRanking.add(i, player);
+				rank = i;
 				break;
 			}
 		}
 
 		// Couldn't rank in? Add to last.
-		if (!rankin) {
-			mpRankingList[style].addLast(p);
-			place = mpRankingList[style].size() - 1;
+		if (rank == -1) {
+			if (gameStyleRanking.size() < maxMPRanking) {
+				gameStyleRanking.addLast(player);
+				rank = gameStyleRanking.size() - 1;
+			}
+			return rank;
 		}
 
 		// Remove anything after maxMPRanking
-		while (mpRankingList[style].size() >= maxMPRanking) {
-			mpRankingList[style].removeLast();
+		while (gameStyleRanking.size() >= maxMPRanking) {
+			gameStyleRanking.removeLast();
 		}
 
 		// Done
-		return place >= maxMPRanking ? -1 : place;
+		return rank;
 	}
 
 	/**
 	 * Write player data properties (propPlayerData) to a file
 	 */
-	private static void writeMPRankingToFile() {
+	private void writeMPRankingToFile() {
 		for (int style = 0; style < GameStyle.numStyles(); style++) {
-			int count = mpRankingList[style].size();
+			List<NetPlayerInfo> ranking = mpRankings.get(GameStyle.values()[style]);
+			int count = ranking.size();
 			if (count > maxMPRanking) {
 				count = maxMPRanking;
 			}
 			propMPRanking.setProperty(style + ".mpranking.count", count);
 
 			for (int i = 0; i < count; i++) {
-				NetPlayerInfo p = mpRankingList[style].get(i);
+				NetPlayerInfo p = ranking.get(i);
 				propMPRanking.setProperty(style + ".mpranking.strName." + i, p.strName);
 				propMPRanking.setProperty(style + ".mpranking.rating." + i, p.rating[style]);
 				propMPRanking.setProperty(style + ".mpranking.playCount." + i, p.playCount[style]);
@@ -530,7 +519,7 @@ public class NetServer {
 	/**
 	 * Load single player leaderboard
 	 */
-	private static void loadSPRankingList() {
+	private void loadSPRankingList() {
 		log.info("Loading Single Player Ranking...");
 
 		spRankingListAlltime = new LinkedList<>();
@@ -570,7 +559,7 @@ public class NetServer {
 				} else {
 					// Game mode name
 					String[] strSplit = str.split(",");
-					String strModeName = strSplit[0];
+					String modeName = strSplit[0];
 					int rankingType = 0;
 					int maxGameType = 0;
 					if (strSplit.length > 1) {
@@ -580,15 +569,15 @@ public class NetServer {
 						maxGameType = Integer.parseInt(strSplit[2]);
 					}
 
-					log.debug("{Mode} Name:" + strModeName + " RankingType:" + rankingType + " MaxGameType:"
-							+ maxGameType);
+					log.debug(
+							"{Mode} Name:" + modeName + " RankingType:" + rankingType + " MaxGameType:" + maxGameType);
 
-					spModeList.get(style).add(strModeName);
+					spModeList.get(style).add(modeName);
 
-					for (int i = 0; i < ruleList[style.getMode()].size() + 1; i++) {
+					for (int i = 0; i < ruleList.get(style).size() + 1; i++) {
 						String ruleName;
-						if (i < ruleList[style.getMode()].size()) {
-							RuleOptions ruleOpt = ruleList[style.getMode()].get(i);
+						if (i < ruleList.get(style).size()) {
+							RuleOptions ruleOpt = ruleList.get(style).get(i);
 							ruleName = ruleOpt.strRuleName;
 						} else {
 							ruleName = "any";
@@ -597,7 +586,7 @@ public class NetServer {
 						for (int j = 0; j < maxGameType + 1; j++) {
 							for (int k = 0; k < 2; k++) {
 								NetSPRanking rankingData = new NetSPRanking();
-								rankingData.modeName = strModeName;
+								rankingData.modeName = modeName;
 								rankingData.ruleName = ruleName;
 								rankingData.gameType = j;
 								rankingData.rankingType = rankingType;
@@ -633,7 +622,7 @@ public class NetServer {
 	 * @param gtype Game Type
 	 * @return NetSPRanking (null if not found)
 	 */
-	private static NetSPRanking getSPRanking(String rule, String mode, int gtype) {
+	private NetSPRanking getSPRanking(String rule, String mode, int gtype) {
 		return getSPRanking(rule, mode, gtype, false);
 	}
 
@@ -647,7 +636,7 @@ public class NetServer {
 	 *                get all-time ranking
 	 * @return NetSPRanking (null if not found)
 	 */
-	private static NetSPRanking getSPRanking(String rule, String mode, int gtype, boolean isDaily) {
+	private NetSPRanking getSPRanking(String rule, String mode, int gtype, boolean isDaily) {
 		if (rule.equals("all")) {
 			return getSPRankingAllRules(mode, gtype, isDaily);
 		}
@@ -669,7 +658,7 @@ public class NetServer {
 	 *                get all-time ranking
 	 * @return NetSPRanking (null if not found or there are none)
 	 */
-	private static NetSPRanking getSPRankingAllRules(String mode, int gtype, boolean isDaily) {
+	private NetSPRanking getSPRankingAllRules(String mode, int gtype, boolean isDaily) {
 		List<NetSPRanking> list = isDaily ? spRankingListDaily : spRankingListAlltime;
 		List<NetSPRanking> allRanks = new LinkedList<>();
 		for (NetSPRanking r : list) {
@@ -688,7 +677,7 @@ public class NetServer {
 	 *
 	 * @return <code>true</code> if the records are wiped
 	 */
-	private static boolean updateSPDailyRanking() {
+	private boolean updateSPDailyRanking() {
 		TimeZone z = spDailyTimeZone.length() > 0 ? TimeZone.getTimeZone(spDailyTimeZone) : TimeZone.getDefault();
 		Calendar c = Calendar.getInstance(z);
 		Calendar oldLastUpdate = spDailyLastUpdate;
@@ -716,7 +705,7 @@ public class NetServer {
 	/**
 	 * Write single player ranking to a file
 	 */
-	private static void writeSPRankingToFile() {
+	private void writeSPRankingToFile() {
 		// All-time
 		for (NetSPRanking r : spRankingListAlltime) {
 			r.writeProperty(propSPRankingAlltime);
@@ -747,7 +736,7 @@ public class NetServer {
 	 *
 	 * @param pInfo NetPlayerInfo
 	 */
-	private static void getPlayerDataFromProperty(NetPlayerInfo pInfo) {
+	private void getPlayerDataFromProperty(NetPlayerInfo pInfo) {
 		if (pInfo.isTripUse) {
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				pInfo.rating[i] = propPlayerData.getProperty("p.rating." + i + "." + pInfo.strName, ratingDefault);
@@ -771,7 +760,7 @@ public class NetServer {
 	 *
 	 * @param pInfo NetPlayerInfo
 	 */
-	private static void setPlayerDataToProperty(NetPlayerInfo pInfo) {
+	private void setPlayerDataToProperty(NetPlayerInfo pInfo) {
 		if (pInfo.isTripUse) {
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				propPlayerData.setProperty("p.rating." + i + "." + pInfo.strName, pInfo.rating[i]);
@@ -786,7 +775,7 @@ public class NetServer {
 	/**
 	 * Write player data properties (propPlayerData) to a file
 	 */
-	private static void writePlayerDataToFile() {
+	private void writePlayerDataToFile() {
 		try {
 			FileOutputStream out = new FileOutputStream("config/setting/netserver_playerdata.cfg");
 			propPlayerData.store(out, "NullpoMino NetServer PlayerData");
@@ -799,7 +788,7 @@ public class NetServer {
 	/**
 	 * Load ban list from a file
 	 */
-	private static void loadBanList() {
+	private void loadBanList() {
 		banList = new LinkedList<>();
 		try {
 			List<String> lines = Files.readAllLines(new File("config/setting/netserver_banlist.cfg").toPath());
@@ -823,7 +812,7 @@ public class NetServer {
 	/**
 	 * Write ban list to a file
 	 */
-	private static void saveBanList() {
+	private void saveBanList() {
 		try (var out = new PrintWriter(new FileWriter("config/setting/netserver_banlist.cfg"))) {
 			for (NetServerBan ban : banList) {
 				out.println(ban.exportString());
@@ -838,7 +827,7 @@ public class NetServer {
 	/**
 	 * Load lobby chat history file
 	 */
-	private static void loadLobbyChatHistory() {
+	private void loadLobbyChatHistory() {
 		if (lobbyChats == null) {
 			lobbyChats = new LinkedList<>();
 		} else {
@@ -868,7 +857,7 @@ public class NetServer {
 	/**
 	 * Save lobby chat history file
 	 */
-	private static void saveLobbyChatHistory() {
+	private void saveLobbyChatHistory() {
 		try (var out = new PrintWriter(new FileWriter("config/setting/netserver_lobbychat.cfg"))) {
 			while (lobbyChats.size() > maxLobbyChatHistory) {
 				lobbyChats.removeFirst();
@@ -889,7 +878,7 @@ public class NetServer {
 	 * @param client SocketChannel
 	 * @return IP address
 	 */
-	private static String getHostAddress(SocketChannel client) {
+	private String getHostAddress(SocketChannel client) {
 		try {
 			return client.socket().getInetAddress().getHostAddress();
 		} catch (Exception e) {
@@ -903,7 +892,7 @@ public class NetServer {
 	 * @param client SocketChannel
 	 * @return Hostname
 	 */
-	private static String getHostName(SocketChannel client) {
+	private String getHostName(SocketChannel client) {
 		if (!allowDNSAccess) {
 			return getHostAddress(client);
 		}
@@ -920,7 +909,7 @@ public class NetServer {
 	 * @param client SocketChannel
 	 * @return Hostname and IP address
 	 */
-	private static String getHostFull(SocketChannel client) {
+	private String getHostFull(SocketChannel client) {
 		if (!allowDNSAccess) {
 			return getHostAddress(client);
 		}
@@ -1243,9 +1232,9 @@ public class NetServer {
 			// Send welcome message
 			log.debug("Accept:" + getHostName(socketChannel));
 			send(socketChannel,
-					"welcome\t" + Version.getMajorVersion() + "\t" + playerInfos.size() + "\t" + observers.size() + "\t"
-							+ Version.getMinorVersion() + "\t" + Version.getVersionString() + "\t" + clientPingInterval
-							+ "\t" + Version.isDevBuild() + "\n");
+					"welcome\t" + version.majorMinor() + "\t" + playerInfos.size() + "\t" + observers.size() + "\t"
+							+ version.micro() + "\t" + version.toString() + "\t" + clientPingInterval + "\t"
+							+ version.isDevBuild() + "\n");
 		}
 	}
 
@@ -1734,8 +1723,7 @@ public class NetServer {
 		if (message[0].equals("getinfo")) {
 			int loggedInUsersCount = playerInfos.size();
 			int observerCount = observers.size();
-			send(client,
-					"getinfo\t" + Version.getMajorVersion() + "\t" + loggedInUsersCount + "\t" + observerCount + "\n");
+			send(client, "getinfo\t" + version.majorMinor() + "\t" + loggedInUsersCount + "\t" + observerCount + "\n");
 			return;
 		}
 		// Disconnect request.
@@ -1773,9 +1761,9 @@ public class NetServer {
 			}
 
 			// Version check
-			float serverVer = Version.getMajorVersion();
-			float clientVer = Float.parseFloat(message[1]);
-			if (serverVer != clientVer) {
+			String serverVer = version.majorMinor();
+			String clientVer = message[1];
+			if (!serverVer.equals(clientVer)) {
 				send(client, "observerloginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
 				// logout(client);
 				synchronized (pendingChanges) {
@@ -1785,7 +1773,7 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = Version.isDevBuild();
+			boolean serverBuildType = version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[3]);
 			if (serverBuildType != clientBuildType) {
 				send(client, "observerloginfail\tDIFFERENT_BUILD\t" + serverBuildType + "\n");
@@ -1824,9 +1812,9 @@ public class NetServer {
 			}
 
 			// Version check
-			float serverVer = Version.getMajorVersion();
-			float clientVer = Float.parseFloat(message[1]);
-			if (serverVer != clientVer) {
+			String serverVer = version.majorMinor();
+			String clientVer = message[1];
+			if (!serverVer.equals(clientVer)) {
 				send(client, "loginfail\tDIFFERENT_VERSION\t" + serverVer + "\n");
 				// logout(client);
 				synchronized (pendingChanges) {
@@ -1836,10 +1824,10 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = Version.isDevBuild();
+			boolean serverBuildType = version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[6]);
 			if (serverBuildType != clientBuildType) {
-				send(client, "observerloginfail\tDIFFERENT_BUILD\t" + Version.getBuildType() + "\n");
+				send(client, "loginfail\tDIFFERENT_BUILD\t" + version.getBuildType() + "\n");
 				synchronized (pendingChanges) {
 					pendingChanges.add(new ChangeRequest(client, ChangeRequest.DISCONNECT, 0));
 				}
@@ -2147,29 +2135,31 @@ public class NetServer {
 		if (message[0].equals("mpranking")) {
 			// mpranking\t[STYLE]
 
-			int style = Integer.parseInt(message[1]);
-			int myRank = mpRankingIndexOf(style, pInfo);
+			int styleIdx = Integer.parseInt(message[1]);
+			GameStyle style = GameStyle.values()[styleIdx];
 
-			String strPData = "";
+			int myRank = getMPRanking(style, pInfo);
+
+			String pData = "";
 			int prevRating = -1;
 			int nowRank = 0;
-			for (int i = 0; i < mpRankingList[style].size(); i++) {
-				NetPlayerInfo p = mpRankingList[style].get(i);
-				if (i == 0 || p.rating[style] < prevRating) {
-					prevRating = p.rating[style];
+			for (int i = 0; i < mpRankings.get(style).size(); i++) {
+				NetPlayerInfo p = mpRankings.get(style).get(i);
+				if (i == 0 || p.rating[styleIdx] < prevRating) {
+					prevRating = p.rating[styleIdx];
 					nowRank = i;
 				}
-				strPData += nowRank + ";" + NetUtil.urlEncode(p.strName) + ";" + p.rating[style] + ";"
-						+ p.playCount[style] + ";" + p.winCount[style] + "\t";
+				pData += nowRank + ";" + NetUtil.urlEncode(p.strName) + ";" + p.rating[styleIdx] + ";"
+						+ p.playCount[styleIdx] + ";" + p.winCount[styleIdx] + "\t";
 			}
 			if (myRank == -1 && pInfo != null) {
 				NetPlayerInfo p = pInfo;
-				strPData += -1 + ";" + NetUtil.urlEncode(p.strName) + ";" + p.rating[style] + ";" + p.playCount[style]
-						+ ";" + p.winCount[style] + "\t";
+				pData += -1 + ";" + NetUtil.urlEncode(p.strName) + ";" + p.rating[styleIdx] + ";"
+						+ p.playCount[styleIdx] + ";" + p.winCount[styleIdx] + "\t";
 			}
-			String strPDataC = NetUtil.compressString(strPData);
+			String strPDataC = NetUtil.compressString(pData);
 
-			String strMsg = "mpranking\t" + style + "\t" + myRank + "\t" + strPDataC + "\n";
+			String strMsg = "mpranking\t" + styleIdx + "\t" + myRank + "\t" + strPDataC + "\n";
 			send(client, strMsg);
 		}
 		// Single player room
@@ -2640,9 +2630,8 @@ public class NetServer {
 		if (message[0].equals("racewin")) {
 			if (pInfo != null && pInfo.roomID != -1 && pInfo.seatID != -1) {
 				NetRoomInfo roomInfo = getRoomInfo(pInfo.roomID);
-				GameStyle style = GameStyle.values()[roomInfo.style];
-				int modeIndex = mpModeList.get(style).indexOf(roomInfo.strMode);
-				boolean isRace = modeIndex == -1 ? false : mpModeIsRace[roomInfo.style].get(modeIndex);
+				int modeIndex = mpModeList.get(roomInfo.style).indexOf(roomInfo.strMode);
+				boolean isRace = modeIndex == -1 ? false : mpModeIsRace.get(roomInfo.style).get(modeIndex);
 
 				if (roomInfo.playing && isRace) {
 					for (int i = message.length - 1; i > 1; i--) {
@@ -2930,9 +2919,9 @@ public class NetServer {
 			String strRemoteAddr = getHostFull(client);
 
 			// Check version
-			float serverVer = Version.getMajorVersion();
-			float clientVer = Float.parseFloat(message[1]);
-			if (serverVer != clientVer) {
+			String serverVer = version.majorMinor();
+			String clientVer = message[1];
+			if (!serverVer.equals(clientVer)) {
 				String strLogMsg = strRemoteAddr + " has tried to access admin, but client version is different ("
 						+ clientVer + ")";
 				log.warn(strLogMsg);
@@ -2940,7 +2929,7 @@ public class NetServer {
 			}
 
 			// Build type check
-			boolean serverBuildType = Version.isDevBuild();
+			boolean serverBuildType = version.isDevBuild();
 			boolean clientBuildType = Boolean.parseBoolean(message[4]);
 			if (serverBuildType != clientBuildType) {
 				String strLogMsg = strRemoteAddr
@@ -3076,22 +3065,22 @@ public class NetServer {
 		if (message[0].equals("playerdelete")) {
 			// playerdelete\t<Name>
 
-			String strName = message[1];
-			NetPlayerInfo pInfo = searchPlayerByName(strName);
+			String name = message[1];
+			NetPlayerInfo pInfo = searchPlayerByName(name);
 
 			boolean playerDataChange = false;
 			boolean mpRankingDataChange = false;
 			boolean spRankingDataChange = false;
 
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
-				if (propPlayerData.getProperty("p.rating." + i + "." + strName) != null) {
-					propPlayerData.setProperty("p.rating." + i + "." + strName, ratingDefault);
-					propPlayerData.setProperty("p.playCount." + i + "." + strName, 0);
-					propPlayerData.setProperty("p.winCount." + i + "." + strName, 0);
+				if (propPlayerData.getProperty("p.rating." + i + "." + name) != null) {
+					propPlayerData.setProperty("p.rating." + i + "." + name, ratingDefault);
+					propPlayerData.setProperty("p.playCount." + i + "." + name, 0);
+					propPlayerData.setProperty("p.winCount." + i + "." + name, 0);
 					playerDataChange = true;
 				}
-				if (propPlayerData.getProperty("sppersonal." + strName + ".numRecords") != null) {
-					propPlayerData.setProperty("sppersonal." + strName + ".numRecords", 0);
+				if (propPlayerData.getProperty("sppersonal." + name + ".numRecords") != null) {
+					propPlayerData.setProperty("sppersonal." + name + ".numRecords", 0);
 					playerDataChange = true;
 				}
 
@@ -3099,24 +3088,25 @@ public class NetServer {
 					pInfo.rating[i] = ratingDefault;
 					pInfo.playCount[i] = 0;
 					pInfo.winCount[i] = 0;
-					pInfo.spPersonalBest.listRecord.clear();
+					pInfo.spPersonalBest.records.clear();
 				}
+				GameStyle style = GameStyle.values()[i];
 
-				int mpIndex = mpRankingIndexOf(i, strName);
-				if (mpIndex != -1) {
-					mpRankingList[i].remove(mpIndex);
+				int playerRank = getMPRanking(style, pInfo);
+				if (playerRank != -1) {
+					mpRankings.get(style).remove(playerRank);
 					mpRankingDataChange = true;
 				}
 
 				for (NetSPRanking ranking : spRankingListAlltime) {
-					NetSPRecord record = ranking.getRecord(strName);
+					NetSPRecord record = ranking.getRecord(name);
 					if (record != null) {
 						ranking.records.remove(record);
 						spRankingDataChange = true;
 					}
 				}
 				for (NetSPRanking ranking : spRankingListDaily) {
-					NetSPRecord record = ranking.getRecord(strName);
+					NetSPRecord record = ranking.getRecord(name);
 					if (record != null) {
 						ranking.records.remove(record);
 						spRankingDataChange = true;
@@ -3124,7 +3114,7 @@ public class NetServer {
 				}
 			}
 
-			sendAdminResult(client, "playerdelete\t" + strName);
+			sendAdminResult(client, "playerdelete\t" + name);
 
 			if (playerDataChange) {
 				writePlayerDataToFile();
@@ -3401,19 +3391,17 @@ public class NetServer {
 		broadcast(msg, roomInfo.roomID);
 
 		for (NetPlayerInfo p : roomInfo.playerSeat) {
-			if (p != null) {
-				p.ready = false;
-				p.playing = true;
-				p.playCountNow++;
+			p.ready = false;
+			p.playing = true;
+			p.playCountNow++;
 
-				// If ranked room
-				if (roomInfo.rated && !roomInfo.isTeamGame() && (!roomInfo.hasSameIPPlayers() || ratingAllowSameIP)) {
-					p.playCount[roomInfo.style]++;
-					p.ratingBefore[roomInfo.style] = p.rating[roomInfo.style];
-				}
-
-				broadcastPlayerInfoUpdate(p);
+			// If ranked room
+			if (roomInfo.rated && !roomInfo.isTeamGame() && (!roomInfo.hasSameIPPlayers() || ratingAllowSameIP)) {
+				int index = roomInfo.style.ordinal();
+				p.playCount[index]++;
+				p.ratingBefore[index] = p.rating[index];
 			}
+			broadcastPlayerInfoUpdate(p);
 		}
 
 		roomInfo.playing = true;
@@ -3470,21 +3458,22 @@ public class NetServer {
 
 				// Rated game
 				if (roomInfo.rated && !roomInfo.isTeamGame() && (!roomInfo.hasSameIPPlayers() || ratingAllowSameIP)) {
+					int style = roomInfo.style.ordinal();
 					// Update win count
-					winner.winCount[roomInfo.style]++;
+					winner.winCount[style]++;
 
 					// Update rating
-					int style = roomInfo.style;
-					int n = roomInfo.playerSeatDead.size();
-					for (int w = 0; w < n - 1; w++) {
-						for (int l = w + 1; l < n; l++) {
+
+					int numPlayers = roomInfo.playerSeatDead.size();
+					for (int w = 0; w < numPlayers - 1; w++) {
+						for (int l = w + 1; l < numPlayers; l++) {
 							NetPlayerInfo wp = roomInfo.playerSeatDead.get(w);
 							NetPlayerInfo lp = roomInfo.playerSeatDead.get(l);
 
 							wp.rating[style] += (int) (rankDelta(wp.playCount[style], wp.rating[style],
-									lp.rating[style], 1) / (n - 1));
+									lp.rating[style], 1) / (numPlayers - 1));
 							lp.rating[style] += (int) (rankDelta(lp.playCount[style], lp.rating[style],
-									wp.rating[style], 0) / (n - 1));
+									wp.rating[style], 0) / (numPlayers - 1));
 
 							if (wp.rating[style] < ratingMin) {
 								wp.rating[style] = ratingMin;
@@ -3502,7 +3491,7 @@ public class NetServer {
 					}
 
 					// Notify/Save
-					for (int i = 0; i < n; i++) {
+					for (int i = 0; i < numPlayers; i++) {
 						NetPlayerInfo p = roomInfo.playerSeatDead.get(i);
 						int change = p.rating[style] - p.ratingBefore[style];
 						log.debug("#" + (i + 1) + " Name:" + p.strName + " Rating:" + p.rating[style] + " (" + change
@@ -3516,10 +3505,9 @@ public class NetServer {
 					writePlayerDataToFile();
 
 					// Leaderboard update
-					for (int i = 0; i < n; i++) {
-						NetPlayerInfo p = roomInfo.playerSeatDead.get(i);
-						if (p.isTripUse) {
-							mpRankingUpdate(style, p);
+					for (NetPlayerInfo player : roomInfo.playerSeatDead) {
+						if (player.isTripUse) {
+							mpRankingUpdate(roomInfo.style, player);
 						}
 					}
 					writeMPRankingToFile();
@@ -3805,16 +3793,11 @@ public class NetServer {
 	 * @throws IOException When something bad occurs
 	 */
 	private void sendRatedRuleList(SocketChannel client) throws IOException {
-		for (int style = 0; style < GameStyle.numStyles(); style++) {
-			String msg = "rulelist\t" + style;
-
-			for (RuleOptions tempObj : ruleList[style]) {
-				if (tempObj instanceof RuleOptions) {
-					RuleOptions rule = tempObj;
-					msg += "\t" + NetUtil.urlEncode(rule.strRuleName);
-				}
+		for (GameStyle style : GameStyle.values()) {
+			String msg = "rulelist\t" + style.ordinal();
+			for (RuleOptions rule : ruleList.get(style)) {
+				msg += "\t" + NetUtil.urlEncode(rule.strRuleName);
 			}
-
 			msg += "\n";
 			send(client, msg);
 		}
@@ -3829,9 +3812,10 @@ public class NetServer {
 	 * @return Rated-game rule (null if not found)
 	 */
 	private RuleOptions getRatedRule(int style, String name) {
-		for (RuleOptions element : ruleList[style]) {
-			RuleOptions rule = element;
-
+		if (style < 0 || style >= GameStyle.numStyles()) {
+			return null;
+		}
+		for (RuleOptions rule : ruleList.get(GameStyle.values()[style])) {
 			if (name.equals(rule.strRuleName)) {
 				return rule;
 			}
@@ -3901,16 +3885,14 @@ public class NetServer {
 		}
 
 		String status = propServer.getProperty("netserver.statusformat", "$observers/$players");
-		status = status.replace("\\$version", Float.toString(Version.getMajorVersion()));
+		status = status.replace("\\$version", version.majorMinor());
 		status = status.replace("\\$observers", Integer.toString(observers.size()));
 		status = status.replace("\\$players", Integer.toString(playerInfos.size()));
 		status = status.replace("\\$clients", Integer.toString(observers.size() + playerInfos.size()));
 		status = status.replace("\\$rooms", Integer.toString(roomInfos.size()));
-		try {
-			FileWriter outFile = new FileWriter(propServer.getProperty("netserver.statusfilename", "status.txt"));
-			PrintWriter out = new PrintWriter(outFile);
-			out.println(status);
-			out.close();
+		String file = propServer.getProperty("netserver.statusfilename", "status.txt");
+		try (var outFile = new FileWriter(file)) {
+			outFile.write(status);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

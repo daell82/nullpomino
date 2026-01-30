@@ -48,6 +48,10 @@ import lombok.experimental.UtilityClass;
  */
 @UtilityClass
 public class NetUtil {
+
+	/** encoding for the creation of trip-codes */
+	private static final String SHIFT_JIS = "Shift_JIS";
+
 	/**
 	 * Convert byte[] to String (with UTF-8 encoding)
 	 *
@@ -97,7 +101,7 @@ public class NetUtil {
 	public static byte[] stringToShiftJIS(String s) {
 		byte[] b = null;
 		try {
-			b = s.getBytes("Shift_JIS");
+			b = s.getBytes(SHIFT_JIS);
 		} catch (UnsupportedEncodingException e) {
 			b = s.getBytes();
 		}
@@ -113,7 +117,7 @@ public class NetUtil {
 	public static String shiftJIStoString(byte[] b) {
 		String s = null;
 		try {
-			s = new String(b, "Shift_JIS");
+			s = new String(b, SHIFT_JIS);
 		} catch (UnsupportedEncodingException e) {
 			s = new String(b);
 		}

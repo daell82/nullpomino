@@ -343,7 +343,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
 							// Leftrotation
 							if (!engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
-								int rot = pieceNow.getRotateDirection(-1, rt);
+								int rot = Piece.getRotateDirection(-1, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);
@@ -379,7 +379,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
 							// Rightrotation
 							if (engine.isRotateButtonDefaultRight() || engine.ruleopt.rotateButtonAllowReverse) {
-								int rot = pieceNow.getRotateDirection(1, rt);
+								int rot = Piece.getRotateDirection(1, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);
@@ -415,7 +415,7 @@ public class BasicAI extends DummyAI implements Runnable {
 
 							// 180-degree rotation
 							if (engine.ruleopt.rotateButtonAllowDouble) {
-								int rot = pieceNow.getRotateDirection(2, rt);
+								int rot = Piece.getRotateDirection(2, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);

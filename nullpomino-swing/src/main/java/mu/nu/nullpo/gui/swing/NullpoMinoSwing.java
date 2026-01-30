@@ -422,7 +422,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			}
 		});
 
-		setTitle(getUIText("Title_Main") + " version " + Version.getVersion());
+		setTitle(getUIText("Title_Main") + " version " + Version.getCurrent());
 		loadRecommendedRuleList();
 
 		initUI();

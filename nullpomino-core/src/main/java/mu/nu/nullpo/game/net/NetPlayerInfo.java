@@ -30,6 +30,8 @@ package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.types.GameStyle;
@@ -122,19 +124,10 @@ public class NetPlayerInfo implements Serializable {
 	/**
 	 * Copy constructor
 	 *
-	 * @param n Copy source
+	 * @param netPlayerInfo Copy source
 	 */
-	public NetPlayerInfo(NetPlayerInfo n) {
-		copy(n);
-	}
-
-	/**
-	 * String array constructor (Uses importStringArray)
-	 *
-	 * @param pdata String array (String[12])
-	 */
-	public NetPlayerInfo(String[] pdata) {
-		importStringArray(pdata);
+	public NetPlayerInfo(NetPlayerInfo netPlayerInfo) {
+		copy(netPlayerInfo);
 	}
 
 	/**
@@ -151,7 +144,7 @@ public class NetPlayerInfo implements Serializable {
 	 *
 	 * @param n Copy source
 	 */
-	public void copy(NetPlayerInfo n) {
+	private void copy(NetPlayerInfo n) {
 		strName = n.strName;
 		strCountry = n.strCountry;
 		strHost = n.strHost;
@@ -192,7 +185,7 @@ public class NetPlayerInfo implements Serializable {
 	 *
 	 * @param pdata String array (String[27])
 	 */
-	public void importStringArray(String[] pdata) {
+	private void importStringArray(String[] pdata) {
 		strName = NetUtil.urlDecode(pdata[0]);
 		strCountry = NetUtil.urlDecode(pdata[1]);
 		strHost = NetUtil.urlDecode(pdata[2]);
@@ -233,7 +226,7 @@ public class NetPlayerInfo implements Serializable {
 	 *
 	 * @param str String
 	 */
-	public void importString(String str) {
+	private void importString(String str) {
 		importStringArray(str.split(";"));
 	}
 
@@ -242,7 +235,7 @@ public class NetPlayerInfo implements Serializable {
 	 *
 	 * @return String array (String[27])
 	 */
-	public String[] exportStringArray() {
+	private String[] exportStringArray() {
 		String[] pdata = new String[27];
 		pdata[0] = NetUtil.urlEncode(strName);
 		pdata[1] = NetUtil.urlEncode(strCountry);
@@ -281,16 +274,7 @@ public class NetPlayerInfo implements Serializable {
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
-		String strResult = "";
-
-		for (int i = 0; i < data.length; i++) {
-			strResult += data[i];
-			if (i < data.length - 1) {
-				strResult += ";";
-			}
-		}
-
-		return strResult;
+		return Arrays.stream(data).collect(Collectors.joining(";"));
 	}
 
 	/**

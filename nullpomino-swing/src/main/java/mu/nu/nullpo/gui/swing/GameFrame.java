@@ -163,9 +163,6 @@ public class GameFrame extends JFrame implements Runnable {
 	/** Previous ingame flag (Used by title-bar text change) */
 	protected boolean prevInGameFlag = false;
 
-	/** Current game mode name */
-	protected String modeName;
-
 	private final ResourceHolderSwing resourceManager = ResourceHolderSwing.getInstance();
 
 	/**

@@ -103,7 +103,7 @@ public class GradeMania3Mode extends AbstractMode {
 	private static final int[] tableGradeDecayRate = { 125, 80, 80, 50, 45, 45, 45, 40, 40, 40, 40, 40, 30, 30, 30, 20,
 			20, 20, 20, 20, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 10, 10 };
 
-	///** Of dancount */
+	/// ** Of dancount * /
 	// private static final int GRADE_MAX = 33;
 
 	/** Of danName */
@@ -1094,12 +1094,12 @@ public class GradeMania3Mode extends AbstractMode {
 
 			if (regretdispframe > 0) {
 				// REGRET表示
-				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", regretdispframe % 4 == 0, Colors.FONT_WHITE,
-						Colors.FONT_ORANGE);
+				int color = regretdispframe % 4 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+				receiver.drawMenuFont(engine, playerID, 2, 21, "REGRET", color);
 			} else if (cooldispframe > 0) {
 				// COOL表示
-				receiver.drawMenuFont(engine, playerID, 2, 21, "COOL!!", cooldispframe % 4 == 0, Colors.FONT_WHITE,
-						Colors.FONT_ORANGE);
+				int color = cooldispframe % 4 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+				receiver.drawMenuFont(engine, playerID, 2, 21, "COOL!!", color);
 			}
 
 			// medal
@@ -1197,8 +1197,8 @@ public class GradeMania3Mode extends AbstractMode {
 		if (promotionFlag && readyframe > 0) {
 			receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
 			receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
-			receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), readyframe % 4 == 0,
-					Colors.FONT_WHITE, Colors.FONT_ORANGE);
+			int color = readyframe % 4 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+			receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), color);
 		}
 	}
 
@@ -1771,19 +1771,20 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		if (passframe > 0) {
+			boolean pass = passframe % 4 == 0;
 			if (promotionFlag) {
 				receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
 				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
-				receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam), passframe % 4 == 0,
-						Colors.FONT_WHITE, Colors.FONT_ORANGE);
+				receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam),
+						pass ? Colors.FONT_WHITE : Colors.FONT_ORANGE);
 
 				if (passframe < 420) {
 					if (grade < promotionalExam) {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", passframe % 4 == 0, Colors.FONT_WHITE,
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL",
+								pass ? Colors.FONT_WHITE : Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 2, 11, "PASS!!", passframe % 4 == 0,
-								Colors.FONT_ORANGE, Colors.FONT_YELLOW);
+						receiver.drawMenuFont(engine, playerID, 2, 11, "PASS!!",
+								pass ? Colors.FONT_ORANGE : Colors.FONT_YELLOW);
 					}
 				}
 			} else if (demotionFlag) {
@@ -1792,11 +1793,11 @@ public class GradeMania3Mode extends AbstractMode {
 
 				if (passframe < 420) {
 					if (grade < demotionExamGrade) {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", passframe % 4 == 0, Colors.FONT_WHITE,
-								Colors.FONT_RED);
+						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL",
+								pass ? Colors.FONT_WHITE : Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "PASS", passframe % 4 == 0, Colors.FONT_WHITE,
-								Colors.FONT_YELLOW);
+						receiver.drawMenuFont(engine, playerID, 3, 11, "PASS",
+								pass ? Colors.FONT_WHITE : Colors.FONT_YELLOW);
 					}
 				}
 			}

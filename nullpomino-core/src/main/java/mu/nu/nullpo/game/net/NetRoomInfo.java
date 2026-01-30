@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import mu.nu.nullpo.game.component.RuleOptions;
+import mu.nu.nullpo.game.types.GameStyle;
 
 /**
  * Room Information
@@ -190,10 +191,10 @@ public class NetRoomInfo implements Serializable {
 	public boolean customRated = false;
 
 	/** Game style */
-	public int style = 0;
+	public GameStyle style = GameStyle.TETROMINO;
 
 	/** Map list */
-	public LinkedList<String> mapList = new LinkedList<>();
+	public List<String> mapList = new LinkedList<>();
 
 	/** List of people in the room */
 	public List<NetPlayerInfo> playerList = new LinkedList<>();
@@ -373,7 +374,7 @@ public class NetRoomInfo implements Serializable {
 		singleplayer = Boolean.parseBoolean(rdata[36]);
 		rated = Boolean.parseBoolean(rdata[37]);
 		customRated = Boolean.parseBoolean(rdata[38]);
-		style = Integer.parseInt(rdata[39]);
+		style = GameStyle.values()[Integer.parseInt(rdata[39])];
 		divideChangeRateByPlayers = Boolean.parseBoolean(rdata[40]);
 		if (rdata.length > 41) {
 			isTarget = Boolean.parseBoolean(rdata[41]);
@@ -439,7 +440,7 @@ public class NetRoomInfo implements Serializable {
 		rdata[36] = Boolean.toString(singleplayer);
 		rdata[37] = Boolean.toString(rated);
 		rdata[38] = Boolean.toString(customRated);
-		rdata[39] = Integer.toString(style);
+		rdata[39] = Integer.toString(style.ordinal());
 		rdata[40] = Boolean.toString(divideChangeRateByPlayers);
 		rdata[41] = Boolean.toString(isTarget);
 		rdata[42] = Integer.toString(targetTimer);
@@ -602,7 +603,7 @@ public class NetRoomInfo implements Serializable {
 	 * How manyPlayerOr is playingcountObtained(People have just come to the room
 	 * and still does not include dead man)
 	 *
-	 * @return In playNumber of players
+	 * @return Number of players in play
 	 */
 	public int getHowManyPlayersPlaying() {
 		int count = 0;
@@ -637,18 +638,18 @@ public class NetRoomInfo implements Serializable {
 	 * @return I survived the lastTeam name
 	 */
 	public String getWinnerTeam() {
-		if (startPlayers >= 2 && getHowManyPlayersPlaying() >= 2 && playing) {
-			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
-					if (pInfo.strTeam.isEmpty()) {
-						return null;
-					} else {
-						return pInfo.strTeam;
-					}
+		if (startPlayers < 2 || getHowManyPlayersPlaying() < 2 || !playing) {
+			return null;
+		}
+		for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
+			if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
+				if (pInfo.strTeam.isEmpty()) {
+					return null;
+				} else {
+					return pInfo.strTeam;
 				}
 			}
 		}
-
 		return null;
 	}
 

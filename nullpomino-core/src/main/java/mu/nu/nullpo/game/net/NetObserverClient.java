@@ -32,7 +32,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
-import mu.nu.nullpo.game.Version;
+import mu.nu.nullpo.game.types.Version;
 
 /**
  * Client(ObserverUse)
@@ -59,7 +59,7 @@ public class NetObserverClient extends NetBaseClient {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param host Destination host
 	 */
 	public NetObserverClient(String host) {
@@ -68,7 +68,7 @@ public class NetObserverClient extends NetBaseClient {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param host Destination host
 	 * @param port Destination port number
 	 */
@@ -91,13 +91,13 @@ public class NetObserverClient extends NetBaseClient {
 			playerCount = Integer.parseInt(message[2]);
 			observerCount = Integer.parseInt(message[3]);
 
-			long pingInterval = (message.length > 6) ? Long.parseLong(message[6]) : PING_INTERVAL;
+			long pingInterval = message.length > 6 ? Long.parseLong(message[6]) : PING_INTERVAL;
 			if (pingInterval != PING_INTERVAL) {
 				startPingTask(pingInterval);
 			}
+			Version version = Version.getCurrent();
 
-			send("observerlogin\t" + Version.getMajorVersion() + "\t" + Version.getMinorVersion() + "\t"
-					+ Version.isDevBuild() + "\n");
+			send("observerlogin\t" + version.majorMinor() + "\t" + version + "\t" + version.isDevBuild() + "\n");
 		}
 		// PeoplecountUpdate
 		if (message[0].equals("observerupdate")) {

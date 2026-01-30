@@ -51,8 +51,8 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	public int[] tableSpeedValue = { 30, 45, 120, 480, -1 };
 
 	/** Block colors */
-	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_BLUE,
-			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
+	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
+			Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
 
 	/** Fever map files list */
 	public static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Poochy7" };
@@ -221,33 +221,20 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 		engine.lineGravityType = cascadeSlow ? GameEngine.LineGravity.CASCADE_SLOW : GameEngine.LineGravity.CASCADE;
 		engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 
-		switch (outlinetype) {
-		case 0:
-			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
-			break;
-		case 1:
-			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_SAMECOLOR;
-			break;
-		case 2:
-			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
-			break;
-		default:
-			break;
-		}
+		engine.blockOutlineType = switch (outlinetype) {
+		case 0 -> GameEngine.BLOCK_OUTLINE_NORMAL;
+		case 1 -> GameEngine.BLOCK_OUTLINE_SAMECOLOR;
+		case 2 -> GameEngine.BLOCK_OUTLINE_NONE;
+		default -> engine.blockOutlineType;
+		};
 
-		switch (numColors) {
-		case 3:
-			level = 1;
-			break;
-		case 4:
-			level = 5;
-			break;
-		case 5:
-			level = 10;
-			break;
-		default:
-			break;
-		}
+		level = switch (numColors) {
+		case 3 -> 1;
+		case 4 -> 5;
+		case 5 -> 10;
+		default -> level;
+		};
+
 		toNextLevel = blocksPerLevel;
 
 		zenKeshiCount = 0;
@@ -445,8 +432,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 		receiver.drawMenuFont(engine, playerID, 0, 5, "ZENKESHI", Colors.FONT_BLUE);
 		receiver.drawMenuFont(engine, playerID, 0, 6, String.format("%10d", zenKeshiCount));
 		String strZenKeshiBonus = "+" + zenKeshiBonus;
-		receiver.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus,
-				Colors.FONT_GREEN);
+		receiver.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus, Colors.FONT_GREEN);
 
 		receiver.drawMenuFont(engine, playerID, 0, 8, "MAX CHAIN", Colors.FONT_BLUE);
 		receiver.drawMenuFont(engine, playerID, 0, 9, String.format("%10d", engine.statistics.maxChain));

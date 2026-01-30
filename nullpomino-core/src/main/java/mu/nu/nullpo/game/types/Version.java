@@ -31,20 +31,23 @@ package mu.nu.nullpo.game.types;
 import lombok.NonNull;
 
 /**
+ * Record for providing version information about the program
+ *
  * @author daell
  */
-public record Version(int major, int minor, int micro, boolean dev, String version) implements Comparable<Version> {
+public record Version(int major, int minor, int micro, boolean isDevBuild, String version)
+		implements Comparable<Version> {
 
-	private static final Version BUILD_VERSION = Version.of("8.0.0D");
+	private static final Version CURRENT_VERSION = Version.of("8.0.0D");
 
-	public static Version getVersion() {
-		return BUILD_VERSION;
+	public static Version getCurrent() {
+		return CURRENT_VERSION;
 	}
 
 	/**
 	 * Parses the given String and extracts necessary version information.
 	 *
-	 * @param version of scheme 1[.2[.3]]
+	 * @param version of scheme 1[.2[.3]][dD]
 	 * @return a new version instance
 	 */
 	public static Version of(@NonNull String version) {
@@ -57,6 +60,60 @@ public record Version(int major, int minor, int micro, boolean dev, String versi
 		case 2 -> new Version(parseInt(parts[0]), parseInt(parts[1]), 0, dev, version);
 		default -> new Version(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]), dev, version);
 		};
+	}
+
+	/**
+	 * Creates a new {@link Version} based on the given parameter. A call to this
+	 * method builds up the version string and creates the new instance without
+	 * parsing
+	 *
+	 * @param major version part (must be greater of equal to 0)
+	 * @param minor version part (must be greater of equal to 0)
+	 * @param micro version part (must be greater of equal to 0)
+	 * @param dev   whether this is a development version (considered lower than
+	 *              release version)
+	 * @return a new version instance
+	 * @throws IllegalArgumentException if any part of the version is negative
+	 */
+	public static Version of(int major, int minor, int micro, boolean dev) throws IllegalArgumentException {
+		if (major < 0 || minor < 0 || micro < 0) {
+			throw new IllegalArgumentException("numeric places of a version must be positive");
+		}
+		String version = major + "." + minor + "." + micro;
+		if (dev) {
+			version += "D";
+		}
+		return new Version(major, minor, micro, dev, version);
+	}
+
+	/**
+	 * Creates a new {@link Version} based on the given parameter. A call to this
+	 * method builds up the version string and creates the new instance without
+	 * parsing. All parameters must not be negative.
+	 *
+	 * @param major version part
+	 * @param minor version part
+	 * @param micro version part
+	 * @return a new version instance
+	 * @throws IllegalArgumentException if any part of the version is negative
+	 */
+	public static Version of(int major, int minor, int micro) throws IllegalArgumentException {
+		return of(major, minor, micro, false);
+	}
+
+	/**
+	 * Creates a new {@link Version} based on the given parameter. A call to this
+	 * method builds up the version string and creates the new instance without
+	 * parsing. The micro-version is considered a 0. All parameters must not be
+	 * negative.
+	 *
+	 * @param major version part
+	 * @param minor version part
+	 * @return a new version instance
+	 * @throws IllegalArgumentException if any part of the version is negative
+	 */
+	public static Version of(int major, int minor) throws IllegalArgumentException {
+		return of(major, minor, 0);
 	}
 
 	/**
@@ -91,18 +148,78 @@ public record Version(int major, int minor, int micro, boolean dev, String versi
 		return result;
 	}
 
-	public boolean isNewer(Version version) {
-		if(version == null) {
+	/**
+	 * Check whether this version is older / lower than the combination of
+	 * major.minor.micro i.e. a version of 1.2.3 is considered to be lower than
+	 * 1.2.4 but not lower than 1.1.9
+	 *
+	 * @param major version (1st place)
+	 * @param minor version (2nd place)
+	 * @param micro version (3rd place)
+	 * @return whether this version is lower
+	 */
+	public boolean isLower(int major, int minor, int micro) {
+		if (major() > major) {
+			return false;
+		} else if (major() == major && minor() > minor) {
+			return false;
+		} else if (major() == major && minor() == minor && micro() > micro) {
 			return false;
 		}
-		return compareTo(version) > 0;
+		return true;
 	}
 
-	public boolean isOlder(Version version) {
-		if(version == null) {
+	/**
+	 * Check whether this version is newer / greater than the combination of
+	 * major.minor.micro i.e. a version of 1.2.3 is considered to be greater than
+	 * 1.2.1 but not greater than 1.2.9
+	 *
+	 * @param major version (1st place)
+	 * @param minor version (2nd place)
+	 * @param micro version (3rd place)
+	 * @return whether this version is greater
+	 */
+	public boolean isGreater(int major, int minor, int micro) {
+		if (major() < major) {
+			return false;
+		} else if (major() == major && minor() < minor) {
+			return false;
+		} else if (major() == major && minor() == minor && micro() < micro) {
 			return false;
 		}
-		return compareTo(version) < 0;
+		return true;
+	}
+
+	/**
+	 * Checks whether this version is compatible to a combination of major.minor.
+	 * The version is considered as compatible if the major and the minor parts are equal.
+	 *
+	 * @param major version part
+	 * @param minor version part
+	 * @return whether this version is compatible
+	 */
+	public boolean isCompatible(int major, int minor) {
+		return major() == major && minor() == minor;
+	}
+
+	/**
+	 * Get the major and minor part of this version as string
+	 *
+	 * @return major.minor
+	 * @see #major()
+	 * @see #minor()
+	 */
+	public String majorMinor() {
+		return major() + "." + minor();
+	}
+
+	/**
+	 * Get build type as string
+	 *
+	 * @return Build type as String
+	 */
+	public String getBuildType() {
+		return isDevBuild() ? "Development" : "Release";
 	}
 
 	/**
@@ -126,8 +243,8 @@ public record Version(int major, int minor, int micro, boolean dev, String versi
 		if (micro != minor) {
 			return micro - other.micro;
 		}
-		if (dev()) {
-			return other.dev() ? 0 : -1;
+		if (isDevBuild()) {
+			return other.isDevBuild() ? 0 : -1;
 		}
 		return 1;
 	}

@@ -1521,13 +1521,14 @@ public class GemManiaMode extends AbstractMode {
 
 		if (clearflag) {
 			// クリア
-			receiver.drawMenuFont(engine, playerID, 2, 4, "CLEAR!", engine.statc[0] % 2 == 0, Colors.FONT_WHITE,
-					Colors.FONT_ORANGE);
+			int color = engine.statc[0] % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+			receiver.drawMenuFont(engine, playerID, 2, 4, "CLEAR!", color);
 
 			receiver.drawMenuFont(engine, playerID, 0, 7, "LIMIT TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + engine.statc[1]),
-					engine.statc[0] % 2 == 0 && engine.statc[1] < timeextendStageClearSeconds * 60, Colors.FONT_WHITE,
-					Colors.FONT_ORANGE);
+
+			boolean check = engine.statc[0] % 2 == 0 && engine.statc[1] < timeextendStageClearSeconds * 60;
+			color = check ? Colors.FONT_WHITE :	Colors.FONT_ORANGE;
+			receiver.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + engine.statc[1]), color);
 
 			receiver.drawMenuFont(engine, playerID, 2, 10, "EXTEND", Colors.FONT_PINK);
 			receiver.drawMenuFont(engine, playerID, 2, 11, timeextendStageClearSeconds + " SEC.");
@@ -1543,8 +1544,10 @@ public class GemManiaMode extends AbstractMode {
 			receiver.drawMenuFont(engine, playerID, 1, 5, "-30 SEC.");
 
 			receiver.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - engine.statc[1]),
-					engine.statc[0] % 2 == 0 && engine.statc[1] < 30 * 60, Colors.FONT_WHITE, Colors.FONT_RED);
+
+			boolean check = engine.statc[0] % 2 == 0 && engine.statc[1] < 30 * 60;
+			int color = check ? Colors.FONT_WHITE : Colors.FONT_RED;
+			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - engine.statc[1]), color);
 
 			if (trainingType == 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);

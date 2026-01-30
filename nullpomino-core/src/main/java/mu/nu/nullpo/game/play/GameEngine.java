@@ -33,7 +33,6 @@ import java.util.Calendar;
 import java.util.Random;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
@@ -47,6 +46,7 @@ import mu.nu.nullpo.game.component.WallkickResult;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.game.types.DisplaySize;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 import mu.nu.nullpo.util.SpinBonus;
@@ -118,7 +118,7 @@ public class GameEngine {
 			3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 	/** Default list of block colors to use for random block colors. */
-	private  static final int[] BLOCK_COLORS_DEFAULT = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
+	private static final int[] BLOCK_COLORS_DEFAULT = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
 			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_BLUE,
 			Colors.BLOCK_COLOR_PURPLE };
 
@@ -223,21 +223,7 @@ public class GameEngine {
 	/** Time of game end in milliseconds */
 	public long endTime;
 
-	/** Major version */
-	@Deprecated(forRemoval = true)
-	public float versionMajor;
-
-	/** Minor version */
-	@Deprecated(forRemoval = true)
-	public int versionMinor;
-
-	/** OLD minor version (Used for 6.9 or earlier replays) */
-	@Deprecated(forRemoval = true)
-	public float versionMinorOld;
-
-	/** Dev build flag */
-	@Deprecated(forRemoval = true)
-	public boolean versionIsDevBuild;
+	private Version version;
 
 	/** Game quit flag */
 	public boolean quitflag;
@@ -713,20 +699,25 @@ public class GameEngine {
 		replayData = new ReplayData();
 
 		if (!owner.replayMode) {
-			versionMajor = Version.getMajorVersion();
-			versionMinor = Version.getMinorVersion();
-			versionMinorOld = Version.getMinorVersionOld();
-			versionIsDevBuild = Version.isDevBuild();
-
+			version = Version.getCurrent();
 			Random tempRand = new Random();
 			randSeed = tempRand.nextLong();
 			log.debug("Player + " + playerID + "Random seed :" + Long.toString(randSeed, 16));
 			random = new Random(randSeed);
 		} else {
-			versionMajor = owner.replayProp.getProperty("version.core.major", 0f);
-			versionMinor = owner.replayProp.getProperty("version.core.minor", 0);
-			versionMinorOld = owner.replayProp.getProperty("version.core.minor", 0f);
-			versionIsDevBuild = owner.replayProp.getProperty("version.core.dev", false);
+			String replayVersion;
+			if (owner.replayProp.containsKey("version")) {
+				replayVersion = owner.replayProp.getProperty("version");
+				log.debug("using new replay version mechanism with: " + replayVersion);
+			} else {
+				replayVersion = owner.replayProp.getProperty("version.core.major", "0");
+				replayVersion += "." + owner.replayProp.getProperty("version.core.minor", "0");
+				if (owner.replayProp.getProperty("version.core.dev", false)) {
+					replayVersion += "D";
+				}
+				log.debug("using old rpleay version mechanism with: " + replayVersion);
+			}
+			version = Version.of(replayVersion);
 
 			replayData.readProperty(owner.replayProp, playerID);
 
@@ -746,7 +737,7 @@ public class GameEngine {
 			owBlockShowOutlineOnly = owner.replayProp.getProperty(playerID + ".tuning.owBlockShowOutlineOnly", -1);
 
 			// Fixing old replays to accomodate for new DAS notation
-			if (versionMajor < 7.3) {
+			if (version.isLower(7, 3, 0)) {
 				if (owDasDelay >= 0) {
 					owDasDelay++;
 				} else {
@@ -971,9 +962,7 @@ public class GameEngine {
 	 * Status counterInitialization
 	 */
 	public void resetStatc() {
-		for (int i = 0; i < statc.length; i++) {
-			statc[i] = 0;
-		}
+		Arrays.fill(statc, 0);
 	}
 
 	/**
@@ -1719,12 +1708,7 @@ public class GameEngine {
 		if (owner.replayMode && !owner.replayRerecord) {
 			return;
 		}
-
-		owner.replayProp.setProperty("version.core", versionMajor + "." + versionMinor);
-		owner.replayProp.setProperty("version.core.major", versionMajor);
-		owner.replayProp.setProperty("version.core.minor", versionMinor);
-		owner.replayProp.setProperty("version.core.dev", versionIsDevBuild);
-
+		owner.replayProp.setProperty("version", version.toString());
 		owner.replayProp.setProperty(playerID + ".replay.randSeed", Long.toString(randSeed, 16));
 
 		replayData.writeProperty(owner.replayProp, playerID, replayTimer);
@@ -2317,7 +2301,7 @@ public class GameEngine {
 			}
 
 			// Preceding rotation
-			if (versionMajor < 7.5f) {
+			if (version.isLower(7, 5, 0)) {
 				initialRotate(); // XXX: Weird active time IRS
 				// if( (getARE() != 0) && ((getARELine() != 0) || (version < 6.3f)) )
 				// initialRotate();
@@ -2641,7 +2625,7 @@ public class GameEngine {
 				}
 			}
 
-			if (!dasRepeat || versionMajor < 7.6f) {
+			if (!dasRepeat || version.isLower(7, 6, 0)) {
 				// Hard drop
 				if (ctrl.isPress(getUp()) && !harddropContinuousUse && ruleopt.harddropEnable
 						&& (isDiagonalMoveEnabled() || !sidemoveflag) && (ruleopt.moveUpAndDown || !updown)
@@ -2898,10 +2882,10 @@ public class GameEngine {
 				dasInstant = false;
 
 				// Next 処理を決める(Mode 側でステータスを弄っている場合は何もしない)
-				if (stat == Status.MOVE || versionMajor <= 6.3f) {
+				if (stat == Status.MOVE || version.isLower(6, 4, 0)) {
 					resetStatc();
 
-					if (ending == 1 && versionMajor >= 6.6f && versionMinorOld >= 0.1f) {
+					if (ending == 1 && version.isGreater(6, 6, 0)) {
 						// Ending
 						stat = Status.ENDINGSTART;
 					} else if (!put && ruleopt.fieldLockoutDeath
@@ -3285,7 +3269,7 @@ public class GameEngine {
 
 				field.lineColorsCleared = null;
 
-				if (stat == Status.LINECLEAR || versionMajor <= 6.3f) {
+				if (stat == Status.LINECLEAR || version.isLower(6, 4, 0)) {
 					resetStatc();
 					if (ending == 1) {
 						// Ending
@@ -3304,7 +3288,7 @@ public class GameEngine {
 					} else {
 						// ARENo
 						nowPieceObject = null;
-						if (versionMajor < 7.5f) {
+						if (version.isLower(7, 5, 0)) {
 							initialRotate(); // XXX: Weird IRS thing on lines cleared but no ARE
 						}
 						stat = Status.MOVE;

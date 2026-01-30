@@ -29,7 +29,6 @@
 package mu.nu.nullpo.game.net;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -104,7 +103,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param host Destination host
 	 */
 	public NetBaseClient(String host) {
@@ -115,7 +114,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param host Destination host
 	 * @param port Destination port number
 	 */
@@ -174,8 +173,6 @@ public class NetBaseClient extends Thread {
 					notCompletePacketBuffer = null;
 				}
 			}
-		} catch (UnsupportedEncodingException e) {
-			throw new Error("UTF-8 Not Supported", e);
 		} catch (Exception e) {
 			log.info("Socket disconnected", e);
 			exDisconnectReason = e;
@@ -199,7 +196,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * The various processing depending on the received message
-	 * 
+	 *
 	 * @param fullMessage Received Messages
 	 * @throws IOException If there are any errors
 	 */
@@ -226,7 +223,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Send a message to the server
-	 * 
+	 *
 	 * @param bytes Message to be sent
 	 * @return true if successful
 	 */
@@ -242,7 +239,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Send a message to the server
-	 * 
+	 *
 	 * @param msg Message to be sent
 	 * @return true if successful
 	 */
@@ -286,7 +283,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * NewNetMessageListenerAdd
-	 * 
+	 *
 	 * @param l AddNetMessageListener
 	 */
 	public void addListener(NetMessageListener l) {
@@ -297,7 +294,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * SpecifiedNetMessageListenerDelete the
-	 * 
+	 *
 	 * @param l RemoveNetMessageListener
 	 * @return Actually been removedtrue, I has not been added originallyfalse
 	 */
@@ -314,7 +311,7 @@ public class NetBaseClient extends Thread {
 
 	/**
 	 * Start Ping timer task
-	 * 
+	 *
 	 * @param interval Interval
 	 */
 	public void startPingTask(long interval) {

@@ -562,15 +562,15 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	public boolean lineClearEnd(GameEngine engine, int playerID) {
 		super.lineClearEnd(engine, playerID);
 
-		if (engine.field != null) {
-			if (!engine.field.getBlockEmpty(2, 0) || dangerColumnDouble && !engine.field.getBlockEmpty(3, 0)) {
-				engine.stat = GameEngine.Status.GAMEOVER;
-				engine.gameEnded();
-				engine.resetStatc();
-				engine.statc[1] = 1;
-			}
+		if (engine.field == null) {
+			return false;
 		}
-
+		if (!engine.field.getBlockEmpty(2, 0) || dangerColumnDouble && !engine.field.getBlockEmpty(3, 0)) {
+			engine.stat = GameEngine.Status.GAMEOVER;
+			engine.gameEnded();
+			engine.resetStatc();
+			engine.statc[1] = 1;
+		}
 		return false;
 	}
 

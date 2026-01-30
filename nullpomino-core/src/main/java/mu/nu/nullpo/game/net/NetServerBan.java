@@ -64,27 +64,15 @@ public class NetServerBan {
 	public Calendar getEndDate() {
 		Calendar res = (Calendar) startDate.clone();
 		switch (banLength) {
-		case BANLENGTH_1HOUR:
-			res.add(Calendar.HOUR, 1);
-			break;
-		case BANLENGTH_6HOURS:
-			res.add(Calendar.HOUR, 6);
-			break;
-		case BANLENGTH_24HOURS:
-			res.add(Calendar.HOUR, 24);
-			break;
-		case BANLENGTH_1WEEK:
-			res.add(Calendar.WEEK_OF_MONTH, 1);
-			break;
-		case BANLENGTH_1MONTH:
-			res.add(Calendar.MONTH, 1);
-			break;
-		case BANLENGTH_1YEAR:
-			res.add(Calendar.YEAR, 1);
-			break;
-		default:
-			res = null;
+		case BANLENGTH_1HOUR -> res.add(Calendar.HOUR, 1);
+		case BANLENGTH_6HOURS -> res.add(Calendar.HOUR, 6);
+		case BANLENGTH_24HOURS -> res.add(Calendar.HOUR, 24);
+		case BANLENGTH_1WEEK -> res.add(Calendar.WEEK_OF_MONTH, 1);
+		case BANLENGTH_1MONTH -> res.add(Calendar.MONTH, 1);
+		case BANLENGTH_1YEAR -> res.add(Calendar.YEAR, 1);
+		default -> res = null;
 		}
+		;
 		return res;
 	}
 

@@ -65,6 +65,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.Adler32;
 
 import javax.imageio.ImageIO;
@@ -108,7 +109,6 @@ import javax.swing.text.StyleConstants;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetMessageListener;
@@ -118,6 +118,7 @@ import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
@@ -598,11 +599,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	/** OK button (MPRanking screen) */
 	protected JButton btnMPRankingOK;
 
-	/** Tab (Rule change screen) */
-	protected JTabbedPane tabRuleChange;
-
 	/** Rule list listbox (Rule change screen) */
-	protected JList<String>[] listboxRuleChangeRuleList;
+	protected Map<GameStyle, JList<String>> listboxRuleChangeRuleList;
 
 	/** OK button (Rule change screen) */
 	protected JButton btnRuleChangeOK;
@@ -611,7 +609,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	protected JButton btnRuleChangeCancel;
 
 	/** Rule entries (Rule change screen) */
-	protected LinkedList<RuleEntry> ruleEntries;
+	protected final List<RuleEntry> ruleEntries = new LinkedList<>();
 
 	/** Tuning: A button rotation Combobox */
 	protected JComboBox<String> comboboxTuningRotateButtonDefaultRight;
@@ -777,7 +775,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 		// * Server selection list box
 		listmodelServerList = new DefaultListModel<>();
-		if (Version.isDevBuild()) {
+		if (Version.getCurrent().isDevBuild()) {
 			if (!loadListToDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist_dev.cfg")) {
 				loadListToDefaultListModel(listmodelServerList, "config/list/netlobby_serverlist_default_dev.lst");
 				saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist_dev.cfg");
@@ -2132,15 +2130,16 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		getContentPane().add(mainpanelRuleChange, SCREENCARD_NAMES[SCREENCARD_RULECHANGE]);
 
 		// * Tab
-		tabRuleChange = new JTabbedPane();
+		JTabbedPane tabRuleChange = new JTabbedPane();
 		mainpanelRuleChange.add(tabRuleChange, BorderLayout.CENTER);
 
 		// ** Rule Listboxes
-		listboxRuleChangeRuleList = new JList[GameStyle.numStyles()];
+		listboxRuleChangeRuleList = new EnumMap<>(GameStyle.class);
 		for (GameStyle style : GameStyle.values()) {
 			int i = style.getMode();
-			listboxRuleChangeRuleList[i] = new JList<>(extractRuleListFromRuleEntries(i));
-			JScrollPane spRuleList = new JScrollPane(listboxRuleChangeRuleList[i]);
+			var list = new JList<>(extractRuleListFromRuleEntries(i));
+			listboxRuleChangeRuleList.put(style, list);
+			JScrollPane spRuleList = new JScrollPane(list);
 			tabRuleChange.addTab(style.getName(), spRuleList);
 		}
 
@@ -2359,29 +2358,27 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 *
 	 * @param str Filename
 	 * @return URL of the filename
+	 * @deprecated this method is platform-dependent and should not be used
 	 */
+	@Deprecated(forRemoval = true)
 	protected URL getURL(String str) {
-		URL url = null;
+		char sep = File.separator.charAt(0);
+		String file = str.replace(sep, '/');
 
-		try {
-			char sep = File.separator.charAt(0);
-			String file = str.replace(sep, '/');
-
-			if (file.charAt(0) != '/') {
-				String dir = System.getProperty("user.dir");
-				dir = dir.replace(sep, '/') + '/';
-				if (dir.charAt(0) != '/') {
-					dir = "/" + dir;
-				}
-				file = dir + file;
+		if (file.charAt(0) != '/') {
+			String dir = System.getProperty("user.dir");
+			dir = dir.replace(sep, '/') + '/';
+			if (dir.charAt(0) != '/') {
+				dir = "/" + dir;
 			}
-			url = new URL("file", "", file);
+			file = dir + file;
+		}
+		try {
+			return new File(file).toURI().toURL();
 		} catch (MalformedURLException e) {
 			log.warn("Invalid URL:" + str, e);
-			return null;
 		}
-
-		return url;
+		return null;
 	}
 
 	/**
@@ -3100,7 +3097,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					}
 
 					// Rating
-					name += " |" + pInfo.rating[roomInfo.style] + "|";
+					name += " |" + pInfo.rating[roomInfo.style.ordinal()] + "|";
 
 					// Country code
 					if (pInfo.strCountry.length() > 0) {
@@ -3643,7 +3640,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param filelist Rule file list
 	 */
 	public void createRuleEntries(String[] filelist) {
-		ruleEntries = new LinkedList<>();
+		ruleEntries.clear();
 
 		for (String element : filelist) {
 			RuleEntry entry = new RuleEntry();
@@ -3676,9 +3673,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public LinkedList<RuleEntry> getSubsetEntries(int currentStyle) {
 		LinkedList<RuleEntry> subEntries = new LinkedList<>();
-		for (int i = 0; i < ruleEntries.size(); i++) {
-			if (ruleEntries.get(i).style == currentStyle) {
-				subEntries.add(ruleEntries.get(i));
+		for (RuleEntry ruleEntry : ruleEntries) {
+			if (ruleEntry.style == currentStyle) {
+				subEntries.add(ruleEntry);
 			}
 		}
 		return subEntries;
@@ -3716,11 +3713,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile." + i, "");
 			}
 
-			LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
-
+			List<RuleEntry> subEntries = getSubsetEntries(i);
+			GameStyle style = GameStyle.values()[i];
 			for (int j = 0; j < subEntries.size(); j++) {
 				if (subEntries.get(j).filename.equals(strCurrentFileName[i])) {
-					listboxRuleChangeRuleList[i].setSelectedIndex(j);
+					listboxRuleChangeRuleList.get(style).setSelectedIndex(j);
 				}
 			}
 		}
@@ -4153,7 +4150,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			String strPrevTetrominoRuleFilename = propGlobal.getProperty(0 + ".rule", "");
 
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
-				int id = listboxRuleChangeRuleList[i].getSelectedIndex();
+				GameStyle style = GameStyle.values()[i];
+				int id = listboxRuleChangeRuleList.get(style).getSelectedIndex();
 				LinkedList<RuleEntry> subEntries = getSubsetEntries(i);
 				RuleEntry entry = null;
 				if (id >= 0) {
@@ -4293,13 +4291,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			setLobbyButtonsEnabled(0);
 
 			if (message.length > 1 && message[1].equals("DIFFERENT_VERSION")) {
-				String strClientVer = String.valueOf(Version.getMajorVersion());
+				String strClientVer = Version.getCurrent().majorMinor();
 				String strServerVer = message[2];
 				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), strClientVer,
 						strServerVer);
 				addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
 			} else if (message.length > 1 && message[1].equals("DIFFERENT_BUILD")) {
-				String strClientBuildType = Version.getBuildType();
+				String strClientBuildType = Version.getCurrent().getBuildType();
 				String strServerBuildType = message[2];
 				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentBuild"), strClientBuildType,
 						strServerBuildType);
@@ -5396,11 +5394,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		}
 
 		@Override
-		public void show(Component c, int x, int y) {
-			JTable table = (JTable) c;
-			boolean flg = table.getSelectedRow() != -1;
-			copyAction.setEnabled(flg);
-			super.show(c, x, y);
+		public void show(Component component, int x, int y) {
+			JTable table = (JTable) component;
+			boolean isSelected = table.getSelectedRow() != -1;
+			copyAction.setEnabled(isSelected);
+			super.show(component, x, y);
 		}
 	}
 

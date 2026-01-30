@@ -57,7 +57,6 @@ import javax.swing.text.StyleConstants;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
-import mu.nu.nullpo.game.Version;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
@@ -65,6 +64,7 @@ import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.net.NetServerBan;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 import net.clarenceho.crypto.RC4;
@@ -145,7 +145,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	private static String strMyHostname;
 
 	/** Server's version */
-	private static String serverFullVer;
+	private static Version serverVersion;
 
 	// ***** Main GUI elements *****
 	/** Layout manager for main screen */
@@ -791,8 +791,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		}
 		// version
 		else if (commands[0].equalsIgnoreCase("version")) {
-			addConsoleLog("Client:" + Version.getVersionString());
-			addConsoleLog("Server:" + serverFullVer);
+			addConsoleLog("Client:" + Version.getCurrent());
+			addConsoleLog("Server:" + serverVersion);
 		}
 		// bangui
 		else if (commands[0].equalsIgnoreCase("bangui")) {
@@ -1088,25 +1088,22 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			labelLoginMessage.setText(getUIText("Login_Message_LoggingIn"));
 
 			// Version check
-			float clientMajorVer = Version.getMajorVersion();
-			float serverMajorVer = Float.parseFloat(message[1]);
+			Version clientVersion = Version.getCurrent();
+			serverVersion = Version.of(message[5]);
 
-			if (clientMajorVer != serverMajorVer) {
+			if (!clientVersion.isCompatible(serverVersion.major(), serverVersion.minor())) {
 				labelLoginMessage.setForeground(Color.red);
 				labelLoginMessage.setText(
-						String.format(getUIText("Login_Message_VersionError"), clientMajorVer, serverMajorVer));
+						String.format(getUIText("Login_Message_VersionError"), clientVersion, serverVersion));
 				isWantedDisconnect = true;
 				logout();
 				return;
 			}
 
 			// Build type check
-			boolean clientBuildType = Version.isDevBuild();
-			boolean serverBuildType = Boolean.parseBoolean(message[7]);
-
-			if (clientBuildType != serverBuildType) {
-				String strClientBuildType = Version.getBuildType(clientBuildType);
-				String strServerBuildType = Version.getBuildType(serverBuildType);
+			if (clientVersion.isDevBuild() != serverVersion.isDevBuild()) {
+				String strClientBuildType = clientVersion.getBuildType();
+				String strServerBuildType = serverVersion.getBuildType();
 				labelLoginMessage.setForeground(Color.red);
 				labelLoginMessage.setText(String.format(getUIText("Login_Message_BuildTypeError"), strClientBuildType,
 						strServerBuildType));
@@ -1114,8 +1111,6 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				logout();
 				return;
 			}
-
-			serverFullVer = message[5];
 
 			// Ping interval
 			long pingInterval = message.length > 6 ? Long.parseLong(message[6]) : NetBaseClient.PING_INTERVAL;
@@ -1130,8 +1125,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(strUsername));
 			String b64Password = Base64.getEncoder().encodeToString(ePassword);
 
-			String strLogin = "adminlogin\t" + clientMajorVer + "\t" + strUsername + "\t" + b64Password + "\t"
-					+ clientBuildType + "\n";
+			String strLogin = "adminlogin\t" + clientVersion.majorMinor() + "\t" + strUsername + "\t" + b64Password + "\t"
+					+ clientVersion.isDevBuild() + "\n";
 			log.debug("Send login message:" + strLogin);
 			client.send(strLogin);
 		}

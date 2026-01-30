@@ -1162,7 +1162,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (engine != null && engine.field != null) {
 			fldWidth = engine.field.getWidth();
 			if (engine.displaysize == DisplaySize.BIG) {
-				fldBlkSize = 32;
+				fldBlkSize = engine.displaysize.getBlockSize();
 			}
 		}
 
@@ -1318,11 +1318,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				}
 
 				// NEXT2·3
-				for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
-					if (i >= 2) {
-						break;
-					}
-
+				for (int i = 0; i < engine.ruleopt.nextDisplay - 1 && i < 2; i++) {
 					Piece piece = engine.getNextObject(engine.nextPieceCount + i + 1);
 
 					if (piece != null) {

@@ -1232,7 +1232,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				}
 
 				// NEXT2·3
-				for (int i = 0; i < engine.ruleopt.nextDisplay - 1 && i >= 2; i++) {
+				for (int i = 0; i < engine.ruleopt.nextDisplay - 1 && i < 2; i++) {
 					Piece piece = engine.getNextObject(engine.nextPieceCount + i + 1);
 
 					if (piece != null) {

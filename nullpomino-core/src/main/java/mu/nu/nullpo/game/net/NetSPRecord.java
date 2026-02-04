@@ -1,9 +1,8 @@
 package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import mu.nu.nullpo.game.component.Statistics;
@@ -40,7 +39,7 @@ public class NetSPRecord implements Serializable {
 	public Statistics stats;
 
 	/** List of custom stats (Each String is NAME;VALUE format) */
-	public final List<String> customStats = new LinkedList<>();
+	public final Map<String, String> customStats = new HashMap<>();
 
 	/** Replay data (Compressed) */
 	public String strReplayProp;
@@ -219,7 +218,7 @@ public class NetSPRecord implements Serializable {
 		}
 
 		customStats.clear();
-		customStats.addAll(s.customStats);
+		customStats.putAll(s.customStats);
 
 		strReplayProp = s.strReplayProp;
 		strTimeStamp = s.strTimeStamp;
@@ -233,7 +232,9 @@ public class NetSPRecord implements Serializable {
 	 * @return String (Split by ,)
 	 */
 	public String exportCustomStats() {
-		return customStats.stream().collect(Collectors.joining(","));
+		return customStats.entrySet().stream()
+				.map(e -> e.getKey() + ";" + e.getValue())
+				.collect(Collectors.joining(","));
 	}
 
 	/**
@@ -247,7 +248,13 @@ public class NetSPRecord implements Serializable {
 			return;
 		}
 		String[] array = s.split(",");
-		Arrays.stream(array).forEach(customStats::add);
+		for(String entry : array) {
+			String[] data = entry.split(";");
+			if(data.length != 2) {
+				continue;
+			}
+			customStats.put(data[0], data[1]);
+		}
 	}
 
 	/**
@@ -362,16 +369,7 @@ public class NetSPRecord implements Serializable {
 	 * @param value Value
 	 */
 	public void setCustomStat(String name, String value) {
-		for (int i = 0; i < customStats.size(); i++) {
-			String strTemp = customStats.get(i);
-			String[] strArray = strTemp.split(";");
-
-			if (strArray[0].equals(name)) {
-				customStats.set(i, name + ";" + value);
-				return;
-			}
-		}
-		customStats.add(name + ";" + value);
+		customStats.put(name , value);
 	}
 
 	/**
@@ -381,14 +379,7 @@ public class NetSPRecord implements Serializable {
 	 * @return Value (null if not found)
 	 */
 	public String getCustomStat(String name) {
-		for (String strTemp : customStats) {
-			String[] strArray = strTemp.split(";");
-
-			if (strArray[0].equals(name)) {
-				return strArray[1];
-			}
-		}
-		return null;
+		return customStats.get(name);
 	}
 
 	/**

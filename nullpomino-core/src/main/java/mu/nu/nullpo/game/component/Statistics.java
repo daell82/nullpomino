@@ -29,8 +29,6 @@
 package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -72,7 +70,7 @@ public class Statistics implements Serializable {
 	 */
 	public int levelDispAdd;
 
-	/** I put the piececount */
+	/** total piece count */
 	public int totalPieceLocked;
 
 	/** The total operating pieces are time */
@@ -513,6 +511,6 @@ public class Statistics implements Serializable {
 	 */
 	public String exportString() {
 		String[] array = exportStringArray();
-		return Stream.of(array).collect(Collectors.joining(";"));
+		return String.join(";", array);
 	}
 }

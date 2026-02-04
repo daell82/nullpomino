@@ -30,8 +30,6 @@ package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
 import java.nio.channels.SocketChannel;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.types.GameStyle;
@@ -274,7 +272,7 @@ public class NetPlayerInfo implements Serializable {
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
-		return Arrays.stream(data).collect(Collectors.joining(";"));
+		return String.join(";", data);
 	}
 
 	/**

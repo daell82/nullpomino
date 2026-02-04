@@ -1,3 +1,14 @@
+# common build related entries
+target
+bin
+.settings
+.m2
+.DS_Store
+
+# eclipse releated stuff
+.project
+.classpath
+
 # Compiled class file
 *.class
 

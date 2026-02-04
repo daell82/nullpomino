@@ -540,25 +540,24 @@ public class NetServer {
 
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("config/list/netlobby_singlemode.lst"));
-
-			String str = null;
+			String line = null;
 			GameStyle style = GameStyle.TETROMINO;
-			while ((str = in.readLine()) != null) {
-				if (str.length() <= 0 || str.startsWith("#")) {
+			while ((line = in.readLine()) != null) {
+				if (line.length() <= 0 || line.startsWith("#")) {
 					// Empty line or comment line. Ignore it.
-				} else if (str.startsWith(":")) {
+				} else if (line.startsWith(":")) {
 					// Game style tag
-					str = str.substring(1);
-					style = GameStyle.valueOf(str);
+					line = line.substring(1);
+					style = GameStyle.valueOf(line);
 					if (style == null) {
-						log.warn("{StyleChange} Unknown Style:" + str);
+						log.warn("{StyleChange} Unknown Style:" + line);
 						style = GameStyle.TETROMINO;
 					} else {
-						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + str);
+						log.debug("{StyleChange} StyleID:" + style + " StyleName:" + line);
 					}
 				} else {
 					// Game mode name
-					String[] strSplit = str.split(",");
+					String[] strSplit = line.split(",");
 					String modeName = strSplit[0];
 					int rankingType = 0;
 					int maxGameType = 0;
@@ -2693,35 +2692,35 @@ public class NetServer {
 
 					if (sChecksum == checksumObj.getValue()) {
 						String strData = NetUtil.decompressString(message[2]);
-						NetSPRecord record = new NetSPRecord(strData);
+						NetSPRecord spRecord = new NetSPRecord(strData);
 						String rule = roomInfo.rated ? roomInfo.ruleName : "any"; // "any" for unrated rules
-						record.strPlayerName = pInfo.strName;
-						record.strModeName = roomInfo.strMode;
-						record.strRuleName = rule;
-						record.style = roomInfo.style;
-						record.strTimeStamp = GeneralUtil.exportCalendarString();
+						spRecord.strPlayerName = pInfo.strName;
+						spRecord.strModeName = roomInfo.strMode;
+						spRecord.strRuleName = rule;
+						spRecord.style = roomInfo.style;
+						spRecord.strTimeStamp = GeneralUtil.exportCalendarString();
 
-						float gamerate = record.stats.gamerate * 100f;
+						float gamerate = spRecord.stats.gamerate * 100f;
 
 						boolean isDailyWiped = updateSPDailyRanking();
 						int rank = -1;
 						int rankDaily = -1;
 
-						NetSPRanking ranking = getSPRanking(rule, record.strModeName, record.gameType);
-						NetSPRanking rankingDaily = getSPRanking(rule, record.strModeName, record.gameType, true);
+						NetSPRanking ranking = getSPRanking(rule, spRecord.strModeName, spRecord.gameType);
+						NetSPRanking rankingDaily = getSPRanking(rule, spRecord.strModeName, spRecord.gameType, true);
 						if (ranking == null) {
-							log.warn("All-time ranking not found:" + record.strModeName);
+							log.warn("All-time ranking not found:" + spRecord.strModeName);
 						}
 						if (rankingDaily == null) {
-							log.warn("Daily ranking not found:" + record.strModeName);
+							log.warn("Daily ranking not found:" + spRecord.strModeName);
 						}
 
 						if ((ranking != null || rankingDaily != null) && gamerate >= spMinGameRate) {
 							if (ranking != null) {
-								rank = ranking.registerRecord(record);
+								rank = ranking.registerRecord(spRecord);
 							}
 							if (rankingDaily != null) {
-								rankDaily = rankingDaily.registerRecord(record);
+								rankDaily = rankingDaily.registerRecord(spRecord);
 							}
 
 							if (rank != -1 || rankDaily != -1 || isDailyWiped) {
@@ -2730,14 +2729,14 @@ public class NetServer {
 
 							boolean isPB = false;
 							if (ranking != null) {
-								isPB = pInfo.spPersonalBest.registerRecord(ranking.rankingType, record);
+								isPB = pInfo.spPersonalBest.registerRecord(ranking.rankingType, spRecord);
 								if (isPB) {
 									setPlayerDataToProperty(pInfo);
 									writePlayerDataToFile();
 								}
 							}
 
-							log.info("Name:" + pInfo.strName + " Mode:" + record.strModeName + " AllTime:" + rank
+							log.info("Name:" + pInfo.strName + " Mode:" + spRecord.strModeName + " AllTime:" + rank
 									+ " Daily:" + rankDaily);
 							broadcast("spsendok\t" + rank + "\t" + isPB + "\t" + rankDaily + "\n", pInfo.roomID);
 						} else {

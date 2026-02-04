@@ -40,12 +40,6 @@ public class Block implements Serializable {
 	/** Serial version ID */
 	private static final long serialVersionUID = -7126899262733374545L;
 
-	/** Constant-itemcount */
-	public static final int BLOCK_ITEM_NONE = 0;
-	public static final int BLOCK_ITEM_RANDOM = 1;
-
-	public static final int MAX_ITEM = 1;
-
 	/** BlockIndicator */
 	public static final int BLOCK_ATTRIBUTE_VISIBLE = 1;
 

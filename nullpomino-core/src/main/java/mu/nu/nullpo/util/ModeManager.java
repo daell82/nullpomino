@@ -31,7 +31,7 @@ package mu.nu.nullpo.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import lombok.extern.log4j.Log4j;
@@ -43,13 +43,13 @@ import mu.nu.nullpo.game.subsystem.mode.GameMode;
 @Log4j
 public class ModeManager {
 
-	/** Mode Dynamic array of */
-	private List<GameMode> gameModes = new ArrayList<>();
+	/** All loaded {@link GameMode game modes} */
+	private List<GameMode> gameModes = new LinkedList<>();
 
 	/**
-	 * All that has been readMode nameGet the
+	 * Get the names of all loaded game modes
 	 *
-	 * @return Mode nameAn array of
+	 * @return List with game modes names
 	 */
 	protected List<String> getAllModeNames() {
 		return gameModes.stream().map(GameMode::getName).toList();
@@ -58,11 +58,31 @@ public class ModeManager {
 	/**
 	 * Get the names of loaded game modes
 	 *
-	 * @param netplay whether normal mode or netplay modes
+	 * @param netplay whether normal or netplay modes
 	 * @return list of {@link GameMode} names
+	 * @deprecated use {@link #getNetplayModeNames()} or {@link #getNormalModeNames()} instead
 	 */
+	@Deprecated(since = "8.0")
 	public List<String> getModeNames(boolean netplay) {
-		return gameModes.stream().filter(m -> m.isNetplayMode() == netplay).map(GameMode::getName).toList();
+		return netplay ? getNetplayModeNames() : getNormalModeNames();
+	}
+
+	/**
+	 * Get the names of all normal (non-netplay) game modes
+	 *
+	 * @return list of normal game modes names
+	 */
+	public List<String> getNormalModeNames() {
+		return gameModes.stream().filter(m -> !m.isNetplayMode()).map(GameMode::getName).toList();
+	}
+
+	/**
+	 * Get the names of all netplay game modes
+	 *
+	 * @return list of netplay game modes names
+	 */
+	public List<String> getNetplayModeNames() {
+		return gameModes.stream().filter(GameMode::isNetplayMode).map(GameMode::getName).toList();
 	}
 
 	/**
@@ -82,14 +102,13 @@ public class ModeManager {
 	 */
 	public void loadGameModes(String filename) {
 		try {
-			List<String> lines = Files.readAllLines(new File(filename).toPath());
-			for (String name : lines) {
+			for (String name : Files.readAllLines(new File(filename).toPath())) {
 				if (name.isEmpty() || name.startsWith("#")) {
 					continue;
 				}
-				Class<?> modeClass = Class.forName(name);
-				GameMode modeObject = (GameMode) modeClass.getConstructor().newInstance();
-				gameModes.add(modeObject);
+				Class<?> clazz = Class.forName(name);
+				GameMode mode = (GameMode) clazz.getConstructor().newInstance();
+				gameModes.add(mode);
 			}
 		} catch (ReflectiveOperationException roe) {
 			log.warn("failed to load mode", roe);

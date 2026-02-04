@@ -412,7 +412,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		// ModeRead
 		modeManager = new ModeManager();
 		modeManager.loadGameModes("config/list/mode.lst");
-		modeList = modeManager.getModeNames(false);
+		modeList = modeManager.getNormalModeNames();
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {

@@ -100,7 +100,7 @@ public class StateSelectMode extends DummyMenuScrollState {
 			if (modes != null) {
 				list = new LinkedList<>(modes);
 			} else {
-				list = NullpoMinoSlick.modeManager.getModeNames(false);
+				list = NullpoMinoSlick.modeManager.getNormalModeNames();
 			}
 		}
 		maxCursor = list.size() - 1;

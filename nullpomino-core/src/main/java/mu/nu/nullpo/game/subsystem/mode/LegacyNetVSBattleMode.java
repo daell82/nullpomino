@@ -699,17 +699,17 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		if (playerSeatNumber >= 0) {
-			owner.engine[0].displaysize = DisplaySize.NORMAL;
+			owner.engine[0].displaySize = DisplaySize.NORMAL;
 			owner.engine[0].enableSE = true;
 		} else {
-			owner.engine[0].displaysize = DisplaySize.SMALL;
+			owner.engine[0].displaySize = DisplaySize.SMALL;
 			owner.engine[0].enableSE = false;
 		}
 
 		// Apply 1vs1 layout
 		if (roomInfo != null && roomInfo.maxPlayers == 2) {
-			owner.engine[0].displaysize = DisplaySize.NORMAL;
-			owner.engine[1].displaysize = DisplaySize.NORMAL;
+			owner.engine[0].displaySize = DisplaySize.NORMAL;
+			owner.engine[1].displaySize = DisplaySize.NORMAL;
 		}
 
 		updatePlayerExist();
@@ -909,10 +909,10 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		if (playerID >= 1 || playerSeatNumber == -1) {
-			engine.displaysize = DisplaySize.SMALL;
+			engine.displaySize = DisplaySize.SMALL;
 			engine.enableSE = false;
 		} else {
-			engine.displaysize = DisplaySize.NORMAL;
+			engine.displaySize = DisplaySize.NORMAL;
 			engine.enableSE = true;
 		}
 		engine.fieldWidth = 10;
@@ -976,13 +976,13 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			isPlayerExist[0] = true;
 			engine.framecolor = PLAYER_COLOR_FRAME[playerSeatNumber];
 
-			engine.displaysize = DisplaySize.NORMAL;
+			engine.displaySize = DisplaySize.NORMAL;
 			engine.enableSE = true;
 
 			// Apply 1vs1 layout
 			if (currentRoomInfo != null && currentRoomInfo.maxPlayers == 2) {
-				owner.engine[0].displaysize = DisplaySize.NORMAL;
-				owner.engine[1].displaysize = DisplaySize.NORMAL;
+				owner.engine[0].displaySize = DisplaySize.NORMAL;
+				owner.engine[1].displaySize = DisplaySize.NORMAL;
 			}
 
 			if (netLobby != null && netLobby.netPlayerClient != null) {
@@ -1051,7 +1051,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			int y = receiver.getFieldDisplayPositionY(engine, playerID);
 
 			if (isReady[playerID] && isPlayerExist[playerID]) {
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 				} else {
 					receiver.drawDirectFont(engine, playerID, x + 36, y + 80, "OK", Colors.FONT_YELLOW, 0.5f);
@@ -1685,7 +1685,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		// Number of players
 		if (playerID == getPlayers() - 1 && netLobby != null && netLobby.netPlayerClient != null
 				&& netLobby.netPlayerClient.isConnected()
-				&& (!owner.engine[1].isVisible || owner.engine[1].displaysize == DisplaySize.SMALL || !isNetGameActive)) {
+				&& (!owner.engine[1].isVisible || owner.engine[1].displaySize == DisplaySize.SMALL || !isNetGameActive)) {
 			int x = owner.receiver.getNextDisplayType() == 2 ? 544 : 503;
 			if (owner.receiver.getNextDisplayType() == 2 && numMaxPlayers == 2) {
 				x = 321;
@@ -1736,7 +1736,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 				int fontcolor = TEAM_FONT_COLORS[fontcolorNum];
 
-				if (engine.displaysize == DisplaySize.SMALL) {
+				if (engine.displaySize == DisplaySize.SMALL) {
 					if (name.length() > 7) {
 						name = name.substring(0, 7) + "..";
 					}
@@ -1766,7 +1766,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					fontColor = Colors.FONT_RED;
 				}
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					// strTempGarbage = String.format(Locale.ROOT, "%5.2f", (float)garbage[playerID]
 					// / GARBAGE_DENOMINATOR);
 					strTempGarbage = String.format(Locale.US, "%5.2f", (float) garbage[playerID] / GARBAGE_DENOMINATOR);
@@ -1810,7 +1810,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				fontcolor = Colors.FONT_WHITE;
 			}
 
-			if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.displaySize != DisplaySize.SMALL) {
 				receiver.drawMenuFont(engine, playerID, 2, 12, "TARGET", fontcolor);
 			} else {
 				receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 80, "TARGET", fontcolor, 0.5f);
@@ -1821,7 +1821,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		if (lastevent[playerID] != EVENT_NONE && scgettime[playerID] < 120) {
 			String strPieceName = Piece.getPieceName(lastpiece[playerID]);
 
-			if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.displaySize != DisplaySize.SMALL) {
 				switch (lastevent[playerID]) {
 				case EVENT_SINGLE:
 					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
@@ -1979,7 +1979,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		else if (isPlayerExist[playerID] && engine.isVisible && !isPractice) {
 			String strTemp = playerWinCount[playerID] + "/" + playerGamesCount[playerID];
 
-			if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.displaySize != DisplaySize.SMALL) {
 				int y = 21;
 				if (engine.stat == GameEngine.Status.RESULT) {
 					y = 22;
@@ -2058,7 +2058,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		int y = receiver.getFieldDisplayPositionY(engine, playerID);
 		int place = playerPlace[playerID];
 
-		if (engine.displaysize != DisplaySize.SMALL) {
+		if (engine.displaySize != DisplaySize.SMALL) {
 			if (isReady[playerID] && !isNetGameActive) {
 				receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 			} else if (numNowPlayers == 2 && isDead[playerID]) {
@@ -2186,7 +2186,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		int x = receiver.getFieldDisplayPositionX(engine, playerID);
 		int y = receiver.getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.displaysize != DisplaySize.SMALL) {
+		if (engine.displaySize != DisplaySize.SMALL) {
 			if (isReady[playerID] && !isNetGameActive) {
 				receiver.drawDirectFont(engine, playerID, x + 68, y + 204, "OK", Colors.FONT_YELLOW);
 			} else if (numNowPlayers == 2 || currentRoomInfo.maxPlayers == 2) {
@@ -2231,7 +2231,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		float scale = 1.0f;
-		if (engine.displaysize == DisplaySize.SMALL) {
+		if (engine.displaySize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
 
@@ -2355,23 +2355,23 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 				if (playerSeatNumber >= 0) {
 					// Participation in a war
-					owner.engine[0].displaysize = DisplaySize.NORMAL;
+					owner.engine[0].displaySize = DisplaySize.NORMAL;
 					owner.engine[0].enableSE = true;
 					for (int i = 1; i < getPlayers(); i++) {
-						owner.engine[i].displaysize = DisplaySize.SMALL;
+						owner.engine[i].displaySize = DisplaySize.SMALL;
 					}
 				} else {
 					// Spectator
 					for (int i = 0; i < getPlayers(); i++) {
-						owner.engine[i].displaysize = DisplaySize.SMALL;
+						owner.engine[i].displaySize = DisplaySize.SMALL;
 						owner.engine[i].enableSE = false;
 					}
 				}
 
 				// Apply 1vs1 layout
 				if (currentRoomInfo != null && currentRoomInfo.maxPlayers == 2) {
-					owner.engine[0].displaysize = DisplaySize.NORMAL;
-					owner.engine[1].displaysize = DisplaySize.NORMAL;
+					owner.engine[0].displaySize = DisplaySize.NORMAL;
+					owner.engine[1].displaySize = DisplaySize.NORMAL;
 				}
 
 				isPractice = false;
@@ -2476,7 +2476,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 					if (numMaxPlayers == 2 && numNowPlayers == 2) {
 						engine.isVisible = true;
-						engine.displaysize = DisplaySize.NORMAL;
+						engine.displaySize = DisplaySize.NORMAL;
 
 						if (rulelockFlag || i == 0 && playerSeatNumber != -1) {
 							engine.isNextVisible = true;

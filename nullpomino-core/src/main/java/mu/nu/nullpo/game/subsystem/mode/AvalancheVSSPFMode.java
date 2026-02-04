@@ -892,7 +892,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,
@@ -916,7 +916,7 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 		Block b;
 		int blockColor;
 		int textColor;
-		int d = engine.displaysize == DisplaySize.BIG ? 2 : 1;
+		int d = engine.displaySize == DisplaySize.BIG ? 2 : 1;
 		String str;
 		if (engine.field != null && engine.stat != GameEngine.Status.RESULT && engine.gameStarted) {
 			for (int x = 0; x < engine.field.getWidth(); x++) {

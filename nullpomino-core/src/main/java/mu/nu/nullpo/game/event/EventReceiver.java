@@ -763,7 +763,7 @@ public class EventReceiver<T> {
 		if (!showMeter) {
 			return 0;
 		}
-		return engine.fieldHeight * engine.displaysize.getBlockSize();
+		return engine.fieldHeight * engine.displaySize.getBlockSize();
 	}
 
 	/**
@@ -774,7 +774,7 @@ public class EventReceiver<T> {
 	 * @return Width of block image
 	 */
 	public int getBlockGraphicsWidth(GameEngine engine, int playerID) {
-		return engine.displaysize.getBlockSize();
+		return engine.displaySize.getBlockSize();
 	}
 
 	/**
@@ -785,7 +785,7 @@ public class EventReceiver<T> {
 	 * @return Height of block image
 	 */
 	public int getBlockGraphicsHeight(GameEngine engine, int playerID) {
-		return engine.displaysize.getBlockSize();
+		return engine.displaySize.getBlockSize();
 	}
 
 	/**
@@ -798,9 +798,9 @@ public class EventReceiver<T> {
 	public int getFieldDisplayPositionX(GameEngine engine, int playerID) {
 		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_X_BSP[style][engine.displaysize.ordinal()][playerID];
+			return NEW_FIELD_OFFSET_X_BSP[style][engine.displaySize.ordinal()][playerID];
 		}
-		return NEW_FIELD_OFFSET_X[style][engine.displaysize.ordinal()][playerID];
+		return NEW_FIELD_OFFSET_X[style][engine.displaySize.ordinal()][playerID];
 	}
 
 	/**
@@ -813,9 +813,9 @@ public class EventReceiver<T> {
 	public int getFieldDisplayPositionY(GameEngine engine, int playerID) {
 		int style = engine.owner.mode.getGameStyle().getMode();
 		if (getNextDisplayType() == 2) {
-			return NEW_FIELD_OFFSET_Y_BSP[style][engine.displaysize.ordinal()][playerID];
+			return NEW_FIELD_OFFSET_Y_BSP[style][engine.displaySize.ordinal()][playerID];
 		}
-		return NEW_FIELD_OFFSET_Y[style][engine.displaysize.ordinal()][playerID];
+		return NEW_FIELD_OFFSET_Y[style][engine.displaySize.ordinal()][playerID];
 	}
 
 	/**
@@ -827,7 +827,7 @@ public class EventReceiver<T> {
 	 */
 	public int getScoreDisplayPositionX(GameEngine engine, int playerID) {
 		int xOffset = getNextDisplayType() == 2 ? 256 : 216;
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			xOffset += 32;
 		}
 		return getFieldDisplayPositionX(engine, playerID) + xOffset;

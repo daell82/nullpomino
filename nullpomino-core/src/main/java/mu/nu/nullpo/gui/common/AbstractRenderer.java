@@ -22,7 +22,7 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 		int y2 = scale == 0.5f ? y * 8 : y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == DisplaySize.SMALL) {
+			if (engine.displaySize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -37,7 +37,7 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 		int y2 = y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == DisplaySize.SMALL) {
+			if (engine.displaySize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -393,7 +393,7 @@ public abstract class AbstractRenderer<T> extends EventReceiver<T> {
 			if (next == null) {
 				return;
 			}
-			int size = piece.big || engine.displaysize == DisplaySize.BIG ? 2 : 1;
+			int size = piece.big || engine.displaySize == DisplaySize.BIG ? 2 : 1;
 			int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
 			int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
 			int vPos = blksize * shadowY - (i + 1) * 24 - 8;

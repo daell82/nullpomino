@@ -219,7 +219,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	protected boolean readyInit(GameEngine engine, int playerID) {
 		engine.numColors = numColors;
 		engine.lineGravityType = cascadeSlow ? GameEngine.LineGravity.CASCADE_SLOW : GameEngine.LineGravity.CASCADE;
-		engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
+		engine.displaySize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 
 		engine.blockOutlineType = switch (outlinetype) {
 		case 0 -> GameEngine.BLOCK_OUTLINE_NORMAL;

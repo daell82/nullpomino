@@ -954,7 +954,7 @@ public class SPFMode extends AbstractMode {
 			engine.numColors = BLOCK_COLORS.length;
 			engine.rainbowAnimate = playerID == 0;
 			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
-			engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
+			engine.displaySize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 
 			dropPattern[playerID] = DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]];
 			attackMultiplier[playerID] = getAttackMultiplier(dropSet[playerID], dropMap[playerID]);
@@ -1054,7 +1054,7 @@ public class SPFMode extends AbstractMode {
 		}
 
 		// Score
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 472,
 					String.format("%12d", score[playerID]), playerColor);
 		} else if (engine.gameStarted) {
@@ -1091,7 +1091,7 @@ public class SPFMode extends AbstractMode {
 							break;
 						}
 
-						if (engine.displaysize == DisplaySize.BIG) {
+						if (engine.displaySize == DisplaySize.BIG) {
 							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(b.countdown),
 									textColor, 2.0f);
 						} else {
@@ -1109,7 +1109,7 @@ public class SPFMode extends AbstractMode {
 			textHeight += 3;
 		}
 		int baseX = -2;
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			textHeight = 11;
 			baseX = 1;
 		}
@@ -1166,7 +1166,7 @@ public class SPFMode extends AbstractMode {
 			for (int y = -1 * hiddenHeight; y < height && diamondBreakColor == Colors.BLOCK_COLOR_INVALID; y++) {
 				for (int x = 0; x < width && diamondBreakColor == Colors.BLOCK_COLOR_INVALID; x++) {
 					if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR) {
-						if (engine.displaysize == DisplaySize.BIG) {
+						if (engine.displaySize == DisplaySize.BIG) {
 							receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
 							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
 							receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
@@ -1198,7 +1198,7 @@ public class SPFMode extends AbstractMode {
 				for (int x = 0; x < width; x++) {
 					if (engine.field.getBlockColor(x, y, true) == diamondBreakColor) {
 						pts += multiplier * 7;
-						if (engine.displaysize == DisplaySize.BIG) {
+						if (engine.displaySize == DisplaySize.BIG) {
 							receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
 							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
 							receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
@@ -1238,7 +1238,7 @@ public class SPFMode extends AbstractMode {
 					add /= 2.0;
 					b.secondaryColor = 0;
 				}
-				if (engine.displaysize == DisplaySize.BIG) {
+				if (engine.displaySize == DisplaySize.BIG) {
 					receiver.blockBreak(engine, playerID, 2 * x, 2 * y, b);
 					receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, b);
 					receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, b);

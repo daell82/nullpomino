@@ -678,7 +678,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 					fontColor = Colors.FONT_RED;
 				}
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					strTempGarbage = String.format(Locale.US, "%5.2f", (float) garbage[playerID] / GARBAGE_DENOMINATOR);
 					owner.receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor, 1.0f);
 				} else {
@@ -696,7 +696,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 					fontcolor = Colors.FONT_WHITE;
 				}
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					owner.receiver.drawMenuFont(engine, playerID, 2, 12, "TARGET", fontcolor);
 				} else {
 					owner.receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 80, "TARGET", fontcolor, 0.5f);
@@ -726,7 +726,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 		if (netvsPlayerExist[playerID] && engine.isVisible) {
 			// K.O.
 			if (playerKObyYou[playerID]) {
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					owner.receiver.drawMenuFont(engine, playerID, 3, 21, "K.O.", Colors.FONT_PINK);
 				} else {
 					owner.receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "K.O.",
@@ -737,7 +737,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 			else if (lastevent[playerID] != EVENT_NONE && scgettime[playerID] < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece[playerID]);
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					switch (lastevent[playerID]) {
 					case EVENT_SINGLE:
 						owner.receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
@@ -909,7 +909,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 			else if (!netvsIsPractice || playerID != 0) {
 				String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					int y2 = 21;
 					if (engine.stat == GameEngine.Status.RESULT) {
 						y2 = 22;
@@ -931,7 +931,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 		super.renderResult(engine, playerID);
 
 		float scale = 1.0f;
-		if (engine.displaysize == DisplaySize.SMALL) {
+		if (engine.displaySize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
 

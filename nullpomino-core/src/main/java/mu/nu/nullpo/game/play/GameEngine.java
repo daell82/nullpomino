@@ -499,8 +499,8 @@ public class GameEngine {
 	/** Lag flag (Pause the game completely) */
 	private boolean lagStop;
 
-	/** Field display size (-1 for mini, 1 for big, 0 for normal) */
-	public DisplaySize displaysize;
+	/** Field display size */
+	public DisplaySize displaySize;
 
 	/** Sound effects enable flag */
 	public boolean enableSE;
@@ -878,7 +878,7 @@ public class GameEngine {
 
 		lagARE = false;
 		lagStop = false;
-		displaysize = playerID >= 2 ? DisplaySize.SMALL : DisplaySize.NORMAL;
+		displaySize = playerID >= 2 ? DisplaySize.SMALL : DisplaySize.NORMAL;
 
 		enableSE = true;
 		gameoverAll = true;
@@ -1170,17 +1170,18 @@ public class GameEngine {
 	 * Visible / disappearRoll Of the statefieldReturned to the normal state
 	 */
 	public void resetFieldVisible() {
-		if (field != null) {
-			for (int x = 0; x < field.getWidth(); x++) {
-				for (int y = 0; y < field.getHeight(); y++) {
-					Block block = field.getBlock(x, y);
+		if (field == null) {
+			return;
+		}
+		for (int x = 0; x < field.getWidth(); x++) {
+			for (int y = 0; y < field.getHeight(); y++) {
+				Block block = field.getBlock(x, y);
 
-					if (block != null && block.color > Colors.BLOCK_COLOR_NONE) {
-						block.alpha = 1f;
-						block.darkness = 0f;
-						block.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-						block.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
-					}
+				if (block != null && block.color > Colors.BLOCK_COLOR_NONE) {
+					block.alpha = 1f;
+					block.darkness = 0f;
+					block.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+					block.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
 				}
 			}
 		}
@@ -3155,7 +3156,7 @@ public class GameEngine {
 							if (owner.mode != null) {
 								owner.mode.blockBreak(this, playerID, x, y, block);
 							}
-							if (displaysize == DisplaySize.BIG) {
+							if (displaySize == DisplaySize.BIG) {
 								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y, block);
 								owner.receiver.blockBreak(this, playerID, 2 * x + 1, 2 * y, block);
 								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y + 1, block);
@@ -3505,7 +3506,7 @@ public class GameEngine {
 								blk.color = Colors.BLOCK_COLOR_GRAY;
 								blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
 							}
-							if (displaysize != DisplaySize.SMALL) {
+							if (displaySize != DisplaySize.SMALL) {
 								blk.darkness = 0.3f;
 							}
 							blk.elapsedFrames = -1;

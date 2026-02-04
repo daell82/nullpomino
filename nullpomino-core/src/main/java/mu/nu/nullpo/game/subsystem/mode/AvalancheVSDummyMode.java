@@ -523,7 +523,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		engine.numColors = numColors[playerID];
 		engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW
 				: GameEngine.LineGravity.CASCADE;
-		engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
+		engine.displaySize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 		engine.sticky = 2;
 
 		if (outlineType[playerID] == 0) {
@@ -541,7 +541,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			engine.fieldWidth = 3;
 			engine.field = null;
 			engine.colorClearSize = 3;
-			engine.displaysize = DisplaySize.BIG;
+			engine.displaySize = DisplaySize.BIG;
 			engine.createFieldIfNeeded();
 			zenKeshiType[playerID] = ZENKESHI_MODE_OFF;
 			ojamaHard[playerID] = 0;
@@ -874,7 +874,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			textHeight += 3;
 		}
 		int baseX = -2;
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			textHeight = 11;
 			baseX = 1;
 		}
@@ -909,7 +909,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			if (engine.field == null || engine.field.getBlockEmpty(baseX + i, 0)) {
 				if (big[playerID]) {
 					receiver.drawMenuFont(engine, playerID, 2, 0, "e", Colors.FONT_RED, 2.0f);
-				} else if (engine.displaysize == DisplaySize.BIG) {
+				} else if (engine.displaySize == DisplaySize.BIG) {
 					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, 2.0f);
 				} else {
 					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
@@ -927,7 +927,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 				int hard = engine.field.getBlock(x, y).hard;
 				if (hard > 0) {
 					String text = String.valueOf(hard);
-					if (engine.displaysize == DisplaySize.BIG) {
+					if (engine.displaySize == DisplaySize.BIG) {
 						receiver.drawMenuFont(engine, playerID, x * 2, y * 2, text, Colors.FONT_YELLOW, 2.0f);
 					} else {
 						receiver.drawMenuFont(engine, playerID, x, y, text, Colors.FONT_YELLOW);

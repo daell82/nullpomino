@@ -620,7 +620,7 @@ public class AvalancheVSFeverMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,

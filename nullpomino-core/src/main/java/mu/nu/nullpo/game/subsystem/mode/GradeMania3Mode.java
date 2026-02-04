@@ -1960,7 +1960,7 @@ public class GradeMania3Mode extends AbstractMode {
 		owner.replayProp.setProperty("grademania3.demotionExamGrade", demotionExamGrade);
 
 		// Update rankings
-		if (owner.replayMode == false && startlevel == 0 && always20g == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && startlevel == 0 && !always20g && !big && engine.ai == null) {
 			int rgrade = grade;
 			if (enableexam && rgrade >= 32 && qualifiedGrade < 32) {
 				rgrade = 31;

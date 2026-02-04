@@ -486,7 +486,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 			engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW
 					: GameEngine.LineGravity.CASCADE;
 			engine.rainbowAnimate = true;
-			engine.displaysize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
+			engine.displaySize = bigDisplay ? DisplaySize.BIG : DisplaySize.NORMAL;
 
 			if (outlineType[playerID] == 0) {
 				engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
@@ -595,7 +595,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 440,
 					String.format("%12d", score[playerID]), playerColor);
 			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 456,

@@ -417,16 +417,14 @@ public class GradeManiaMode extends AbstractMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA", Colors.FONT_CYAN);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (owner.replayMode == false && startlevel.value == 0 && !big.value && !always20g.value
 					&& engine.ai == null) {
 				if (!isShowBestSectionTime) {
 					// Rankings
 					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 					int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
-					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE,
-							scale);
+					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE, scale);
 
 					for (int i = 0; i < RANKING_MAX; i++) {
 						receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
@@ -512,8 +510,7 @@ public class GradeManiaMode extends AbstractMode {
 					time = 0;
 				}
 				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time),
-						time > 0 && time < 10 * 60);
+				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
 			}
 
 			// Section Time
@@ -656,8 +653,8 @@ public class GradeManiaMode extends AbstractMode {
 				engine.playSE("bravo");
 			}
 
-			lastscore = ((engine.statistics.level + lines) / 4 + engine.softdropFall + engine.harddropFall
-					+ manuallock) * lines * comboValue * bravo;
+			lastscore = ((engine.statistics.level + lines) / 4 + engine.softdropFall + engine.harddropFall + manuallock)
+					* lines * comboValue * bravo;
 			engine.statistics.score += lastscore;
 			scgettime = 120;
 
@@ -813,8 +810,7 @@ public class GradeManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3",
-				Colors.FONT_RED);
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
 
 		if (engine.statc[1] == 0) {
 			drawResult(engine, playerID, receiver, 2, Colors.FONT_BLUE, "GRADE",
@@ -898,8 +894,7 @@ public class GradeManiaMode extends AbstractMode {
 		owner.replayProp.setProperty("grademania.version", version);
 
 		// Update rankings
-		if (owner.replayMode == false && startlevel.value == 0 && !always20g.value && big.value
-				&& engine.ai == null) {
+		if (!owner.replayMode && startlevel.value == 0 && !always20g.value && !big.value && engine.ai == null) {
 			updateRanking(grade, engine.statistics.level, lastGradeTime);
 			if (sectionAnyNewRecord) {
 				updateBestSectionTime();

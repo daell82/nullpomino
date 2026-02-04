@@ -150,7 +150,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int y2 = scale == 0.5f ? y * 8 : y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == DisplaySize.SMALL) {
+			if (engine.displaySize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -168,7 +168,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int y2 = y * 16;
 		if (!engine.owner.menuOnly) {
 			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaysize == DisplaySize.SMALL) {
+			if (engine.displaySize == DisplaySize.SMALL) {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
 			} else {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
@@ -859,8 +859,8 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			return;
 		}
 
-		int blksize = engine.displaysize.getBlockSize();
-		float scale = engine.displaysize.getScale();
+		int blksize = engine.displaySize.getBlockSize();
+		float scale = engine.displaySize.getScale();
 		Field field = engine.field;
 		int width = 10;
 		int height = 20;
@@ -986,7 +986,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			return;
 		}
 
-		int size = (int) (16 * engine.displaysize.getScale());
+		int size = (int) (16 * engine.displaySize.getScale());
 		int width = 10;
 		int height = 20;
 		int offsetX = 0;
@@ -1003,7 +1003,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				Color filter = new Color(Color.white);
 				filter.a = fieldBGBright;
 
-				Image img = switch (engine.displaysize) {
+				Image img = switch (engine.displaySize) {
 				case NORMAL -> ResourceHolderSlick.imgFieldbg2;
 				case SMALL -> ResourceHolderSlick.imgFieldbg2Small;
 				case BIG -> ResourceHolderSlick.imgFieldbg2Big;
@@ -1161,8 +1161,8 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int meterWidth = showMeter ? 8 : 0;
 		if (engine != null && engine.field != null) {
 			fldWidth = engine.field.getWidth();
-			if (engine.displaysize == DisplaySize.BIG) {
-				fldBlkSize = engine.displaysize.getBlockSize();
+			if (engine.displaySize == DisplaySize.BIG) {
+				fldBlkSize = engine.displaySize.getBlockSize();
 			}
 		}
 
@@ -1426,7 +1426,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				Piece next = engine.getNextObject(engine.nextPieceCount + i);
 
 				if (next != null) {
-					int size = piece.big || engine.displaysize == DisplaySize.BIG ? 2 : 1;
+					int size = piece.big || engine.displaySize == DisplaySize.BIG ? 2 : 1;
 					int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
 					int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
 					int vPos = blksize * shadowY - (i + 1) * 24 - 8;
@@ -1490,7 +1490,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.displaySize != DisplaySize.SMALL) {
 				drawNext(offsetX, offsetY, engine);
 				drawFrame(offsetX, offsetY + 48, engine);
 				drawField(offsetX + 4, offsetY + 52, engine);
@@ -1506,28 +1506,23 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 */
 	@Override
 	public void renderReady(GameEngine engine, int playerID) {
-		if (graphics == null) {
+		if (graphics == null || !engine.allowTextRenderByReceiver || engine.statc[0] <= 0) {
 			return;
 		}
-		if (!engine.allowTextRenderByReceiver) {
-			return;
-		}
+		int state = engine.statc[0]; // XXX clarify what state means
 
-		if (engine.statc[0] <= 0) {
-			return;
-		}
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.displaysize != DisplaySize.SMALL) {
-			if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
+		if (engine.displaySize != DisplaySize.SMALL) {
+			if (state >= engine.readyStart && state < engine.readyEnd) {
 				NormalFontSlick.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
-			} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
+			} else if (state >= engine.goStart && state < engine.goEnd) {
 				NormalFontSlick.printFont(offsetX + 62, offsetY + 204, "GO!", Colors.FONT_WHITE, 1.0f);
 			}
-		} else if (engine.statc[0] >= engine.readyStart && engine.statc[0] < engine.readyEnd) {
+		} else if (state >= engine.readyStart && state < engine.readyEnd) {
 			NormalFontSlick.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
-		} else if (engine.statc[0] >= engine.goStart && engine.statc[0] < engine.goEnd) {
+		} else if (state >= engine.goStart && state < engine.goEnd) {
 			NormalFontSlick.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
 		}
 	}
@@ -1545,10 +1540,10 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		}
 		int offsetX = getFieldDisplayPositionX(engine, playerID) + 4;
 		int offsetY = getFieldDisplayPositionY(engine, playerID) + 4;
-		if (engine.displaysize != DisplaySize.SMALL) {
+		if (engine.displaySize != DisplaySize.SMALL) {
 			offsetY += 48;
 		}
-		float scale = engine.displaysize.getScale();
+		float scale = engine.displaySize.getScale();
 
 		if (nextShadow) {
 			drawShadowNexts(offsetX, offsetY, engine, scale);
@@ -1567,7 +1562,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 */
 	@Override
 	public void blockBreak(GameEngine engine, int playerID, int x, int y, Block block) {
-		if (!showLineEffect || block == null || engine.displaysize == DisplaySize.SMALL) {
+		if (!showLineEffect || block == null || engine.displaySize == DisplaySize.SMALL) {
 			return;
 		}
 		int color = block.getDrawColor();
@@ -1597,7 +1592,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.displaysize != DisplaySize.SMALL) {
+		if (engine.displaySize != DisplaySize.SMALL) {
 			if (engine.statc[1] == 0) {
 				NormalFontSlick.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", Colors.FONT_ORANGE, 1.0f);
 			} else if (engine.owner.getPlayers() < 3) {
@@ -1630,7 +1625,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaysize != DisplaySize.SMALL) {
+			if (engine.displaySize != DisplaySize.SMALL) {
 				if (engine.owner.getPlayers() < 2) {
 					NormalFontSlick.printFont(offsetX + 12, offsetY + 204, "GAME OVER", Colors.FONT_WHITE, 1.0f);
 				} else if (engine.owner.getWinner() == -2) {

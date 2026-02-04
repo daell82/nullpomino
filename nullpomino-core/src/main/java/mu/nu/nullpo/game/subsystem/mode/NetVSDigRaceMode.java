@@ -350,7 +350,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 
 				String strLines = String.valueOf(remainLines);
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					if (strLines.length() == 1) {
 						owner.receiver.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
 					} else if (strLines.length() == 2) {
@@ -374,7 +374,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 					place = netvsPlayerPlace[playerID];
 				}
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					switch (place) {
 					case 0:
 						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
@@ -432,7 +432,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 			else if (!netvsIsPractice || playerID != 0) {
 				String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
 
-				if (engine.displaysize != DisplaySize.SMALL) {
+				if (engine.displaySize != DisplaySize.SMALL) {
 					int y2 = 21;
 					if (engine.stat == GameEngine.Status.RESULT) {
 						y2 = 22;
@@ -454,7 +454,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 		super.renderResult(engine, playerID);
 
 		float scale = 1.0f;
-		if (engine.displaysize == DisplaySize.SMALL) {
+		if (engine.displaySize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
 

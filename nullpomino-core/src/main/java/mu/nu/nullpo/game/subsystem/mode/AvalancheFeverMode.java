@@ -481,7 +481,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 			if (engine.field != null) {
 				textHeight = engine.field.getHeight() + 1;
 			}
-			if (engine.displaysize == DisplaySize.BIG) {
+			if (engine.displaySize == DisplaySize.BIG) {
 				textHeight = 11;
 				baseX = 1;
 			}
@@ -517,7 +517,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 
 		for (int i = 0; i < 2; i++) {
 			if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
-				if (engine.displaysize == DisplaySize.BIG) {
+				if (engine.displaySize == DisplaySize.BIG) {
 					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "" + strFeverTimer.charAt(i),
 							timeLimit < 360 ? Colors.FONT_RED : Colors.FONT_WHITE, 2.0f);
 				} else {

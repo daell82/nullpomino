@@ -611,7 +611,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 			strScoreMultiplier = "(" + lastscore[playerID] + "e" + lastmultiplier[playerID] + ")";
 		}
 
-		if (engine.displaysize == DisplaySize.BIG) {
+		if (engine.displaySize == DisplaySize.BIG) {
 			receiver.drawDirectFont(engine, playerID, x + 4, y + 440, String.format("%12d", score[playerID]),
 					playerColor);
 			receiver.drawDirectFont(engine, playerID, x + 4, y + 456, String.format("%12s", strScoreMultiplier),
@@ -635,7 +635,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 						continue;
 					}
 					if (b.hard > 0) {
-						if (engine.displaysize == DisplaySize.BIG) {
+						if (engine.displaySize == DisplaySize.BIG) {
 							receiver.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.hard),
 									Colors.FONT_YELLOW, 2.0f);
 						} else {
@@ -643,7 +643,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 						}
 					}
 					if (b.countdown > 0) {
-						if (engine.displaysize == DisplaySize.BIG) {
+						if (engine.displaySize == DisplaySize.BIG) {
 							receiver.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.countdown),
 									Colors.FONT_RED, 2.0f);
 						} else {
@@ -725,7 +725,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 				b2.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
 				b2.hard = ojamaHard[playerID];
 
-				if (engine.displaysize == DisplaySize.BIG) {
+				if (engine.displaySize == DisplaySize.BIG) {
 					owner.receiver.blockBreak(engine, playerID, 2 * x2, 2 * y2, b2);
 					owner.receiver.blockBreak(engine, playerID, 2 * x2 + 1, 2 * y2, b2);
 					owner.receiver.blockBreak(engine, playerID, 2 * x2, 2 * y2 + 1, b2);

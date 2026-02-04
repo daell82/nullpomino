@@ -439,7 +439,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (engine.field != null) {
 				textHeight = engine.field.getHeight() + 1;
 			}
-			if (engine.displaysize == DisplaySize.BIG) {
+			if (engine.displaySize == DisplaySize.BIG) {
 				textHeight = 11;
 				baseX = 1;
 			}
@@ -461,10 +461,10 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	 * @param playerID Player ID
 	 */
 	protected void drawXorTimer(GameEngine engine, int playerID) {
-		float scale = engine.displaysize == DisplaySize.BIG ? 2.0f : 1.0f;
+		float scale = engine.displaySize == DisplaySize.BIG ? 2.0f : 1.0f;
 		for (int i = 0; i < (dangerColumnDouble ? 2 : 1); i++) {
 			if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
-				if (engine.displaysize == DisplaySize.BIG) {
+				if (engine.displaySize == DisplaySize.BIG) {
 					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, scale);
 				} else {
 					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);

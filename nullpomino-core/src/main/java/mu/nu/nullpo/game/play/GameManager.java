@@ -31,8 +31,8 @@ package mu.nu.nullpo.game.play;
 import java.io.Serializable;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.BGImageStatus;
+import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.util.CustomProperties;
@@ -99,7 +99,7 @@ public class GameManager implements Serializable {
 	public void init() {
 		log.debug("GameManager init()");
 
-		modeConfig = CustomProperties.load("config/setting/mode.cfg");;
+		modeConfig = CustomProperties.load("config/setting/mode.cfg");
 
 		if (replayProp == null) {
 			replayProp = new CustomProperties();
@@ -180,8 +180,8 @@ public class GameManager implements Serializable {
 		if (engine == null) {
 			return false;
 		}
-		for (GameEngine element : engine) {
-			if (element != null && element.quitflag) {
+		for (GameEngine gameEngine : engine) {
+			if (gameEngine != null && gameEngine.quitflag) {
 				return true;
 			}
 		}
@@ -195,8 +195,8 @@ public class GameManager implements Serializable {
 	 */
 	public boolean isGameActive() {
 		if (engine != null) {
-			for (GameEngine element : engine) {
-				if (element != null && element.gameActive == true) {
+			for (GameEngine gameEngine : engine) {
+				if (gameEngine != null && gameEngine.gameActive) {
 					return true;
 				}
 			}

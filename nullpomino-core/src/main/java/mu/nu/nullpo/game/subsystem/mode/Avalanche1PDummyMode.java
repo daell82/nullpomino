@@ -39,28 +39,32 @@ import mu.nu.nullpo.util.GeneralUtil;
  * AVALANCHE DUMMY Mode
  */
 public abstract class Avalanche1PDummyMode extends AbstractMode {
-	/** Enabled piece types */
-	public static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
 	/** Enabled piece types */
-	public static final int[] CHAIN_POWERS_FEVERTYPE = { 4, 12, 24, 32, 48, 96, 160, 240, 320, 400, 500, 600, 700, 800,
-			900, 999 };
+	protected static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
-	public int[] tableSpeedChangeLevel = { 80, 90, 96, 97, Integer.MAX_VALUE };
+	/** Enabled piece types */
+	protected static final int[] CHAIN_POWERS_FEVERTYPE = { 4, 12, 24, 32, 48, 96, 160, 240, 320, 400, 500, 600, 700,
+			800, 900, 999 };
 
-	public int[] tableSpeedValue = { 30, 45, 120, 480, -1 };
+	protected int[] tableSpeedChangeLevel = { 80, 90, 96, 97, Integer.MAX_VALUE };
+
+	protected int[] tableSpeedValue = { 30, 45, 120, 480, -1 };
 
 	/** Block colors */
-	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
+	protected static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
 			Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
 
 	/** Fever map files list */
-	public static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Poochy7" };
+	protected static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Poochy7" };
 
-	public static final int DAS = 10;
+	protected static final int DAS = 10;
 
 	/** Amount of points earned from most recent clear */
-	protected int lastscore, lastmultiplier;
+	protected int lastscore;
+
+	/** score multiplier from recent clear */
+	protected int lastmultiplier;
 
 	/**
 	 * Elapsed time from last line clear (lastscore is displayed to screen until
@@ -75,7 +79,9 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	protected boolean zenKeshi;
 
 	/** Amount of garbage sent */
-	protected int garbageSent, garbageAdd;
+	protected int garbageSent;
+
+	protected int garbageAdd;
 
 	/** Number of colors to use */
 	protected int numColors;
@@ -89,8 +95,11 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	/** Score before adding zenkeshi bonus and max chain bonus */
 	protected int scoreBeforeBonus;
 
-	/** Zenkeshi bonus and max chain bonus amounts */
-	protected int zenKeshiBonus, maxChainBonus;
+	/** Zenkeshi bonus */
+	protected int zenKeshiBonus;
+
+	/** max chain bonus amount */
+	protected int maxChainBonus;
 
 	/** Blocks cleared */
 	protected int blocksCleared;
@@ -119,7 +128,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	/** Index of current speed value in table */
 	protected int speedIndex;
 
-	public Avalanche1PDummyMode() {
+	protected Avalanche1PDummyMode() {
 		blocksPerLevel = 15;
 		maxLevel = 99;
 		ojamaRate = 120;
@@ -158,7 +167,6 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 		zenKeshi = false;
 		garbageSent = 0;
 		garbageAdd = 0;
-		// firstExtra = false;
 
 		zenKeshiCount = 0;
 		engine.statistics.maxChain = 0;
@@ -185,9 +193,6 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 		engine.cascadeDelay = 1;
 		engine.cascadeClearDelay = 10;
 		engine.dominoQuickTurn = true;
-		/*
-		 * engine.fieldWidth = 6; engine.fieldHeight = 12; engine.fieldHiddenHeight = 2;
-		 */
 	}
 
 	/**
@@ -341,7 +346,6 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 				engine.playSE("bravo");
 				zenKeshi = true;
 				zenKeshiCount++;
-				// engine.statistics.score += 2100;
 			} else {
 				zenKeshi = false;
 			}

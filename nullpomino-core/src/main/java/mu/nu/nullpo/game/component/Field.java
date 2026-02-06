@@ -87,10 +87,10 @@ public class Field implements Serializable {
 	 */
 
 	/** fieldOfBlock */
-	protected Block[][] block_field;
+	protected Block[][] fieldBlocks;
 
 	/** fieldInvisible on the part ofBlock */
-	protected Block[][] block_hidden;
+	protected Block[][] hiddenBlocks;
 
 	/** Line clear flag */
 	protected boolean[] lineflag_field;
@@ -98,7 +98,7 @@ public class Field implements Serializable {
 	/** I do not look the part ofLine clear flag */
 	protected boolean[] lineflag_hidden;
 
-	/** HURRY UPOf groundcount */
+	/** count Of HURRY UP ground*/
 	protected int hurryupFloorLines;
 
 	/** Presence or absence of a ceiling */
@@ -174,8 +174,8 @@ public class Field implements Serializable {
 	 * Called at initialization
 	 */
 	public void reset() {
-		block_field = new Block[height][width];
-		block_hidden = new Block[hiddenHeight][width];
+		fieldBlocks = new Block[height][width];
+		hiddenBlocks = new Block[hiddenHeight][width];
 		lineflag_field = new boolean[height];
 		lineflag_hidden = new boolean[hiddenHeight];
 		hurryupFloorLines = 0;
@@ -189,10 +189,10 @@ public class Field implements Serializable {
 
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				block_field[j][i] = new Block();
+				fieldBlocks[j][i] = new Block();
 			}
 			for (int j = 0; j < hiddenHeight; j++) {
-				block_hidden[j][i] = new Block();
+				hiddenBlocks[j][i] = new Block();
 			}
 		}
 	}
@@ -208,8 +208,8 @@ public class Field implements Serializable {
 		hiddenHeight = f.hiddenHeight;
 		ceiling = f.ceiling;
 
-		block_field = new Block[height][width];
-		block_hidden = new Block[hiddenHeight][width];
+		fieldBlocks = new Block[height][width];
+		hiddenBlocks = new Block[hiddenHeight][width];
 		lineflag_field = new boolean[height];
 		lineflag_hidden = new boolean[hiddenHeight];
 		hurryupFloorLines = f.hurryupFloorLines;
@@ -223,10 +223,10 @@ public class Field implements Serializable {
 
 		for (int i = 0; i < width; i++) {
 			for (int j = 0; j < height; j++) {
-				block_field[j][i] = new Block(f.getBlock(i, j));
+				fieldBlocks[j][i] = new Block(f.getBlock(i, j));
 			}
 			for (int j = 0; j < hiddenHeight; j++) {
-				block_hidden[j][i] = new Block(f.getBlock(i, -j - 1));
+				hiddenBlocks[j][i] = new Block(f.getBlock(i, -j - 1));
 			}
 		}
 	}
@@ -343,12 +343,12 @@ public class Field implements Serializable {
 	 */
 	private Block[] getRow(int y) {
 		if (y >= 0) {
-			return y < height ? block_field[y] : null;
+			return y < height ? fieldBlocks[y] : null;
 		}
 		// fieldOutside
 		int y2 = -y - 1;
 		if (y2 >= 0 && y2 < hiddenHeight) {
-			return block_hidden[y2];
+			return hiddenBlocks[y2];
 		}
 		return null;
 	}
@@ -993,7 +993,7 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Examine What in the  number ofBlockwhether there is
+	 * Examine What in the number ofBlockwhether there is
 	 *
 	 * @return fieldAre withinBlockOfcount
 	 */
@@ -1376,7 +1376,7 @@ public class Field implements Serializable {
 				if (j > 0 && !getBlockEmpty(j - 1, y)) {
 					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
 				}
-				if (j < width -1 && !getBlockEmpty(j + 1, y)) {
+				if (j < width - 1 && !getBlockEmpty(j + 1, y)) {
 					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
 				}
 			}
@@ -2009,23 +2009,24 @@ public class Field implements Serializable {
 	 * @param y Y coord
 	 */
 	protected void checkBlockLinkSub(int x, int y) {
-		Block blk = getBlock(x, y);
-		if (blk != null && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
-			blk.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
+		Block block = getBlock(x, y);
+		if (block == null || !block.isEmpty() || block.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
+			return;
+		}
+		block.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
 
-			if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
-				if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-					checkBlockLinkSub(x, y - 1);
-				}
-				if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-					checkBlockLinkSub(x, y + 1);
-				}
-				if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-					checkBlockLinkSub(x - 1, y);
-				}
-				if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-					checkBlockLinkSub(x + 1, y);
-				}
+		if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+				checkBlockLinkSub(x, y - 1);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+				checkBlockLinkSub(x, y + 1);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+				checkBlockLinkSub(x - 1, y);
+			}
+			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+				checkBlockLinkSub(x + 1, y);
 			}
 		}
 	}
@@ -2162,9 +2163,9 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * HURRY UPI except the groundField heightReturns
+	 * Returns Field height except the HURRY UP ground
 	 *
-	 * @return HURRY UPI except the groundField height
+	 * @return Field height except the HURRY UP ground
 	 */
 	public int getHeightWithoutHurryupFloor() {
 		return height - hurryupFloorLines;
@@ -3070,13 +3071,13 @@ public class Field implements Serializable {
 		Block[] temp;
 		for (int yMin = getHighestBlockY(), yMax = height - 1; yMin < yMax; yMin--, yMax++) {
 			if (yMin < 0) {
-				temp = block_hidden[yMin * -1 - 1];
-				block_hidden[yMin * -1 - 1] = block_field[yMax];
-				block_field[yMax] = temp;
+				temp = hiddenBlocks[yMin * -1 - 1];
+				hiddenBlocks[yMin * -1 - 1] = fieldBlocks[yMax];
+				fieldBlocks[yMax] = temp;
 			} else {
-				temp = block_field[yMin];
-				block_field[yMin] = block_field[yMax];
-				block_field[yMax] = temp;
+				temp = fieldBlocks[yMin];
+				fieldBlocks[yMin] = fieldBlocks[yMax];
+				fieldBlocks[yMax] = temp;
 			}
 		}
 	}

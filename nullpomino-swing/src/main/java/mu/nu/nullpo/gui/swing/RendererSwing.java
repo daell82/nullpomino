@@ -256,9 +256,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public boolean isStickySkin(int skin) {
-		if (skin >= 0 && skin < resourceManager.getBlockStickyFlags().size()
-				&& Boolean.TRUE.equals(resourceManager.getBlockStickyFlags().get(skin))) {
-			return true;
+		if (skin >= 0 && skin < resourceManager.getBlockStickyFlags().size()) {
+			return resourceManager.getBlockStickyFlags().get(skin);
 		}
 		return false;
 	}

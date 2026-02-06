@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Random;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
@@ -22,7 +23,9 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 /**
  * Special base class for netplay VS modes. Up to 6 players supported.
  */
+@Log4j
 public class NetDummyVSMode extends NetDummyMode {
+
 	/* -------------------- Constants -------------------- */
 	/** NET-VS: Max number of players */
 	protected static final int NETVS_MAX_PLAYERS = 6;
@@ -30,7 +33,8 @@ public class NetDummyVSMode extends NetDummyMode {
 	/**
 	 * NET-VS: Numbers of seats numbers corresponding to frames on player's screen
 	 */
-	protected static final int[][] NETVS_GAME_SEAT_NUMBERS = { { 0, 1, 2, 3, 4, 5 }, //
+	protected static final int[][] NETVS_GAME_SEAT_NUMBERS = { //
+			{ 0, 1, 2, 3, 4, 5 }, //
 			{ 1, 0, 2, 3, 4, 5 }, //
 			{ 1, 2, 0, 3, 4, 5 }, //
 			{ 1, 2, 3, 0, 4, 5 }, //

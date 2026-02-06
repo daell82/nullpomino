@@ -884,7 +884,7 @@ public class GradeMania2Mode extends AbstractMode {
 	}
 
 	/*
-	 * AREProcessing during
+	 * Processing during ARE
 	 */
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
@@ -904,7 +904,7 @@ public class GradeMania2Mode extends AbstractMode {
 	}
 
 	/**
-	 * levelcommon process is raised when
+	 * common process when level is raised
 	 */
 	private void levelUp(GameEngine engine) {
 		// Meter

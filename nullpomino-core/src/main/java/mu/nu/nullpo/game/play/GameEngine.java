@@ -1225,7 +1225,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Lateral motion input OfDirectionGet the
+	 * Get the Direction Of Lateral motion input
 	 *
 	 * @return -1:Left 0:No 1:Right
 	 */
@@ -1236,7 +1236,8 @@ public class GameEngine {
 			}
 			if (ctrl.buttonTime(Controller.BUTTON_LEFT) > ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
 				return ruleopt.moveLeftAndRightUsePreviousInput ? -1 : 1;
-			} else if (ctrl.buttonTime(Controller.BUTTON_LEFT) < ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
+			}
+			if (ctrl.buttonTime(Controller.BUTTON_LEFT) < ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
 				return ruleopt.moveLeftAndRightUsePreviousInput ? 1 : -1;
 			}
 		}
@@ -1252,7 +1253,7 @@ public class GameEngine {
 	/**
 	 * Processing horizontal reservoir
 	 */
-	public void padRepeat() {
+	protected void padRepeat() {
 		int moveDirection = getMoveDirection();
 		if (moveDirection != 0) {
 			dasCount++;
@@ -1266,7 +1267,7 @@ public class GameEngine {
 	 * Called if delay doesn't allow charging but dasRedirectInDelay == true Updates
 	 * dasDirection so player can change direction without dropping charge on entry.
 	 */
-	public void dasRedirect() {
+	protected void dasRedirect() {
 		dasDirection = getMoveDirection();
 	}
 
@@ -3020,48 +3021,48 @@ public class GameEngine {
 			}
 
 			// LinescountI decided to
-			int li = lineClearing;
+			int linesCleared = lineClearing;
 			if (big && bighalf) {
-				li >>= 1;
+				linesCleared >>= 1;
 				// if(li > 4) li = 4;
 			}
 
 			if (tspin) {
-				playSE("tspin" + li);
+				playSE("tspin" + linesCleared);
 
 				if (ending == 0 || staffrollEnableStatistics) {
-					if (li == 1 && tspinmini) {
+					if (linesCleared == 1 && tspinmini) {
 						statistics.totalTSpinSingleMini++;
 					}
-					if (li == 1 && !tspinmini) {
+					if (linesCleared == 1 && !tspinmini) {
 						statistics.totalTSpinSingle++;
 					}
-					if (li == 2 && tspinmini) {
+					if (linesCleared == 2 && tspinmini) {
 						statistics.totalTSpinDoubleMini++;
 					}
-					if (li == 2 && !tspinmini) {
+					if (linesCleared == 2 && !tspinmini) {
 						statistics.totalTSpinDouble++;
 					}
-					if (li == 3) {
+					if (linesCleared == 3) {
 						statistics.totalTSpinTriple++;
 					}
 				}
 			} else {
 				if (clearMode == ClearType.LINE) {
-					playSE("erase" + li);
+					playSE("erase" + linesCleared);
 				}
 
 				if (ending == 0 || staffrollEnableStatistics) {
-					if (li == 1) {
+					if (linesCleared == 1) {
 						statistics.totalSingle++;
 					}
-					if (li == 2) {
+					if (linesCleared == 2) {
 						statistics.totalDouble++;
 					}
-					if (li == 3) {
+					if (linesCleared == 3) {
 						statistics.totalTriple++;
 					}
-					if (li == 4) {
+					if (linesCleared == 4) {
 						statistics.totalFour++;
 					}
 				}
@@ -3069,7 +3070,7 @@ public class GameEngine {
 
 			// B2B bonus
 			if (b2bEnable) {
-				if (tspin || li >= 4) {
+				if (tspin || linesCleared >= 4) {
 					b2bcount++;
 
 					if (b2bcount == 1) {
@@ -3079,7 +3080,7 @@ public class GameEngine {
 						playSE("b2b_continue");
 
 						if (ending == 0 || staffrollEnableStatistics) {
-							if (li == 4) {
+							if (linesCleared == 4) {
 								statistics.totalB2BFour++;
 							} else {
 								statistics.totalB2BTSpin++;
@@ -3095,7 +3096,7 @@ public class GameEngine {
 
 			// Combo
 			if (comboType != COMBO_TYPE_DISABLE && chain == 0) {
-				if (comboType == COMBO_TYPE_NORMAL || comboType == COMBO_TYPE_DOUBLE && li >= 2) {
+				if (comboType == COMBO_TYPE_NORMAL || comboType == COMBO_TYPE_DOUBLE && linesCleared >= 2) {
 					combo++;
 				}
 
@@ -3115,7 +3116,7 @@ public class GameEngine {
 			lineGravityTotalLines += lineClearing;
 
 			if (ending == 0 || staffrollEnableStatistics) {
-				statistics.lines += li;
+				statistics.lines += linesCleared;
 			}
 
 			if (field.getHowManyGemClears() > 0) {
@@ -3124,9 +3125,9 @@ public class GameEngine {
 
 			// Calculate score
 			if (owner.mode != null) {
-				owner.mode.calcScore(this, playerID, li);
+				owner.mode.calcScore(this, playerID, linesCleared);
 			}
-			owner.receiver.calcScore(this, playerID, li);
+			owner.receiver.calcScore(this, playerID, linesCleared);
 
 			// Blockを消す演出を出す (まだ実際には消えていない）
 			if (clearMode == ClearType.LINE) {
@@ -3703,7 +3704,7 @@ public class GameEngine {
 	/**
 	 * Effective treatment interruption Play items
 	 */
-	public void statInterruptItem() {
+	protected void statInterruptItem() {
 		boolean contFlag = false; // Continue flag
 
 		if (interruptItemNumber == INTERRUPTITEM_MIRROR) {
@@ -3723,7 +3724,7 @@ public class GameEngine {
 	 *
 	 * @return When true,Process continues Miller
 	 */
-	public boolean interruptItemMirrorProc() {
+	protected boolean interruptItemMirrorProc() {
 		if (statc[0] == 0) {
 			// fieldCopy the backup
 			interruptItemMirrorField = new Field(field);

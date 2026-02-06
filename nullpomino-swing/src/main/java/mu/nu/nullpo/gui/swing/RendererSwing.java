@@ -143,7 +143,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
 			}
 		}
-		graphics.setColor(SwingColors.getFontColorAsColor(color));
+		graphics.setColor(SwingColors.getFontColor(color));
 		graphics.drawString(str, x2, y2);
 		graphics.setColor(Color.white);
 	}
@@ -170,7 +170,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			return;
 		}
 
-		graphics.setColor(SwingColors.getFontColorAsColor(color));
+		graphics.setColor(SwingColors.getFontColor(color));
 		graphics.drawString(str, getScoreDisplayPositionX(engine, playerID) + x * 16,
 				getScoreDisplayPositionY(engine, playerID) + y * 16);
 		graphics.setColor(Color.white);
@@ -189,7 +189,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public void drawTTFDirectFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
-		graphics.setColor(SwingColors.getFontColorAsColor(color));
+		graphics.setColor(SwingColors.getFontColor(color));
 		graphics.drawString(str, x, y);
 		graphics.setColor(Color.white);
 	}
@@ -375,19 +375,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		}
 
 		if (simpleblock) {
-			switch (color) {
-			case Colors.BLOCK_COLOR_GRAY -> graphics.setColor(Color.lightGray);
-			case Colors.BLOCK_COLOR_RED -> graphics.setColor(Color.red);
-			case Colors.BLOCK_COLOR_ORANGE -> graphics.setColor(Color.orange);
-			case Colors.BLOCK_COLOR_YELLOW -> graphics.setColor(Color.yellow);
-			case Colors.BLOCK_COLOR_GREEN -> graphics.setColor(Color.green);
-			case Colors.BLOCK_COLOR_CYAN -> graphics.setColor(Color.cyan);
-			case Colors.BLOCK_COLOR_BLUE -> graphics.setColor(Color.blue);
-			case Colors.BLOCK_COLOR_PURPLE -> graphics.setColor(Color.magenta);
-			default -> graphics.setColor(Color.white);
-			}
+			graphics.setColor(SwingColors.getSimpleBlockColor(color));
 			graphics.drawRect(x, y, size - 1, size - 1);
-
 			if (showbg) {
 				graphics.setColor(Color.black);
 				graphics.fillRect(x + 1, y + 1, size - 2, size - 2);
@@ -457,15 +446,15 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	}
 
 	/**
-	 * BlockUsing an instance of the classBlockDraw a
+	 * draws the block at given coordinates
 	 *
 	 * @param x   X-coordinate
 	 * @param y   Y-coordinate
-	 * @param blk BlockInstance of a class
+	 * @param block to draw
 	 */
-	protected void drawBlock(int x, int y, Block blk) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				blk.alpha, 1.0f, blk.attribute);
+	protected void drawBlock(int x, int y, Block block) {
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), block.darkness,
+				block.alpha, 1.0f, block.attribute);
 	}
 
 	/**
@@ -618,7 +607,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 							colorID = -1;
 						}
-						Color color = SwingColors.getColorByID(colorID);
+						Color color = SwingColors.getBlockColor(colorID);
 						graphics.setColor(color);
 						graphics.fillRect(x3, y3, blksize, blksize);
 						graphics.setColor(Color.white);
@@ -677,7 +666,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 						colorID = -1;
 					}
-					Color color = SwingColors.getColorByID(colorID);
+					Color color = SwingColors.getBlockColor(colorID);
 					graphics.setColor(color);
 					graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
 					graphics.setColor(Color.white);
@@ -753,7 +742,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 				colorID = -1;
 			}
-			Color color = SwingColors.getColorByIDBright(colorID);
+			Color color = SwingColors.getBlockColorBright(colorID);
 			graphics.setColor(color);
 
 			if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
@@ -797,7 +786,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
 				colorID = -1;
 			}
-			Color color = SwingColors.getColorByID(colorID);
+			Color color = SwingColors.getBlockColor(colorID);
 			graphics.setColor(color);
 			// graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
 			graphics.setColor(Color.white);
@@ -1090,7 +1079,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 					tmpX = x + width * size + 8;
 					tmpY = y + height * size + 3 - (value - 1);
 
-					graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColorSub));
+					graphics.setColor(SwingColors.getMeterColor(engine.meterColorSub));
 					graphics.fillRect(tmpX, tmpY, 4, value);
 					graphics.setColor(Color.white);
 				}
@@ -1104,7 +1093,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 					tmpX = x + width * size + 8;
 					tmpY = y + height * size + 3 - (value - 1);
 
-					graphics.setColor(SwingColors.getMeterColorAsColor(engine.meterColor));
+					graphics.setColor(SwingColors.getMeterColor(engine.meterColor));
 					graphics.fillRect(tmpX, tmpY, 4, value);
 					graphics.setColor(Color.white);
 				}

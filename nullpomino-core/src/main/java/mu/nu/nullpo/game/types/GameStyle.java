@@ -32,6 +32,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
+ * Enum holding available game styles.
+ *
  * @author daell
  */
 @Getter

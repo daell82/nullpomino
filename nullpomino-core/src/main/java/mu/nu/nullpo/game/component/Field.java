@@ -993,7 +993,7 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * fieldWhat in the number ofBlockExamine whether there is
+	 * Examine What in the  number ofBlockwhether there is
 	 *
 	 * @return fieldAre withinBlockOfcount
 	 */
@@ -1014,7 +1014,7 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * At the topBlockOfY-coordinateGet the
+	 * Get Block the At the top Of Y-coordinate
 	 *
 	 * @return At the topBlockOfY-coordinate
 	 */

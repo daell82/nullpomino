@@ -6,8 +6,7 @@ import java.util.LinkedList;
 import java.util.TimeZone;
 import java.util.zip.Adler32;
 
-import org.apache.log4j.Logger;
-
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
@@ -33,9 +32,8 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 /**
  * Special base class for netplay
  */
+@Log4j
 public class NetDummyMode extends AbstractMode implements NetLobbyListener {
-	/** Log (Declared in NetDummyMode) */
-	static Logger log = Logger.getLogger(NetDummyMode.class);
 
 	/** NET: Lobby (Declared in NetDummyMode) */
 	protected NetLobbyFrame netLobby;

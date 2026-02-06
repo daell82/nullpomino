@@ -41,7 +41,7 @@ public class GameKeySwing extends GameKeyDummy {
 	public static GameKeySwing gamekey[];
 
 	/** Default key mappings */
-	private static int[][][] DEFAULTKEYS = {
+	private static final int[][][] DEFAULTKEYS = {
 			// Ingame
 			{
 					// Blockbox type

@@ -12,7 +12,7 @@ import mu.nu.nullpo.util.Colors;
  */
 public class SwingColors {
 
-	public static Color getMeterColorAsColor(int meterColor) {
+	public static Color getMeterColor(int meterColor) {
 		return switch (meterColor) {
 		case Colors.METER_COLOR_PINK -> new Color(255, 0, 255);
 		case Colors.METER_COLOR_PURPLE -> new Color(128, 0, 255);
@@ -34,7 +34,7 @@ public class SwingColors {
 	 * @param fontColor font Color
 	 * @return font ColorColor
 	 */
-	public static Color getFontColorAsColor(int fontColor) {
+	public static Color getFontColor(int fontColor) {
 		return switch (fontColor) {
 		case Colors.FONT_BLUE -> new Color(0, 0, 255);
 		case Colors.FONT_RED -> new Color(255, 0, 0);
@@ -50,12 +50,33 @@ public class SwingColors {
 	}
 
 	/**
+	 * Get the {@link Color} for a block if simple blocks are used
+	 *
+	 * @param color id of the color
+	 * @return Color instance
+	 */
+	public static Color getSimpleBlockColor(int color) {
+		return switch (color) {
+		case Colors.BLOCK_COLOR_GRAY -> Color.lightGray;
+		case Colors.BLOCK_COLOR_RED -> Color.red;
+		case Colors.BLOCK_COLOR_ORANGE -> Color.orange;
+		case Colors.BLOCK_COLOR_YELLOW -> Color.yellow;
+		case Colors.BLOCK_COLOR_GREEN -> Color.green;
+		case Colors.BLOCK_COLOR_CYAN -> Color.cyan;
+		case Colors.BLOCK_COLOR_BLUE -> Color.blue;
+		case Colors.BLOCK_COLOR_PURPLE -> Color.magenta;
+		default -> Color.white;
+		};
+	}
+
+
+	/**
 	 * Block colorIDDepending onAWTUseColorObjects created or received
 	 *
 	 * @param colorID Block colorID
 	 * @return AWTUseColorObject
 	 */
-	public static Color getColorByID(int colorID) {
+	public static Color getBlockColor(int colorID) {
 		return switch (colorID) {
 		case Colors.BLOCK_COLOR_GRAY -> new Color(64, 64, 64);
 		case Colors.BLOCK_COLOR_RED -> new Color(128, 0, 0);
@@ -69,7 +90,7 @@ public class SwingColors {
 		};
 	}
 
-	public static Color getColorByIDBright(int colorID) {
+	public static Color getBlockColorBright(int colorID) {
 		return switch (colorID) {
 		case Colors.BLOCK_COLOR_GRAY -> new Color(128, 128, 128);
 		case Colors.BLOCK_COLOR_RED -> new Color(255, 0, 0);

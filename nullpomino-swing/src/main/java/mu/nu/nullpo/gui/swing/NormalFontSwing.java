@@ -61,9 +61,9 @@ public class NormalFontSwing {
 		int dy = y;
 
 		for (int i = 0; i < str.length(); i++) {
-			int stringChar = str.charAt(i);
+			char stringChar = str.charAt(i);
 
-			if (stringChar == 0x0A) {
+			if (stringChar =='\n') {
 				// New line (\n)
 				dy = (int) (dy + 16 * scale);
 				dx = x;

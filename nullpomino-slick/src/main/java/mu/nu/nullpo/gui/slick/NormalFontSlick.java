@@ -102,9 +102,9 @@ public class NormalFontSlick {
 		int dy = fontY;
 
 		for (int i = 0; i < fontStr.length(); i++) {
-			int stringChar = fontStr.charAt(i);
+			char stringChar = fontStr.charAt(i);
 
-			if (stringChar == 0x0A) {
+			if (stringChar == '\n') {
 				// New line (\n)
 				if (scale == 1.0f) {
 					dy = (int) (dy + 16 * scale);
@@ -162,7 +162,7 @@ public class NormalFontSlick {
 	 * @param fontColorFalse flagThefalseText color in the case of
 	 * @param fontColorTrue  flagThetrueText color in the case of
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
+	private static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
 			int fontColorTrue) {
 		if (!flag) {
 			printFont(fontX, fontY, fontStr, fontColorFalse);
@@ -196,7 +196,7 @@ public class NormalFontSlick {
 	 * @param fontColorTrue  flagThetrueText color in the case of
 	 * @param scale          Enlargement factor
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
+	private static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
 			int fontColorTrue, float scale) {
 		if (!flag) {
 			printFont(fontX, fontY, fontStr, fontColorFalse, scale);
@@ -215,7 +215,7 @@ public class NormalFontSlick {
 	 * @param flag    Conditional expression
 	 * @param scale   Enlargement factor
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, float scale) {
+	protected static void printFont(int fontX, int fontY, String fontStr, boolean flag, float scale) {
 		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED, scale);
 	}
 
@@ -253,7 +253,7 @@ public class NormalFontSlick {
 	 * @param fontColorFalse flagThefalseText color in the case of
 	 * @param fontColorTrue  flagThetrueText color in the case of
 	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
+	protected static void printFontGrid(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
 			int fontColorTrue) {
 		printFont(fontX * 16, fontY * 16, fontStr, flag, fontColorFalse, fontColorTrue);
 	}

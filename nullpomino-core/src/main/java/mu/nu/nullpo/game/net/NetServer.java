@@ -3607,8 +3607,8 @@ public class NetServer {
 	 * @return NetPlayerInfo (null if not found)
 	 */
 	private NetPlayerInfo searchPlayerByName(String name) {
-		for (SocketChannel ch : channels) {
-			NetPlayerInfo pInfo = playerInfos.get(ch);
+		for (SocketChannel channel : channels) {
+			NetPlayerInfo pInfo = playerInfos.get(channel);
 			if (pInfo != null && pInfo.strName.equals(name)) {
 				return pInfo;
 			}
@@ -3623,8 +3623,8 @@ public class NetServer {
 	 * @return NetPlayerInfo (null if not found)
 	 */
 	private NetPlayerInfo searchPlayerByUID(int uid) {
-		for (SocketChannel ch : channels) {
-			NetPlayerInfo pInfo = playerInfos.get(ch);
+		for (SocketChannel channel : channels) {
+			NetPlayerInfo pInfo = playerInfos.get(channel);
 			if (pInfo != null && pInfo.uid == uid) {
 				return pInfo;
 			}

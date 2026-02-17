@@ -98,7 +98,7 @@ public class Field implements Serializable {
 	/** I do not look the part ofLine clear flag */
 	protected boolean[] lineflag_hidden;
 
-	/** count Of HURRY UP ground*/
+	/** count Of HURRY UP ground */
 	protected int hurryupFloorLines;
 
 	/** Presence or absence of a ceiling */
@@ -133,12 +133,7 @@ public class Field implements Serializable {
 	 * @param hh The height of the invisible part of the above field
 	 */
 	public Field(int w, int h, int hh) {
-		width = w;
-		height = h;
-		hiddenHeight = hh;
-		ceiling = false;
-
-		reset();
+		this(w, h, hh, false);
 	}
 
 	/**
@@ -150,8 +145,11 @@ public class Field implements Serializable {
 	 * @param c  Presence or absence of a ceiling
 	 */
 	public Field(int w, int h, int hh, boolean c) {
-		this(w, h, hh);
+		width = w;
+		height = h;
+		hiddenHeight = hh;
 		ceiling = c;
+		reset();
 	}
 
 	/**
@@ -2010,24 +2008,25 @@ public class Field implements Serializable {
 	 */
 	protected void checkBlockLinkSub(int x, int y) {
 		Block block = getBlock(x, y);
-		if (block == null || !block.isEmpty() || block.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
+		if (block == null || block.isEmpty() || block.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
 			return;
 		}
 		block.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, true);
 
-		if (!block.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-				checkBlockLinkSub(x, y - 1);
-			}
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-				checkBlockLinkSub(x, y + 1);
-			}
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-				checkBlockLinkSub(x - 1, y);
-			}
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-				checkBlockLinkSub(x + 1, y);
-			}
+		if (block.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
+			return;
+		}
+		if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+			checkBlockLinkSub(x, y - 1);
+		}
+		if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+			checkBlockLinkSub(x, y + 1);
+		}
+		if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+			checkBlockLinkSub(x - 1, y);
+		}
+		if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+			checkBlockLinkSub(x + 1, y);
 		}
 	}
 

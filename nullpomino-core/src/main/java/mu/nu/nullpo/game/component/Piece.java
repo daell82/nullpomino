@@ -99,16 +99,16 @@ public class Piece implements Serializable {
 	public static final int DIRECTION_LEFT = 3;
 	public static final int DIRECTION_RANDOM = 4;
 
-	/** DirectionOfMaximumcount */
+	/** maximum direction count */
 	public static final int DIRECTION_COUNT = 4;
 
-	/** RelativeXPosition (4Direction×nBlock) */
+	/** Relative X Position (4Direction×nBlock) */
 	public int[][] dataX;
 
 	/** RelativeYPosition (4Direction×nBlock) */
 	public int[][] dataY;
 
-	/** Configure the pieceBlock (nBlock) */
+	/** Configure the piece Blocks */
 	public Block[] block;
 
 	/** ID */
@@ -231,9 +231,9 @@ public class Piece implements Serializable {
 	}
 
 	/**
-	 * 1Are included in one piece ofBlockOfcountGet the
+	 * Get the count Of blocks that are included in one piece
 	 *
-	 * @return 1Are included in one piece ofBlockOfcount
+	 * @return count of blocks that are included in one piece
 	 */
 	public int getMaxBlock() {
 		return DEFAULT_PIECE_DATA_X[id][direction].length;
@@ -340,8 +340,8 @@ public class Piece implements Serializable {
 	 *                 case3%Darkly, -0.05If it&#39;s the case5%Bright)
 	 */
 	public void setDarkness(float darkness) {
-		for (int i = 0; i < block.length; i++) {
-			block[i].darkness = darkness;
+		for(Block aBlock : block) {
+			aBlock.darkness = darkness;
 		}
 	}
 
@@ -351,8 +351,8 @@ public class Piece implements Serializable {
 	 * @param alpha Transparency (1.0fOpacity in, 0.0fCompletely transparent in)
 	 */
 	public void setAlpha(float alpha) {
-		for (int i = 0; i < block.length; i++) {
-			block[i].alpha = alpha;
+		for(Block aBlock : block) {
+			aBlock.alpha = alpha;
 		}
 	}
 
@@ -771,47 +771,51 @@ public class Piece implements Serializable {
 	}
 
 	/**
-	 * Collision detection of Peace
+	 * Collision detection of a piece. A call to this method uses the piece' current
+	 * rotation direction
 	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param fld field
-	 * @return BlockI was overlaptrue, They do not overlapfalse
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param field field
+	 * @return whether any block of the piece overlaps other blocks or the wall of
+	 *         the field
+	 * @see #checkCollision(int, int, int, Field)
 	 */
-	public boolean checkCollision(int x, int y, Field fld) {
-		return checkCollision(x, y, direction, fld);
+	public boolean checkCollision(int x, int y, Field field) {
+		return checkCollision(x, y, direction, field);
 	}
 
 	/**
-	 * Collision detection of Peace
+	 * Collision detection of a piece
 	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param rt  Direction
-	 * @param fld field
-	 * @return BlockI was overlaptrue, They do not overlapfalse
+	 * @param x        X-coordinate
+	 * @param y        Y-coordinate
+	 * @param rotation direction to check
+	 * @param field    field
+	 * @return whether any block of the piece overlaps other blocks or the wall of
+	 *         the field
 	 */
-	public boolean checkCollision(int x, int y, int rt, Field fld) {
+	public boolean checkCollision(int x, int y, int rotation, Field field) {
 		// BigThe only treatment
 		if (big) {
-			return checkCollisionBig(x, y, rt, fld);
+			return checkCollisionBig(x, y, rotation, field);
 		}
 
 		for (int i = 0; i < getMaxBlock(); i++) {
-			int x2 = x + dataX[rt][i];
-			int y2 = y + dataY[rt][i];
+			int x2 = x + dataX[rotation][i];
+			int y2 = y + dataY[rotation][i];
 
-			if (x2 >= fld.getWidth()) {
+			if (x2 >= field.getWidth()) {
 				return true;
 			}
-			if (y2 >= fld.getHeight()) {
+			if (y2 >= field.getHeight()) {
 				return true;
 			}
-			if (fld.getCoordAttribute(x2, y2) == Field.COORD_WALL) {
+			if (field.getCoordAttribute(x2, y2) == Field.COORD_WALL) {
 				return true;
 			}
-			if (fld.getCoordAttribute(x2, y2) != Field.COORD_VANISH
-					&& fld.getBlockColor(x2, y2) != Colors.BLOCK_COLOR_NONE) {
+			if (field.getCoordAttribute(x2, y2) != Field.COORD_VANISH
+					&& field.getBlockColor(x2, y2) != Colors.BLOCK_COLOR_NONE) {
 				return true;
 			}
 		}

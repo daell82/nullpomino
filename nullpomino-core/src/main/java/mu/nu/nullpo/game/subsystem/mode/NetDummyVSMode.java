@@ -762,12 +762,13 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (netCurrentRoomInfo != null && netCurrentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
 			if (netvsPlayerExist[playerID]) {
 				if (menuTime % 30 == 0) {
-					engine.statc[5]++;
-					if (engine.statc[5] >= netLobby.mapList.size()) {
-						engine.statc[5] = 0;
+					int status5 = engine.statc_5() + 1;
+					if (status5 >= netLobby.mapList.size()) {
+						status5 = 0;
 					}
+					engine.statc_5(status5);
 					engine.createFieldIfNeeded();
-					engine.field.stringToField(netLobby.mapList.get(engine.statc[5]));
+					engine.field.stringToField(netLobby.mapList.get(status5));
 					engine.field.setAllSkin(engine.getSkin());
 					engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 					engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -840,7 +841,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			// Map
 			if (netCurrentRoomInfo.useMap && netvsMapNo < netLobby.mapList.size() && !netvsIsPractice) {
 				engine.createFieldIfNeeded();
@@ -858,7 +859,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 		}
 
-		if (netvsIsPractice && engine.statc[0] >= 10) {
+		if (netvsIsPractice && engine.statc_0() >= 10) {
 			netvsIsPracticeExitAllowed = true;
 		}
 
@@ -897,7 +898,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		}
 
 		// Timer start
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !netvsIsPractice) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !netvsIsPractice) {
 			netvsPlayTimerActive = true;
 		}
 
@@ -1013,7 +1014,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.gameEnded();
 		}
 		engine.allowTextRenderByReceiver = false;
@@ -1022,7 +1023,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 		// Practice
 		if (playerID == 0 && netvsIsPractice) {
-			if (engine.statc[0] < engine.field.getHeight() + 1) {
+			if (engine.statc_0() < engine.field.getHeight() + 1) {
 				return false;
 			} else {
 				engine.field.reset();
@@ -1052,7 +1053,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				engine.resetStatc();
 				return true;
 			}
-			if (engine.statc[0] < engine.field.getHeight() + 1 || netvsPlayerResultReceived[playerID]) {
+			if (engine.statc_0() < engine.field.getHeight() + 1 || netvsPlayerResultReceived[playerID]) {
 				return false;
 			}
 		}
@@ -1142,19 +1143,19 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (playerID == 0) {
 			netvsPlayerResultReceived[playerID] = true;
 		}
-
-		if (engine.statc[0] == 0) {
+		int status0 = engine.statc_0();
+		if (status0 == 0) {
 			engine.gameEnded();
 			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			engine.resetFieldVisible();
 			engine.playSE("excellent");
 		}
 
-		if (engine.statc[0] >= 120 && engine.ctrl.isPush(Controller.BUTTON_A)) {
-			engine.statc[0] = engine.field.getHeight() + 1 + 180;
+		if (status0 >= 120 && engine.ctrl.isPush(Controller.BUTTON_A)) {
+			status0 = engine.field.getHeight() + 1 + 180;
 		}
 
-		if (engine.statc[0] >= engine.field.getHeight() + 1 + 180) {
+		if (status0 >= engine.field.getHeight() + 1 + 180) {
 			if (!netvsIsGameActive && netvsPlayerResultReceived[playerID]) {
 				if (engine.field != null) {
 					engine.field.reset();
@@ -1163,9 +1164,9 @@ public class NetDummyVSMode extends NetDummyMode {
 				engine.stat = GameEngine.Status.RESULT;
 			}
 		} else {
-			engine.statc[0]++;
+			status0 += 1;
 		}
-
+		engine.statc_0(status0);
 		return true;
 	}
 
@@ -1602,8 +1603,8 @@ public class NetDummyVSMode extends NetDummyMode {
 
 				// Force start
 				if (!netvsIsWatch() && netvsPlayTimerActive && !netvsIsPractice
-						&& engine.stat == GameEngine.Status.READY && engine.statc[0] < engine.goEnd) {
-					engine.statc[0] = engine.goEnd;
+						&& engine.stat == GameEngine.Status.READY && engine.statc_0() < engine.goEnd) {
+					engine.statc_0(engine.goEnd);
 				}
 			}
 			// Next and Hold

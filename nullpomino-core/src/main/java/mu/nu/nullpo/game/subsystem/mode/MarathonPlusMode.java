@@ -853,7 +853,8 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onCustom(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		int status0 = engine.statc_0();
+		if (status0 == 0) {
 			engine.nowPieceObject = null;
 			engine.timerActive = false;
 			engine.playSE("endingstart");
@@ -867,13 +868,13 @@ public class MarathonPlusMode extends NetDummyMode {
 					netLobby.netPlayerClient.send("game\tbonuslevelenter\n");
 				}
 			}
-		} else if (engine.statc[0] == 90) {
+		} else if (status0 == 90) {
 			engine.playSE("excellent");
-		} else if (engine.statc[0] >= 120 && engine.statc[0] < 480) {
+		} else if (status0 >= 120 && status0 < 480) {
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && !netIsWatch) {
-				engine.statc[0] = 480;
+				status0 = 480;
 			}
-		} else if (engine.statc[0] >= 480) {
+		} else if (status0 >= 480) {
 			engine.ending = 0;
 			engine.stat = GameEngine.Status.READY;
 			engine.resetStatc();
@@ -891,7 +892,7 @@ public class MarathonPlusMode extends NetDummyMode {
 			return true;
 		}
 
-		engine.statc[0]++;
+		engine.statc_0(status0 + 1);
 		return false;
 	}
 
@@ -900,11 +901,11 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderCustom(GameEngine engine, int playerID) {
-		if (engine.statc[0] >= 90) {
+		if (engine.statc_0() >= 90) {
 			receiver.drawMenuFont(engine, playerID, 0, 8, "EXCELLENT!", Colors.FONT_ORANGE);
 			receiver.drawMenuFont(engine, playerID, 1, 10, "UNLOCKED", Colors.FONT_ORANGE);
 
-			int color = engine.statc[0] % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_YELLOW;
+			int color = engine.statc_0() % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_YELLOW;
 			receiver.drawMenuFont(engine, playerID, 1, 11, "BONUS", color);
 			receiver.drawMenuFont(engine, playerID, 4, 12, "LEVEL", color);
 		}
@@ -915,7 +916,7 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && engine.gameActive) {
+		if (engine.statc_0() == 0 && engine.gameActive) {
 			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
 		}
 		return super.onGameOver(engine, playerID);
@@ -926,9 +927,10 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/2", Colors.FONT_RED);
+		int status1 = engine.statc_1();
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/2", Colors.FONT_RED);
 
-		if (engine.statc[1] == 0) {
+		if (status1 == 0) {
 			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
 			if (engine.statistics.level >= 20) {
 				drawResult(engine, playerID, receiver, 6, Colors.FONT_BLUE, "BONUS LINE",
@@ -966,18 +968,21 @@ public class MarathonPlusMode extends NetDummyMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page change
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 1;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 1;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 1) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 1) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 

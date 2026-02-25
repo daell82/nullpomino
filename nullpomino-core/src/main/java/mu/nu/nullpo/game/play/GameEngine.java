@@ -193,7 +193,7 @@ public class GameEngine {
 	public Status stat;
 
 	/** Free status counters */
-	public int[] statc;
+	protected int[] statc;
 
 	/** true if game play, false if menu. Used for alternate keyboard mappings. */
 	public boolean isInGame;
@@ -545,7 +545,7 @@ public class GameEngine {
 	public boolean itemXRayEnable;
 
 	/** X-RAY counter */
-	public int itemXRayCount;
+	private int itemXRayCount;
 
 	/** Color-block enable flag */
 	public boolean itemColorEnable;
@@ -607,8 +607,13 @@ public class GameEngine {
 	/** Number of colors in blockColors to use. */
 	public int numColors;
 
-	/** If true, line color clears can be diagonal. */
-	public boolean lineColorDiagonals;
+	/**
+	 * If true, line color clears can be diagonal.
+	 *
+	 * @deprecated unused variable
+	 */
+	@Deprecated(forRemoval = true)
+	private boolean lineColorDiagonals;
 
 	/**
 	 * If true, gems count as the same color as their respectively-colored normal
@@ -952,6 +957,39 @@ public class GameEngine {
 		speed = null;
 		random = null;
 		replayData = null;
+	}
+
+	/* accessors for statc-array currently used across all over the game */
+	public int statc_0() {
+		return statc[0];
+	}
+
+	public void statc_0(int value) {
+		statc[0] = value;
+	}
+
+	public int statc_1() {
+		return statc[1];
+	}
+
+	public void statc_1(int value) {
+		statc[1] = value;
+	}
+
+	public int statc_4() {
+		return statc[4];
+	}
+
+	public void statc_4(int value) {
+		statc[4] = value;
+	}
+
+	public int statc_5() {
+		return statc[5];
+	}
+
+	public void statc_5(int value) {
+		statc[5] = value;
 	}
 
 	/**

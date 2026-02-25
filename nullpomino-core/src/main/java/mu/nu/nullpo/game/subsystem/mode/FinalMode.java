@@ -458,7 +458,7 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && version >= 3) {
+		if (engine.statc_0() == 0 && version >= 3) {
 			engine.bone = true;
 		}
 		return false;
@@ -656,8 +656,9 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
+		int status = engine.statc_0();
 		// New piece is active
-		if (engine.ending == 0 && engine.statc[0] == 0 && !engine.holdDisable && !lvupflag) {
+		if (engine.ending == 0 &&  status == 0 && !engine.holdDisable && !lvupflag) {
 			// Level up
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
@@ -667,7 +668,7 @@ public class FinalMode extends AbstractMode {
 			}
 			levelUp(engine);
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 2 || !engine.holdDisable)) {
+		if (engine.ending == 0 && status > 0 && (version >= 2 || !engine.holdDisable)) {
 			lvupflag = false;
 		}
 
@@ -689,7 +690,7 @@ public class FinalMode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame of ARE
-		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				if (engine.statistics.level == nextseclv - 1 && lvstopse) {
@@ -859,7 +860,7 @@ public class FinalMode extends AbstractMode {
 				bravo = 2;
 			}
 
-			int speedBonus = engine.getLockDelay() - engine.statc[0];
+			int speedBonus = engine.getLockDelay() - engine.statc_0();
 			if (speedBonus < 0) {
 				speedBonus = 0;
 			}
@@ -930,7 +931,7 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			secretGrade = engine.field.getSecretGrade();
 		}
 		return false;
@@ -941,9 +942,12 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
+		int status1 = engine.statc_1();
 
-		if (engine.statc[1] == 0) {
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
+
+		switch (status1) {
+		case 0:
 			if (grade >= 1 && grade < tableGradeName.length) {
 				int gcolor = Colors.FONT_WHITE;
 				if (rollclear == 1) {
@@ -956,7 +960,6 @@ public class FinalMode extends AbstractMode {
 				String strGrade = String.format("%10s", tableGradeName[grade]);
 				receiver.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
 			}
-
 			drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
 			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
@@ -964,21 +967,21 @@ public class FinalMode extends AbstractMode {
 				drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
-		} else if (engine.statc[1] == 1) {
+			break;
+		case 1:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 			for (int i = 0; i < sectiontime.length; i++) {
 				if (sectiontime[i] > 0) {
 					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
 							sectionIsNewRecord[i]);
 				}
 			}
-
 			if (sectionavgtime > 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
-		} else if (engine.statc[1] == 2) {
+			break;
+		case 2:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", Colors.FONT_BLUE);
 			if (medalAC >= 1) {
 				receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
@@ -992,9 +995,11 @@ public class FinalMode extends AbstractMode {
 			if (medalCO >= 1) {
 				receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
 			}
-
 			drawResultStats(engine, playerID, receiver, 6, Colors.FONT_BLUE, Statistic.LPS, Statistic.SPS,
 					Statistic.PIECE, Statistic.PPS);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -1004,17 +1009,18 @@ public class FinalMode extends AbstractMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page change
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 2;
+			status1--;
+			if (status1 < 0) {
+				status1 = 2;
 			}
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 2) {
-				engine.statc[1] = 0;
+			status1++;
+			if (status1 > 2) {
+				status1 = 0;
 			}
 			engine.playSE("change");
 		}
@@ -1023,7 +1029,7 @@ public class FinalMode extends AbstractMode {
 			engine.playSE("change");
 			isShowBestSectionTime = !isShowBestSectionTime;
 		}
-
+		engine.statc_1(status1);
 		return false;
 	}
 

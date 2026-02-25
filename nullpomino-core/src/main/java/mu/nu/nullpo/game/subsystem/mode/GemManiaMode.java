@@ -926,15 +926,14 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			if (!engine.readyDone) {
 				loadStageSet(stageset);
 				stage = startstage;
 				engine.nextPieceCount = startnextc;
 
 				if (!randomnext) {
-					engine.nextPieceIDs = GeneralUtil
-							.createNextPieceArrayFromNumberString(STRING_DEFAULT_NEXT_LIST);
+					engine.nextPieceIDs = GeneralUtil.createNextPieceArrayFromNumberString(STRING_DEFAULT_NEXT_LIST);
 				}
 			}
 
@@ -952,21 +951,22 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] >= engine.readyStart) {
-			// Training
-			if (trainingType != 0) {
-				receiver.drawMenuFont(engine, playerID, 1, 5, "TRAINING", Colors.FONT_GREEN);
-			}
+		if (engine.statc_0() < engine.readyStart) {
+			return;
+		}
+		// Training
+		if (trainingType != 0) {
+			receiver.drawMenuFont(engine, playerID, 1, 5, "TRAINING", Colors.FONT_GREEN);
+		}
 
-			// STAGE XX
-			if (stage >= MAX_STAGE_NORMAL) {
-				receiver.drawMenuFont(engine, playerID, 0, 7, "EX STAGE ", Colors.FONT_GREEN);
-				receiver.drawMenuFont(engine, playerID, 9, 7, "" + (stage + 1 - MAX_STAGE_NORMAL));
-			} else {
-				receiver.drawMenuFont(engine, playerID, 1, 7, "STAGE", Colors.FONT_GREEN);
-				String strStage = String.format("%2s", getStageName(stage));
-				receiver.drawMenuFont(engine, playerID, 7, 7, strStage);
-			}
+		// STAGE XX
+		if (stage >= MAX_STAGE_NORMAL) {
+			receiver.drawMenuFont(engine, playerID, 0, 7, "EX STAGE ", Colors.FONT_GREEN);
+			receiver.drawMenuFont(engine, playerID, 9, 7, "" + (stage + 1 - MAX_STAGE_NORMAL));
+		} else {
+			receiver.drawMenuFont(engine, playerID, 1, 7, "STAGE", Colors.FONT_GREEN);
+			String strStage = String.format("%2s", getStageName(stage));
+			receiver.drawMenuFont(engine, playerID, 7, 7, strStage);
 		}
 	}
 
@@ -1201,8 +1201,10 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
+
+		int status0 = engine.statc_0();
 		// Occurrence new piece
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && status0 == 0 && engine.holdDisable == false && !lvupflag) {
 			// Level up
 			if (speedlevel < nextseclv - 1) {
 				speedlevel++;
@@ -1212,11 +1214,11 @@ public class GemManiaMode extends AbstractMode {
 			}
 			setSpeed(engine);
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0) {
+		if (engine.ending == 0 && status0 > 0) {
 			lvupflag = false;
 		}
 
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false) {
+		if (engine.ending == 0 && status0 == 0 && engine.holdDisable == false) {
 			// Roll Roll
 			engine.itemRollRollEnable = gimmickRoll > 0 && (thisStageTotalPieceLockCount + 1) % gimmickRoll == 0;
 			// Big
@@ -1252,7 +1254,7 @@ public class GemManiaMode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
-		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (speedlevel < nextseclv - 1) {
 				speedlevel++;
 				if (speedlevel == nextseclv - 1 && lvstopse == true) {
@@ -1354,7 +1356,8 @@ public class GemManiaMode extends AbstractMode {
 	@Override
 	public boolean onCustom(GameEngine engine, int playerID) {
 		// First frame Processing
-		if (engine.statc[0] == 0) {
+		int status0 = engine.statc_0();
+		if (status0 == 0) {
 			// Sound effects
 			if (clearflag) {
 				engine.playSE("stageclear");
@@ -1429,19 +1432,20 @@ public class GemManiaMode extends AbstractMode {
 		}
 
 		// Time limitproduction which increases
-		if (engine.statc[1] < timeextendStageClearSeconds * 60) {
+		int status1 = engine.statc_1();
+		if (status1 < timeextendStageClearSeconds * 60) {
 			if (timeextendStageClearSeconds < 30) {
-				engine.statc[1] += 4;
+				status1 += 4;
 			} else if (timeextendStageClearSeconds < 60) {
-				engine.statc[1] += 10;
+				status1 += 10;
 			} else {
-				engine.statc[1] += 30;
+				status1 += 30;
 			}
 
 			// Time meter
-			int limittimeTemp = limittimeNow + engine.statc[1];
+			int limittimeTemp = limittimeNow + status1;
 			if (skipflag) {
-				limittimeTemp = limittimeNow - engine.statc[1];
+				limittimeTemp = limittimeNow - status1;
 			}
 
 			if (limittimeTemp >= limittimeStart) {
@@ -1459,10 +1463,11 @@ public class GemManiaMode extends AbstractMode {
 			if (limittimeTemp <= 10 * 60) {
 				engine.meterColor = Colors.METER_COLOR_RED;
 			}
+			engine.statc_1(status1);
 		}
 
 		// Next To screen
-		if (engine.statc[0] >= 300 || engine.ctrl.isPush(Controller.BUTTON_A)) {
+		if (status0 >= 300 || engine.ctrl.isPush(Controller.BUTTON_A)) {
 			// Training
 			if (trainingType != 0) {
 				if (clearflag) {
@@ -1500,7 +1505,7 @@ public class GemManiaMode extends AbstractMode {
 			return true;
 		}
 
-		engine.statc[0]++;
+		engine.statc_0(status0 + 1);
 
 		return true;
 	}
@@ -1510,10 +1515,11 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderCustom(GameEngine engine, int playerID) {
-		if (engine.statc[0] < 1) {
+		int status0 = engine.statc_0();
+		if (status0 < 1) {
 			return;
 		}
-
+		int status1 = engine.statc_1();
 		// STAGE XX
 		receiver.drawMenuFont(engine, playerID, 1, 2, "STAGE", Colors.FONT_GREEN);
 		String strStage = String.format("%2s", getStageName(stage));
@@ -1521,14 +1527,14 @@ public class GemManiaMode extends AbstractMode {
 
 		if (clearflag) {
 			// クリア
-			int color = engine.statc[0] % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+			int color = status0 % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
 			receiver.drawMenuFont(engine, playerID, 2, 4, "CLEAR!", color);
 
 			receiver.drawMenuFont(engine, playerID, 0, 7, "LIMIT TIME", Colors.FONT_PINK);
 
-			boolean check = engine.statc[0] % 2 == 0 && engine.statc[1] < timeextendStageClearSeconds * 60;
-			color = check ? Colors.FONT_WHITE :	Colors.FONT_ORANGE;
-			receiver.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + engine.statc[1]), color);
+			boolean check = status0 % 2 == 0 && status1 < timeextendStageClearSeconds * 60;
+			color = check ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
+			receiver.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + status1), color);
 
 			receiver.drawMenuFont(engine, playerID, 2, 10, "EXTEND", Colors.FONT_PINK);
 			receiver.drawMenuFont(engine, playerID, 2, 11, timeextendStageClearSeconds + " SEC.");
@@ -1545,9 +1551,9 @@ public class GemManiaMode extends AbstractMode {
 
 			receiver.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
 
-			boolean check = engine.statc[0] % 2 == 0 && engine.statc[1] < 30 * 60;
+			boolean check = status0 % 2 == 0 && status1 < 30 * 60;
 			int color = check ? Colors.FONT_WHITE : Colors.FONT_RED;
-			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - engine.statc[1]), color);
+			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - status1), color);
 
 			if (trainingType == 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);
@@ -1581,7 +1587,8 @@ public class GemManiaMode extends AbstractMode {
 	public boolean onGameOver(GameEngine engine, int playerID) {
 		// Continue screen
 		if (engine.ending == 0 && !noContinue) {
-			if (engine.statc[0] == 0) {
+			int status0 = engine.statc_0();
+			if (status0 == 0) {
 				engine.playSE("died");
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 
@@ -1596,11 +1603,11 @@ public class GemManiaMode extends AbstractMode {
 
 				engine.allowTextRenderByReceiver = false; // GAMEOVERDisplay suppression
 			}
-			if (engine.statc[0] < engine.field.getHeight() + 1) {
+			if (status0 < engine.field.getHeight() + 1) {
 				// fieldGraying
 				for (int i = 0; i < engine.field.getWidth(); i++) {
-					if (engine.field.getBlockColor(i, engine.statc[0]) != Colors.BLOCK_COLOR_NONE) {
-						Block blk = engine.field.getBlock(i, engine.statc[0]);
+					if (engine.field.getBlockColor(i, status0) != Colors.BLOCK_COLOR_NONE) {
+						Block blk = engine.field.getBlock(i, status0);
 
 						if (blk != null) {
 							blk.color = Colors.BLOCK_COLOR_GRAY;
@@ -1609,19 +1616,20 @@ public class GemManiaMode extends AbstractMode {
 						}
 					}
 				}
-				engine.statc[0]++;
-			} else if (engine.statc[0] < engine.field.getHeight() + 1 + 600) {
+				status0 += 1;
+			} else if (status0 < engine.field.getHeight() + 1 + 600) {
 				// Continue selection
 				if (engine.ctrl.isPush(Controller.BUTTON_UP) || engine.ctrl.isPush(Controller.BUTTON_DOWN)) {
-					engine.statc[1]++;
-					if (engine.statc[1] > 1) {
-						engine.statc[1] = 0;
+					int status1 = engine.statc_1() + 1;
+					if (status1 > 1) {
+						status1 = 0;
 					}
+					engine.statc_1(status1);
 					engine.playSE("cursor");
 				}
 				// Decision
 				if (engine.ctrl.isPush(Controller.BUTTON_A)) {
-					if (engine.statc[1] == 0) {
+					if (engine.statc_1() == 0) {
 						// YES
 						limittimeNow = limittimeStart;
 						engine.nextPieceCount = continueNextPieceCount;
@@ -1634,18 +1642,18 @@ public class GemManiaMode extends AbstractMode {
 						engine.playSE("decide");
 					} else {
 						// NO
-						engine.statc[0] = engine.field.getHeight() + 1 + 600;
+						status0 = engine.field.getHeight() + 1 + 600;
 					}
 				} else {
-					engine.statc[0]++;
+					status0 += 1;
 				}
-			} else if (engine.statc[0] >= engine.field.getHeight() + 1 + 600) {
+			} else if (status0 >= engine.field.getHeight() + 1 + 600) {
 				// \(^o^)/ オワタ
 				noContinue = true;
 				engine.allowTextRenderByReceiver = true; // GAMEOVERDerepression display
 				engine.resetStatc();
 			}
-
+			engine.statc_0(status0);
 			return true;
 		}
 
@@ -1653,21 +1661,23 @@ public class GemManiaMode extends AbstractMode {
 	}
 
 	/*
-	 * game overDrawing process when(Continue mainly screen)
+	 * Drawing process when game is over (Continue mainly screen)
 	 */
 	@Override
 	public void renderGameOver(GameEngine engine, int playerID) {
 		if (engine.ending == 0 && !noContinue) {
-			if (engine.statc[0] >= engine.field.getHeight() + 1
-					&& engine.statc[0] < engine.field.getHeight() + 1 + 600) {
+			int status0 = engine.statc_0();
+			int status1 = engine.statc_1();
+			if (status0 >= engine.field.getHeight() + 1
+					&& status0 < engine.field.getHeight() + 1 + 600) {
 				receiver.drawMenuFont(engine, playerID, 1, 7, "CONTINUE?", Colors.FONT_PINK);
 
-				receiver.drawMenuFont(engine, playerID, 3, 9 + engine.statc[1] * 2, "b", Colors.FONT_RED);
-				receiver.drawMenuFont(engine, playerID, 4, 9, "YES", engine.statc[1] == 0);
-				receiver.drawMenuFont(engine, playerID, 4, 11, "NO", engine.statc[1] == 1);
+				receiver.drawMenuFont(engine, playerID, 3, 9 + status1 * 2, "b", Colors.FONT_RED);
+				receiver.drawMenuFont(engine, playerID, 4, 9, "YES", status1 == 0);
+				receiver.drawMenuFont(engine, playerID, 4, 11, "NO", status1 == 1);
 
-				int t = engine.field.getHeight() + 1 + 600 - engine.statc[0];
-				receiver.drawMenuFont(engine, playerID, 2, 13, "TIME " + (t - 1) / 60, Colors.FONT_GREEN);
+				int time = engine.field.getHeight() + 1 + 600 - status0;
+				receiver.drawMenuFont(engine, playerID, 2, 13, "TIME " + (time - 1) / 60, Colors.FONT_GREEN);
 
 				receiver.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
 				receiver.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
@@ -1684,18 +1694,21 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 2;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 2;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 2) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 2) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 
@@ -1707,9 +1720,11 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
+		int status1 = engine.statc_1();
 
-		if (engine.statc[1] == 0) {
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
+		switch (status1) {
+		case 0: {
 			int gcolor = Colors.FONT_WHITE;
 			if (allclear == 1) {
 				gcolor = Colors.FONT_GREEN;
@@ -1717,18 +1732,17 @@ public class GemManiaMode extends AbstractMode {
 			if (allclear == 2) {
 				gcolor = Colors.FONT_ORANGE;
 			}
-
 			receiver.drawMenuFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
 			String strStage = String.format("%10s", getStageName(stage));
 			receiver.drawMenuFont(engine, playerID, 0, 3, strStage, gcolor);
-
 			drawResult(engine, playerID, receiver, 4, Colors.FONT_PINK, "CLEAR", String.format("%9d%%", clearper));
 			drawResultStats(engine, playerID, receiver, 6, Colors.FONT_PINK, Statistic.LINES, Statistic.PIECE,
 					Statistic.TIME);
 			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_PINK, rankingRank);
-		} else if (engine.statc[1] == 1) {
+			break;
+		}
+		case 1:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION1/2", Colors.FONT_PINK);
-
 			for (int i = 0; i < 15; i++) {
 				if (sectiontime[i] != 0) {
 					String strSectionTime = GeneralUtil.getTime(sectiontime[i]);
@@ -1741,9 +1755,9 @@ public class GemManiaMode extends AbstractMode {
 					receiver.drawMenuFont(engine, playerID, 2, 3 + i, strSectionTime);
 				}
 			}
-		} else if (engine.statc[1] == 2) {
+			break;
+		case 2:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION2/2", Colors.FONT_PINK);
-
 			for (int i = 15; i < sectiontime.length; i++) {
 				if (sectiontime[i] != 0) {
 					String strSectionTime = GeneralUtil.getTime(sectiontime[i]);
@@ -1756,6 +1770,9 @@ public class GemManiaMode extends AbstractMode {
 					receiver.drawMenuFont(engine, playerID, 2, i - 12, strSectionTime);
 				}
 			}
+			break;
+		default:
+			break;
 		}
 	}
 

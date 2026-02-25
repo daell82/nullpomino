@@ -569,7 +569,7 @@ public class SPFMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc[4] == 0) {
+		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
 			// Up
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 				menuCursor--;
@@ -812,7 +812,7 @@ public class SPFMode extends AbstractMode {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID);
 					receiver.saveModeConfig(owner.modeConfig);
-					engine.statc[4] = 1;
+					engine.statc_4(1);
 				}
 			}
 
@@ -829,21 +829,22 @@ public class SPFMode extends AbstractMode {
 			// Random map preview
 			if (useMap[playerID] && propMap[playerID] != null && mapNumber[playerID] < 0) {
 				if (menuTime % 30 == 0) {
-					engine.statc[5]++;
-					if (engine.statc[5] >= mapMaxNo[playerID]) {
-						engine.statc[5] = 0;
+					int status5 = engine.statc_5() + 1;
+					if (status5 >= mapMaxNo[playerID]) {
+						status5 = 0;
 					}
-					loadMapPreview(engine, playerID, engine.statc[5], false);
+					engine.statc_5(status5);
+					loadMapPreview(engine, playerID, status5, false);
 				}
 			}
 
 			menuTime++;
-		} else if (engine.statc[4] == 0) {
+		} else if (engine.statc_4() == 0) {
 			menuTime++;
 			menuCursor = 0;
 
 			if (menuTime >= 180) {
-				engine.statc[4] = 1;
+				engine.statc_4(1);
 			} else if (menuTime > 120) {
 				menuCursor = 18;
 			} else if (menuTime == 120) {
@@ -853,7 +854,7 @@ public class SPFMode extends AbstractMode {
 				menuCursor = 9;
 			}
 		} else // Start
-		if (owner.engine[0].statc[4] == 1 && owner.engine[1].statc[4] == 1 && playerID == 1) {
+		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
 			owner.engine[0].stat = GameEngine.Status.READY;
 			owner.engine[1].stat = GameEngine.Status.READY;
 			owner.engine[0].resetStatc();
@@ -861,7 +862,7 @@ public class SPFMode extends AbstractMode {
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
-			engine.statc[4] = 0;
+			engine.statc_4(0);
 		}
 
 		return true;
@@ -872,7 +873,7 @@ public class SPFMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (engine.statc[4] == 0) {
+		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				initMenu(Colors.FONT_ORANGE, 0);
 				drawMenu(engine, playerID, receiver, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
@@ -950,7 +951,7 @@ public class SPFMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.numColors = BLOCK_COLORS.length;
 			engine.rainbowAnimate = playerID == 0;
 			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
@@ -992,7 +993,7 @@ public class SPFMode extends AbstractMode {
 			} else if (engine.field != null) {
 				engine.field.reset();
 			}
-		} else if (engine.statc[0] == 1 && diamondPower[playerID] > 0) {
+		} else if (engine.statc_0() == 1 && diamondPower[playerID] > 0) {
 			for (int x = 24; x < engine.nextPieceArraySize; x += 25) {
 				engine.nextPieces[x].block[1].color = DIAMOND_COLOR;
 			}
@@ -1649,7 +1650,7 @@ public class SPFMode extends AbstractMode {
 				owner.engine[1].gameEnded();
 				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[0].resetStatc();
-				owner.engine[0].statc[1] = 1;
+				owner.engine[0].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			} else if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
 					&& owner.engine[1].stat != GameEngine.Status.GAMEOVER) {
@@ -1659,7 +1660,7 @@ public class SPFMode extends AbstractMode {
 				owner.engine[1].gameEnded();
 				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[1].resetStatc();
-				owner.engine[1].statc[1] = 1;
+				owner.engine[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}

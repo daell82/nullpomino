@@ -579,9 +579,9 @@ public class TimeAttackMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, receiver);
 		} else {
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[goaltype],
-					"LEVEL", String.valueOf(startlevel + 1), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-					"BIG", GeneralUtil.getONorOFF(big));
+			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[goaltype], "LEVEL",
+					String.valueOf(startlevel + 1), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "BIG",
+					GeneralUtil.getONorOFF(big));
 		}
 	}
 
@@ -590,7 +590,7 @@ public class TimeAttackMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.statistics.level = startlevel;
 			engine.statistics.levelDispAdd = 1;
 			engine.big = big;
@@ -625,13 +625,11 @@ public class TimeAttackMode extends NetDummyMode {
 		}
 
 		receiver.drawScoreFont(engine, playerID, 0, 0, "TIME ATTACK", Colors.FONT_PURPLE);
-		receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME_LONG[goaltype] + ")",
-				Colors.FONT_PURPLE);
+		receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME_LONG[goaltype] + ")", Colors.FONT_PURPLE);
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null
-					&& !netIsWatch) {
+			if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null && !netIsWatch) {
 				receiver.drawScoreFont(engine, playerID, 3, 3, "LINE TIME", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
@@ -681,8 +679,7 @@ public class TimeAttackMode extends NetDummyMode {
 					time = 0;
 				}
 				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time),
-						time > 0 && time < 10 * 60);
+				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
 			}
 
 			// Section time
@@ -737,7 +734,7 @@ public class TimeAttackMode extends NetDummyMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Enable timer again after the levelup
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && engine.ending == 0) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && engine.ending == 0) {
 			engine.timerActive = true;
 		}
 		// Ending start
@@ -915,8 +912,7 @@ public class TimeAttackMode extends NetDummyMode {
 			}
 		}
 		// Level up
-		else if (norm >= (engine.statistics.level + 1) * 10
-				&& engine.statistics.level < tableGoalLevel[goaltype] - 1) {
+		else if (norm >= (engine.statistics.level + 1) * 10 && engine.statistics.level < tableGoalLevel[goaltype] - 1) {
 			receiver.playSE("levelup");
 			engine.statistics.level++;
 
@@ -937,12 +933,13 @@ public class TimeAttackMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
+		int status1 = engine.statc_1();
 		if (!netIsWatch) {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3",
-					Colors.FONT_RED);
+			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 		}
 
-		if (engine.statc[1] == 0) {
+		switch (status1) {
+		case 0: {
 			int gcolor = Colors.FONT_WHITE;
 			if (engine.statistics.rollclear == 1) {
 				gcolor = Colors.FONT_GREEN;
@@ -950,42 +947,42 @@ public class TimeAttackMode extends NetDummyMode {
 			if (engine.statistics.rollclear == 2) {
 				gcolor = Colors.FONT_ORANGE;
 			}
-
 			receiver.drawMenuFont(engine, playerID, 0, 2, "NORM", Colors.FONT_BLUE);
 			String strLines = String.format("%10d", norm);
 			receiver.drawMenuFont(engine, playerID, 0, 3, strLines, gcolor);
-
 			drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME,
 					Statistic.PIECE, Statistic.LPM, Statistic.PPS);
 			drawResultRank(engine, playerID, receiver, 14, Colors.FONT_BLUE, rankingRank);
 			drawResultNetRank(engine, playerID, receiver, 16, Colors.FONT_BLUE, netRankingRank[0]);
 			drawResultNetRankDaily(engine, playerID, receiver, 18, Colors.FONT_BLUE, netRankingRank[1]);
-		} else if (engine.statc[1] == 1) {
+			break;
+		}
+		case 1:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 			for (int i = 0; i < 10; i++) {
 				if (sectiontime[i] > 0) {
 					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]));
 				}
 			}
-
 			if (sectionavgtime > 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
-		} else if (engine.statc[1] == 2) {
+			break;
+		case 2:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 			for (int i = 10; i < sectiontime.length; i++) {
 				if (sectiontime[i] > 0) {
 					receiver.drawMenuFont(engine, playerID, 2, i - 7, GeneralUtil.getTime(sectiontime[i]));
 				}
 			}
-
 			if (sectionavgtime > 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
+			break;
+		default:
+			break;
 		}
 
 		if (netIsPB) {
@@ -1004,19 +1001,22 @@ public class TimeAttackMode extends NetDummyMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		if (!netIsWatch) {
+			int status1 = engine.statc_1();
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-				engine.statc[1]--;
-				if (engine.statc[1] < 0) {
-					engine.statc[1] = 2;
+				status1 -= 1;
+				if (status1 < 0) {
+					status1 = 2;
 				}
-				receiver.playSE("change");
+				engine.statc_1(status1);
+				engine.playSE("change");
 			}
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-				engine.statc[1]++;
-				if (engine.statc[1] > 2) {
-					engine.statc[1] = 0;
+				status1 += 1;
+				if (status1 > 2) {
+					status1 = 0;
 				}
-				receiver.playSE("change");
+				engine.statc_1(status1);
+				engine.playSE("change");
 			}
 		}
 

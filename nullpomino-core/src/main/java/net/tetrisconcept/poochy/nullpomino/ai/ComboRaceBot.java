@@ -202,7 +202,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
-		if (engine.stat == GameEngine.Status.READY && engine.statc[0] == 0) {
+		if (engine.stat == GameEngine.Status.READY && engine.statc_0() == 0) {
 			thinkRequest.newCreateTablesRequest();
 		}
 	}
@@ -213,7 +213,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
 		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
-				&& engine.statc[0] > 0
+				&& engine.statc_0() > 0
 				&& (!engine.aiUseThread || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			inputARE = 0;
 			int input = 0; // Button input data
@@ -303,7 +303,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 						if (rt == bestRt) {
 							// Groundrotation
 							if (bestRtSub != 0 && movestate == 0) {
-								bestRt = pieceNow.getRotateDirection(bestRtSub, bestRt);
+								bestRt = Piece.getRotateDirection(bestRtSub, bestRt);
 								rotateDir = bestRtSub;
 								bestRtSub = 0;
 								movestate = 1;
@@ -745,7 +745,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
 						// Left rotation
 						if (!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieces[p].getRotateDirection(-1, rt);
+							int rot = Piece.getRotateDirection(-1, rt);
 							int newX = x;
 							int newY = y;
 							fldTemp.copy(fldBackup);
@@ -777,7 +777,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
 						// Right rotation
 						if (engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieces[p].getRotateDirection(1, rt);
+							int rot = Piece.getRotateDirection(1, rt);
 							int newX = x;
 							int newY = y;
 							fldTemp.copy(fldBackup);

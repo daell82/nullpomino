@@ -1108,13 +1108,6 @@ public class NetVSBattleMode extends NetDummyVSMode {
 
 		/**
 		 * Constructor
-		 */
-		@SuppressWarnings("unused")
-		public GarbageEntry() {
-		}
-
-		/**
-		 * Constructor
 		 *
 		 * @param g Lines
 		 */

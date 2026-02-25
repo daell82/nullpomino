@@ -549,13 +549,13 @@ public class ScoreAttackMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
 			if (engine.statistics.level < 299) {
 				engine.statistics.level++;
 			}
 			levelUp(engine);
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0) {
+		if (engine.ending == 0 && engine.statc_0() > 0) {
 			lvupflag = false;
 		}
 
@@ -567,7 +567,7 @@ public class ScoreAttackMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
-		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (engine.statistics.level < 299) {
 				engine.statistics.level++;
 			}
@@ -678,7 +678,7 @@ public class ScoreAttackMode extends AbstractMode {
 				bravo = 4;
 			}
 
-			int speedBonus = engine.getLockDelay() - engine.statc[0];
+			int speedBonus = engine.getLockDelay() - engine.statc_0();
 			if (speedBonus < 0) {
 				speedBonus = 0;
 			}
@@ -753,7 +753,7 @@ public class ScoreAttackMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			secretGrade = engine.field.getSecretGrade();
 		}
 		return false;
@@ -764,10 +764,12 @@ public class ScoreAttackMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3",
+		int status1 = engine.statc_1();
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3",
 				Colors.FONT_RED);
 
-		if (engine.statc[1] == 0) {
+		switch (status1) {
+		case 0:
 			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL, Statistic.TIME);
 			drawResultRank(engine, playerID, receiver, 13, Colors.FONT_BLUE, rankingRank);
@@ -775,23 +777,26 @@ public class ScoreAttackMode extends AbstractMode {
 				drawResult(engine, playerID, receiver, 15, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
-		} else if (engine.statc[1] == 1) {
+			break;
+		case 1:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 			for (int i = 0; i < sectiontime.length; i++) {
 				if (sectiontime[i] > 0) {
 					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
 							sectionIsNewRecord[i]);
 				}
 			}
-
 			if (sectionavgtime > 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
-		} else if (engine.statc[1] == 2) {
+			break;
+		case 2:
 			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -801,18 +806,21 @@ public class ScoreAttackMode extends AbstractMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page change
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 2;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 2;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 2) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 2) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		// Flip Leaderboard/Best Section Time Records

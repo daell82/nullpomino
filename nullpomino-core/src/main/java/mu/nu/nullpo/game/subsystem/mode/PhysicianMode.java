@@ -332,7 +332,7 @@ public class PhysicianMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (hoverBlocks > 0 && engine.statc[0] == 0) {
+		if (hoverBlocks > 0 && engine.statc_0() == 0) {
 			engine.createFieldIfNeeded();
 			int minY = 6;
 			if (hoverBlocks >= 80) {

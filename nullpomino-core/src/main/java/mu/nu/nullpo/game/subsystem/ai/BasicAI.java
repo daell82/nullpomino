@@ -155,7 +155,7 @@ public class BasicAI extends DummyAI implements Runnable {
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
 		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
-				&& engine.statc[0] > 0
+				&& engine.statc_0() > 0
 				&& (!engine.aiUseThread || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			int input = 0; // button input data
 			Piece pieceNow = engine.nowPieceObject;

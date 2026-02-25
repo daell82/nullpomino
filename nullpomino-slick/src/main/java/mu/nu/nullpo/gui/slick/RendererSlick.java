@@ -1506,23 +1506,23 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 */
 	@Override
 	public void renderReady(GameEngine engine, int playerID) {
-		if (graphics == null || !engine.allowTextRenderByReceiver || engine.statc[0] <= 0) {
+		int status = engine.statc_0(); // XXX clarify what status means
+		if (graphics == null || !engine.allowTextRenderByReceiver || status <= 0) {
 			return;
 		}
-		int state = engine.statc[0]; // XXX clarify what state means
 
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
 		if (engine.displaySize != DisplaySize.SMALL) {
-			if (state >= engine.readyStart && state < engine.readyEnd) {
+			if (status >= engine.readyStart && status < engine.readyEnd) {
 				NormalFontSlick.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
-			} else if (state >= engine.goStart && state < engine.goEnd) {
+			} else if (status >= engine.goStart && status < engine.goEnd) {
 				NormalFontSlick.printFont(offsetX + 62, offsetY + 204, "GO!", Colors.FONT_WHITE, 1.0f);
 			}
-		} else if (state >= engine.readyStart && state < engine.readyEnd) {
+		} else if (status >= engine.readyStart && status < engine.readyEnd) {
 			NormalFontSlick.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
-		} else if (state >= engine.goStart && state < engine.goEnd) {
+		} else if (status >= engine.goStart && status < engine.goEnd) {
 			NormalFontSlick.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
 		}
 	}
@@ -1535,7 +1535,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		if (!engine.isVisible) {
 			return;
 		}
-		if (engine.statc[0] <= 1 && !engine.ruleopt.moveFirstFrame) {
+		if (engine.statc_0() <= 1 && !engine.ruleopt.moveFirstFrame) {
 			return;
 		}
 		int offsetX = getFieldDisplayPositionX(engine, playerID) + 4;
@@ -1593,14 +1593,14 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
 		if (engine.displaySize != DisplaySize.SMALL) {
-			if (engine.statc[1] == 0) {
+			if (engine.statc_1() == 0) {
 				NormalFontSlick.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", Colors.FONT_ORANGE, 1.0f);
 			} else if (engine.owner.getPlayers() < 3) {
 				NormalFontSlick.printFont(offsetX + 52, offsetY + 204, "WIN!", Colors.FONT_ORANGE, 1.0f);
 			} else {
 				NormalFontSlick.printFont(offsetX + 4, offsetY + 204, "1ST PLACE!", Colors.FONT_ORANGE, 1.0f);
 			}
-		} else if (engine.statc[1] == 0) {
+		} else if (engine.statc_1() == 0) {
 			NormalFontSlick.printFont(offsetX + 4, offsetY + 80, "EXCELLENT!", Colors.FONT_ORANGE, 0.5f);
 		} else if (engine.owner.getPlayers() < 3) {
 			NormalFontSlick.printFont(offsetX + 33, offsetY + 80, "WIN!", Colors.FONT_ORANGE, 0.5f);
@@ -1621,7 +1621,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			return;
 		}
 
-		if (engine.statc[0] >= engine.field.getHeight() + 1 && engine.statc[0] < engine.field.getHeight() + 1 + 180) {
+		if (engine.statc_0() >= engine.field.getHeight() + 1 && engine.statc_0() < engine.field.getHeight() + 1 + 180) {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
@@ -1657,7 +1657,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 		int tempColor;
 
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			tempColor = Colors.FONT_RED;
 		} else {
 			tempColor = Colors.FONT_WHITE;
@@ -1665,7 +1665,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		NormalFontSlick.printFont(getFieldDisplayPositionX(engine, playerID) + 12,
 				getFieldDisplayPositionY(engine, playerID) + 340, "RETRY", tempColor, 1.0f);
 
-		if (engine.statc[0] == 1) {
+		if (engine.statc_0() == 1) {
 			tempColor = Colors.FONT_RED;
 		} else {
 			tempColor = Colors.FONT_WHITE;

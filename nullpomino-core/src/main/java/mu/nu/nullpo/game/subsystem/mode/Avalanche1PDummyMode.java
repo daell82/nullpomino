@@ -215,7 +215,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			return readyInit(engine, playerID);
 		}
 		return false;
@@ -298,7 +298,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			addBonus(engine, playerID);
 		}
 		return false;

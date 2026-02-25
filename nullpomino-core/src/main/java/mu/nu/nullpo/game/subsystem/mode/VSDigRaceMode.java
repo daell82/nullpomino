@@ -180,7 +180,7 @@ public class VSDigRaceMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc[4] == 0) {
+		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
 			// Configuration changes
 			int change = updateCursor(engine, 12, playerID);
 
@@ -315,7 +315,7 @@ public class VSDigRaceMode extends AbstractMode {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID);
 					receiver.saveModeConfig(owner.modeConfig);
-					engine.statc[4] = 1;
+					engine.statc_4(1);
 				}
 			}
 
@@ -325,7 +325,7 @@ public class VSDigRaceMode extends AbstractMode {
 			}
 
 			menuTime++;
-		} else if (engine.statc[4] == 0) {
+		} else if (engine.statc_4() == 0) {
 			// Replay start
 			menuTime++;
 			menuCursor = 0;
@@ -334,10 +334,10 @@ public class VSDigRaceMode extends AbstractMode {
 				menuCursor = 9;
 			}
 			if (menuTime >= 120) {
-				engine.statc[4] = 1;
+				engine.statc_4(1);
 			}
 		} else // Start the game when both players are ready
-		if (owner.engine[0].statc[4] == 1 && owner.engine[1].statc[4] == 1 && playerID == 1) {
+		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
 			owner.engine[0].stat = GameEngine.Status.READY;
 			owner.engine[1].stat = GameEngine.Status.READY;
 			owner.engine[0].resetStatc();
@@ -345,7 +345,7 @@ public class VSDigRaceMode extends AbstractMode {
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
-			engine.statc[4] = 0;
+			engine.statc_4(0);
 		}
 
 		return true;
@@ -356,7 +356,7 @@ public class VSDigRaceMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (engine.statc[4] == 0) {
+		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				drawMenu(engine, playerID, receiver, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
@@ -382,7 +382,7 @@ public class VSDigRaceMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.createFieldIfNeeded();
 			fillGarbage(engine, playerID);
 
@@ -636,7 +636,7 @@ public class VSDigRaceMode extends AbstractMode {
 				owner.engine[1].gameEnded();
 				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[0].resetStatc();
-				owner.engine[0].statc[1] = 1;
+				owner.engine[0].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				if (!owner.replayMode) {
 					winCount[0]++;
@@ -649,7 +649,7 @@ public class VSDigRaceMode extends AbstractMode {
 				owner.engine[1].gameEnded();
 				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
 				owner.engine[1].resetStatc();
-				owner.engine[1].statc[1] = 1;
+				owner.engine[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				if (!owner.replayMode) {
 					winCount[1]++;

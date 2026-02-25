@@ -341,7 +341,7 @@ public class RetroMarathonMode extends AbstractMode {
 
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.createFieldIfNeeded();
 			fillGarbage(engine, startheight);
 		}

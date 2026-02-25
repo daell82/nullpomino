@@ -123,7 +123,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc[4] == 0) {
+		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
 			// Configuration changes
 			int change = updateCursor(engine, 28);
 
@@ -388,7 +388,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID, "digrace");
 					receiver.saveModeConfig(owner.modeConfig);
-					engine.statc[4] = 1;
+					engine.statc_4(1);
 				}
 			}
 
@@ -397,19 +397,19 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 				engine.quitflag = true;
 			}
 			menuTime++;
-		} else if (engine.statc[4] == 0) {
+		} else if (engine.statc_4() == 0) {
 			menuTime++;
 			menuCursor = 0;
 
 			if (menuTime >= 180) {
-				engine.statc[4] = 1;
+				engine.statc_4(1);
 			} else if (menuTime >= 120) {
 				menuCursor = 18;
 			} else if (menuTime >= 60) {
 				menuCursor = 9;
 			}
 		} else // Start
-		if (owner.engine[0].statc[4] == 1 && owner.engine[1].statc[4] == 1 && playerID == 1) {
+		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
 			owner.engine[0].stat = GameEngine.Status.READY;
 			owner.engine[1].stat = GameEngine.Status.READY;
 			owner.engine[0].resetStatc();
@@ -417,7 +417,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
-			engine.statc[4] = 0;
+			engine.statc_4(0);
 		}
 
 		return true;
@@ -428,7 +428,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (engine.statc[4] == 0) {
+		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				drawMenu(engine, playerID, receiver, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
@@ -481,7 +481,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.numColors = numColors[playerID];
 			engine.lineGravityType = cascadeSlow[playerID] ? GameEngine.LineGravity.CASCADE_SLOW
 					: GameEngine.LineGravity.CASCADE;
@@ -693,8 +693,8 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 				owner.engine[1].gameEnded();
 				owner.engine[0].resetStatc();
 				owner.engine[1].resetStatc();
-				owner.engine[0].statc[1] = 1;
-				owner.engine[1].statc[1] = 1;
+				owner.engine[0].statc_1(1);
+				owner.engine[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}

@@ -655,7 +655,7 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 			engine.stat = GameEngine.Status.GAMEOVER;
 			engine.gameEnded();
 			engine.resetStatc();
-			engine.statc[1] = 1;
+			engine.statc_1(1);
 		}
 
 		// Out of time

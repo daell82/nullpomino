@@ -62,6 +62,7 @@ import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 @Deprecated(since = "7.6")
 public class LegacyNetVSBattleMode extends NetDummyMode {
 	/** Log */
+	@Deprecated
 	static final Logger log = Logger.getLogger(LegacyNetVSBattleMode.class);
 
 	/** Maximum number of players */
@@ -493,6 +494,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	 * MAX_PLAYERS; i++) { if(isPlayerExist[i]) count++; } return count; }
 	 */
 
+	@Deprecated
 	/*
 	 * Mode name
 	 */
@@ -501,6 +503,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		return "NET-VS-BATTLE";
 	}
 
+	@Deprecated
 	@Override
 	public boolean isVSMode() {
 		return true;
@@ -509,6 +512,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Maximum players count
 	 */
+	@Deprecated
 	@Override
 	public int getPlayers() {
 		return MAX_PLAYERS;
@@ -517,6 +521,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * NetPlay
 	 */
+	@Deprecated
 	@Override
 	public boolean isNetplayMode() {
 		return true;
@@ -525,6 +530,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Mode Initialization
 	 */
+	@Deprecated
 	@Override
 	public void modeInit(GameManager manager) {
 		super.modeInit(manager);
@@ -600,6 +606,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	 * @param client   NetPlayerClient
 	 * @param roomInfo NetRoomInfo
 	 */
+	@Deprecated
 	@Override
 	protected void netOnJoin(NetLobbyFrame lobby, NetPlayerClient client, NetRoomInfo roomInfo) {
 		log.debug("onJoin on NetVSBattleMode");
@@ -906,6 +913,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Initialization for each player
 	 */
+	@Deprecated
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		if (playerID >= 1 || playerSeatNumber == -1) {
@@ -970,6 +978,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Called at settings screen
 	 */
+	@Deprecated
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		if (playerID == 0 && playerSeatNumber >= 0) {
@@ -1006,12 +1015,13 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				// Random map preview
 				if (currentRoomInfo != null && currentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
 					if (menuTime % 30 == 0) {
-						engine.statc[5]++;
-						if (engine.statc[5] >= netLobby.mapList.size()) {
-							engine.statc[5] = 0;
+						int status5 = engine.statc_5() + 1;
+						if (status5 >= netLobby.mapList.size()) {
+							status5 = 0;
 						}
+						engine.statc_5(status5);
 						engine.createFieldIfNeeded();
-						engine.field.stringToField(netLobby.mapList.get(engine.statc[5]));
+						engine.field.stringToField(netLobby.mapList.get(status5));
 						engine.field.setAllSkin(engine.getSkin());
 						engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 						engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -1040,6 +1050,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Render the settings screen
 	 */
+	@Deprecated
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (netLobby == null || netLobby.netPlayerClient == null || !engine.isVisible) {
@@ -1090,9 +1101,10 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Ready
 	 */
+	@Deprecated
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			// Map
 			if (currentRoomInfo.useMap && mapNo < netLobby.mapList.size() && !isPractice) {
 				engine.createFieldIfNeeded();
@@ -1110,7 +1122,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 
-		if (isPractice && engine.statc[0] >= 10) {
+		if (isPractice && engine.statc_0() >= 10) {
 			isPracticeExitAllowed = true;
 		}
 
@@ -1120,6 +1132,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Start game
 	 */
+	@Deprecated
 	@Override
 	public void startGame(GameEngine engine, int playerID) {
 		if (currentRoomInfo != null) {
@@ -1171,10 +1184,11 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Processing on the move
 	 */
+	@Deprecated
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Start gameImmediately after the occurrence of a new piece
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && playerID == 0
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && playerID == 0
 				&& playerSeatNumber >= 0 && !isPractice) {
 			netPlayTimerActive = true;
 			sendField(engine);
@@ -1229,6 +1243,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Called whenever a piece is locked
 	 */
+	@Deprecated
 	@Override
 	public void pieceLocked(GameEngine engine, int playerID, int lines) {
 		if (engine.ending == 0 && playerID == 0 && playerSeatNumber >= 0) {
@@ -1240,9 +1255,10 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Line clear
 	 */
+	@Deprecated
 	@Override
 	public boolean onLineClear(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 1 && engine.ending == 0 && playerID == 0 && playerSeatNumber >= 0) {
+		if (engine.statc_0() == 1 && engine.ending == 0 && playerID == 0 && playerSeatNumber >= 0) {
 			sendField(engine);
 		}
 		return false;
@@ -1251,6 +1267,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Calculate score
 	 */
+	@Deprecated
 	@Override
 	public void calcScore(GameEngine engine, int playerID, int lines) {
 		// Attack
@@ -1552,9 +1569,10 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * ARE
 	 */
+	@Deprecated
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && engine.ending == 0 && playerID == 0 && playerSeatNumber >= 0) {
+		if (engine.statc_0() == 0 && engine.ending == 0 && playerID == 0 && playerSeatNumber >= 0) {
 			sendField(engine);
 			if (numNowPlayers == 2 && numMaxPlayers == 2) {
 				netSendNextAndHold(engine);
@@ -1566,6 +1584,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Called after every frame
 	 */
+	@Deprecated
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
 		scgettime[playerID]++;
@@ -1680,6 +1699,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Drawing processing at the end of every frame
 	 */
+	@Deprecated
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
 		// Number of players
@@ -1996,6 +2016,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * game over
 	 */
+	@Deprecated
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
 		engine.gameEnded();
@@ -2003,7 +2024,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		isPracticeExitAllowed = false;
 
 		if (playerID == 0 && isPractice) {
-			if (engine.statc[0] < engine.field.getHeight() + 1) {
+			if (engine.statc_0() < engine.field.getHeight() + 1) {
 				return false;
 			} else {
 				engine.field.reset();
@@ -2037,7 +2058,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				engine.resetStatc();
 				return true;
 			}
-			if (engine.statc[0] < engine.field.getHeight() + 1 || isPlayerResultReceived[playerID]) {
+			if (engine.statc_0() < engine.field.getHeight() + 1 || isPlayerResultReceived[playerID]) {
 				return false;
 			}
 		}
@@ -2048,6 +2069,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * game overDraw the screen
 	 */
+	@Deprecated
 	@Override
 	public void renderGameOver(GameEngine engine, int playerID) {
 		if (playerID == 0 && isPractice || !engine.isVisible) {
@@ -2128,6 +2150,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * After being defeated
 	 */
+	@Deprecated
 	@Override
 	public boolean onCustom(GameEngine engine, int playerID) {
 		if (!isNetGameActive) {
@@ -2141,12 +2164,13 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * EXCELLENTScreen processing
 	 */
+	@Deprecated
 	@Override
 	public boolean onExcellent(GameEngine engine, int playerID) {
 		engine.gameEnded();
 		engine.allowTextRenderByReceiver = false;
-
-		if (engine.statc[0] == 0) {
+		int status0 = engine.statc_0();
+		if (status0 == 0) {
 			// if((playerID == 0) && (playerSeatNumber != -1)) numWins++;
 			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			if (engine.ai != null) {
@@ -2156,11 +2180,11 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			engine.playSE("excellent");
 		}
 
-		if (engine.statc[0] >= 120 && engine.ctrl.isPush(Controller.BUTTON_A)) {
-			engine.statc[0] = engine.field.getHeight() + 1 + 180;
+		if (status0 >= 120 && engine.ctrl.isPush(Controller.BUTTON_A)) {
+			status0 = engine.field.getHeight() + 1 + 180;
 		}
 
-		if (engine.statc[0] >= engine.field.getHeight() + 1 + 180 && !isNetGameActive
+		if (status0 >= engine.field.getHeight() + 1 + 180 && !isNetGameActive
 				&& isPlayerResultReceived[playerID]) {
 			if (engine.field != null) {
 				engine.field.reset();
@@ -2168,15 +2192,16 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			engine.resetStatc();
 			engine.stat = GameEngine.Status.RESULT;
 		} else {
-			engine.statc[0]++;
+			status0++;
 		}
-
+		engine.statc_0(status0);
 		return true;
 	}
 
 	/*
 	 * EXCELLENTProcess of drawing the screen
 	 */
+	@Deprecated
 	@Override
 	public void renderExcellent(GameEngine engine, int playerID) {
 		if (!engine.isVisible) {
@@ -2206,6 +2231,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Processing of the results screen
 	 */
+	@Deprecated
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		engine.allowTextRenderByReceiver = false;
@@ -2228,6 +2254,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/*
 	 * Render results screenProcessing
 	 */
+	@Deprecated
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		float scale = 1.0f;
@@ -2297,10 +2324,12 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	/**
 	 * No retry key.
 	 */
+	@Deprecated
 	@Override
 	public void netplayOnRetryKey(GameEngine engine, int playerID) {
 	}
 
+	@Deprecated
 	@Override
 	public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
 		for (int i = 0; i < getPlayers(); i++) {
@@ -2308,6 +2337,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		}
 	}
 
+	@Deprecated
 	@Override
 	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
 		// PlayerState change
@@ -2698,7 +2728,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 					if (owner.engine[playerID].stat != GameEngine.Status.EXCELLENT) {
 						owner.engine[playerID].stat = GameEngine.Status.MOVE;
-						owner.engine[playerID].statc[0] = 2;
+						owner.engine[playerID].statc_0(2);
 					}
 
 					playerSkin[playerID] = pieceSkin;
@@ -2713,8 +2743,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 				if (playerSeatNumber != -1 && netPlayTimerActive && !isPractice
 						&& owner.engine[0].stat == GameEngine.Status.READY
-						&& owner.engine[0].statc[0] < owner.engine[0].goEnd) {
-					owner.engine[0].statc[0] = owner.engine[0].goEnd;
+						&& owner.engine[0].statc_0() < owner.engine[0].goEnd) {
+					owner.engine[0].statc_0(owner.engine[0].goEnd);
 				}
 			}
 //			if((message[3].equals("tank")) && (useTankMode == true)){

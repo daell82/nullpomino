@@ -513,7 +513,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			return readyInit(engine, playerID);
 		}
 		return false;
@@ -825,8 +825,8 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 				owner.engine[1].gameEnded();
 				owner.engine[0].resetStatc();
 				owner.engine[1].resetStatc();
-				owner.engine[0].statc[1] = 1;
-				owner.engine[1].statc[1] = 1;
+				owner.engine[0].statc_1(1);
+				owner.engine[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}

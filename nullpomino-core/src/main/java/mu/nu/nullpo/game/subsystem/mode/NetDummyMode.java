@@ -263,7 +263,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// NET: Send field, next, and stats
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && netIsNetPlay && !netIsWatch
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && netIsNetPlay && !netIsWatch
 				&& (netNumSpectators > 0 || netForceSendMovements)) {
 			netSendField(engine);
 			netSendStats(engine);
@@ -301,7 +301,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	@Override
 	public boolean onLineClear(GameEngine engine, int playerID) {
 		// NET: Send field and stats
-		if (engine.statc[0] == 1 && engine.ending == 0 && netIsNetPlay && !netIsWatch
+		if (engine.statc_0() == 1 && engine.ending == 0 && netIsNetPlay && !netIsWatch
 				&& (netNumSpectators > 0 || netForceSendMovements)) {
 			netSendField(engine);
 			netSendStats(engine);
@@ -315,7 +315,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// NET: Send field, next, and stats
-		if (engine.statc[0] == 0 && engine.ending == 0 && netIsNetPlay && !netIsWatch
+		if (engine.statc_0() == 0 && engine.ending == 0 && netIsNetPlay && !netIsWatch
 				&& (netNumSpectators > 0 || netForceSendMovements)) {
 			netSendField(engine);
 			netSendNextAndHold(engine);
@@ -346,7 +346,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 */
 	@Override
 	public boolean onExcellent(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			// NET: Send game completed messages
 			if (netIsNetPlay && !netIsWatch && (netNumSpectators > 0 || netForceSendMovements)) {
 				netSendField(engine);
@@ -366,7 +366,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 		// NET: Send messages / Wait for messages
 		if (netIsNetPlay) {
 			if (!netIsWatch) {
-				if (engine.statc[0] == 0) {
+				if (engine.statc_0() == 0) {
 					// Send end-of-game messages
 					if (netNumSpectators > 0 || netForceSendMovements) {
 						netSendField(engine);
@@ -375,11 +375,11 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					}
 					netSendEndGameStats(engine);
 					netLobby.netPlayerClient.send("dead\t-1\n");
-				} else if (engine.statc[0] >= engine.field.getHeight() + 1 + 180) {
+				} else if (engine.statc_0() >= engine.field.getHeight() + 1 + 180) {
 					// To results screen
 					netLobby.netPlayerClient.send("game\tresultsscreen\n");
 				}
-			} else if (engine.statc[0] < engine.field.getHeight() + 1 + 180) {
+			} else if (engine.statc_0() < engine.field.getHeight() + 1 + 180) {
 				return false;
 			} else {
 				engine.field.reset();
@@ -874,7 +874,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				engine.gameActive = true;
 				engine.timerActive = true;
 				engine.stat = GameEngine.Status.MOVE;
-				engine.statc[0] = 2;
+				engine.statc_0(2);
 			}
 
 			netPlayerSkin = pieceSkin;

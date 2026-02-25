@@ -28,7 +28,10 @@
 */
 package mu.nu.nullpo.util;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -95,6 +98,30 @@ public class GeneralUtil {
 		Calendar c = Calendar.getInstance();
 		DateFormat dfm = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 		return dfm.format(c.getTime()) + ".rep";
+	}
+
+	/**
+	 * Resource FilesURLReturns
+	 *
+	 * @param filename Filename
+	 * @return Resource FilesURL
+	 */
+	public static URL getURL(String filename) {
+		try {
+			String file = filename.replace(File.separator, "/");
+			if (!file.startsWith("/")) {
+				String dir = System.getProperty("user.dir");
+				dir = dir.replace(File.separator, "/") + "/";
+				if (!dir.startsWith("/")) {
+					dir = "/" + dir;
+				}
+				file = dir + file;
+			}
+			return new File(file).toURI().toURL();
+		} catch (MalformedURLException e) {
+			log.warn("Invalid URL: " + filename, e);
+			return null;
+		}
 	}
 
 	/**

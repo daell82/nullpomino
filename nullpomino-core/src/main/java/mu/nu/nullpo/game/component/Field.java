@@ -392,7 +392,6 @@ public class Field implements Serializable {
 	 *         (FailedBLOCK_COLOR_INVALID)
 	 */
 	public int getBlockColor(int x, int y) {
-		// XXX here
 		Block block = getBlock(x, y);
 		return block != null ? block.color : Colors.BLOCK_COLOR_INVALID;
 	}
@@ -1449,13 +1448,10 @@ public class Field implements Serializable {
 	 * @param status After the change state
 	 */
 	public void setAllAttribute(int attr, boolean status) {
-		for (int i = hiddenHeight * -1; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if (blk != null) {
-					blk.setAttribute(attr, status);
-				}
+		for (int y = hiddenHeight * -1; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				Block block = getBlock(x, y);
+				block.setAttribute(attr, status);
 			}
 		}
 	}
@@ -1466,29 +1462,25 @@ public class Field implements Serializable {
 	 * @param skin Picture
 	 */
 	public void setAllSkin(int skin) {
-		for (int i = hiddenHeight * -1; i < height; i++) {
-			for (int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if (blk != null) {
-					blk.skin = skin;
-				}
+		for (int y = hiddenHeight * -1; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				Block block = getBlock(x, y);
+				block.skin = skin;
 			}
 		}
 	}
 
 	/**
-	 * JewelBlockOfcountGet the
+	 * Get the number of gem blocks in the field
 	 *
-	 * @return JewelBlockOfcount
+	 * @return the number of gem blocks in the field
 	 */
 	public int getHowManyGems() {
 		int gems = 0;
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			for (int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if (blk != null && blk.isGemBlock()) {
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			for (int x = 0; x < width; x++) {
+				Block block = getBlock(x, y);
+				if (block.isGemBlock()) {
 					gems++;
 				}
 			}
@@ -1504,11 +1496,11 @@ public class Field implements Serializable {
 	public int getHowManyGemClears() {
 		int gems = 0;
 
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			if (getLineFlag(i)) {
-				for (int j = 0; j < width; j++) {
-					Block block = getBlock(j, i);
-					if (block != null && block.isGemBlock()) {
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			if (getLineFlag(y)) {
+				for (int x = 0; x < width; x++) {
+					Block block = getBlock(x, y);
+					if (block.isGemBlock()) {
 						gems++;
 					}
 				}
@@ -1530,37 +1522,37 @@ public class Field implements Serializable {
 		int total = 0;
 		Block block;
 		Block bAdj;
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			for (int j = 0; j < width; j++) {
-				block = getBlock(j, i);
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			for (int x = 0; x < width; x++) {
+				block = getBlock(x, y);
 				if (block == null) {
 					continue;
 				}
 				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 					total++;
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-						bAdj = getBlock(j, i + 1);
+						bAdj = getBlock(x, y + 1);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-						bAdj = getBlock(j, i - 1);
+						bAdj = getBlock(x, y - 1);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-						bAdj = getBlock(j - 1, i);
+						bAdj = getBlock(x - 1, y);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 						}
 					}
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-						bAdj = getBlock(j + 1, i);
+						bAdj = getBlock(x + 1, y);
 						if (bAdj != null) {
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
 							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);

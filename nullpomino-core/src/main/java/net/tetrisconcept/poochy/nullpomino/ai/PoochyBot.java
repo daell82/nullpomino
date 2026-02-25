@@ -224,7 +224,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
 		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
-				&& engine.statc[0] > 0 && (!engine.aiUseThread || threadRunning && !thinking && thinkComplete)) {
+				&& engine.statc_0() > 0 && (!engine.aiUseThread || threadRunning && !thinking && thinkComplete)) {
 			inputARE = 0;
 			int input = 0; // Button input data
 			Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
@@ -942,7 +942,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 						// Left rotation
 						if (!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieceNow.getRotateDirection(-1, rt);
+							int rot = Piece.getRotateDirection(-1, rt);
 							int newX = x;
 							int newY = y;
 							fld.copy(engine.field);
@@ -981,7 +981,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 						// Right rotation
 						if (engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-							int rot = pieceNow.getRotateDirection(1, rt);
+							int rot = Piece.getRotateDirection(1, rt);
 							int newX = x;
 							int newY = y;
 							fld.copy(engine.field);
@@ -1020,7 +1020,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 						// 180-degree rotation
 						if (engine.ruleopt.rotateButtonAllowDouble) {
-							int rot = pieceNow.getRotateDirection(2, rt);
+							int rot = Piece.getRotateDirection(2, rt);
 							int newX = x;
 							int newY = y;
 							fld.copy(engine.field);
@@ -1178,7 +1178,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 							// Left rotation
 							if (!engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-								int rot = pieceHold.getRotateDirection(-1, rt);
+								int rot = Piece.getRotateDirection(-1, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);
@@ -1219,7 +1219,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 							// Right rotation
 							if (engine.ruleopt.rotateButtonDefaultRight || engine.ruleopt.rotateButtonAllowReverse) {
-								int rot = pieceHold.getRotateDirection(1, rt);
+								int rot = Piece.getRotateDirection(1, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);
@@ -1260,7 +1260,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 
 							// 180-degree rotation
 							if (engine.ruleopt.rotateButtonAllowDouble) {
-								int rot = pieceHold.getRotateDirection(2, rt);
+								int rot = Piece.getRotateDirection(2, rt);
 								int newX = x;
 								int newY = y;
 								fld.copy(engine.field);

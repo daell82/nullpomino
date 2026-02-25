@@ -879,7 +879,7 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			// timeLimit setting
 			if (timelimit > 0) {
 				timelimitTimer = timelimit;
@@ -1333,7 +1333,7 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && engine.gameActive) {
+		if (engine.statc_0() == 0 && engine.gameActive) {
 			secretGrade = engine.field.getSecretGrade();
 		}
 		return false;
@@ -1346,7 +1346,7 @@ public class PracticeMode extends AbstractMode {
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
 		if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
-			if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+			if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
 				// Level up
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
@@ -1359,7 +1359,7 @@ public class PracticeMode extends AbstractMode {
 				// Hard drop bonusInitialization
 				harddropBonus = 0;
 			}
-			if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 1 || engine.holdDisable == false)) {
+			if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || engine.holdDisable == false)) {
 				lvupflag = false;
 			}
 		}
@@ -1390,7 +1390,7 @@ public class PracticeMode extends AbstractMode {
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
 		if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
-			if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+			if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
 					if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
@@ -1505,7 +1505,7 @@ public class PracticeMode extends AbstractMode {
 					engine.playSE("bravo");
 				}
 
-				int speedBonus = engine.getLockDelay() - engine.statc[0];
+				int speedBonus = engine.getLockDelay() - engine.statc_0();
 				if (speedBonus < 0) {
 					speedBonus = 0;
 				}
@@ -1528,7 +1528,7 @@ public class PracticeMode extends AbstractMode {
 					engine.playSE("bravo");
 				}
 
-				int speedBonus = engine.getLockDelay() - engine.statc[0];
+				int speedBonus = engine.getLockDelay() - engine.statc_0();
 				if (speedBonus < 0) {
 					speedBonus = 0;
 				}
@@ -1618,7 +1618,7 @@ public class PracticeMode extends AbstractMode {
 				}
 				lastevent = EVENT_TSPIN_TRIPLE;
 			}
-		} else
+		} else {
 			switch (lines) {
 			case 1:
 				pts += 100 * (engine.statistics.level + 1); // 1Column
@@ -1644,6 +1644,7 @@ public class PracticeMode extends AbstractMode {
 				}
 				break;
 			}
+		}
 
 		lastb2b = engine.b2b;
 
@@ -1771,7 +1772,7 @@ public class PracticeMode extends AbstractMode {
 			if (remainTime <= 10 * 60) {
 				engine.meterColor = Colors.METER_COLOR_RED;
 			}
-		} else
+		} else {
 			switch (leveltype) {
 			case LEVELTYPE_10LINES:
 				engine.meterValue = engine.statistics.lines % 10 * receiver.getMeterMax(engine) / 9;
@@ -1829,6 +1830,7 @@ public class PracticeMode extends AbstractMode {
 				}
 				break;
 			}
+		}
 
 		if (engine.meterValue < 0) {
 			engine.meterValue = 0;

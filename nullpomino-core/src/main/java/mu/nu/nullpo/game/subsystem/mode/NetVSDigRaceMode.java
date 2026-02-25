@@ -183,7 +183,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 	public boolean onReady(GameEngine engine, int playerID) {
 		super.onReady(engine, playerID);
 
-		if (engine.statc[0] == 0 && netvsPlayerExist[playerID]) {
+		if (engine.statc_0() == 0 && netvsPlayerExist[playerID]) {
 			if (netCurrentRoomInfo == null || !netCurrentRoomInfo.useMap) {
 				// Fill the field with garbage
 				engine.createFieldIfNeeded();

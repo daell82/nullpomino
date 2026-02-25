@@ -447,13 +447,13 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	/**
 	 * draws the block at given coordinates
 	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
 	 * @param block to draw
 	 */
 	protected void drawBlock(int x, int y, Block block) {
-		drawBlock(x, y, block.getDrawColor(), block.skin, block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), block.darkness,
-				block.alpha, 1.0f, block.attribute);
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE),
+				block.darkness, block.alpha, 1.0f, block.attribute);
 	}
 
 	/**
@@ -1391,23 +1391,23 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public void renderReady(GameEngine engine, int playerID) {
-		if (graphics == null || !engine.allowTextRenderByReceiver || engine.statc[0] <= 0) {
+		int status = engine.statc_0(); // XXX clarify what status means
+		if (graphics == null || !engine.allowTextRenderByReceiver || status <= 0) {
 			return;
 		}
-		int state = engine.statc[0]; // XXX clarify what state means
 
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
 		if (engine.displaySize != DisplaySize.SMALL) {
-			if (state >= engine.readyStart && state < engine.readyEnd) {
+			if (status >= engine.readyStart && status < engine.readyEnd) {
 				NormalFontSwing.printFont(offsetX + 44, offsetY + 204, "READY", Colors.FONT_WHITE, 1.0f);
-			} else if (state >= engine.goStart && state < engine.goEnd) {
+			} else if (status >= engine.goStart && status < engine.goEnd) {
 				NormalFontSwing.printFont(offsetX + 62, offsetY + 204, "GO!", Colors.FONT_WHITE, 1.0f);
 			}
-		} else if (state >= engine.readyStart && state < engine.readyEnd) {
+		} else if (status >= engine.readyStart && status < engine.readyEnd) {
 			NormalFontSwing.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
-		} else if (state >= engine.goStart && state < engine.goEnd) {
+		} else if (status >= engine.goStart && status < engine.goEnd) {
 			NormalFontSwing.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
 		}
 	}
@@ -1424,7 +1424,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int offsetX = getFieldDisplayPositionX(engine, playerID);
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-		if (engine.statc[0] <= 1 && !engine.ruleopt.moveFirstFrame) {
+		if (engine.statc_0() <= 1 && !engine.ruleopt.moveFirstFrame) {
 			return;
 		}
 		var size = engine.displaySize;
@@ -1455,8 +1455,9 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		// Normal Block
 		if (color >= Colors.BLOCK_COLOR_GRAY && color <= Colors.BLOCK_COLOR_PURPLE
 				&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-			EffectObject effect = new EffectObject(1, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
-					getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
+			int ex = getFieldDisplayPositionX(engine, playerID) + x * 16 + 4;
+			int ey = getFieldDisplayPositionY(engine, playerID) + y * 16 + 52;
+			EffectObject effect = new EffectObject(1, ex, ey, color);
 			effects.add(effect);
 		}
 		// Gem Block
@@ -1479,14 +1480,14 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
 		if (engine.displaySize != DisplaySize.SMALL) {
-			if (engine.statc[1] == 0) {
+			if (engine.statc_1() == 0) {
 				NormalFontSwing.printFont(offsetX + 4, offsetY + 204, "EXCELLENT!", Colors.FONT_ORANGE, 1.0f);
 			} else if (engine.owner.getPlayers() < 3) {
 				NormalFontSwing.printFont(offsetX + 52, offsetY + 204, "WIN!", Colors.FONT_ORANGE, 1.0f);
 			} else {
 				NormalFontSwing.printFont(offsetX + 4, offsetY + 204, "1ST PLACE!", Colors.FONT_ORANGE, 1.0f);
 			}
-		} else if (engine.statc[1] == 0) {
+		} else if (engine.statc_1() == 0) {
 			NormalFontSwing.printFont(offsetX + 4, offsetY + 80, "EXCELLENT!", Colors.FONT_ORANGE, 0.5f);
 		} else if (engine.owner.getPlayers() < 3) {
 			NormalFontSwing.printFont(offsetX + 33, offsetY + 80, "WIN!", Colors.FONT_ORANGE, 0.5f);
@@ -1507,7 +1508,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			return;
 		}
 
-		if (engine.statc[0] >= engine.field.getHeight() + 1 && engine.statc[0] < engine.field.getHeight() + 1 + 180) {
+		if (engine.statc_0() >= engine.field.getHeight() + 1 && engine.statc_0() < engine.field.getHeight() + 1 + 180) {
 			int offsetX = getFieldDisplayPositionX(engine, playerID);
 			int offsetY = getFieldDisplayPositionY(engine, playerID);
 
@@ -1543,7 +1544,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 		int tempColor;
 
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			tempColor = Colors.FONT_RED;
 		} else {
 			tempColor = Colors.FONT_WHITE;
@@ -1551,7 +1552,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		NormalFontSwing.printFont(getFieldDisplayPositionX(engine, playerID) + 12,
 				getFieldDisplayPositionY(engine, playerID) + 340, "RETRY", tempColor, 1.0f);
 
-		if (engine.statc[0] == 1) {
+		if (engine.statc_0() == 1) {
 			tempColor = Colors.FONT_RED;
 		} else {
 			tempColor = Colors.FONT_WHITE;
@@ -1590,7 +1591,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
 		if (playerID == engine.owner.getPlayers() - 1) {
-			effectRender();
+			effectRender(engine);
 		}
 	}
 
@@ -1628,12 +1629,13 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	/**
 	 * Render effects
 	 */
-	protected void effectRender() {
+	protected void effectRender(GameEngine engine) {
 		for (EffectObject effect : effects) {
 			// Normal Block
 			if (effect.effect == 1) {
-				int x = effect.x - 40;
-				int y = effect.y - 15;
+				float scale = engine.displaySize.getScale();
+				int x = (int) ((effect.x - 32 + 6) * scale);
+				int y = (int) ((effect.y - 32) * scale);
 				int color = effect.param - Colors.BLOCK_COLOR_GRAY;
 
 				if (effect.anim < 30) {

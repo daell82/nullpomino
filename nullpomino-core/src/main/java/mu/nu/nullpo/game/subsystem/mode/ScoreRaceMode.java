@@ -884,16 +884,17 @@ public class ScoreRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/2",
+		int status1 = engine.statc_1();
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/2",
 				Colors.FONT_RED);
 
-		if (engine.statc[1] == 0) {
+		if (status1 == 0) {
 			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.TIME, Statistic.PIECE);
 			drawResultRank(engine, playerID, receiver, 10, Colors.FONT_BLUE, rankingRank);
 			drawResultNetRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, netRankingRank[0]);
 			drawResultNetRankDaily(engine, playerID, receiver, 14, Colors.FONT_BLUE, netRankingRank[1]);
-		} else if (engine.statc[1] == 1) {
+		} else if (status1 == 1) {
 			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.SPL, Statistic.SPM,
 					Statistic.LPM, Statistic.PPS);
 		}
@@ -915,18 +916,21 @@ public class ScoreRaceMode extends NetDummyMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page change
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 1;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 2;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 1) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 2) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 

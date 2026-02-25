@@ -731,7 +731,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
 			// Level up
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
@@ -741,11 +741,11 @@ public class SpeedMania2Mode extends AbstractMode {
 			}
 			levelUp(engine);
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 1 || engine.holdDisable == false)) {
+		if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || engine.holdDisable == false)) {
 			lvupflag = false;
 		}
 
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false) {
 			// Count rising auction
 			if (tableGarbage[engine.statistics.level / 100] != 0) {
 				garbageCount++;
@@ -778,7 +778,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
-		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() >= engine.statc_0() - 1 && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
@@ -1032,7 +1032,7 @@ public class SpeedMania2Mode extends AbstractMode {
 				bravo = 2;
 			}
 
-			int speedBonus = engine.getLockDelay() - engine.statc[0];
+			int speedBonus = engine.getLockDelay() - engine.statc_0();
 			if (speedBonus < 0) {
 				speedBonus = 0;
 			}
@@ -1050,7 +1050,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && startlevel >= 11) {
+		if (engine.statc_0() == 0 && startlevel >= 11) {
 			engine.bone = true;
 		}
 		return false;
@@ -1120,7 +1120,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0 && engine.gameActive) {
+		if (engine.statc_0() == 0 && engine.gameActive) {
 			secretGrade = engine.field.getSecretGrade();
 		}
 		return false;
@@ -1131,9 +1131,11 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
+		int status1 = engine.statc_1();
+		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 
-		if (engine.statc[1] == 0) {
+		switch (status1) {
+		case 0: {
 			int gcolor = Colors.FONT_WHITE;
 			if (rollclear == 1 || rollclear == 3) {
 				gcolor = Colors.FONT_GREEN;
@@ -1144,7 +1146,6 @@ public class SpeedMania2Mode extends AbstractMode {
 			receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 			String strGrade = String.format("%10s", tableGradeName[grade]);
 			receiver.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
-
 			drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
 			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
@@ -1152,21 +1153,22 @@ public class SpeedMania2Mode extends AbstractMode {
 				drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
-		} else if (engine.statc[1] == 1) {
+			break;
+		}
+		case 1:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 			for (int i = 0; i < sectiontime.length; i++) {
 				if (sectiontime[i] > 0) {
 					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
 							sectionIsNewRecord[i]);
 				}
 			}
-
 			if (sectionavgtime > 0) {
 				receiver.drawMenuFont(engine, playerID, 0, 16, "AVERAGE", Colors.FONT_BLUE);
 				receiver.drawMenuFont(engine, playerID, 2, 17, GeneralUtil.getTime(sectionavgtime));
 			}
-		} else if (engine.statc[1] == 2) {
+			break;
+		case 2:
 			receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", Colors.FONT_BLUE);
 			if (medalAC >= 1) {
 				receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
@@ -1180,9 +1182,11 @@ public class SpeedMania2Mode extends AbstractMode {
 			if (medalCO >= 1) {
 				receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
 			}
-
 			drawResultStats(engine, playerID, receiver, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -1192,18 +1196,21 @@ public class SpeedMania2Mode extends AbstractMode {
 	@Override
 	public boolean onResult(GameEngine engine, int playerID) {
 		// Page switching
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 2;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 2;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 2) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 2) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		// section time displaySwitching

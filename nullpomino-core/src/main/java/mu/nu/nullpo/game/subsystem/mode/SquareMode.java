@@ -523,7 +523,7 @@ public class SquareMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onLineClear(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 1) {
+		if (engine.statc_0() == 1) {
 			if (grayoutEnable == 2) {
 				grayoutBrokenBlocks(engine.field);
 			}

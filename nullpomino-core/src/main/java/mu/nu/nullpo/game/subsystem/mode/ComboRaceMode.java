@@ -514,7 +514,7 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			engine.createFieldIfNeeded();
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			engine.meterValue = GOAL_TABLE[goaltype] == -1 ? 0 : receiver.getMeterMax(engine);

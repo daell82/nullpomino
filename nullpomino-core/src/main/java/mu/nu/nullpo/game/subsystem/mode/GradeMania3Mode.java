@@ -1208,7 +1208,7 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
-		if (engine.ending == 0 && engine.statc[0] == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
 			// Level up
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
@@ -1222,7 +1222,7 @@ public class GradeMania3Mode extends AbstractMode {
 			// Hard drop bonusInitialization
 			harddropBonus = 0;
 		}
-		if (engine.ending == 0 && engine.statc[0] > 0 && (version >= 1 || engine.holdDisable == false)) {
+		if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || engine.holdDisable == false)) {
 			lvupflag = false;
 		}
 
@@ -1267,7 +1267,7 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onARE(GameEngine engine, int playerID) {
 		// Last frame
-		if (engine.ending == 0 && engine.statc[0] >= engine.statc[1] - 1 && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				internalLevel++;
@@ -1569,7 +1569,7 @@ public class GradeMania3Mode extends AbstractMode {
 				bravo = 2;
 			}
 
-			int speedBonus = engine.getLockDelay() - engine.statc[0];
+			int speedBonus = engine.getLockDelay() - engine.statc_0();
 			if (speedBonus < 0) {
 				speedBonus = 0;
 			}
@@ -1733,7 +1733,7 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public boolean onGameOver(GameEngine engine, int playerID) {
 		// This code block will executed only once
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			secretGrade = engine.field.getSecretGrade();
 
 			if (enableexam) {
@@ -1771,40 +1771,13 @@ public class GradeMania3Mode extends AbstractMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		if (passframe > 0) {
-			boolean pass = passframe % 4 == 0;
-			if (promotionFlag) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
-				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
-				receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam),
-						pass ? Colors.FONT_WHITE : Colors.FONT_ORANGE);
-
-				if (passframe < 420) {
-					if (grade < promotionalExam) {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL",
-								pass ? Colors.FONT_WHITE : Colors.FONT_RED);
-					} else {
-						receiver.drawMenuFont(engine, playerID, 2, 11, "PASS!!",
-								pass ? Colors.FONT_ORANGE : Colors.FONT_YELLOW);
-					}
-				}
-			} else if (demotionFlag) {
-				receiver.drawMenuFont(engine, playerID, 0, 2, "DEMOTION", Colors.FONT_RED);
-				receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_RED);
-
-				if (passframe < 420) {
-					if (grade < demotionExamGrade) {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL",
-								pass ? Colors.FONT_WHITE : Colors.FONT_RED);
-					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 11, "PASS",
-								pass ? Colors.FONT_WHITE : Colors.FONT_YELLOW);
-					}
-				}
-			}
+			renderExamResult(engine, playerID);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (engine.statc[1] + 1) + "/3", Colors.FONT_RED);
+			int status1 = engine.statc_1();
+			receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 
-			if (engine.statc[1] == 0) {
+			switch (status1) {
+			case 0: {
 				int rgrade = grade;
 				if (enableexam && rgrade >= 32 && qualifiedGrade < 32) {
 					rgrade = 31;
@@ -1822,7 +1795,6 @@ public class GradeMania3Mode extends AbstractMode {
 				receiver.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 				String strGrade = String.format("%10s", getGradeName(rgrade));
 				receiver.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
-
 				drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 						Statistic.LEVEL_MANIA, Statistic.TIME);
 				drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
@@ -1830,30 +1802,32 @@ public class GradeMania3Mode extends AbstractMode {
 					drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
 							String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 				}
-			} else if (engine.statc[1] == 1) {
+				break;
+			}
+			case 1:
 				receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
-
 				for (int i = 0; i < sectiontime.length; i++) {
-					if (sectiontime[i] > 0) {
-						int color = Colors.FONT_WHITE;
-						if (stcolor == 1 && sectionIsNewRecord[i]) {
-							color = Colors.FONT_RED;
-						} else if (stcolor == 2) {
-							if (regretsection[i]) {
-								color = Colors.FONT_RED;
-							} else if (coolsection[i]) {
-								color = Colors.FONT_GREEN;
-							}
-						}
-						receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), color);
+					if (sectiontime[i] <= 0) {
+						continue;
 					}
+					int color = Colors.FONT_WHITE;
+					if (stcolor == 1 && sectionIsNewRecord[i]) {
+						color = Colors.FONT_RED;
+					} else if (stcolor == 2) {
+						if (regretsection[i]) {
+							color = Colors.FONT_RED;
+						} else if (coolsection[i]) {
+							color = Colors.FONT_GREEN;
+						}
+					}
+					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]), color);
 				}
-
 				if (sectionavgtime > 0) {
 					receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
 					receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 				}
-			} else if (engine.statc[1] == 2) {
+				break;
+			case 2:
 				receiver.drawMenuFont(engine, playerID, 0, 2, "MEDAL", Colors.FONT_BLUE);
 				if (medalAC >= 1) {
 					receiver.drawMenuFont(engine, playerID, 5, 3, "AC", getMedalFontColor(medalAC));
@@ -1867,15 +1841,47 @@ public class GradeMania3Mode extends AbstractMode {
 				if (medalCO >= 1) {
 					receiver.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
 				}
-
 				if (rollPointsTotal > 0) {
 					receiver.drawMenuFont(engine, playerID, 0, 6, "ROLL POINT", Colors.FONT_BLUE);
 					String strRollPointsTotal = String.format("%10g", rollPointsTotal);
 					receiver.drawMenuFont(engine, playerID, 0, 7, strRollPointsTotal);
 				}
-
 				drawResultStats(engine, playerID, receiver, 8, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 						Statistic.PIECE, Statistic.PPS);
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	private void renderExamResult(GameEngine engine, int playerID) {
+		boolean pass = passframe % 4 == 0;
+		if (promotionFlag) {
+			receiver.drawMenuFont(engine, playerID, 0, 2, "PROMOTION", Colors.FONT_YELLOW);
+			receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_YELLOW);
+			receiver.drawMenuFont(engine, playerID, 4, 6, getGradeName(promotionalExam),
+					pass ? Colors.FONT_WHITE : Colors.FONT_ORANGE);
+
+			if (passframe < 420) {
+				if (grade < promotionalExam) {
+					receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", pass ? Colors.FONT_WHITE : Colors.FONT_RED);
+				} else {
+					receiver.drawMenuFont(engine, playerID, 2, 11, "PASS!!",
+							pass ? Colors.FONT_ORANGE : Colors.FONT_YELLOW);
+				}
+			}
+		} else if (demotionFlag) {
+			receiver.drawMenuFont(engine, playerID, 0, 2, "DEMOTION", Colors.FONT_RED);
+			receiver.drawMenuFont(engine, playerID, 6, 3, "EXAM", Colors.FONT_RED);
+
+			if (passframe < 420) {
+				if (grade < demotionExamGrade) {
+					receiver.drawMenuFont(engine, playerID, 3, 11, "FAIL", pass ? Colors.FONT_WHITE : Colors.FONT_RED);
+				} else {
+					receiver.drawMenuFont(engine, playerID, 3, 11, "PASS",
+							pass ? Colors.FONT_WHITE : Colors.FONT_YELLOW);
+				}
 			}
 		}
 	}
@@ -1921,18 +1927,21 @@ public class GradeMania3Mode extends AbstractMode {
 		engine.allowTextRenderByReceiver = true;
 
 		// Page switching
+		int status1 = engine.statc_1();
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
-			engine.statc[1]--;
-			if (engine.statc[1] < 0) {
-				engine.statc[1] = 2;
+			status1 -= 1;
+			if (status1 < 0) {
+				status1 = 2;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
-			engine.statc[1]++;
-			if (engine.statc[1] > 2) {
-				engine.statc[1] = 0;
+			status1 += 1;
+			if (status1 > 2) {
+				status1 = 0;
 			}
+			engine.statc_1(status1);
 			engine.playSE("change");
 		}
 		// section time displaySwitching

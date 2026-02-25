@@ -381,7 +381,7 @@ public class DigRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc[0] == 0) {
+		if (engine.statc_0() == 0) {
 			if (!netIsNetPlay || !netIsWatch) {
 				engine.createFieldIfNeeded();
 				fillGarbage(engine, goaltype);

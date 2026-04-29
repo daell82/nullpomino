@@ -169,8 +169,8 @@ public class GameFrame extends JFrame implements Runnable {
 	 * Constructor
 	 *
 	 * @param owner Parent window
-	 * @throws HeadlessException Keyboard, Mouse, Exceptions such as the display if
-	 *                           there is no
+	 * @throws HeadlessException the Exceptions such as Keyboard, Mouse, if there is
+	 *                           no display
 	 */
 	public GameFrame(NullpoMinoSwing owner) throws HeadlessException {
 		super();
@@ -247,7 +247,7 @@ public class GameFrame extends JFrame implements Runnable {
 		// Initialization
 		maxfpsCurrent = maxfps;
 		periodCurrent = (long) (1.0 / maxfpsCurrent * ONE_SECOND_IN_NS);
-		log.debug("current period: "+periodCurrent);
+		log.debug("current period: " + periodCurrent);
 		beforeTime = System.nanoTime();
 		prevCalcTime = beforeTime;
 		pause = false;
@@ -661,7 +661,7 @@ public class GameFrame extends JFrame implements Runnable {
 			try {
 				createBufferStrategy(2);
 				bufferStrategy = getBufferStrategy();
-			} catch (Exception e) {
+			} catch (Exception _) {
 				return;
 			}
 		}
@@ -678,12 +678,12 @@ public class GameFrame extends JFrame implements Runnable {
 
 		// Game screen
 		NormalFontSwing.graphics = g;
-		((RendererSwing) gameManager.receiver).setGraphics(g);
+		((RendererSwing) gameManager.renderer).setGraphics(g);
 		gameManager.renderAll();
 
 		if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-			int offsetX = gameManager.receiver.getFieldDisplayPositionX(gameManager.engine[0], 0);
-			int offsetY = gameManager.receiver.getFieldDisplayPositionY(gameManager.engine[0], 0);
+			int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engine[0], 0);
+			int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engine[0], 0);
 
 			// Pause menu
 			if (pause && !enableframestep && !pauseMessageHide) {
@@ -733,7 +733,7 @@ public class GameFrame extends JFrame implements Runnable {
 		}
 
 		// Displayed on the screen /ScreenshotCreating
-		// XXX g.dispose();
+		g.dispose();
 		if (ssflag || screenWidth != 640 || screenHeight != 480) {
 			if (ssflag) {
 				saveScreenShot();
@@ -796,7 +796,7 @@ public class GameFrame extends JFrame implements Runnable {
 		// Game screen
 		try {
 			NormalFontSwing.graphics = g;
-			((RendererSwing) gameManager.receiver).setGraphics(g);
+			((RendererSwing) gameManager.renderer).setGraphics(g);
 			gameManager.renderAll();
 		} catch (Exception e) {
 			log.error("render fail", e);

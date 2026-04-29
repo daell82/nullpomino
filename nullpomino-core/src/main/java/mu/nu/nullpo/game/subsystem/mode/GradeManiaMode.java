@@ -36,6 +36,7 @@ import mu.nu.nullpo.game.subsystem.mode.menu.OnOffMenuItem;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * GRADE MANIA Mode
@@ -238,7 +239,7 @@ public class GradeManiaMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 
 		gravityindex = 0;
 		nextseclv = 0;
@@ -349,15 +350,15 @@ public class GradeManiaMode extends AbstractMode {
 
 			// section time display切替
 			if (engine.ctrl.isPush(Controller.BUTTON_F) && menuTime >= 5) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 				isShowBestSectionTime = !isShowBestSectionTime;
 			}
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 				isShowBestSectionTime = false;
 				sectionscomp = 0;
 				return false;
@@ -415,34 +416,34 @@ public class GradeManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA", Colors.FONT_CYAN);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA", Colors.FONT_CYAN);
 
 		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (owner.replayMode == false && startlevel.value == 0 && !big.value && !always20g.value
 					&& engine.ai == null) {
 				if (!isShowBestSectionTime) {
 					// Rankings
-					float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
-					int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
-					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE, scale);
+					float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+					int topY = renderer.getNextDisplayType() == 2 ? 5 : 3;
+					renderer.drawScoreFont(engine, playerID, 3, topY - 1, "GRADE LEVEL TIME", Colors.FONT_BLUE, scale);
 
 					for (int i = 0; i < RANKING_MAX; i++) {
-						receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+						renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 								Colors.FONT_YELLOW, scale);
 						if (rankingGrade[i] >= 0 && rankingGrade[i] < tableGradeName.length) {
-							receiver.drawScoreFont(engine, playerID, 3, topY + i, tableGradeName[rankingGrade[i]],
+							renderer.drawScoreFont(engine, playerID, 3, topY + i, tableGradeName[rankingGrade[i]],
 									i == rankingRank, scale);
 						}
-						receiver.drawScoreFont(engine, playerID, 9, topY + i, String.valueOf(rankingLevel[i]),
+						renderer.drawScoreFont(engine, playerID, 9, topY + i, String.valueOf(rankingLevel[i]),
 								i == rankingRank, scale);
-						receiver.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[i]),
+						renderer.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[i]),
 								i == rankingRank, scale);
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
+					renderer.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
 				} else {
 					// Section Time
-					receiver.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);
 
 					int totalTime = 0;
 					for (int i = 0; i < SECTION_MAX; i++) {
@@ -453,71 +454,71 @@ public class GradeManiaMode extends AbstractMode {
 						strSectionTime = String.format("%3d-%3d %s", temp, temp2,
 								GeneralUtil.getTime(bestSectionTime[i]));
 
-						receiver.drawScoreFont(engine, playerID, 0, 3 + i, strSectionTime, sectionIsNewRecord[i]);
+						renderer.drawScoreFont(engine, playerID, 0, 3 + i, strSectionTime, sectionIsNewRecord[i]);
 
 						totalTime += bestSectionTime[i];
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, 14, "TOTAL", Colors.FONT_BLUE);
-					receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(totalTime));
-					receiver.drawScoreFont(engine, playerID, 9, 14, "AVERAGE", Colors.FONT_BLUE);
-					receiver.drawScoreFont(engine, playerID, 9, 15, GeneralUtil.getTime(totalTime / SECTION_MAX));
+					renderer.drawScoreFont(engine, playerID, 0, 14, "TOTAL", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(totalTime));
+					renderer.drawScoreFont(engine, playerID, 9, 14, "AVERAGE", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 9, 15, GeneralUtil.getTime(totalTime / SECTION_MAX));
 
-					receiver.drawScoreFont(engine, playerID, 0, 17, "F:VIEW RANKING", Colors.FONT_GREEN);
+					renderer.drawScoreFont(engine, playerID, 0, 17, "F:VIEW RANKING", Colors.FONT_GREEN);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 			if (grade >= 0 && grade < tableGradeName.length) {
-				receiver.drawScoreFont(engine, playerID, 0, 3, tableGradeName[grade],
+				renderer.drawScoreFont(engine, playerID, 0, 3, tableGradeName[grade],
 						gradeflash > 0 && gradeflash % 4 == 0);
 			}
 
-			receiver.drawScoreFont(engine, playerID, 0, 5, "POINTS", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 5, "POINTS", Colors.FONT_BLUE);
 			String strScore;
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
 				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 6, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 6, strScore);
 			if (grade < 17) {
-				receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(tableGradeScore[grade]));
+				renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(tableGradeScore[grade]));
 			}
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
 			int tempLevel = engine.statistics.level;
 			if (tempLevel < 0) {
 				tempLevel = 0;
 			}
 			String strLevel = String.format("%3d", tempLevel);
-			receiver.drawScoreFont(engine, playerID, 0, 10, strLevel);
+			renderer.drawScoreFont(engine, playerID, 0, 10, strLevel);
 
 			int speed = engine.speed.gravity / 128;
 			if (engine.speed.gravity < 0) {
 				speed = 40;
 			}
-			receiver.drawSpeedMeter(engine, playerID, 0, 11, speed);
+			renderer.drawSpeedMeter(engine, playerID, 0, 11, speed);
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
+			renderer.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
 
-			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(engine.statistics.time));
 
 			if (engine.gameActive && engine.ending == 2) {
 				int time = ROLLTIMELIMIT - rolltime;
 				if (time < 0) {
 					time = 0;
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
+				renderer.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), time > 0 && time < 10 * 60);
 			}
 
 			// Section Time
 			if (showsectiontime.value && sectiontime != null) {
-				int x = receiver.getNextDisplayType() == 2 ? 8 : 12;
-				int x2 = receiver.getNextDisplayType() == 2 ? 9 : 12;
-				receiver.drawScoreFont(engine, playerID, x, 2, "SECTION TIME", Colors.FONT_BLUE);
+				int x = renderer.getNextDisplayType() == 2 ? 8 : 12;
+				int x2 = renderer.getNextDisplayType() == 2 ? 9 : 12;
+				renderer.drawScoreFont(engine, playerID, x, 2, "SECTION TIME", Colors.FONT_BLUE);
 
 				for (int i = 0; i < sectiontime.length; i++) {
 					if (sectiontime[i] > 0) {
@@ -536,13 +537,13 @@ public class GradeManiaMode extends AbstractMode {
 						strSectionTime = String.format("%3d%s%s", temp, strSeparator,
 								GeneralUtil.getTime(sectiontime[i]));
 
-						receiver.drawScoreFont(engine, playerID, x, 3 + i, strSectionTime, sectionIsNewRecord[i]);
+						renderer.drawScoreFont(engine, playerID, x, 3 + i, strSectionTime, sectionIsNewRecord[i]);
 					}
 				}
 
 				if (sectionavgtime > 0) {
-					receiver.drawScoreFont(engine, playerID, x2, 14, "AVERAGE", Colors.FONT_BLUE);
-					receiver.drawScoreFont(engine, playerID, x2, 15, GeneralUtil.getTime(sectionavgtime));
+					renderer.drawScoreFont(engine, playerID, x2, 14, "AVERAGE", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, x2, 15, GeneralUtil.getTime(sectionavgtime));
 				}
 			}
 		}
@@ -554,16 +555,16 @@ public class GradeManiaMode extends AbstractMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
-		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
-					engine.playSE("levelstop");
+					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
 			levelUp(engine);
 		}
-		if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || engine.holdDisable == false)) {
+		if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || !engine.holdDisable)) {
 			lvupflag = false;
 		}
 
@@ -580,13 +581,12 @@ public class GradeManiaMode extends AbstractMode {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
 				if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
-					engine.playSE("levelstop");
+					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
 			levelUp(engine);
 			lvupflag = true;
 		}
-
 		return false;
 	}
 
@@ -595,7 +595,7 @@ public class GradeManiaMode extends AbstractMode {
 	 */
 	private void levelUp(GameEngine engine) {
 		// Meter
-		engine.meterValue = engine.statistics.level % 100 * receiver.getMeterMax(engine) / 99;
+		engine.meterValue = engine.statistics.level % 100 * renderer.getMeterMax(engine) / 99;
 		engine.meterColor = Colors.METER_COLOR_GREEN;
 		if (engine.statistics.level % 100 >= 50) {
 			engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -643,14 +643,14 @@ public class GradeManiaMode extends AbstractMode {
 		if (lines >= 1) {
 			// Calculate score
 			int manuallock = 0;
-			if (engine.manualLock == true) {
+			if (engine.manualLock) {
 				manuallock = 1;
 			}
 
 			int bravo = 1;
 			if (engine.field.isEmpty()) {
 				bravo = 4;
-				engine.playSE("bravo");
+				engine.playSE(Sounds.BRAVO);
 			}
 
 			lastscore = ((engine.statistics.level + lines) / 4 + engine.softdropFall + engine.harddropFall + manuallock)
@@ -660,7 +660,7 @@ public class GradeManiaMode extends AbstractMode {
 
 			// Dan rise
 			while (grade < 17 && engine.statistics.score >= tableGradeScore[grade]) {
-				engine.playSE("gradeup");
+				engine.playSE(Sounds.GRADE_UP);
 				grade++;
 				gradeflash = 180;
 				lastGradeTime = engine.statistics.time;
@@ -682,8 +682,8 @@ public class GradeManiaMode extends AbstractMode {
 
 				if (engine.statistics.time <= GM_999_TIME_REQUIRE && engine.statistics.score >= tableGradeScore[17]
 						&& gm300 && gm500) {
-					engine.playSE("endingstart");
-					engine.playSE("gradeup");
+					engine.playSE(Sounds.ENDING_START);
+					engine.playSE(Sounds.GRADE_UP);
 
 					grade = 18;
 					gradeflash = 180;
@@ -698,7 +698,7 @@ public class GradeManiaMode extends AbstractMode {
 				}
 			} else if (engine.statistics.level >= nextseclv) {
 				// Next Section
-				engine.playSE("levelup");
+				engine.playSE(Sounds.LEVEL_UP);
 
 				owner.backgroundStatus.fadesw = true;
 				owner.backgroundStatus.fadecount = 0;
@@ -738,7 +738,7 @@ public class GradeManiaMode extends AbstractMode {
 					nextseclv = 999;
 				}
 			} else if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
-				engine.playSE("levelstop");
+				engine.playSE(Sounds.LEVEL_STOP);
 			}
 		}
 	}
@@ -773,7 +773,7 @@ public class GradeManiaMode extends AbstractMode {
 
 			// Time meter
 			int remainRollTime = ROLLTIMELIMIT - rolltime;
-			engine.meterValue = remainRollTime * receiver.getMeterMax(engine) / ROLLTIMELIMIT;
+			engine.meterValue = remainRollTime * renderer.getMeterMax(engine) / ROLLTIMELIMIT;
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainRollTime <= 30 * 60) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -811,35 +811,35 @@ public class GradeManiaMode extends AbstractMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		int status1 = engine.statc_1();
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
+		renderer.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 
 		switch (status1) {
 		case 0:
-			drawResult(engine, playerID, receiver, 2, Colors.FONT_BLUE, "GRADE",
+			drawResult(engine, playerID, renderer, 2, Colors.FONT_BLUE, "GRADE",
 					String.format("%10s", tableGradeName[grade]));
-			drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableGradeName[secretGrade - 1]));
 			}
 			break;
 		case 1:
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 2, "SECTION", Colors.FONT_BLUE);
 			for (int i = 0; i < sectiontime.length; i++) {
 				if (sectiontime[i] > 0) {
-					receiver.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
+					renderer.drawMenuFont(engine, playerID, 2, 3 + i, GeneralUtil.getTime(sectiontime[i]),
 							sectionIsNewRecord[i]);
 				}
 			}
 			if (sectionavgtime > 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
-				receiver.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
+				renderer.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
+				renderer.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
 			break;
 		case 2:
-			drawResultStats(engine, playerID, receiver, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
 			if (grade == 18) {
 				int pierRank = 0;
@@ -848,7 +848,7 @@ public class GradeManiaMode extends AbstractMode {
 						pierRank = i;
 					}
 				}
-				drawResult(engine, playerID, receiver, 10, Colors.FONT_BLUE, "PIER GRADE",
+				drawResult(engine, playerID, renderer, 10, Colors.FONT_BLUE, "PIER GRADE",
 						String.format("%10s", tablePier21GradeName[pierRank]));
 			}
 			break;
@@ -870,7 +870,7 @@ public class GradeManiaMode extends AbstractMode {
 				status1 = 2;
 			}
 			engine.statc_1(status1);
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 			status1 += 1;
@@ -878,11 +878,11 @@ public class GradeManiaMode extends AbstractMode {
 				status1 = 0;
 			}
 			engine.statc_1(status1);
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 		}
 		// section time displaySwitching
 		if (engine.ctrl.isPush(Controller.BUTTON_F)) {
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 			isShowBestSectionTime = !isShowBestSectionTime;
 		}
 
@@ -908,7 +908,7 @@ public class GradeManiaMode extends AbstractMode {
 
 			if (rankingRank != -1 || sectionAnyNewRecord) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

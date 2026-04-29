@@ -28,12 +28,12 @@
 */
 package mu.nu.nullpo.gui.slick;
 
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.Sound;
+import org.newdawn.slick.openal.SoundStore;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.play.SoundManager;
@@ -88,17 +88,6 @@ public class SlickSoundManager implements SoundManager {
 	}
 
 	/**
-	 * Load WAVE file
-	 *
-	 * @param name    Registered name
-	 * @param fileurl Filename (URL)
-	 * @return true if successful, false if failed
-	 */
-	public void load(String name, URL fileurl) {
-		load(name, fileurl.getFile());
-	}
-
-	/**
 	 * Playback
 	 *
 	 * @param name Registered name
@@ -110,5 +99,10 @@ public class SlickSoundManager implements SoundManager {
 			return;
 		}
 		clip.play();
+	}
+
+	@Override
+	public void setVolume(float volume) {
+		SoundStore.get().setSoundVolume(volume);
 	}
 }

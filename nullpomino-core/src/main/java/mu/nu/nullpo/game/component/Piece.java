@@ -75,6 +75,7 @@ public class Piece implements Serializable {
 			{ { 0, 1 }, { 1, 1 }, { 1, 0 }, { 0, 0 } }, // I2
 			{ { 0, 1, 2 }, { 1, 1, 1 }, { 2, 1, 0 }, { 1, 1, 1 } }, // I3
 			{ { 1, 0, 0 }, { 0, 0, 1 }, { 0, 1, 1 }, { 1, 1, 0 } }, // L3
+
 	};
 
 	/** default OfBlockOf Peace data (Y-coordinate) */
@@ -340,7 +341,7 @@ public class Piece implements Serializable {
 	 *                 case3%Darkly, -0.05If it&#39;s the case5%Bright)
 	 */
 	public void setDarkness(float darkness) {
-		for(Block aBlock : block) {
+		for (Block aBlock : block) {
 			aBlock.darkness = darkness;
 		}
 	}
@@ -351,7 +352,7 @@ public class Piece implements Serializable {
 	 * @param alpha Transparency (1.0fOpacity in, 0.0fCompletely transparent in)
 	 */
 	public void setAlpha(float alpha) {
-		for(Block aBlock : block) {
+		for (Block aBlock : block) {
 			aBlock.alpha = alpha;
 		}
 	}
@@ -439,31 +440,31 @@ public class Piece implements Serializable {
 			block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
 			block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
 			block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+			block[j].setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, !connectBlocks);
+			if (!connectBlocks) {
+				return;
+			}
 
-			if (connectBlocks) {
-				block[j].setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, false);
-				// Other3Of oneBlockExamine the relationship between the
-				for (int k = 0; k < getMaxBlock(); k++) {
-					if (k != j) {
-						int bx2 = dataX[direction][k];
-						int by2 = dataY[direction][k];
-
-						if (bx == bx2 && by - 1 == by2) {
-							block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true); // Up
-						}
-						if (bx == bx2 && by + 1 == by2) {
-							block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true); // Down
-						}
-						if (by == by2 && bx - 1 == bx2) {
-							block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true); // Left
-						}
-						if (by == by2 && bx + 1 == bx2) {
-							block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true); // Right
-						}
-					}
+			// Examine the relationship between the other3 block of one block
+			for (int k = 0; k < getMaxBlock(); k++) {
+				if (k == j) {
+					continue;
 				}
-			} else {
-				block[j].setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+				int bx2 = dataX[direction][k];
+				int by2 = dataY[direction][k];
+
+				if (bx == bx2 && by - 1 == by2) {
+					block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true); // Up
+				}
+				if (bx == bx2 && by + 1 == by2) {
+					block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true); // Down
+				}
+				if (by == by2 && bx - 1 == bx2) {
+					block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true); // Left
+				}
+				if (by == by2 && bx + 1 == bx2) {
+					block[j].setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true); // Right
+				}
 			}
 		}
 	}
@@ -478,12 +479,7 @@ public class Piece implements Serializable {
 	 * @return 1One or moreBlockThefieldAttempts off target would be placed intrue,
 	 *         Otherwisefalse
 	 */
-	public boolean isPartialLockOut(int x, int y, int rt, Field fld) {
-		// BigThe only treatment
-		if (big) {
-			return isPartialLockOutBig(x, y, rt, fld);
-		}
-
+	protected boolean isPartialLockOut(int x, int y, int rt, Field fld) {
 		boolean placed = false;
 
 		for (int i = 0; i < getMaxBlock(); i++) {
@@ -537,6 +533,9 @@ public class Piece implements Serializable {
 	 *         Otherwisefalse
 	 */
 	public boolean isPartialLockOut(int x, int y, Field fld) {
+		if(big) {
+			return isPartialLockOutBig(x, y, direction, fld);
+		}
 		return isPartialLockOut(x, y, direction, fld);
 	}
 
@@ -550,12 +549,7 @@ public class Piece implements Serializable {
 	 * @param fld field
 	 * @return 1One or moreBlockAfieldI put in the frametrue, Otherwisefalse
 	 */
-	public boolean canPlaceToVisibleField(int x, int y, int rt, Field fld) {
-		// BigThe only treatment
-		if (big) {
-			return canPlaceToVisibleFieldBig(x, y, rt, fld);
-		}
-
+	protected boolean canPlaceToVisibleField(int x, int y, int rt, Field fld) {
 		boolean placed = false;
 
 		for (int i = 0; i < getMaxBlock(); i++) {
@@ -608,6 +602,9 @@ public class Piece implements Serializable {
 	 * @return 1One or moreBlockAfieldI put in the frametrue, Otherwisefalse
 	 */
 	public boolean canPlaceToVisibleField(int x, int y, Field fld) {
+		if(big) {
+			return canPlaceToVisibleFieldBig(x, y, direction, fld);
+		}
 		return canPlaceToVisibleField(x, y, direction, fld);
 	}
 
@@ -759,7 +756,7 @@ public class Piece implements Serializable {
 	}
 
 	/**
-	 * fieldPlace the piece to
+	 * Place the piece into the field
 	 *
 	 * @param x   X-coordinate
 	 * @param y   Y-coordinate
@@ -902,16 +899,11 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int bx = dataX[direction][j];
-
 			max = Math.max(bx, max);
 			min = Math.min(bx, min);
 		}
 
-		int wide = 1;
-		if (big == true) {
-			wide = 2;
-		}
-
+		int wide = big ? 2 : 1;
 		return (max - min) * wide;
 	}
 
@@ -926,16 +918,11 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int by = dataY[direction][j];
-
 			max = Math.max(by, max);
 			min = Math.min(by, min);
 		}
 
-		int wide = 1;
-		if (big == true) {
-			wide = 2;
-		}
-
+		int wide = big ? 2 : 1;
 		return (max - min) * wide;
 	}
 
@@ -949,15 +936,10 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int by = dataX[direction][j];
-
 			min = Math.min(by, min);
 		}
 
-		int wide = 1;
-		if (big) {
-			wide = 2;
-		}
-
+		int wide = big ? 2 : 1;
 		return min * wide;
 	}
 
@@ -971,15 +953,10 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int by = dataX[direction][j];
-
 			max = Math.max(by, max);
 		}
 
-		int wide = 1;
-		if (big) {
-			wide = 2;
-		}
-
+		int wide = big ? 2 : 1;
 		return max * wide;
 	}
 
@@ -993,15 +970,10 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int by = dataY[direction][j];
-
 			min = Math.min(by, min);
 		}
 
-		int wide = 1;
-		if (big) {
-			wide = 2;
-		}
-
+		int wide = big ? 2 : 1;
 		return min * wide;
 	}
 
@@ -1015,7 +987,6 @@ public class Piece implements Serializable {
 
 		for (int j = 1; j < getMaxBlock(); j++) {
 			int by = dataY[direction][j];
-
 			max = Math.max(by, max);
 		}
 

@@ -6,7 +6,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
-import mu.nu.nullpo.game.event.EventReceiver;
+import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
@@ -230,7 +230,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 			int rotateDir = 0; // -1 = left, 1 = right
 			int drop = 0; // 1 = up, -1 = down
 
-			if (bestHold == true && thinkComplete && engine.isHoldOK()) {
+			if (bestHold && thinkComplete && engine.isHoldOK()) {
 				// Hold
 				input |= Controller.BUTTON_BIT_D;
 				/*
@@ -889,7 +889,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void renderState(GameEngine engine, int playerID) {
-		EventReceiver<?> r = engine.owner.receiver;
+		Renderer<?> r = engine.owner.renderer;
 		r.drawScoreFont(engine, playerID, 19, 33, getName().toUpperCase(), Colors.FONT_GREEN, 0.5f);
 		r.drawScoreFont(engine, playerID, 24, 34, "X", Colors.FONT_BLUE, 0.5f);
 		r.drawScoreFont(engine, playerID, 27, 34, "Y", Colors.FONT_BLUE, 0.5f);
@@ -962,11 +962,11 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
 	@Override
 	public void renderHint(GameEngine engine, int playerID) {
-		EventReceiver<?> r = engine.owner.receiver;
+		Renderer<?> r = engine.owner.renderer;
 		r.drawScoreFont(engine, playerID, 10, 3, "AI HINT MOVE:", Colors.FONT_GREEN);
 		if (bestPts > 0
 				&& (thinkComplete || thinkCurrentPieceNo > 0 && thinkCurrentPieceNo <= thinkLastPieceNo)) {
-			if (bestHold == true && thinkComplete && engine.isHoldOK()) {
+			if (bestHold && thinkComplete && engine.isHoldOK()) {
 				r.drawScoreFont(engine, playerID, 10, 4, "HOLD");
 			} else {
 				Piece pieceNow = engine.nowPieceObject;

@@ -28,8 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import org.apache.log4j.Logger;
-
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
@@ -38,13 +37,13 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * GEM MANIA
  */
+@Log4j
 public class GemManiaMode extends AbstractMode {
-	/** Log */
-	static Logger log = Logger.getLogger(GemManiaMode.class);
 
 	/** Current version */
 	private static final int CURRENT_VERSION = 1;
@@ -246,7 +245,7 @@ public class GemManiaMode extends AbstractMode {
 		log.debug("playerInit called");
 
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 
 		rest = 0;
 		stage = 0;
@@ -320,7 +319,7 @@ public class GemManiaMode extends AbstractMode {
 		engine.fieldHeight = 20;
 		engine.createFieldIfNeeded();
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -393,10 +392,10 @@ public class GemManiaMode extends AbstractMode {
 	private void loadStageSet(int id) {
 		if (id >= 0) {
 			log.debug("Loading stage set from custom set #" + id);
-			propStageSet = receiver.loadProperties("config/map/gemmania/custom" + id + ".map");
+			propStageSet = CustomProperties.load("config/map/gemmania/custom" + id + ".map");
 		} else {
 			log.debug("Loading stage set from default set");
-			propStageSet = receiver.loadProperties("config/map/gemmania/default.map");
+			propStageSet = CustomProperties.load("config/map/gemmania/default.map");
 		}
 
 		if (propStageSet == null) {
@@ -413,10 +412,10 @@ public class GemManiaMode extends AbstractMode {
 		if (propStageSet != null && !owner.replayMode) {
 			if (id >= 0) {
 				log.debug("Saving stage set to custom set #" + id);
-				receiver.saveProperties("config/map/gemmania/custom" + id + ".map", propStageSet);
+				propStageSet.saveSilent("config/map/gemmania/custom" + id + ".map");
 			} else {
 				log.debug("Saving stage set to default set");
-				receiver.saveProperties("config/map/gemmania/default.map", propStageSet);
+				propStageSet.saveSilent("config/map/gemmania/default.map");
 			}
 		}
 	}
@@ -505,7 +504,7 @@ public class GemManiaMode extends AbstractMode {
 	 * @param engine GameEngine
 	 */
 	private void setSpeed(GameEngine engine) {
-		if (always20g == true) {
+		if (always20g) {
 			engine.speed.gravity = -1;
 		} else {
 			while (speedlevel >= tableGravityChangeLevel[gravityindex]) {
@@ -574,13 +573,12 @@ public class GemManiaMode extends AbstractMode {
 			int change = updateCursor(engine, 4);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
 					break;
-				case 1:
-				case 2:
+				case 1, 2:
 					startstage += change;
 					if (startstage < 0) {
 						startstage = MAX_STAGE_TOTAL - 1;
@@ -589,8 +587,7 @@ public class GemManiaMode extends AbstractMode {
 						startstage = 0;
 					}
 					break;
-				case 3:
-				case 4:
+				case 3, 4:
 					stageset += change;
 					if (stageset < 0) {
 						stageset = 99;
@@ -599,12 +596,14 @@ public class GemManiaMode extends AbstractMode {
 						stageset = 0;
 					}
 					break;
+				default:
+					break;
 				}
 			}
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				switch (menuCursor) {
 				case 0:
@@ -629,6 +628,8 @@ public class GemManiaMode extends AbstractMode {
 				case 4:
 					saveStageSet(stageset);
 					break;
+				default:
+					break;
 				}
 			}
 
@@ -649,7 +650,7 @@ public class GemManiaMode extends AbstractMode {
 				if (menuCursor < 0) {
 					menuCursor = 4;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 			// Down
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -657,7 +658,7 @@ public class GemManiaMode extends AbstractMode {
 				if (menuCursor > 4) {
 					menuCursor = 0;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 
 			// Configuration changes
@@ -670,7 +671,7 @@ public class GemManiaMode extends AbstractMode {
 			}
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -719,12 +720,14 @@ public class GemManiaMode extends AbstractMode {
 						gimmickMirror = 0;
 					}
 					break;
+				default:
+					break;
 				}
 			}
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 0) {
 					engine.enterFieldEdit();
@@ -746,14 +749,14 @@ public class GemManiaMode extends AbstractMode {
 			menuTime++;
 		}
 		// 普通のMenu
-		else if (engine.owner.replayMode == false) {
+		else if (!engine.owner.replayMode) {
 			// Up
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 				menuCursor--;
 				if (menuCursor < 0) {
 					menuCursor = 8;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 			// Down
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -761,7 +764,7 @@ public class GemManiaMode extends AbstractMode {
 				if (menuCursor > 8) {
 					menuCursor = 0;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 
 			// Configuration changes
@@ -774,7 +777,7 @@ public class GemManiaMode extends AbstractMode {
 			}
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
@@ -840,14 +843,16 @@ public class GemManiaMode extends AbstractMode {
 						startnextc = 0;
 					}
 					break;
+				default:
+					break;
 				}
 			}
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
 			}
 
@@ -889,21 +894,23 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (editModeScreen == 1) {
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_GREEN, 0, "STAGE EDIT", "[PUSH A]", "LOAD STAGE",
+		switch (editModeScreen) {
+		case 1 -> {
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_GREEN, 0, "STAGE EDIT", "[PUSH A]", "LOAD STAGE",
 					"[" + getStageName(startstage) + "]", "SAVE STAGE", "[" + getStageName(startstage) + "]", "LOAD",
 					"[SET " + stageset + "]", "SAVE", "[SET " + stageset + "]");
 
-			receiver.drawMenuFont(engine, playerID, 0, 19, "EXIT-> D+E", Colors.FONT_ORANGE);
-		} else if (editModeScreen == 2) {
-			// エディットMenu stage 画面
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_GREEN, 0, "MAP EDIT", "[PUSH A]", "STAGE TIME",
+			renderer.drawMenuFont(engine, playerID, 0, 19, "EXIT-> D+E", Colors.FONT_ORANGE);
+		}
+		// エディットMenu stage 画面
+		case 2 -> drawMenu(engine, playerID, renderer, 0, Colors.FONT_GREEN, 0, "MAP EDIT", "[PUSH A]", "STAGE TIME",
 					GeneralUtil.getTime(stagetimeStart), "LIMIT TIME", GeneralUtil.getTime(limittimeStart), "BGM",
 					String.valueOf(stagebgm), "MIRROR", gimmickMirror == 0 ? "OFF" : String.valueOf(gimmickMirror));
-		} else {
-			// 普通のMenu
-			if (engine.owner.replayMode == false) {
-				receiver.drawMenuFont(engine, playerID, 0, 19, "D:EDIT", Colors.FONT_ORANGE);
+		// 普通のMenu
+		default -> {
+
+			if (!engine.owner.replayMode) {
+				renderer.drawMenuFont(engine, playerID, 0, 19, "D:EDIT", Colors.FONT_ORANGE);
 			}
 			String strTrainingType = "OFF";
 			if (trainingType == 1) {
@@ -912,12 +919,13 @@ public class GemManiaMode extends AbstractMode {
 			if (trainingType == 2) {
 				strTrainingType = "ON+RESET";
 			}
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_PINK, 0, "STAGE NO.", getStageName(startstage),
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_PINK, 0, "STAGE NO.", getStageName(startstage),
 					"STAGE SET", stageset < 0 ? "DEFAULT" : "EDIT " + stageset, "FULL GHOST",
 					GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE",
 					GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "RANDOM",
 					GeneralUtil.getONorOFF(randomnext), "TRAINING", strTrainingType, "NEXT COUNT",
 					String.valueOf(startnextc));
+		}
 		}
 	}
 
@@ -936,9 +944,7 @@ public class GemManiaMode extends AbstractMode {
 					engine.nextPieceIDs = GeneralUtil.createNextPieceArrayFromNumberString(STRING_DEFAULT_NEXT_LIST);
 				}
 			}
-
 			startStage(engine);
-
 			if (!engine.readyDone) {
 				limittimeNow = limittimeStart;
 			}
@@ -956,17 +962,17 @@ public class GemManiaMode extends AbstractMode {
 		}
 		// Training
 		if (trainingType != 0) {
-			receiver.drawMenuFont(engine, playerID, 1, 5, "TRAINING", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 5, "TRAINING", Colors.FONT_GREEN);
 		}
 
 		// STAGE XX
 		if (stage >= MAX_STAGE_NORMAL) {
-			receiver.drawMenuFont(engine, playerID, 0, 7, "EX STAGE ", Colors.FONT_GREEN);
-			receiver.drawMenuFont(engine, playerID, 9, 7, "" + (stage + 1 - MAX_STAGE_NORMAL));
+			renderer.drawMenuFont(engine, playerID, 0, 7, "EX STAGE ", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 9, 7, "" + (stage + 1 - MAX_STAGE_NORMAL));
 		} else {
-			receiver.drawMenuFont(engine, playerID, 1, 7, "STAGE", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 7, "STAGE", Colors.FONT_GREEN);
 			String strStage = String.format("%2s", getStageName(stage));
-			receiver.drawMenuFont(engine, playerID, 7, 7, strStage);
+			renderer.drawMenuFont(engine, playerID, 7, 7, strStage);
 		}
 	}
 
@@ -994,16 +1000,16 @@ public class GemManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "GEM MANIA " + (randomnext ? "(RANDOM)" : ""), Colors.FONT_RED);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "GEM MANIA " + (randomnext ? "(RANDOM)" : ""), Colors.FONT_RED);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (startstage == 0 && always20g == false && trainingType == 0 && startnextc == 0 && stageset < 0
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (startstage == 0 && !always20g && trainingType == 0 && startnextc == 0 && stageset < 0
 					&& engine.ai == null) {
-				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
-				int topY = receiver.getNextDisplayType() == 2 ? 5 : 3;
+				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 ? 5 : 3;
 
-				receiver.drawScoreFont(engine, playerID, 3, topY - 1, "STAGE CLEAR TIME", Colors.FONT_PINK, scale);
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "STAGE CLEAR TIME", Colors.FONT_PINK, scale);
 				int type = randomnext ? 1 : 0;
 
 				for (int i = 0; i < RANKING_MAX; i++) {
@@ -1015,84 +1021,84 @@ public class GemManiaMode extends AbstractMode {
 						gcolor = Colors.FONT_ORANGE;
 					}
 
-					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW, scale);
-					receiver.drawScoreFont(engine, playerID, 3, topY + i, getStageName(rankingStage[type][i]), gcolor,
+					renderer.drawScoreFont(engine, playerID, 3, topY + i, getStageName(rankingStage[type][i]), gcolor,
 							scale);
-					receiver.drawScoreFont(engine, playerID, 9, topY + i, rankingClearPer[type][i] + "%",
+					renderer.drawScoreFont(engine, playerID, 9, topY + i, rankingClearPer[type][i] + "%",
 							i == rankingRank, scale);
-					receiver.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[type][i]),
+					renderer.drawScoreFont(engine, playerID, 15, topY + i, GeneralUtil.getTime(rankingTime[type][i]),
 							i == rankingRank, scale);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
-			receiver.drawScoreFont(engine, playerID, 0, 3, getStageName(stage));
+			renderer.drawScoreFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
+			renderer.drawScoreFont(engine, playerID, 0, 3, getStageName(stage));
 			if (gimmickMirror > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 4, "MIRROR", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 4, "MIRROR", Colors.FONT_RED);
 			} else if (gimmickRoll > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 4, "ROLL ROLL", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 4, "ROLL ROLL", Colors.FONT_RED);
 			} else if (gimmickBig > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 4, "DEATH BLOCK", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 4, "DEATH BLOCK", Colors.FONT_RED);
 			} else if (gimmickXRay > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 4, "X-RAY", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 4, "X-RAY", Colors.FONT_RED);
 			} else if (gimmickColor > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 4, "COLOR", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 4, "COLOR", Colors.FONT_RED);
 			}
 
-			receiver.drawScoreFont(engine, playerID, 0, 5, "REST", Colors.FONT_PINK);
-			receiver.drawScoreFont(engine, playerID, 0, 6, "" + rest);
+			renderer.drawScoreFont(engine, playerID, 0, 5, "REST", Colors.FONT_PINK);
+			renderer.drawScoreFont(engine, playerID, 0, 6, "" + rest);
 
 			if (trainingType == 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 8, "CLEAR", Colors.FONT_PINK);
-				receiver.drawScoreFont(engine, playerID, 0, 9, clearper + "%");
+				renderer.drawScoreFont(engine, playerID, 0, 8, "CLEAR", Colors.FONT_PINK);
+				renderer.drawScoreFont(engine, playerID, 0, 9, clearper + "%");
 			} else {
-				receiver.drawScoreFont(engine, playerID, 0, 8, "BEST TIME", Colors.FONT_PINK);
-				receiver.drawScoreFont(engine, playerID, 0, 9, GeneralUtil.getTime(trainingBestTime));
+				renderer.drawScoreFont(engine, playerID, 0, 8, "BEST TIME", Colors.FONT_PINK);
+				renderer.drawScoreFont(engine, playerID, 0, 9, GeneralUtil.getTime(trainingBestTime));
 			}
 
 			// level
-			receiver.drawScoreFont(engine, playerID, 0, 11, "LEVEL", Colors.FONT_PINK);
+			renderer.drawScoreFont(engine, playerID, 0, 11, "LEVEL", Colors.FONT_PINK);
 			int tempLevel = speedlevel;
 			if (tempLevel < 0) {
 				tempLevel = 0;
 			}
 			String strLevel = String.format("%3d", tempLevel);
-			receiver.drawScoreFont(engine, playerID, 0, 12, strLevel);
+			renderer.drawScoreFont(engine, playerID, 0, 12, strLevel);
 
 			int speed = engine.speed.gravity / 128;
 			if (engine.speed.gravity < 0) {
 				speed = 40;
 			}
-			receiver.drawSpeedMeter(engine, playerID, 0, 13, speed);
+			renderer.drawSpeedMeter(engine, playerID, 0, 13, speed);
 
-			receiver.drawScoreFont(engine, playerID, 0, 14, String.format("%3d", nextseclv));
+			renderer.drawScoreFont(engine, playerID, 0, 14, String.format("%3d", nextseclv));
 
 			// stage Time
 			if (stagetimeStart > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 16, "STAGE TIME", Colors.FONT_PINK);
-				receiver.drawScoreFont(engine, playerID, 0, 17, GeneralUtil.getTime(stagetimeNow),
+				renderer.drawScoreFont(engine, playerID, 0, 16, "STAGE TIME", Colors.FONT_PINK);
+				renderer.drawScoreFont(engine, playerID, 0, 17, GeneralUtil.getTime(stagetimeNow),
 						engine.timerActive && stagetimeNow < 600 && stagetimeNow % 4 == 0);
 			}
 
 			// Time limit
 			if (limittimeStart > 0) {
-				receiver.drawScoreFont(engine, playerID, 0, 19, "LIMIT TIME", Colors.FONT_PINK);
+				renderer.drawScoreFont(engine, playerID, 0, 19, "LIMIT TIME", Colors.FONT_PINK);
 				String strLimitTime = GeneralUtil.getTime(limittimeNow);
 				if (timeextendDisp > 0) {
 					strLimitTime += "\n(+" + timeextendSeconds + " SEC.)";
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 20, strLimitTime,
+				renderer.drawScoreFont(engine, playerID, 0, 20, strLimitTime,
 						engine.timerActive && limittimeNow < 600 && limittimeNow % 4 == 0);
 			}
 
 			// Section Time
-			if (showsectiontime == true && sectiontime != null) {
-				int y = receiver.getNextDisplayType() == 2 ? 4 : 2;
-				int x = receiver.getNextDisplayType() == 2 ? 22 : 12;
-				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+			if (showsectiontime && sectiontime != null) {
+				int y = renderer.getNextDisplayType() == 2 ? 4 : 2;
+				int x = renderer.getNextDisplayType() == 2 ? 22 : 12;
+				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 
-				receiver.drawScoreFont(engine, playerID, x, y, "SECTION TIME", Colors.FONT_PINK, scale);
+				renderer.drawScoreFont(engine, playerID, x, y, "SECTION TIME", Colors.FONT_PINK, scale);
 
 				for (int i = 0; i < sectiontime.length; i++) {
 					if (sectiontime[i] != 0) {
@@ -1112,17 +1118,17 @@ public class GemManiaMode extends AbstractMode {
 						int pos = i - Math.max(stage - 14, 0);
 
 						if (pos >= 0) {
-							receiver.drawScoreFont(engine, playerID, x, y + 1 + pos, strSectionTime, scale);
+							renderer.drawScoreFont(engine, playerID, x, y + 1 + pos, strSectionTime, scale);
 						}
 					}
 				}
 
-				if (receiver.getNextDisplayType() == 2) {
-					receiver.drawScoreFont(engine, playerID, 11, 19, "TOTAL", Colors.FONT_PINK);
-					receiver.drawScoreFont(engine, playerID, 11, 20, GeneralUtil.getTime(engine.statistics.time));
+				if (renderer.getNextDisplayType() == 2) {
+					renderer.drawScoreFont(engine, playerID, 11, 19, "TOTAL", Colors.FONT_PINK);
+					renderer.drawScoreFont(engine, playerID, 11, 20, GeneralUtil.getTime(engine.statistics.time));
 				} else {
-					receiver.drawScoreFont(engine, playerID, 12, 19, "TOTAL TIME", Colors.FONT_PINK);
-					receiver.drawScoreFont(engine, playerID, 12, 20, GeneralUtil.getTime(engine.statistics.time));
+					renderer.drawScoreFont(engine, playerID, 12, 19, "TOTAL TIME", Colors.FONT_PINK);
+					renderer.drawScoreFont(engine, playerID, 12, 20, GeneralUtil.getTime(engine.statistics.time));
 				}
 			}
 		}
@@ -1164,9 +1170,9 @@ public class GemManiaMode extends AbstractMode {
 
 			// Time meter
 			if (limittimeNow >= limittimeStart) {
-				engine.meterValue = receiver.getMeterMax(engine);
+				engine.meterValue = renderer.getMeterMax(engine);
 			} else {
-				engine.meterValue = limittimeNow * receiver.getMeterMax(engine) / limittimeStart;
+				engine.meterValue = limittimeNow * renderer.getMeterMax(engine) / limittimeStart;
 			}
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (limittimeNow <= 60 * 60) {
@@ -1181,7 +1187,7 @@ public class GemManiaMode extends AbstractMode {
 
 			if (limittimeNow > 0 && limittimeNow <= 10 * 60 && limittimeNow % 60 == 0) {
 				// 10Seconds before the countdown
-				engine.playSE("countdown");
+				engine.playSE(Sounds.COUNTDOWN);
 			}
 		}
 
@@ -1191,7 +1197,7 @@ public class GemManiaMode extends AbstractMode {
 
 			if (stagetimeNow > 0 && stagetimeNow <= 10 * 60 && stagetimeNow % 60 == 0) {
 				// 10Seconds before the countdown
-				engine.playSE("countdown");
+				engine.playSE(Sounds.COUNTDOWN);
 			}
 		}
 	}
@@ -1204,12 +1210,12 @@ public class GemManiaMode extends AbstractMode {
 
 		int status0 = engine.statc_0();
 		// Occurrence new piece
-		if (engine.ending == 0 && status0 == 0 && engine.holdDisable == false && !lvupflag) {
+		if (engine.ending == 0 && status0 == 0 && !engine.holdDisable && !lvupflag) {
 			// Level up
 			if (speedlevel < nextseclv - 1) {
 				speedlevel++;
-				if (speedlevel == nextseclv - 1 && lvstopse == true) {
-					engine.playSE("levelstop");
+				if (speedlevel == nextseclv - 1 && lvstopse) {
+					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
 			setSpeed(engine);
@@ -1218,7 +1224,7 @@ public class GemManiaMode extends AbstractMode {
 			lvupflag = false;
 		}
 
-		if (engine.ending == 0 && status0 == 0 && engine.holdDisable == false) {
+		if (engine.ending == 0 && status0 == 0 && !engine.holdDisable) {
 			// Roll Roll
 			engine.itemRollRollEnable = gimmickRoll > 0 && (thisStageTotalPieceLockCount + 1) % gimmickRoll == 0;
 			// Big
@@ -1257,8 +1263,8 @@ public class GemManiaMode extends AbstractMode {
 		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (speedlevel < nextseclv - 1) {
 				speedlevel++;
-				if (speedlevel == nextseclv - 1 && lvstopse == true) {
-					engine.playSE("levelstop");
+				if (speedlevel == nextseclv - 1 && lvstopse) {
+					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
 			setSpeed(engine);
@@ -1306,7 +1312,7 @@ public class GemManiaMode extends AbstractMode {
 				speedlevel = 998;
 			} else if (speedlevel >= nextseclv) {
 				// Next Section
-				engine.playSE("levelup");
+				engine.playSE(Sounds.LEVEL_UP);
 
 				// BackgroundSwitching
 				owner.backgroundStatus.fadesw = true;
@@ -1315,8 +1321,8 @@ public class GemManiaMode extends AbstractMode {
 
 				// Update level for next section
 				nextseclv += 100;
-			} else if (speedlevel == nextseclv - 1 && lvstopse == true) {
-				engine.playSE("levelstop");
+			} else if (speedlevel == nextseclv - 1 && lvstopse) {
+				engine.playSE(Sounds.LEVEL_STOP);
 			}
 		}
 	}
@@ -1360,9 +1366,9 @@ public class GemManiaMode extends AbstractMode {
 		if (status0 == 0) {
 			// Sound effects
 			if (clearflag) {
-				engine.playSE("stageclear");
+				engine.playSE(Sounds.STAGE_CLEAR);
 			} else {
-				engine.playSE("stagefail");
+				engine.playSE(Sounds.STAGE_FAIL);
 			}
 
 			// Cleared stage +1
@@ -1449,9 +1455,9 @@ public class GemManiaMode extends AbstractMode {
 			}
 
 			if (limittimeTemp >= limittimeStart) {
-				engine.meterValue = receiver.getMeterMax(engine);
+				engine.meterValue = renderer.getMeterMax(engine);
 			} else {
-				engine.meterValue = limittimeTemp * receiver.getMeterMax(engine) / limittimeStart;
+				engine.meterValue = limittimeTemp * renderer.getMeterMax(engine) / limittimeStart;
 			}
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (limittimeTemp <= 60 * 60) {
@@ -1521,62 +1527,62 @@ public class GemManiaMode extends AbstractMode {
 		}
 		int status1 = engine.statc_1();
 		// STAGE XX
-		receiver.drawMenuFont(engine, playerID, 1, 2, "STAGE", Colors.FONT_GREEN);
+		renderer.drawMenuFont(engine, playerID, 1, 2, "STAGE", Colors.FONT_GREEN);
 		String strStage = String.format("%2s", getStageName(stage));
-		receiver.drawMenuFont(engine, playerID, 7, 2, strStage);
+		renderer.drawMenuFont(engine, playerID, 7, 2, strStage);
 
 		if (clearflag) {
 			// クリア
 			int color = status0 % 2 == 0 ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
-			receiver.drawMenuFont(engine, playerID, 2, 4, "CLEAR!", color);
+			renderer.drawMenuFont(engine, playerID, 2, 4, "CLEAR!", color);
 
-			receiver.drawMenuFont(engine, playerID, 0, 7, "LIMIT TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 7, "LIMIT TIME", Colors.FONT_PINK);
 
 			boolean check = status0 % 2 == 0 && status1 < timeextendStageClearSeconds * 60;
 			color = check ? Colors.FONT_WHITE : Colors.FONT_ORANGE;
-			receiver.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + status1), color);
+			renderer.drawMenuFont(engine, playerID, 1, 8, GeneralUtil.getTime(limittimeNow + status1), color);
 
-			receiver.drawMenuFont(engine, playerID, 2, 10, "EXTEND", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 2, 11, timeextendStageClearSeconds + " SEC.");
+			renderer.drawMenuFont(engine, playerID, 2, 10, "EXTEND", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 2, 11, timeextendStageClearSeconds + " SEC.");
 
-			receiver.drawMenuFont(engine, playerID, 0, 13, "CLEAR TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 14, GeneralUtil.getTime(cleartime));
+			renderer.drawMenuFont(engine, playerID, 0, 13, "CLEAR TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 1, 14, GeneralUtil.getTime(cleartime));
 
-			receiver.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
 		} else if (skipflag) {
 			// Skip
-			receiver.drawMenuFont(engine, playerID, 1, 4, "SKIPPED");
-			receiver.drawMenuFont(engine, playerID, 1, 5, "-30 SEC.");
+			renderer.drawMenuFont(engine, playerID, 1, 4, "SKIPPED");
+			renderer.drawMenuFont(engine, playerID, 1, 5, "-30 SEC.");
 
-			receiver.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
 
 			boolean check = status0 % 2 == 0 && status1 < 30 * 60;
 			int color = check ? Colors.FONT_WHITE : Colors.FONT_RED;
-			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - status1), color);
+			renderer.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow - status1), color);
 
 			if (trainingType == 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);
-				receiver.drawMenuFont(engine, playerID, 3, 14, clearper + "%");
+				renderer.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);
+				renderer.drawMenuFont(engine, playerID, 3, 14, clearper + "%");
 			}
 
-			receiver.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
 		} else if (stagetimeNow <= 0 && stagetimeStart > 0) {
 			// TimeUp
-			receiver.drawMenuFont(engine, playerID, 1, 4, "TIME UP!");
-			receiver.drawMenuFont(engine, playerID, 1, 5, "TRY NEXT");
+			renderer.drawMenuFont(engine, playerID, 1, 4, "TIME UP!");
+			renderer.drawMenuFont(engine, playerID, 1, 5, "TRY NEXT");
 
-			receiver.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow));
+			renderer.drawMenuFont(engine, playerID, 0, 10, "LIMIT TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 1, 11, GeneralUtil.getTime(limittimeNow));
 
 			if (trainingType == 0) {
-				receiver.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);
-				receiver.drawMenuFont(engine, playerID, 3, 14, clearper + "%");
+				renderer.drawMenuFont(engine, playerID, 0, 13, "CLEAR PER.", Colors.FONT_PINK);
+				renderer.drawMenuFont(engine, playerID, 3, 14, clearper + "%");
 			}
 
-			receiver.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
-			receiver.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
 		}
 	}
 
@@ -1589,7 +1595,7 @@ public class GemManiaMode extends AbstractMode {
 		if (engine.ending == 0 && !noContinue) {
 			int status0 = engine.statc_0();
 			if (status0 == 0) {
-				engine.playSE("died");
+				engine.playSE(Sounds.DIED);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 
 				engine.timerActive = false;
@@ -1625,7 +1631,7 @@ public class GemManiaMode extends AbstractMode {
 						status1 = 0;
 					}
 					engine.statc_1(status1);
-					engine.playSE("cursor");
+					engine.playSE(Sounds.CURSOR);
 				}
 				// Decision
 				if (engine.ctrl.isPush(Controller.BUTTON_A)) {
@@ -1639,7 +1645,7 @@ public class GemManiaMode extends AbstractMode {
 						engine.allowTextRenderByReceiver = true;
 						engine.stat = GameEngine.Status.READY;
 						engine.resetStatc();
-						engine.playSE("decide");
+						engine.playSE(Sounds.DECIDE);
 					} else {
 						// NO
 						status0 = engine.field.getHeight() + 1 + 600;
@@ -1670,20 +1676,20 @@ public class GemManiaMode extends AbstractMode {
 			int status1 = engine.statc_1();
 			if (status0 >= engine.field.getHeight() + 1
 					&& status0 < engine.field.getHeight() + 1 + 600) {
-				receiver.drawMenuFont(engine, playerID, 1, 7, "CONTINUE?", Colors.FONT_PINK);
+				renderer.drawMenuFont(engine, playerID, 1, 7, "CONTINUE?", Colors.FONT_PINK);
 
-				receiver.drawMenuFont(engine, playerID, 3, 9 + status1 * 2, "b", Colors.FONT_RED);
-				receiver.drawMenuFont(engine, playerID, 4, 9, "YES", status1 == 0);
-				receiver.drawMenuFont(engine, playerID, 4, 11, "NO", status1 == 1);
+				renderer.drawMenuFont(engine, playerID, 3, 9 + status1 * 2, "b", Colors.FONT_RED);
+				renderer.drawMenuFont(engine, playerID, 4, 9, "YES", status1 == 0);
+				renderer.drawMenuFont(engine, playerID, 4, 11, "NO", status1 == 1);
 
 				int time = engine.field.getHeight() + 1 + 600 - status0;
-				receiver.drawMenuFont(engine, playerID, 2, 13, "TIME " + (time - 1) / 60, Colors.FONT_GREEN);
+				renderer.drawMenuFont(engine, playerID, 2, 13, "TIME " + (time - 1) / 60, Colors.FONT_GREEN);
 
-				receiver.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
-				receiver.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
+				renderer.drawMenuFont(engine, playerID, 0, 16, "TOTAL TIME", Colors.FONT_PINK);
+				renderer.drawMenuFont(engine, playerID, 1, 17, GeneralUtil.getTime(engine.statistics.time));
 
 				if (trainingType == 0) {
-					receiver.drawMenuFont(engine, playerID, 0, 18, "+2 MINUTES", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 0, 18, "+2 MINUTES", Colors.FONT_RED);
 				}
 			}
 		}
@@ -1701,7 +1707,7 @@ public class GemManiaMode extends AbstractMode {
 				status1 = 2;
 			}
 			engine.statc_1(status1);
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 		}
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 			status1 += 1;
@@ -1709,7 +1715,7 @@ public class GemManiaMode extends AbstractMode {
 				status1 = 0;
 			}
 			engine.statc_1(status1);
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 		}
 
 		return false;
@@ -1722,7 +1728,7 @@ public class GemManiaMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		int status1 = engine.statc_1();
 
-		receiver.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
+		renderer.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 		switch (status1) {
 		case 0: {
 			int gcolor = Colors.FONT_WHITE;
@@ -1732,17 +1738,17 @@ public class GemManiaMode extends AbstractMode {
 			if (allclear == 2) {
 				gcolor = Colors.FONT_ORANGE;
 			}
-			receiver.drawMenuFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
 			String strStage = String.format("%10s", getStageName(stage));
-			receiver.drawMenuFont(engine, playerID, 0, 3, strStage, gcolor);
-			drawResult(engine, playerID, receiver, 4, Colors.FONT_PINK, "CLEAR", String.format("%9d%%", clearper));
-			drawResultStats(engine, playerID, receiver, 6, Colors.FONT_PINK, Statistic.LINES, Statistic.PIECE,
+			renderer.drawMenuFont(engine, playerID, 0, 3, strStage, gcolor);
+			drawResult(engine, playerID, renderer, 4, Colors.FONT_PINK, "CLEAR", String.format("%9d%%", clearper));
+			drawResultStats(engine, playerID, renderer, 6, Colors.FONT_PINK, Statistic.LINES, Statistic.PIECE,
 					Statistic.TIME);
-			drawResultRank(engine, playerID, receiver, 12, Colors.FONT_PINK, rankingRank);
+			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_PINK, rankingRank);
 			break;
 		}
 		case 1:
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION1/2", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 2, "SECTION1/2", Colors.FONT_PINK);
 			for (int i = 0; i < 15; i++) {
 				if (sectiontime[i] != 0) {
 					String strSectionTime = GeneralUtil.getTime(sectiontime[i]);
@@ -1752,12 +1758,12 @@ public class GemManiaMode extends AbstractMode {
 					if (sectiontime[i] == -2) {
 						strSectionTime = "SKIPPED";
 					}
-					receiver.drawMenuFont(engine, playerID, 2, 3 + i, strSectionTime);
+					renderer.drawMenuFont(engine, playerID, 2, 3 + i, strSectionTime);
 				}
 			}
 			break;
 		case 2:
-			receiver.drawMenuFont(engine, playerID, 0, 2, "SECTION2/2", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 2, "SECTION2/2", Colors.FONT_PINK);
 			for (int i = 15; i < sectiontime.length; i++) {
 				if (sectiontime[i] != 0) {
 					String strSectionTime = GeneralUtil.getTime(sectiontime[i]);
@@ -1767,7 +1773,7 @@ public class GemManiaMode extends AbstractMode {
 					if (sectiontime[i] == -2) {
 						strSectionTime = "SKIPPED";
 					}
-					receiver.drawMenuFont(engine, playerID, 2, i - 12, strSectionTime);
+					renderer.drawMenuFont(engine, playerID, 2, i - 12, strSectionTime);
 				}
 			}
 			break;
@@ -1793,13 +1799,13 @@ public class GemManiaMode extends AbstractMode {
 		engine.statistics.writeProperty(prop, playerID);
 
 		// Update rankings
-		if (owner.replayMode == false && startstage == 0 && trainingType == 0 && startnextc == 0 && stageset < 0
-				&& always20g == false && engine.ai == null) {
+		if (!owner.replayMode && startstage == 0 && trainingType == 0 && startnextc == 0 && stageset < 0 && !always20g
+				&& engine.ai == null) {
 			updateRanking(randomnext ? 1 : 0, stage, clearper, engine.statistics.time, allclear);
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}
@@ -1886,12 +1892,15 @@ public class GemManiaMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (clear > rankingAllClear[type][i]) {
 				return i;
-			} else if (clear == rankingAllClear[type][i] && stg > rankingStage[type][i]) {
+			}
+			if (clear == rankingAllClear[type][i] && stg > rankingStage[type][i]) {
 				return i;
-			} else if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
+			}
+			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
 					&& clper > rankingClearPer[type][i]) {
 				return i;
-			} else if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
+			}
+			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
 					&& clper == rankingClearPer[type][i] && time < rankingTime[type][i]) {
 				return i;
 			}

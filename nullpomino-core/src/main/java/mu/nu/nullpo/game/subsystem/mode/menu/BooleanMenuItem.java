@@ -3,6 +3,7 @@ package mu.nu.nullpo.game.subsystem.mode.menu;
 import mu.nu.nullpo.util.CustomProperties;
 
 public class BooleanMenuItem extends AbstractMenuItem<Boolean> {
+
 	public BooleanMenuItem(String name, String displayName, int color, boolean defaultValue) {
 		super(name, displayName, color, defaultValue);
 	}
@@ -25,5 +26,9 @@ public class BooleanMenuItem extends AbstractMenuItem<Boolean> {
 	@Override
 	public void load(int playerID, CustomProperties prop, String modeName) {
 		value = prop.getProperty(modeName + "." + name + (playerID < 0 ? "" : ".p" + playerID), DEFAULT_VALUE);
+	}
+
+	public boolean getValue() {
+		return value;
 	}
 }

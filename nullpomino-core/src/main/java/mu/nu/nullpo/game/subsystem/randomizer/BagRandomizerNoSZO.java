@@ -62,7 +62,7 @@ public class BagRandomizerNoSZO implements Randomizer {
 				// Draw
 				do {
 					id = random.nextInt(Piece.PIECE_COUNT);
-				} while ((pieceEnable[id] == false) || (alreadyAppeared[id] == true)
+				} while ((pieceEnable[id] == false) || (alreadyAppeared[id])
 						|| ((first) && ((id == Piece.PIECE_Z) || (id == Piece.PIECE_O) || (id == Piece.PIECE_S))));
 
 				// Set block drawn flag to ON

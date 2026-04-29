@@ -89,10 +89,10 @@ public class BGImageStatus implements Serializable {
 	 * Update background fade state
 	 */
 	public void fadeUpdate() {
-		if (fadesw == true) {
+		if (fadesw) {
 			if (fadecount < 100) {
 				fadecount += 10;
-			} else if (fadestat == false) {
+			} else if (!fadestat) {
 				bg = fadebg;
 				fadestat = true;
 				fadecount = 0;

@@ -362,7 +362,7 @@ public class GeneralConfigFrame extends JFrame implements ActionListener {
 			int maxfps = NullpoMinoSwing.getIntTextField(60, txtfldMaxFPS);
 			NullpoMinoSwing.propConfig.setProperty("option.maxfps", maxfps);
 
-			double sevolume = NullpoMinoSwing.getDoubleTextField(1.0d, txtfldSEVolume);
+			float sevolume = NullpoMinoSwing.getFloatTextField(1.0f, txtfldSEVolume);
 			NullpoMinoSwing.propConfig.setProperty("option.sevolume", sevolume);
 
 			int lineeffectspeed = NullpoMinoSwing.getIntTextField(0, txtfldLineClearEffectSpeed) - 1;

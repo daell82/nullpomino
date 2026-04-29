@@ -144,7 +144,7 @@ public class DigChallengeMode extends NetDummyMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 
 		lastscore = 0;
 		lastbonusscore = 0;
@@ -312,7 +312,7 @@ public class DigChallengeMode extends NetDummyMode {
 
 				// Save settings
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
@@ -354,7 +354,7 @@ public class DigChallengeMode extends NetDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (netIsNetRankingDisplayMode) {
 			// NET: Netplay Ranking
-			netOnRenderNetPlayRanking(engine, playerID, receiver);
+			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else {
 			String strTSpinEnable = "";
 			if (tspinEnableType == 0) {
@@ -367,7 +367,7 @@ public class DigChallengeMode extends NetDummyMode {
 				strTSpinEnable = "ALL";
 			}
 
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GAME TYPE",
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE",
 					goaltype == 0 ? "NORMAL" : "REALTIME", "LEVEL", String.valueOf(startlevel + 1), "BGM",
 					String.valueOf(bgmno), "SPIN BONUS", strTSpinEnable, "EZ SPIN",
 					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
@@ -384,7 +384,7 @@ public class DigChallengeMode extends NetDummyMode {
 	public void startGame(GameEngine engine, int playerID) {
 		engine.statistics.level = startlevel;
 		engine.b2bEnable = enableB2B;
-		if (enableCombo == true) {
+		if (enableCombo) {
 			engine.comboType = GameEngine.COMBO_TYPE_NORMAL;
 		} else {
 			engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
@@ -426,33 +426,33 @@ public class DigChallengeMode extends NetDummyMode {
 			return;
 		}
 
-		receiver.drawScoreFont(engine, playerID, 0, 0, "DIG CHALLENGE", Colors.FONT_GREEN);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "DIG CHALLENGE", Colors.FONT_GREEN);
 		if (goaltype == 0) {
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(NORMAL GAME)", Colors.FONT_GREEN);
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(NORMAL GAME)", Colors.FONT_GREEN);
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(REALTIME GAME)", Colors.FONT_GREEN);
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(REALTIME GAME)", Colors.FONT_GREEN);
 		}
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
 			if (owner.replayMode == false && startlevel == 0 && engine.ai == null) {
-				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
-				int topY = receiver.getNextDisplayType() == 2 ? 6 : 4;
-				receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE, scale);
+				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE, scale);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW, scale);
-					receiver.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[goaltype][i]),
 							i == rankingRank, scale);
-					receiver.drawScoreFont(engine, playerID, 10, topY + i, String.valueOf(rankingLines[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 10, topY + i, String.valueOf(rankingLines[goaltype][i]),
 							i == rankingRank, scale);
-					receiver.drawScoreFont(engine, playerID, 15, topY + i,
+					renderer.drawScoreFont(engine, playerID, 15, topY + i,
 							GeneralUtil.getTime(rankingTime[goaltype][i]), i == rankingRank, scale);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
 			String strScore = null;
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
@@ -461,92 +461,92 @@ public class DigChallengeMode extends NetDummyMode {
 			} else {
 				strScore = engine.statistics.score + "(+" + lastscore + "+" + lastbonusscore + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 4, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "LINE", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.lines));
+			renderer.drawScoreFont(engine, playerID, 0, 6, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.lines));
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "GARBAGE", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 10, String.valueOf(garbageTotal));
+			renderer.drawScoreFont(engine, playerID, 0, 9, "GARBAGE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(garbageTotal));
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "LEVEL", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.level + 1));
+			renderer.drawScoreFont(engine, playerID, 0, 12, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.level + 1));
 
-			receiver.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
 
 			if (lastevent != EVENT_NONE && scgettime < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece);
 
 				switch (lastevent) {
 				case EVENT_SINGLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
 				case EVENT_DOUBLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
 				case EVENT_TRIPLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
 				case EVENT_FOUR:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_EZ:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
 					break;
 				}
 
 				if (lastcombo >= 2) {
-					receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			}
 
 			if (garbagePending > 0) {
-				int x = receiver.getFieldDisplayPositionX(engine, playerID);
-				int y = receiver.getFieldDisplayPositionY(engine, playerID);
+				int x = renderer.getFieldDisplayPositionX(engine, playerID);
+				int y = renderer.getFieldDisplayPositionY(engine, playerID);
 				int fontColor = Colors.FONT_WHITE;
 
 				if (garbagePending >= 1) {
@@ -560,7 +560,7 @@ public class DigChallengeMode extends NetDummyMode {
 				}
 
 				String strTempGarbage = String.format("%5d", garbagePending);
-				receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor);
+				renderer.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor);
 			}
 		}
 
@@ -624,7 +624,7 @@ public class DigChallengeMode extends NetDummyMode {
 						}
 
 						// Pushed out from the visible part of the field
-						if (!engine.nowPieceObject.canPlaceToVisibleField(engine.nowPieceX, engine.nowPieceY,
+						if (engine.nowPieceObject.isPartialLockOut(engine.nowPieceX, engine.nowPieceY,
 								engine.field)) {
 							engine.stat = GameEngine.Status.GAMEOVER;
 							engine.resetStatc();
@@ -657,18 +657,18 @@ public class DigChallengeMode extends NetDummyMode {
 			remainTime = 0;
 		}
 		if (limitTime > 0) {
-			engine.meterValue = remainTime * receiver.getMeterMax(engine) / limitTime;
+			engine.meterValue = remainTime * renderer.getMeterMax(engine) / limitTime;
 		} else {
 			engine.meterValue = 0;
 		}
 		engine.meterColor = Colors.METER_COLOR_GREEN;
-		if (engine.meterValue <= receiver.getMeterMax(engine) / 2) {
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 2) {
 			engine.meterColor = Colors.METER_COLOR_YELLOW;
 		}
-		if (engine.meterValue <= receiver.getMeterMax(engine) / 3) {
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 3) {
 			engine.meterColor = Colors.METER_COLOR_ORANGE;
 		}
-		if (engine.meterValue <= receiver.getMeterMax(engine) / 4) {
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 4) {
 			engine.meterColor = Colors.METER_COLOR_RED;
 		}
 	}
@@ -872,7 +872,7 @@ public class DigChallengeMode extends NetDummyMode {
 			}
 
 			// Set connections
-			if (receiver.isStickySkin(engine)) {
+			if (renderer.isStickySkin(engine)) {
 				for (int x = 0; x < width; x++) {
 					if (x != garbageHole) {
 						Block block = field.getBlock(x, height - 1);
@@ -913,22 +913,22 @@ public class DigChallengeMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
-		drawResult(engine, playerID, receiver, 4, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
-		drawResultStats(engine, playerID, receiver, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.LEVEL,
+		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
+		drawResult(engine, playerID, renderer, 4, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
+		drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.LEVEL,
 				Statistic.TIME);
-		drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, receiver, 14, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, receiver, 16, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
 		}
 
 		if (netIsNetPlay && netReplaySendStatus == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
 		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
-			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
+			renderer.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
 		}
 	}
 
@@ -950,7 +950,7 @@ public class DigChallengeMode extends NetDummyMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

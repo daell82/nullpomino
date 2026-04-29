@@ -62,7 +62,7 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	public void startGame(GameEngine engine, int playerID) {
 		super.startGame(engine, playerID);
 		engine.meterColor = Colors.METER_COLOR_GREEN;
-		engine.meterValue = owner.receiver.getMeterMax(engine);
+		engine.meterValue = owner.renderer.getMeterMax(engine);
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	private void updateMeter(GameEngine engine) {
 		if (goalLines > 0) {
 			int remainLines = goalLines - engine.statistics.lines;
-			engine.meterValue = remainLines * owner.receiver.getMeterMax(engine) / goalLines;
+			engine.meterValue = remainLines * owner.renderer.getMeterMax(engine) / goalLines;
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainLines <= 30) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -175,8 +175,8 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		super.renderLast(engine, playerID);
 
-		int x = owner.receiver.getFieldDisplayPositionX(engine, playerID);
-		int y = owner.receiver.getFieldDisplayPositionY(engine, playerID);
+		int x = owner.renderer.getFieldDisplayPositionX(engine, playerID);
+		int y = owner.renderer.getFieldDisplayPositionY(engine, playerID);
 		int fontColor = Colors.FONT_WHITE;
 
 		if (netvsPlayerExist[playerID] && engine.isVisible) {
@@ -199,18 +199,18 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 
 				if (engine.displaySize != DisplaySize.SMALL) {
 					if (strLines.length() == 1) {
-						owner.receiver.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
+						owner.renderer.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
 					} else if (strLines.length() == 2) {
-						owner.receiver.drawMenuFont(engine, playerID, 3, 21, strLines, fontColor, 2.0f);
+						owner.renderer.drawMenuFont(engine, playerID, 3, 21, strLines, fontColor, 2.0f);
 					} else if (strLines.length() == 3) {
-						owner.receiver.drawMenuFont(engine, playerID, 2, 21, strLines, fontColor, 2.0f);
+						owner.renderer.drawMenuFont(engine, playerID, 2, 21, strLines, fontColor, 2.0f);
 					}
 				} else if (strLines.length() == 1) {
-					owner.receiver.drawDirectFont(engine, playerID, x + 4 + 32, y + 168, strLines, fontColor, 1.0f);
+					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 32, y + 168, strLines, fontColor, 1.0f);
 				} else if (strLines.length() == 2) {
-					owner.receiver.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, strLines, fontColor, 1.0f);
+					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, strLines, fontColor, 1.0f);
 				} else if (strLines.length() == 3) {
-					owner.receiver.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, strLines, fontColor, 1.0f);
+					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, strLines, fontColor, 1.0f);
 				}
 			}
 
@@ -224,22 +224,22 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 				if (engine.displaySize != DisplaySize.SMALL) {
 					switch (place) {
 					case 0:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
 						break;
 					case 1:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "2ND", Colors.FONT_WHITE);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "2ND", Colors.FONT_WHITE);
 						break;
 					case 2:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "3RD", Colors.FONT_RED);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "3RD", Colors.FONT_RED);
 						break;
 					case 3:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "4TH", Colors.FONT_GREEN);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "4TH", Colors.FONT_GREEN);
 						break;
 					case 4:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "5TH", Colors.FONT_BLUE);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "5TH", Colors.FONT_BLUE);
 						break;
 					case 5:
-						owner.receiver.drawMenuFont(engine, playerID, -2, 22, "6TH", Colors.FONT_PURPLE);
+						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "6TH", Colors.FONT_PURPLE);
 						break;
 					default:
 						break;
@@ -247,27 +247,27 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 				} else {
 					switch (place) {
 					case 0:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "1ST", Colors.FONT_ORANGE,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "1ST", Colors.FONT_ORANGE,
 								0.5f);
 						break;
 					case 1:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "2ND", Colors.FONT_WHITE,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "2ND", Colors.FONT_WHITE,
 								0.5f);
 						break;
 					case 2:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "3RD", Colors.FONT_RED,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "3RD", Colors.FONT_RED,
 								0.5f);
 						break;
 					case 3:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "4TH", Colors.FONT_GREEN,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "4TH", Colors.FONT_GREEN,
 								0.5f);
 						break;
 					case 4:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "5TH", Colors.FONT_BLUE,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "5TH", Colors.FONT_BLUE,
 								0.5f);
 						break;
 					case 5:
-						owner.receiver.drawDirectFont(engine, playerID, x, y + 168, "6TH", Colors.FONT_PURPLE,
+						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "6TH", Colors.FONT_PURPLE,
 								0.5f);
 						break;
 					default:
@@ -284,9 +284,9 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 					if (engine.stat == GameEngine.Status.RESULT) {
 						y2 = 22;
 					}
-					owner.receiver.drawMenuFont(engine, playerID, 0, y2, strTemp, Colors.FONT_WHITE);
+					owner.renderer.drawMenuFont(engine, playerID, 0, y2, strTemp, Colors.FONT_WHITE);
 				} else {
-					owner.receiver.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, Colors.FONT_WHITE,
+					owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, Colors.FONT_WHITE,
 							0.5f);
 				}
 			}
@@ -305,7 +305,7 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 			scale = 0.5f;
 		}
 
-		drawResultScale(engine, playerID, owner.receiver, 2, Colors.FONT_ORANGE, scale, "LINE",
+		drawResultScale(engine, playerID, owner.renderer, 2, Colors.FONT_ORANGE, scale, "LINE",
 				String.format("%10d", engine.statistics.lines), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "LINE/MIN",
 				String.format("%10g", engine.statistics.lpm), "PIECE/SEC", String.format("%10g", engine.statistics.pps),

@@ -62,7 +62,7 @@ public class WaveEngine implements SoundManager, LineListener {
 	private final Map<String, Clip> clipMap;
 
 	/** Volume */
-	private double volume = 1.0;
+	private float volume = 1.0f;
 
 	/**
 	 * Constructor
@@ -79,81 +79,6 @@ public class WaveEngine implements SoundManager, LineListener {
 	public WaveEngine(int maxClips) {
 		this.maxClips = maxClips;
 		clipMap = HashMap.newHashMap(maxClips);
-	}
-
-	public void initSounds() {
-		if (!clipMap.isEmpty()) {
-			return;
-		}
-		String resourcesDir = NullpoMinoSwing.propConfig.getProperty("custom.skin.directory", "res");
-		load("cursor", resourcesDir + "/se/cursor.wav");
-		load("decide", resourcesDir + "/se/decide.wav");
-		load("erase1", resourcesDir + "/se/erase1.wav");
-		load("erase2", resourcesDir + "/se/erase2.wav");
-		load("erase3", resourcesDir + "/se/erase3.wav");
-		load("erase4", resourcesDir + "/se/erase4.wav");
-		load("died", resourcesDir + "/se/died.wav");
-		load("gameover", resourcesDir + "/se/gameover.wav");
-		load("hold", resourcesDir + "/se/hold.wav");
-		load("holdfail", resourcesDir + "/se/holdfail.wav");
-		load("initialhold", resourcesDir + "/se/initialhold.wav");
-		load("initialrotate", resourcesDir + "/se/initialrotate.wav");
-		load("levelup", resourcesDir + "/se/levelup.wav");
-		load("linefall", resourcesDir + "/se/linefall.wav");
-		load("lock", resourcesDir + "/se/lock.wav");
-		load("move", resourcesDir + "/se/move.wav");
-		load("pause", resourcesDir + "/se/pause.wav");
-		load("rotate", resourcesDir + "/se/rotate.wav");
-		load("step", resourcesDir + "/se/step.wav");
-		load("piece0", resourcesDir + "/se/piece0.wav");
-		load("piece1", resourcesDir + "/se/piece1.wav");
-		load("piece2", resourcesDir + "/se/piece2.wav");
-		load("piece3", resourcesDir + "/se/piece3.wav");
-		load("piece4", resourcesDir + "/se/piece4.wav");
-		load("piece5", resourcesDir + "/se/piece5.wav");
-		load("piece6", resourcesDir + "/se/piece6.wav");
-		load("piece7", resourcesDir + "/se/piece7.wav");
-		load("piece8", resourcesDir + "/se/piece8.wav");
-		load("piece9", resourcesDir + "/se/piece9.wav");
-		load("piece10", resourcesDir + "/se/piece10.wav");
-		load("harddrop", resourcesDir + "/se/harddrop.wav");
-		load("softdrop", resourcesDir + "/se/softdrop.wav");
-		load("levelstop", resourcesDir + "/se/levelstop.wav");
-		load("endingstart", resourcesDir + "/se/endingstart.wav");
-		load("excellent", resourcesDir + "/se/excellent.wav");
-		load("b2b_start", resourcesDir + "/se/b2b_start.wav");
-		load("b2b_continue", resourcesDir + "/se/b2b_continue.wav");
-		load("b2b_end", resourcesDir + "/se/b2b_end.wav");
-		load("gradeup", resourcesDir + "/se/gradeup.wav");
-		load("countdown", resourcesDir + "/se/countdown.wav");
-		load("tspin0", resourcesDir + "/se/tspin0.wav");
-		load("tspin1", resourcesDir + "/se/tspin1.wav");
-		load("tspin2", resourcesDir + "/se/tspin2.wav");
-		load("tspin3", resourcesDir + "/se/tspin3.wav");
-		load("ready", resourcesDir + "/se/ready.wav");
-		load("go", resourcesDir + "/se/go.wav");
-		load("movefail", resourcesDir + "/se/movefail.wav");
-		load("rotfail", resourcesDir + "/se/rotfail.wav");
-		load("medal", resourcesDir + "/se/medal.wav");
-		load("change", resourcesDir + "/se/change.wav");
-		load("bravo", resourcesDir + "/se/bravo.wav");
-		load("cool", resourcesDir + "/se/cool.wav");
-		load("regret", resourcesDir + "/se/regret.wav");
-		load("garbage", resourcesDir + "/se/garbage.wav");
-		load("stageclear", resourcesDir + "/se/stageclear.wav");
-		load("stagefail", resourcesDir + "/se/stagefail.wav");
-		load("gem", resourcesDir + "/se/gem.wav");
-		load("danger", resourcesDir + "/se/danger.wav");
-		load("matchend", resourcesDir + "/se/matchend.wav");
-		load("hurryup", resourcesDir + "/se/hurryup.wav");
-		load("square_s", resourcesDir + "/se/square_s.wav");
-		load("square_g", resourcesDir + "/se/square_g.wav");
-		load("slide", resourcesDir + "/se/slide.wav");
-
-		for (int i = 1; i < 21; i++) {
-			load("combo" + i, resourcesDir + "/se/combo" + i + ".wav");
-		}
-		setVolume(NullpoMinoSwing.propConfig.getProperty("option.sevolume", 0.5));
 	}
 
 	/**
@@ -221,7 +146,7 @@ public class WaveEngine implements SoundManager, LineListener {
 	 *
 	 * @return Current Volume setting (1.0 The default)
 	 */
-	public double getVolume() {
+	public float getVolume() {
 		return volume;
 	}
 
@@ -230,14 +155,15 @@ public class WaveEngine implements SoundManager, LineListener {
 	 *
 	 * @param vol New configuration volume (1.0The default )
 	 */
-	public void setVolume(double vol) {
+	@Override
+	public void setVolume(float vol) {
 		volume = vol;
 		for (Clip clip : clipMap.values()) {
 			clip.flush();
 			try {
 				FloatControl ctrl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
 				ctrl.setValue((float) Math.log10(volume) * 20);
-			} catch (Exception e) {
+			} catch (Exception _) {
 				// ignore
 			}
 		}
@@ -255,6 +181,8 @@ public class WaveEngine implements SoundManager, LineListener {
 			stop(clip);
 			// Playback
 			clip.start();
+		} else {
+			log.error("Sound clip not found: " + name);
 		}
 	}
 

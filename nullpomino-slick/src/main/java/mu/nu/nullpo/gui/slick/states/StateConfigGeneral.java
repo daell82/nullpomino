@@ -229,9 +229,9 @@ public class StateConfigGeneral extends BaseGameState {
 		outlineghost = prop.getProperty("option.outlineghost", false);
 		showInput = prop.getProperty("option.showInput", false);
 		nexttype = 0;
-		if(prop.getProperty("option.sidenext", false) == true && prop.getProperty("option.bigsidenext", false) == false) {
+		if(prop.getProperty("option.sidenext", false) && prop.getProperty("option.bigsidenext", false) == false) {
 			nexttype = 1;
-		} else if(prop.getProperty("option.sidenext", false) == true && prop.getProperty("option.bigsidenext", false) == true) {
+		} else if(prop.getProperty("option.sidenext", false) && prop.getProperty("option.bigsidenext", false)) {
 			nexttype = 2;
 		}
 		alternateFPSTiming = prop.getProperty("option.alternateFPSTiming", false);

@@ -29,10 +29,12 @@
 package mu.nu.nullpo.gui.swing;
 
 import java.awt.AlphaComposite;
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Stroke;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,18 +42,18 @@ import java.util.List;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.EffectObject;
+import mu.nu.nullpo.gui.common.AbstractRenderer;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Game event Processing and rendering process (SwingVersion)
  */
-public class RendererSwing extends EventReceiver<Graphics2D> {
+public class RendererSwing extends AbstractRenderer<Graphics2D> {
 
 	/** Effect objects */
 	protected List<EffectObject> effects;
@@ -71,7 +73,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	/** Dark piece preview area */
 	protected boolean darknextarea;
 
-	/** ghost On top of the pieceNEXTDisplay */
+	/** NEXT display on top of the ghost piece */
 	protected boolean nextShadow;
 
 	/** Line clear effect speed */
@@ -84,7 +86,6 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	public RendererSwing(Graphics2D graphics) {
 		super(graphics);
-
 		resourceManager = ResourceHolderSwing.getInstance();
 
 		effects = new ArrayList<>(10 * 4);
@@ -157,8 +158,9 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			return;
 		}
 		int size = scale == 0.5f ? 8 : 16;
-		NormalFontSwing.printFont(getScoreDisplayPositionX(engine, playerID) + x * size,
-				getScoreDisplayPositionY(engine, playerID) + y * size, str, color, scale);
+		int x2 = getScoreDisplayPositionX(engine, playerID) + x * size;
+		int y2 = getScoreDisplayPositionY(engine, playerID) + y * size;
+		NormalFontSwing.printFont(x2, y2, str, color, scale);
 	}
 
 	/*
@@ -169,10 +171,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		if (engine.owner.menuOnly) {
 			return;
 		}
-
+		int x2 = getScoreDisplayPositionX(engine, playerID) + x * 16;
+		int y2 = getScoreDisplayPositionY(engine, playerID) + y * 16;
 		graphics.setColor(SwingColors.getFontColor(color));
-		graphics.drawString(str, getScoreDisplayPositionX(engine, playerID) + x * 16,
-				getScoreDisplayPositionY(engine, playerID) + y * 16);
+		graphics.drawString(str, x2, y2);
 		graphics.setColor(Color.white);
 	}
 
@@ -198,14 +200,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * SpeedMeterDraw a
 	 */
 	@Override
-	public void drawSpeedMeter(GameEngine engine, int playerID, int x, int y, int s) {
-		if (graphics == null) {
+	public void drawSpeedMeter(GameEngine engine, int playerID, int x, int y, int speed) {
+		if (graphics == null || engine.owner.menuOnly) {
 			return;
 		}
-		if (engine.owner.menuOnly) {
-			return;
-		}
-
 		int dx1 = getScoreDisplayPositionX(engine, playerID) + 6 + x * 16;
 		int dy1 = getScoreDisplayPositionY(engine, playerID) + 6 + y * 16;
 
@@ -214,16 +212,14 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		graphics.setColor(Color.green);
 		graphics.fillRect(dx1 + 1, dy1 + 1, 40, 2);
 
-		int tempSpeedMeter = s;
+		int tempSpeedMeter = speed;
 		if (tempSpeedMeter < 0 || tempSpeedMeter > 40) {
 			tempSpeedMeter = 40;
 		}
-
 		if (tempSpeedMeter > 0) {
 			graphics.setColor(Color.red);
 			graphics.fillRect(dx1 + 1, dy1 + 1, tempSpeedMeter + 1, 3);
 		}
-
 		graphics.setColor(Color.white);
 	}
 
@@ -242,12 +238,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	public String getKeyNameByButtonID(GameEngine engine, int btnID) {
 		int[] keymap = engine.isInGame ? GameKeySwing.gamekey[engine.playerID].keymap
 				: GameKeySwing.gamekey[engine.playerID].keymapNav;
-
 		if (btnID >= 0 && btnID < keymap.length) {
 			int keycode = keymap[btnID];
 			return KeyEvent.getKeyText(keycode);
 		}
-
 		return "";
 	}
 
@@ -265,13 +259,11 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	/*
 	 * Save the replay
 	 */
-	@Override
 	public void saveReplay(GameManager owner, CustomProperties prop) {
 		if (owner.mode.isNetplayMode()) {
 			return;
 		}
-
-		saveReplay(owner, prop, NullpoMinoSwing.propGlobal.getProperty("custom.replay.directory", "replay"));
+		owner.saveReplay(prop, NullpoMinoSwing.propGlobal.getProperty("custom.replay.directory", "replay"));
 	}
 
 	/*
@@ -298,11 +290,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	protected void drawBlock(int x, int y, int color, int skin, boolean bone, float darkness, float alpha, float scale,
 			int attr) {
-		if (graphics == null) {
-			return;
-		}
-
-		if (color <= Colors.BLOCK_COLOR_INVALID) {
+		if (graphics == null || color <= Colors.BLOCK_COLOR_INVALID) {
 			return;
 		}
 		if (skin >= resourceManager.getNormalBlockImages().size()) {
@@ -452,8 +440,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 * @param block to draw
 	 */
 	protected void drawBlock(int x, int y, Block block) {
-		drawBlock(x, y, block.getDrawColor(), block.skin, block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE),
-				block.darkness, block.alpha, 1.0f, block.attribute);
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.isBone(), block.darkness, block.alpha, 1.0f,
+				block.attribute);
 	}
 
 	/**
@@ -462,12 +450,12 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 *
 	 * @param x     X-coordinate
 	 * @param y     Y-coordinate
-	 * @param blk   BlockInstance of a class
+	 * @param block BlockInstance of a class
 	 * @param scale Enlargement factor
 	 */
-	protected void drawBlock(int x, int y, Block blk, float scale) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				blk.alpha, scale, blk.attribute);
+	protected void drawBlock(int x, int y, Block block, float scale) {
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.isBone(), block.darkness, block.alpha, scale,
+				block.attribute);
 	}
 
 	/**
@@ -476,18 +464,18 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 *
 	 * @param x        X-coordinate
 	 * @param y        Y-coordinate
-	 * @param blk      BlockInstance of a class
+	 * @param block    BlockInstance of a class
 	 * @param scale    Enlargement factor
 	 * @param darkness Lightness or darkness
 	 */
-	protected void drawBlock(int x, int y, Block blk, float scale, float darkness) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), darkness, blk.alpha,
-				scale, blk.attribute);
+	protected void drawBlock(int x, int y, Block block, float scale, float darkness) {
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.isBone(), darkness, block.alpha, scale,
+				block.attribute);
 	}
 
-	protected void drawBlockForceVisible(int x, int y, Block blk, float scale) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				0.5f * blk.alpha + 0.5f, scale, blk.attribute);
+	protected void drawBlockForceVisible(int x, int y, Block block, float scale) {
+		drawBlock(x, y, block.getDrawColor(), block.skin, block.isBone(), block.darkness, 0.5f * block.alpha + 0.5f,
+				scale, block.attribute);
 	}
 
 	/**
@@ -603,7 +591,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 						int ls = blksize - 1;
 
 						int colorID = block.getDrawColor();
-						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+						if (block.isBone()) {
 							colorID = -1;
 						}
 						Color color = SwingColors.getBlockColor(colorID);
@@ -662,7 +650,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 					int ls = blksize * 2 - 1;
 
 					int colorID = block.getDrawColor();
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+					if (block.isBone()) {
 						colorID = -1;
 					}
 					Color color = SwingColors.getBlockColor(colorID);
@@ -738,7 +726,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int ls = blksize - 1;
 
 			int colorID = block.getDrawColor();
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+			if (block.isBone()) {
 				colorID = -1;
 			}
 			Color color = SwingColors.getBlockColorBright(colorID);
@@ -782,13 +770,11 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			int ls = blksize * 2 - 1;
 
 			int colorID = blkTemp.getDrawColor();
-			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+			if (blkTemp.isBone()) {
 				colorID = -1;
 			}
 			Color color = SwingColors.getBlockColor(colorID);
 			graphics.setColor(color);
-			// graphics.fillRect(x3, y3, blksize * 2, blksize * 2);
-			graphics.setColor(Color.white);
 
 			if (!blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
 				graphics.drawLine(x3, y3, x3 + ls, y3);
@@ -820,6 +806,9 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			}
 		}
 	}
+
+	static final Stroke DOUBLE_WITDH = new BasicStroke(2f);
+	static final Color OUTLINE_COLOR = new Color(232, 232, 232);
 
 	/**
 	 * fieldOfBlockDraw a
@@ -866,9 +855,8 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 
 				if (field != null && block != null && block.color > Colors.BLOCK_COLOR_NONE) {
 					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, block.skin,
-								block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), block.darkness, block.alpha, scale,
-								block.attribute);
+						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, block.skin, block.isBone(), block.darkness,
+								block.alpha, scale, block.attribute);
 					} else if (showfieldblockgraphics && engine.owner.replayMode && engine.owner.replayShowInvisible) {
 						drawBlockForceVisible(x2, y2, block, scale);
 					} else if (showfieldblockgraphics && block.getAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE)) {
@@ -879,9 +867,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 								sx + 16, 16, null);
 					}
 
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE)
-							&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-						graphics.setColor(Color.white);
+					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE) && !block.isBone()) {
+						graphics.setColor(OUTLINE_COLOR);
+						Stroke oldStroke = graphics.getStroke();
+						graphics.setStroke(DOUBLE_WITDH);
 						int ls = blksize - 1;
 						switch (outlineType) {
 						case GameEngine.BLOCK_OUTLINE_NORMAL:
@@ -929,6 +918,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 						default:
 							break;
 						}
+						graphics.setStroke(oldStroke);
 					}
 				} else if (width > 10 && height > 20 || !showfieldbggrid) {
 					int sx = i % 2 == 0 && j % 2 == 0 || i % 2 != 0 && j % 2 != 0 ? 0 : 16;
@@ -944,10 +934,10 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			if (maxY > height) {
 				maxY = height;
 			}
-			for (int i = 0; i < maxY; i++) {
-				for (int j = 0; j < width; j++) {
-					drawBlock(x + j * blksize, y + (height - 1 - i) * blksize, Colors.BLOCK_COLOR_GRAY, 0, false, 0.0f,
-							1.0f, scale);
+			for (int y2 = 0; y2 < maxY; y2++) {
+				for (int x2 = 0; x2 < width; x2++) {
+					drawBlock(x + x2 * blksize, y + (height - 1 - y2) * blksize, Colors.BLOCK_COLOR_GRAY, 0, false,
+							0.0f, 1.0f, scale);
 				}
 			}
 		}
@@ -1257,7 +1247,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			x2 = x - 48;
 		}
 
-		if (engine.ruleopt.holdEnable == true && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
+		if (engine.ruleopt.holdEnable && (engine.ruleopt.holdLimit < 0 || holdRemain > 0)) {
 			int tempColor = Colors.FONT_GREEN;
 			if (engine.holdDisable) {
 				tempColor = Colors.FONT_WHITE;
@@ -1313,30 +1303,25 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	protected void drawShadowNexts(int x, int y, GameEngine engine, float scale) {
 		Piece piece = engine.nowPieceObject;
+		if (piece == null) {
+			return;
+		}
 		int blksize = (int) (16 * scale);
+		int shadowX = engine.nowPieceX;
+		int shadowY = engine.nowPieceBottomY + piece.getMinimumBlockY();
+		int maxShadows = Math.min(3, engine.ruleopt.nextDisplay);
+		for (int i = 0; i <= maxShadows; i++) {
+			Piece next = engine.getNextObject(engine.nextPieceCount + i);
+			if (next == null) {
+				continue;
+			}
+			int size = piece.big || engine.displaySize == DisplaySize.BIG ? 2 : 1;
+			int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
+			int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
+			int vPos = blksize * shadowY - (i + 1) * 24 - 8;
 
-		if (piece != null) {
-			int shadowX = engine.nowPieceX;
-			int shadowY = engine.nowPieceBottomY + piece.getMinimumBlockY();
-
-			for (int i = 0; i < engine.ruleopt.nextDisplay - 1; i++) {
-				if (i >= 3) {
-					break;
-				}
-
-				Piece next = engine.getNextObject(engine.nextPieceCount + i);
-
-				if (next != null) {
-					int size = piece.big || engine.displaySize == DisplaySize.BIG ? 2 : 1;
-					int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
-					int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
-					int vPos = blksize * shadowY - (i + 1) * 24 - 8;
-
-					if (vPos >= -blksize / 2) {
-						drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y + vPos, next, 0.5f * scale,
-								0.1f);
-					}
-				}
+			if (vPos >= -blksize / 2) {
+				drawPiece(x + blksize * shadowX + shadowCenter - nextCenter, y + vPos, next, 0.5f * scale, 0.1f);
 			}
 		}
 	}
@@ -1363,7 +1348,6 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 				if (engine.owner.backgroundStatus.fadesw) {
 					bg = engine.owner.backgroundStatus.fadebg;
 				}
-
 				if (resourceManager.getImgPlayBG() != null && bg >= 0 && bg < ResourceHolderSwing.BACKGROUND_MAX) {
 					graphics.drawImage(resourceManager.getImgPlayBG()[bg], 0, 0, null);
 				}
@@ -1408,7 +1392,7 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 		} else if (status >= engine.readyStart && status < engine.readyEnd) {
 			NormalFontSwing.printFont(offsetX + 24, offsetY + 80, "READY", Colors.FONT_WHITE, 0.5f);
 		} else if (status >= engine.goStart && status < engine.goEnd) {
-			NormalFontSwing.printFont(offsetX + 32, offsetY + 80, "GO!", Colors.FONT_WHITE, 0.5f);
+			NormalFontSwing.printFont(offsetX + 32, offsetY + 160, "GO!", Colors.FONT_WHITE, 0.5f);
 		}
 	}
 
@@ -1417,30 +1401,26 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 	 */
 	@Override
 	public void renderMove(GameEngine engine, int playerID) {
-		if (!engine.isVisible) {
+		if (!engine.isVisible || engine.statc_0() <= 1 && !engine.ruleopt.moveFirstFrame) {
 			return;
 		}
 
-		int offsetX = getFieldDisplayPositionX(engine, playerID);
-		int offsetY = getFieldDisplayPositionY(engine, playerID);
-
-		if (engine.statc_0() <= 1 && !engine.ruleopt.moveFirstFrame) {
-			return;
-		}
 		var size = engine.displaySize;
 		float scale = size.getScale();
-		int yAdd = size == DisplaySize.SMALL ? 4 : 52;
+
+		int offsetX = getFieldDisplayPositionX(engine, playerID) + 4;
+		int offsetY = getFieldDisplayPositionY(engine, playerID) + (size == DisplaySize.SMALL ? 4 : 52);
 
 		if (nextShadow && size != DisplaySize.SMALL) {
-			drawShadowNexts(offsetX + 4, offsetY + yAdd, engine, scale);
+			drawShadowNexts(offsetX, offsetY, engine, scale);
 		}
 		if (engine.ghost && engine.ruleopt.ghost) {
-			drawGhostPiece(offsetX + 4, offsetY + yAdd, engine, scale);
+			drawGhostPiece(offsetX, offsetY, engine, scale);
 		}
 		if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
-			drawHintPiece(offsetX + 4, offsetY + yAdd, engine, scale);
+			drawHintPiece(offsetX, offsetY, engine, scale);
 		}
-		drawCurrentPiece(offsetX + 4, offsetY + yAdd, engine, scale);
+		drawCurrentPiece(offsetX, offsetY, engine, scale);
 	}
 
 	/*
@@ -1452,19 +1432,15 @@ public class RendererSwing extends EventReceiver<Graphics2D> {
 			return;
 		}
 		int color = block.getDrawColor();
+		int x2 = getFieldDisplayPositionX(engine, playerID) + 4 + x * 16;
+		int y2 = getFieldDisplayPositionY(engine, playerID) + 52 + y * 16;
 		// Normal Block
-		if (color >= Colors.BLOCK_COLOR_GRAY && color <= Colors.BLOCK_COLOR_PURPLE
-				&& !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
-			int ex = getFieldDisplayPositionX(engine, playerID) + x * 16 + 4;
-			int ey = getFieldDisplayPositionY(engine, playerID) + y * 16 + 52;
-			EffectObject effect = new EffectObject(1, ex, ey, color);
-			effects.add(effect);
+		if (block.isNormalBlock() && !block.isBone()) {
+			effects.add(new EffectObject(1, x2, y2, color));
 		}
 		// Gem Block
 		else if (block.isGemBlock()) {
-			EffectObject effect = new EffectObject(2, getFieldDisplayPositionX(engine, playerID) + 4 + x * 16,
-					getFieldDisplayPositionY(engine, playerID) + 52 + y * 16, color);
-			effects.add(effect);
+			effects.add(new EffectObject(2, x2, y2, color));
 		}
 	}
 

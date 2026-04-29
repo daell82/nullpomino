@@ -42,6 +42,7 @@ import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.FieldUtil;
 import mu.nu.nullpo.util.GeneralUtil;
 
 /**
@@ -65,8 +66,7 @@ public class PhysicianVSMode extends AbstractMode {
 	private static final String[] SPEED_NAME = { "LOW", "MED", "HI" };
 
 	/** Colors for speed settings */
-	private static final int[] SPEED_COLOR = { Colors.FONT_BLUE, Colors.FONT_YELLOW,
-			Colors.FONT_RED };
+	private static final int[] SPEED_COLOR = { Colors.FONT_BLUE, Colors.FONT_YELLOW, Colors.FONT_RED };
 
 	/** Number of players */
 	private static final int MAX_PLAYERS = 2;
@@ -173,7 +173,7 @@ public class PhysicianVSMode extends AbstractMode {
 	@Override
 	public void modeInit(GameManager manager) {
 		owner = manager;
-		receiver = owner.receiver;
+		renderer = owner.renderer;
 
 		scgettime = new int[MAX_PLAYERS];
 		bgmno = 0;
@@ -308,7 +308,7 @@ public class PhysicianVSMode extends AbstractMode {
 	private void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
 		if (propMap[playerID] == null || forceReload) {
 			mapMaxNo[playerID] = 0;
-			propMap[playerID] = receiver.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
+			propMap[playerID] = CustomProperties.load("config/map/vsbattle/" + mapSet[playerID] + ".map");
 		}
 
 		if (propMap[playerID] == null && engine.field != null) {
@@ -541,11 +541,11 @@ public class PhysicianVSMode extends AbstractMode {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
 				} else if (menuCursor == 8) {
 					savePreset(engine, owner.modeConfig, presetNumber[playerID]);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					engine.statc_4(1);
 				}
 			}
@@ -605,27 +605,27 @@ public class PhysicianVSMode extends AbstractMode {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				initMenu(Colors.FONT_ORANGE, 0);
-				drawMenu(engine, playerID, receiver, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+				drawMenu(engine, playerID, renderer, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
 						String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
 						String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
 						"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, receiver, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 			} else {
 				initMenu(Colors.FONT_CYAN, 9);
-				drawMenu(engine, playerID, receiver, "SPEED", SPEED_NAME[speed[playerID]], "VIRUS",
+				drawMenu(engine, playerID, renderer, "SPEED", SPEED_NAME[speed[playerID]], "VIRUS",
 						String.valueOf(hoverBlocks[playerID]), "MODE", flash[playerID] ? "FLASH" : "NORMAL");
 				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, receiver, "SE", GeneralUtil.getONorOFF(enableSE[playerID]), "BGM",
+				drawMenu(engine, playerID, renderer, "SE", GeneralUtil.getONorOFF(enableSE[playerID]), "BGM",
 						String.valueOf(bgmno));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, receiver, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
 			}
 		} else {
-			receiver.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -634,55 +634,58 @@ public class PhysicianVSMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onReady(GameEngine engine, int playerID) {
-		if (engine.statc_0() == 0) {
-			// MapFor storing backup Replay read
-			if (useMap[playerID]) {
-				if (owner.replayMode) {
-					engine.createFieldIfNeeded();
-					loadMap(engine.field, owner.replayProp, playerID);
-					engine.field.setAllSkin(engine.getSkin());
-				} else {
-					if (propMap[playerID] == null) {
-						propMap[playerID] = receiver.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
-					}
-
-					if (propMap[playerID] != null) {
-						engine.createFieldIfNeeded();
-
-						if (mapNumber[playerID] < 0) {
-							if (playerID == 1 && useMap[0] && mapNumber[0] < 0) {
-								engine.field.copy(owner.engine[0].field);
-							} else {
-								int no = mapMaxNo[playerID] < 1 ? 0 : randMap.nextInt(mapMaxNo[playerID]);
-								loadMap(engine.field, propMap[playerID], no);
-							}
-						} else {
-							loadMap(engine.field, propMap[playerID], mapNumber[playerID]);
-						}
-
-						engine.field.setAllSkin(engine.getSkin());
-						fldBackup[playerID] = new Field(engine.field);
-					}
-				}
-			} else if (engine.field != null) {
-				engine.field.reset();
-			}
-			if (hoverBlocks[playerID] > 0) {
+		if (engine.statc_0() != 0) {
+			return false;
+		}
+		// MapFor storing backup Replay read
+		if (useMap[playerID]) {
+			if (owner.replayMode) {
 				engine.createFieldIfNeeded();
-				int minY = 6;
-				if (hoverBlocks[playerID] >= 80) {
-					minY = 3;
-				} else if (hoverBlocks[playerID] >= 72) {
-					minY = 4;
-				} else if (hoverBlocks[playerID] >= 64) {
-					minY = 5;
+				loadMap(engine.field, owner.replayProp, playerID);
+				engine.field.setAllSkin(engine.getSkin());
+			} else {
+				if (propMap[playerID] == null) {
+					propMap[playerID] = CustomProperties.load("config/map/vsbattle/" + mapSet[playerID] + ".map");
 				}
-				if (flash[playerID]) {
-					engine.field.addRandomHoverBlocks(engine, hoverBlocks[playerID], BLOCK_COLORS, minY, true, true);
-					engine.field.setAllSkin(12);
-				} else {
-					engine.field.addRandomHoverBlocks(engine, hoverBlocks[playerID], HOVER_BLOCK_COLORS, minY, true);
+
+				if (propMap[playerID] != null) {
+					engine.createFieldIfNeeded();
+
+					if (mapNumber[playerID] < 0) {
+						if (playerID == 1 && useMap[0] && mapNumber[0] < 0) {
+							engine.field.copy(owner.engine[0].field);
+						} else {
+							int no = mapMaxNo[playerID] < 1 ? 0 : randMap.nextInt(mapMaxNo[playerID]);
+							loadMap(engine.field, propMap[playerID], no);
+						}
+					} else {
+						loadMap(engine.field, propMap[playerID], mapNumber[playerID]);
+					}
+
+					engine.field.setAllSkin(engine.getSkin());
+					fldBackup[playerID] = new Field(engine.field);
 				}
+			}
+		} else if (engine.field != null) {
+			engine.field.reset();
+		}
+		if (hoverBlocks[playerID] > 0) {
+			engine.createFieldIfNeeded();
+			int minY = 6;
+			if (hoverBlocks[playerID] >= 80) {
+				minY = 3;
+			} else if (hoverBlocks[playerID] >= 72) {
+				minY = 4;
+			} else if (hoverBlocks[playerID] >= 64) {
+				minY = 5;
+			}
+			if (flash[playerID]) {
+				FieldUtil.addRandomHoverBlocks(engine, engine.field, hoverBlocks[playerID], BLOCK_COLORS, minY, true,
+						true);
+				engine.field.setAllSkin(12);
+			} else {
+				FieldUtil.addRandomHoverBlocks(engine, engine.field, hoverBlocks[playerID], HOVER_BLOCK_COLORS, minY,
+						true);
 			}
 		}
 		return false;
@@ -711,58 +714,56 @@ public class PhysicianVSMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		int fldPosX = receiver.getFieldDisplayPositionX(engine, playerID);
-		int fldPosY = receiver.getFieldDisplayPositionY(engine, playerID);
+		int fldPosX = renderer.getFieldDisplayPositionX(engine, playerID);
+		int fldPosY = renderer.getFieldDisplayPositionY(engine, playerID);
 		int playerColor = playerID == 0 ? Colors.FONT_RED : Colors.FONT_BLUE;
 		int tempX = 0;
 
 		// Timer
 		if (playerID == 0) {
-			receiver.drawDirectFont(engine, playerID, 256, 16, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawDirectFont(engine, playerID, 256, 16, GeneralUtil.getTime(engine.statistics.time));
 		}
 
 		if (engine.gameStarted) {
 			// Rest
-			receiver.drawDirectFont(engine, playerID, fldPosX + 160, fldPosY + 241, "REST", playerColor, 0.5f);
+			renderer.drawDirectFont(engine, playerID, fldPosX + 160, fldPosY + 241, "REST", playerColor, 0.5f);
 			tempX = rest[playerID] < 10 ? 8 : 0;
-			receiver.drawDirectFont(engine, playerID, fldPosX + 160 + tempX, fldPosY + 257,
-					String.valueOf(rest[playerID]), rest[playerID] <= (flash[playerID] ? 1 : 3),
-					Colors.FONT_WHITE, Colors.FONT_RED);
+			renderer.drawDirectFont(engine, playerID, fldPosX + 160 + tempX, fldPosY + 257,
+					String.valueOf(rest[playerID]), rest[playerID] <= (flash[playerID] ? 1 : 3), Colors.FONT_WHITE,
+					Colors.FONT_RED);
 
 			// Speed
-			receiver.drawDirectFont(engine, playerID, fldPosX + 156, fldPosY + 280, "SPEED", playerColor, 0.5f);
-			receiver.drawDirectFont(engine, playerID, fldPosX + 152, fldPosY + 296, SPEED_NAME[speed[playerID]],
+			renderer.drawDirectFont(engine, playerID, fldPosX + 156, fldPosY + 280, "SPEED", playerColor, 0.5f);
+			renderer.drawDirectFont(engine, playerID, fldPosX + 152, fldPosY + 296, SPEED_NAME[speed[playerID]],
 					SPEED_COLOR[speed[playerID]]);
 		}
 
 		/*
-		 * if(playerID == 0) { receiver.drawScoreFont(engine, playerID, -1, 0,
+		 * if(playerID == 0) { renderer.drawScoreFont(engine, playerID, -1, 0,
 		 * "PHYSICIAN VS", Colors.COLOR_GREEN);
 		 *
-		 * receiver.drawScoreFont(engine, playerID, -1, 2, "REST",
-		 * Colors.COLOR_PURPLE); receiver.drawScoreFont(engine, playerID, -1, 3,
-		 * "1P:", Colors.COLOR_RED); receiver.drawScoreFont(engine, playerID, 3,
-		 * 3, String.valueOf(rest[0]), (rest[0] <= (flash[playerID] ? 1 : 3)));
-		 * receiver.drawScoreFont(engine, playerID, -1, 4, "2P:",
-		 * Colors.COLOR_BLUE); receiver.drawScoreFont(engine, playerID, 3, 4,
-		 * String.valueOf(rest[1]), (rest[1] <= (flash[playerID] ? 1 : 3)));
+		 * renderer.drawScoreFont(engine, playerID, -1, 2, "REST", Colors.COLOR_PURPLE);
+		 * renderer.drawScoreFont(engine, playerID, -1, 3, "1P:", Colors.COLOR_RED);
+		 * renderer.drawScoreFont(engine, playerID, 3, 3, String.valueOf(rest[0]),
+		 * (rest[0] <= (flash[playerID] ? 1 : 3))); renderer.drawScoreFont(engine,
+		 * playerID, -1, 4, "2P:", Colors.COLOR_BLUE); renderer.drawScoreFont(engine,
+		 * playerID, 3, 4, String.valueOf(rest[1]), (rest[1] <= (flash[playerID] ? 1 :
+		 * 3)));
 		 *
-		 * receiver.drawScoreFont(engine, playerID, -1, 6, "SPEED",
-		 * Colors.COLOR_GREEN); receiver.drawScoreFont(engine, playerID, -1, 7,
-		 * "1P:", Colors.COLOR_RED); receiver.drawScoreFont(engine, playerID, 3,
-		 * 7, SPEED_NAME[speed[0]], SPEED_COLOR[speed[0]]);
-		 * receiver.drawScoreFont(engine, playerID, -1, 8, "2P:",
-		 * Colors.COLOR_BLUE); receiver.drawScoreFont(engine, playerID, 3, 8,
+		 * renderer.drawScoreFont(engine, playerID, -1, 6, "SPEED", Colors.COLOR_GREEN);
+		 * renderer.drawScoreFont(engine, playerID, -1, 7, "1P:", Colors.COLOR_RED);
+		 * renderer.drawScoreFont(engine, playerID, 3, 7, SPEED_NAME[speed[0]],
+		 * SPEED_COLOR[speed[0]]); renderer.drawScoreFont(engine, playerID, -1, 8,
+		 * "2P:", Colors.COLOR_BLUE); renderer.drawScoreFont(engine, playerID, 3, 8,
 		 * SPEED_NAME[speed[1]], SPEED_COLOR[speed[1]]);
 		 *
-		 * receiver.drawScoreFont(engine, playerID, -1, 10, "SCORE",
-		 * Colors.COLOR_PURPLE); receiver.drawScoreFont(engine, playerID, -1, 11,
-		 * "1P: " + String.valueOf(score[0]), Colors.COLOR_RED);
-		 * receiver.drawScoreFont(engine, playerID, -1, 12, "2P: " +
-		 * String.valueOf(score[1]), Colors.COLOR_BLUE);
+		 * renderer.drawScoreFont(engine, playerID, -1, 10, "SCORE",
+		 * Colors.COLOR_PURPLE); renderer.drawScoreFont(engine, playerID, -1, 11, "1P: "
+		 * + String.valueOf(score[0]), Colors.COLOR_RED); renderer.drawScoreFont(engine,
+		 * playerID, -1, 12, "2P: " + String.valueOf(score[1]), Colors.COLOR_BLUE);
 		 *
-		 * receiver.drawScoreFont(engine, playerID, -1, 14, "TIME",
-		 * Colors.COLOR_GREEN); receiver.drawScoreFont(engine, playerID, -1, 15,
+		 * renderer.drawScoreFont(engine, playerID, -1, 14, "TIME", Colors.COLOR_GREEN);
+		 * renderer.drawScoreFont(engine, playerID, -1, 15,
 		 * GeneralUtil.getTime(engine.statistics.time)); }
 		 */
 	}
@@ -895,7 +896,7 @@ public class PhysicianVSMode extends AbstractMode {
 		if (engine.field != null) {
 			int rest = engine.field.getHowManyGems();
 			if (flash[playerID]) {
-				engine.meterValue = rest * receiver.getMeterMax(engine) / 3;
+				engine.meterValue = rest * renderer.getMeterMax(engine) / 3;
 				if (rest == 1) {
 					engine.meterColor = Colors.METER_COLOR_GREEN;
 				} else if (rest == 2) {
@@ -904,7 +905,7 @@ public class PhysicianVSMode extends AbstractMode {
 					engine.meterColor = Colors.METER_COLOR_RED;
 				}
 			} else {
-				engine.meterValue = rest * receiver.getMeterMax(engine) / hoverBlocks[playerID];
+				engine.meterValue = rest * renderer.getMeterMax(engine) / hoverBlocks[playerID];
 				if (rest <= 3) {
 					engine.meterColor = Colors.METER_COLOR_GREEN;
 				} else if (rest < hoverBlocks[playerID] >> 2) {
@@ -962,22 +963,22 @@ public class PhysicianVSMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 1, "RESULT", Colors.FONT_ORANGE);
 		if (winnerID == -1) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "DRAW", Colors.FONT_GREEN);
 		} else if (winnerID == playerID) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "WIN!", Colors.FONT_YELLOW);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
 		}
 
-		drawResultStats(engine, playerID, receiver, 3, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
 				Statistic.LPM, Statistic.PPS, Statistic.TIME);
 		/*
 		 * float apm = (float)(garbageSent[playerID] * 3600) /
-		 * (float)(engine.statistics.time); drawResult(engine, playerID, receiver, 3,
-		 * Colors.COLOR_ORANGE, "ATTACK", String.format("%10d",
-		 * garbageSent[playerID]), "ATTACK/MIN", String.format("%10g", apm));
+		 * (float)(engine.statistics.time); drawResult(engine, playerID, renderer, 3,
+		 * Colors.COLOR_ORANGE, "ATTACK", String.format("%10d", garbageSent[playerID]),
+		 * "ATTACK/MIN", String.format("%10g", apm));
 		 */
 	}
 

@@ -93,7 +93,7 @@ public class LineRaceMode extends NetDummyMode {
 		log.debug("playerInit");
 
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 
 		bgmno = 0;
 		big = false;
@@ -109,7 +109,7 @@ public class LineRaceMode extends NetDummyMode {
 
 		netPlayerInit(engine, playerID);
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			presetNumber = engine.owner.modeConfig.getProperty("linerace.presetNumber", 0);
 			loadPreset(engine, engine.owner.modeConfig, -1);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
@@ -172,7 +172,7 @@ public class LineRaceMode extends NetDummyMode {
 			netOnUpdateNetPlayRanking(engine, goaltype);
 		}
 		// Menu
-		else if (engine.owner.replayMode == false) {
+		else if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 11, playerID);
 
@@ -272,8 +272,7 @@ public class LineRaceMode extends NetDummyMode {
 						goaltype = 0;
 					}
 					break;
-				case 10:
-				case 11:
+				case 10, 11:
 					presetNumber += change;
 					if (presetNumber < 0) {
 						presetNumber = 99;
@@ -305,12 +304,12 @@ public class LineRaceMode extends NetDummyMode {
 				} else if (menuCursor == 11) {
 					// Save preset
 					savePreset(engine, owner.modeConfig, presetNumber);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					// Save settings
 					owner.modeConfig.setProperty("linerace.presetNumber", presetNumber);
 					savePreset(engine, owner.modeConfig, -1);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
@@ -353,18 +352,18 @@ public class LineRaceMode extends NetDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (netIsNetRankingDisplayMode) {
 			// NET: Netplay Ranking
-			netOnRenderNetPlayRanking(engine, playerID, receiver);
+			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else {
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GRAVITY",
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GRAVITY",
 					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
 					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
 					String.valueOf(engine.speed.das));
-			drawMenuCompact(engine, playerID, receiver, "BGM", String.valueOf(bgmno), "BIG",
+			drawMenuCompact(engine, playerID, renderer, "BGM", String.valueOf(bgmno), "BIG",
 					GeneralUtil.getONorOFF(big), "GOAL", String.valueOf(GOAL_TABLE[goaltype]));
 			if (!engine.owner.replayMode) {
 				menuColor = Colors.FONT_GREEN;
-				drawMenuCompact(engine, playerID, receiver, "LOAD", String.valueOf(presetNumber), "SAVE",
+				drawMenuCompact(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber), "SAVE",
 						String.valueOf(presetNumber));
 			}
 		}
@@ -385,7 +384,7 @@ public class LineRaceMode extends NetDummyMode {
 		}
 
 		engine.meterColor = Colors.METER_COLOR_GREEN;
-		engine.meterValue = receiver.getMeterMax(engine);
+		engine.meterValue = renderer.getMeterMax(engine);
 	}
 
 	/*
@@ -397,31 +396,31 @@ public class LineRaceMode extends NetDummyMode {
 			return;
 		}
 
-		receiver.drawScoreFont(engine, playerID, 0, 0, "LINE RACE", Colors.FONT_RED);
-		receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
+		renderer.drawScoreFont(engine, playerID, 0, 0, "LINE RACE", Colors.FONT_RED);
+		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
 				Colors.FONT_RED);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && !big && engine.ai == null && !netIsWatch) {
-				float scale = receiver.getNextDisplayType() == 2 ? 0.5f : 1.0f;
-				int topY = receiver.getNextDisplayType() == 2 ? 6 : 4;
-				receiver.drawScoreFont(engine, playerID, 3, topY - 1, "TIME     PIECE PPS", Colors.FONT_BLUE,
+				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "TIME     PIECE PPS", Colors.FONT_BLUE,
 						scale);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW, scale);
-					receiver.drawScoreFont(engine, playerID, 3, topY + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 3, topY + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
 							rankingRank == i, scale);
-					receiver.drawScoreFont(engine, playerID, 12, topY + i, String.valueOf(rankingPiece[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 12, topY + i, String.valueOf(rankingPiece[goaltype][i]),
 							rankingRank == i, scale);
-					receiver.drawScoreFont(engine, playerID, 18, topY + i,
+					renderer.drawScoreFont(engine, playerID, 18, topY + i,
 							String.format("%.5g", rankingPPS[goaltype][i]), rankingRank == i, scale);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
 			int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
 			String strLines = String.valueOf(remainLines);
 			if (remainLines < 0) {
@@ -437,27 +436,27 @@ public class LineRaceMode extends NetDummyMode {
 			if (remainLines <= 10 && remainLines > 0) {
 				fontcolor = Colors.FONT_RED;
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 4, strLines, fontcolor);
+			renderer.drawScoreFont(engine, playerID, 0, 4, strLines, fontcolor);
 
 			if (strLines.length() == 1) {
-				receiver.drawMenuFont(engine, playerID, 4, 21, strLines, fontcolor, 2.0f);
+				renderer.drawMenuFont(engine, playerID, 4, 21, strLines, fontcolor, 2.0f);
 			} else if (strLines.length() == 2) {
-				receiver.drawMenuFont(engine, playerID, 3, 21, strLines, fontcolor, 2.0f);
+				renderer.drawMenuFont(engine, playerID, 3, 21, strLines, fontcolor, 2.0f);
 			} else if (strLines.length() == 3) {
-				receiver.drawMenuFont(engine, playerID, 2, 21, strLines, fontcolor, 2.0f);
+				renderer.drawMenuFont(engine, playerID, 2, 21, strLines, fontcolor, 2.0f);
 			}
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
+			renderer.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
+			renderer.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
 
-			receiver.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
 		}
 
 		// NET: Number of spectators
@@ -477,7 +476,7 @@ public class LineRaceMode extends NetDummyMode {
 	@Override
 	public void calcScore(GameEngine engine, int playerID, int lines) {
 		int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
-		engine.meterValue = remainLines * receiver.getMeterMax(engine) / GOAL_TABLE[goaltype];
+		engine.meterValue = remainLines * renderer.getMeterMax(engine) / GOAL_TABLE[goaltype];
 
 		if (remainLines <= 30) {
 			engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -508,20 +507,20 @@ public class LineRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, renderer, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
 				Statistic.TIME, Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, receiver, 11, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, receiver, 13, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, receiver, 15, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, renderer, 11, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, renderer, 13, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, renderer, 15, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
 		}
 
 		if (netIsNetPlay && netReplaySendStatus == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
 		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
-			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
+			renderer.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
 		}
 	}
 
@@ -533,7 +532,7 @@ public class LineRaceMode extends NetDummyMode {
 		savePreset(engine, engine.owner.replayProp, -1);
 
 		// NET: Save name
-		if (netPlayerName != null && netPlayerName.length() > 0) {
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
 			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
 		}
 
@@ -544,7 +543,7 @@ public class LineRaceMode extends NetDummyMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}
@@ -661,7 +660,7 @@ public class LineRaceMode extends NetDummyMode {
 
 		// Update meter
 		int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
-		engine.meterValue = remainLines * receiver.getMeterMax(engine) / GOAL_TABLE[goaltype];
+		engine.meterValue = remainLines * renderer.getMeterMax(engine) / GOAL_TABLE[goaltype];
 		if (remainLines <= 30) {
 			engine.meterColor = Colors.METER_COLOR_YELLOW;
 		}

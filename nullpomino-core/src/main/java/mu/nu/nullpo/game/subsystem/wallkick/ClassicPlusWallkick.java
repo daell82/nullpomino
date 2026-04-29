@@ -96,7 +96,7 @@ public class ClassicPlusWallkick implements Wallkick {
 		// IFloor kick (Only if you are in contact with the ground)
 		if (piece.id == Piece.PIECE_I && allowUpward
 				&& (rtNew == Piece.DIRECTION_LEFT || rtNew == Piece.DIRECTION_RIGHT)
-				&& piece.checkCollision(x, y + 1, field) == true) {
+				&& piece.checkCollision(x, y + 1, field)) {
 			for (int i = check; i <= check * 2; i++) {
 				int temp = 0;
 

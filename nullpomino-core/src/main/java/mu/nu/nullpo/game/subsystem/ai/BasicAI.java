@@ -72,13 +72,13 @@ public class BasicAI extends DummyAI implements Runnable {
 	public boolean thinking;
 
 	/** To stop a thread time */
-	public int thinkDelay;
+	private int thinkDelay;
 
 	/** When true,Running thread */
-	public volatile boolean threadRunning;
+	private volatile boolean threadRunning;
 
 	/** Thread for executing the think routine */
-	public Thread thread;
+	private Thread thread;
 
 	/*
 	 * AIOfName
@@ -456,7 +456,7 @@ public class BasicAI extends DummyAI implements Runnable {
 					pieceHold = engine.getNextObject(engine.nextPieceCount);
 				}
 				// Hold Peace
-				if (holdOK == true && pieceHold != null && depth == 0) {
+				if (holdOK && pieceHold != null && depth == 0) {
 					int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
 					int spawnY = engine.getSpawnPosY(pieceHold);
 					int minHoldX = pieceHold.getMostMovableLeft(spawnX, spawnY, rt, engine.field);

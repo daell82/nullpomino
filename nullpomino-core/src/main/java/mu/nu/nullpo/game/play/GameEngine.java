@@ -49,6 +49,7 @@ import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 import mu.nu.nullpo.util.SpinBonus;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.MemorylessRandomizer;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
@@ -151,7 +152,7 @@ public class GameEngine {
 	 * Gravity counter (The piece falls when this reaches to the value of
 	 * speed.denominator)
 	 */
-	public int gcount;
+	private int gcount;
 
 	/** The first random-seed */
 	public long randSeed;
@@ -192,8 +193,12 @@ public class GameEngine {
 	/** Current main game status */
 	public Status stat;
 
-	/** Free status counters */
-	protected int[] statc;
+	private int statc0 = 0;
+	private int statc1 = 0;
+	private int statc2 = 0;
+	private int statc4 = 0;
+	private int statc5 = 0;
+	private int statc6 = 0;
 
 	/** true if game play, false if menu. Used for alternate keyboard mappings. */
 	public boolean isInGame;
@@ -285,52 +290,62 @@ public class GameEngine {
 	public int dasCount;
 
 	/** DAS direction (-1:Left 0:None 1:Right) */
-	public int dasDirection;
+	private int dasDirection;
 
 	/** DAS delay counter */
-	public int dasSpeedCount;
+	private int dasSpeedCount;
 
 	/** Repeat statMove() for instant DAS */
-	public boolean dasRepeat;
+	private boolean dasRepeat;
 
 	/** In the middle of an instant DAS loop */
-	public boolean dasInstant;
+	private boolean dasInstant;
 
 	/** Disallow shift while locking key is pressed */
-	public int shiftLock;
+	private int shiftLock;
 
 	/** IRS direction */
-	public int initialRotateDirection;
+	private int initialRotateDirection;
 
 	/** Last IRS direction */
-	public int initialRotateLastDirection;
+	private int initialRotateLastDirection;
 
 	/** IRS continuous use flag */
-	public boolean initialRotateContinuousUse;
+	private boolean initialRotateContinuousUse;
 
 	/** IHS */
-	public boolean initialHoldFlag;
+	private boolean initialHoldFlag;
 
 	/** IHS continuous use flag */
-	public boolean initialHoldContinuousUse;
+	private boolean initialHoldContinuousUse;
 
-	/** Number of current piece movement */
-	public int nowPieceMoveCount;
+	/**
+	 * Number of current piece movement
+	 *
+	 * @deprecated unused field
+	 */
+	@Deprecated(forRemoval = true)
+	protected int nowPieceMoveCount;
 
 	/** Number of current piece rotations */
 	public int nowPieceRotateCount;
 
 	/** Number of current piece failed rotations */
-	public int nowPieceRotateFailCount;
+	private int nowPieceRotateFailCount;
 
 	/** Number of movement while touching to the floor */
-	public int extendedMoveCount;
+	private int extendedMoveCount;
 
 	/** Number of rotations while touching to the floor */
-	public int extendedRotateCount;
+	private int extendedRotateCount;
 
-	/** Number of wallkicks used by current piece */
-	public int nowWallkickCount;
+	/**
+	 * Number of wallkicks used by current piece
+	 *
+	 * @deprecated unused field
+	 */
+	@Deprecated(forRemoval = true)
+	protected int nowWallkickCount;
 
 	/** Number of upward wallkicks used by current piece */
 	public int nowUpwardWallkickCount;
@@ -342,16 +357,16 @@ public class GameEngine {
 	public int harddropFall;
 
 	/** Soft drop continuous use flag */
-	public boolean softdropContinuousUse;
+	private boolean softdropContinuousUse;
 
 	/** Hard drop continuous use flag */
-	public boolean harddropContinuousUse;
+	private boolean harddropContinuousUse;
 
 	/** true if the piece was manually locked by player */
 	public boolean manualLock;
 
 	/** Last successful movement */
-	public LastMove lastmove;
+	private LastMove lastmove;
 
 	/** ture if T-Spin */
 	public boolean tspin;
@@ -366,7 +381,7 @@ public class GameEngine {
 	public boolean b2b;
 
 	/** B2B counter */
-	public int b2bcount;
+	private int b2bcount;
 
 	/** Number of combos */
 	public int combo;
@@ -381,7 +396,7 @@ public class GameEngine {
 	public boolean tspinAllowKick;
 
 	/** T-Spin Mini detection type */
-	public int tspinminiType;
+	private int tspinminiType;
 
 	/** Spin detection type */
 	public int spinCheckType;
@@ -750,7 +765,12 @@ public class GameEngine {
 		quitflag = false;
 
 		stat = Status.SETTING;
-		statc = new int[MAX_STATC];
+		statc0 = 0;
+		statc1 = 0;
+		statc2 = 0;
+		statc4 = 0;
+		statc5 = 0;
+		statc6 = 0;
 
 		isInGame = false;
 		gameActive = false;
@@ -961,42 +981,46 @@ public class GameEngine {
 
 	/* accessors for statc-array currently used across all over the game */
 	public int statc_0() {
-		return statc[0];
+		return statc0;
 	}
 
 	public void statc_0(int value) {
-		statc[0] = value;
+		statc0 = value;
 	}
 
 	public int statc_1() {
-		return statc[1];
+		return statc1;
 	}
 
 	public void statc_1(int value) {
-		statc[1] = value;
+		statc1 = value;
 	}
 
 	public int statc_4() {
-		return statc[4];
+		return statc4;
 	}
 
 	public void statc_4(int value) {
-		statc[4] = value;
+		statc4 = value;
 	}
 
 	public int statc_5() {
-		return statc[5];
+		return statc5;
 	}
 
 	public void statc_5(int value) {
-		statc[5] = value;
+		statc5 = value;
 	}
 
 	/**
 	 * Status counterInitialization
 	 */
 	public void resetStatc() {
-		Arrays.fill(statc, 0);
+		statc0 = 0;
+		statc1 = 0;
+		statc4 = 0;
+		statc5 = 0;
+		statc6 = 0;
 	}
 
 	/**
@@ -1006,7 +1030,7 @@ public class GameEngine {
 	 */
 	public void playSE(String name) {
 		if (enableSE) {
-			owner.receiver.playSE(name);
+			owner.renderer.playSE(name);
 		}
 	}
 
@@ -1302,7 +1326,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Called if delay doesn't allow charging but dasRedirectInDelay == true Updates
+	 * Called if delay doesn't allow charging but dasRedirectInDelay Updates
 	 * dasDirection so player can change direction without dropping charge on entry.
 	 */
 	protected void dasRedirect() {
@@ -1315,7 +1339,7 @@ public class GameEngine {
 	 * @return Move countI have exceeded the limittrue
 	 */
 	protected boolean isMoveCountExceed() {
-		if (ruleopt.lockresetLimitShareCount == true) {
+		if (ruleopt.lockresetLimitShareCount) {
 			if (extendedMoveCount + extendedRotateCount >= ruleopt.lockresetLimitMove
 					&& ruleopt.lockresetLimitMove >= 0) {
 				return true;
@@ -1333,7 +1357,7 @@ public class GameEngine {
 	 * @return rotation countI have exceeded the limittrue
 	 */
 	protected boolean isRotateCountExceed() {
-		if (ruleopt.lockresetLimitShareCount == true) {
+		if (ruleopt.lockresetLimitShareCount) {
 			if (extendedMoveCount + extendedRotateCount >= ruleopt.lockresetLimitMove
 					&& ruleopt.lockresetLimitMove >= 0) {
 				return true;
@@ -1501,7 +1525,7 @@ public class GameEngine {
 				piece.placeToField(x, y, copyField);
 				if (piece.getHeight() + 1 != copyField.checkLineNoFlag() && kickused) {
 					tspinmini = true;
-					// if((copyField.checkLineNoFlag() == 1) && (kickused == true)) tspinmini =
+					// if((copyField.checkLineNoFlag() == 1) && (kickused)) tspinmini =
 					// true;
 				}
 			} else if (tspinEnableEZ && kickused) {
@@ -1611,14 +1635,14 @@ public class GameEngine {
 		if (ctrl.isPress(Controller.BUTTON_D) && ruleopt.holdInitial && isHoldOK()) {
 			initialHoldFlag = true;
 			initialHoldContinuousUse = true;
-			playSE("initialhold");
+			playSE(Sounds.INITIAL_HOLD);
 		}
 	}
 
 	/**
 	 * fieldOfBlock stateUpdate
 	 */
-	public void fieldUpdate() {
+	protected void fieldUpdate() {
 		boolean outlineOnly = blockShowOutlineOnly; // Show outline only flag
 		if (owBlockShowOutlineOnly == 0) {
 			outlineOnly = false;
@@ -1642,14 +1666,14 @@ public class GameEngine {
 							if (outlineOnly) {
 								blk.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
 								blk.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, false);
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_BONE, false);
+								blk.setBone(false);
 							}
 						} else {
 							blk.darkness = 0f;
 							blk.setAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
 							if (outlineOnly) {
 								blk.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, false);
-								blk.setAttribute(Block.BLOCK_ATTRIBUTE_BONE, false);
+								blk.setBone(false);
 							}
 						}
 
@@ -1912,6 +1936,7 @@ public class GameEngine {
 				}
 			}
 			case NOTHING -> {
+				// really nothing
 			}
 			}
 		}
@@ -1922,11 +1947,11 @@ public class GameEngine {
 			statistics.update();
 		}
 
-		// 最後の処理
+		// Final Processing
 		if (owner.mode != null) {
 			owner.mode.onLast(this, playerID);
 		}
-		owner.receiver.onLast(this, playerID);
+		owner.renderer.onLast(this, playerID);
 		if (ai != null && (!owner.replayMode || owner.replayRerecord)) {
 			ai.onLast(this, playerID);
 		}
@@ -1947,8 +1972,8 @@ public class GameEngine {
 	 * OtherwiseGameEngineItself does not do anything)
 	 */
 	public void render() {
-		// 最初の処理
-		owner.receiver.renderFirst(this, playerID);
+		// Initial Processing
+		owner.renderer.renderFirst(this, playerID);
 		if (owner.mode != null) {
 			owner.mode.renderFirst(this, playerID);
 		}
@@ -1965,73 +1990,73 @@ public class GameEngine {
 			if (owner.mode != null) {
 				owner.mode.renderSetting(this, playerID);
 			}
-			owner.receiver.renderSetting(this, playerID);
+			owner.renderer.renderSetting(this, playerID);
 			break;
 		case READY:
 			if (owner.mode != null) {
 				owner.mode.renderReady(this, playerID);
 			}
-			owner.receiver.renderReady(this, playerID);
+			owner.renderer.renderReady(this, playerID);
 			break;
 		case MOVE:
 			if (owner.mode != null) {
 				owner.mode.renderMove(this, playerID);
 			}
-			owner.receiver.renderMove(this, playerID);
+			owner.renderer.renderMove(this, playerID);
 			break;
 		case LOCKFLASH:
 			if (owner.mode != null) {
 				owner.mode.renderLockFlash(this, playerID);
 			}
-			owner.receiver.renderLockFlash(this, playerID);
+			owner.renderer.renderLockFlash(this, playerID);
 			break;
 		case LINECLEAR:
 			if (owner.mode != null) {
 				owner.mode.renderLineClear(this, playerID);
 			}
-			owner.receiver.renderLineClear(this, playerID);
+			owner.renderer.renderLineClear(this, playerID);
 			break;
 		case ARE:
 			if (owner.mode != null) {
 				owner.mode.renderARE(this, playerID);
 			}
-			owner.receiver.renderARE(this, playerID);
+			owner.renderer.renderARE(this, playerID);
 			break;
 		case ENDINGSTART:
 			if (owner.mode != null) {
 				owner.mode.renderEndingStart(this, playerID);
 			}
-			owner.receiver.renderEndingStart(this, playerID);
+			owner.renderer.renderEndingStart(this, playerID);
 			break;
 		case CUSTOM:
 			if (owner.mode != null) {
 				owner.mode.renderCustom(this, playerID);
 			}
-			owner.receiver.renderCustom(this, playerID);
+			owner.renderer.renderCustom(this, playerID);
 			break;
 		case EXCELLENT:
 			if (owner.mode != null) {
 				owner.mode.renderExcellent(this, playerID);
 			}
-			owner.receiver.renderExcellent(this, playerID);
+			owner.renderer.renderExcellent(this, playerID);
 			break;
 		case GAMEOVER:
 			if (owner.mode != null) {
 				owner.mode.renderGameOver(this, playerID);
 			}
-			owner.receiver.renderGameOver(this, playerID);
+			owner.renderer.renderGameOver(this, playerID);
 			break;
 		case RESULT:
 			if (owner.mode != null) {
 				owner.mode.renderResult(this, playerID);
 			}
-			owner.receiver.renderResult(this, playerID);
+			owner.renderer.renderResult(this, playerID);
 			break;
 		case FIELDEDIT:
 			if (owner.mode != null) {
 				owner.mode.renderFieldEdit(this, playerID);
 			}
-			owner.receiver.renderFieldEdit(this, playerID);
+			owner.renderer.renderFieldEdit(this, playerID);
 			break;
 		case INTERRUPTITEM:
 			break;
@@ -2041,7 +2066,7 @@ public class GameEngine {
 			if (owner.mode != null) {
 				owner.mode.renderInput(this, playerID);
 			}
-			owner.receiver.renderInput(this, playerID);
+			owner.renderer.renderInput(this, playerID);
 		}
 		if (ai != null) {
 			if (aiShowState) {
@@ -2052,25 +2077,25 @@ public class GameEngine {
 			}
 		}
 
-		// 最後の処理
+		// Final Processing
 		if (owner.mode != null) {
 			owner.mode.renderLast(this, playerID);
 		}
-		owner.receiver.renderLast(this, playerID);
+		owner.renderer.renderLast(this, playerID);
 	}
 
 	/**
 	 * Processing when the setup screen before the start of
 	 */
 	public void statSetting() {
-		// event 発生
+		// event Occurrence
 		if (owner.mode != null && owner.mode.onSetting(this, playerID)) {
 			return;
 		}
 
 		owner.receiver.onSetting(this, playerID);
 
-		// Mode側が何もしない場合はReady画面へ移動
+		// Mode If the side does nothing, go to the Ready screen
 		stat = Status.READY;
 		resetStatc();
 	}
@@ -2079,7 +2104,7 @@ public class GameEngine {
 	 * Ready→GoProcessing time
 	 */
 	public void statReady() {
-		// event 発生
+		// event Occurrence
 		if (owner.mode != null && owner.mode.onReady(this, playerID)) {
 			return;
 		}
@@ -2094,7 +2119,7 @@ public class GameEngine {
 		}
 
 		// Initialization
-		if (statc[0] == 0) {
+		if (statc0 == 0) {
 			// fieldInitialization
 			createFieldIfNeeded();
 
@@ -2140,20 +2165,22 @@ public class GameEngine {
 					nextPieces[i].setSkin(getSkin());
 					nextPieces[i].updateConnectData();
 					nextPieces[i].setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-					nextPieces[i].setAttribute(Block.BLOCK_ATTRIBUTE_BONE, bone);
+					for (Block block : nextPieces[i].block) {
+						block.setBone(bone);
+					}
 				}
 				if (randomBlockColor) {
 					if (blockColors.length < numColors || numColors < 1) {
 						numColors = blockColors.length;
 					}
-					for (Piece element : nextPieces) {
-						int size = element.getMaxBlock();
+					for (Piece piece : nextPieces) {
+						int size = piece.getMaxBlock();
 						int[] colors = new int[size];
 						for (int j = 0; j < size; j++) {
 							colors[j] = blockColors[random.nextInt(numColors)];
 						}
-						element.setColor(colors);
-						element.updateConnectData();
+						piece.setColor(colors);
+						piece.updateConnectData();
 					}
 				}
 			}
@@ -2169,18 +2196,18 @@ public class GameEngine {
 		}
 
 		// READYSound
-		if (statc[0] == readyStart) {
-			playSE("ready");
+		if (statc0 == readyStart) {
+			playSE(Sounds.READY);
 		}
 
 		// GOSound
-		if (statc[0] == goStart) {
-			playSE("go");
+		if (statc0 == goStart) {
+			playSE(Sounds.GO);
 		}
 
 		// NEXTSkip
-		if (statc[0] > 0 && statc[0] < goEnd && holdButtonNextSkip && isHoldOK() && ctrl.isPush(Controller.BUTTON_D)) {
-			playSE("initialhold");
+		if (statc0 > 0 && statc0 < goEnd && holdButtonNextSkip && isHoldOK() && ctrl.isPush(Controller.BUTTON_D)) {
+			playSE(Sounds.INITIAL_HOLD);
 			holdPieceObject = getNextObjectCopy(nextPieceCount);
 			holdPieceObject.applyOffsetArray(ruleopt.pieceOffsetX[holdPieceObject.id],
 					ruleopt.pieceOffsetY[holdPieceObject.id]);
@@ -2191,7 +2218,7 @@ public class GameEngine {
 		}
 
 		// Start
-		if (statc[0] >= goEnd) {
+		if (statc0 >= goEnd) {
 			if (!readyDone) {
 				owner.bgmStatus.bgm = 0;
 			}
@@ -2210,7 +2237,7 @@ public class GameEngine {
 			return;
 		}
 
-		statc[0]++;
+		statc0++;
 	}
 
 	/**
@@ -2219,7 +2246,7 @@ public class GameEngine {
 	public void statMove() {
 		dasRepeat = false;
 
-		// event 発生
+		// event Occurrence
 		if (owner.mode != null && owner.mode.onMove(this, playerID)) {
 			return;
 		}
@@ -2228,7 +2255,7 @@ public class GameEngine {
 		// Horizontal reservoir Initialization
 		int moveDirection = getMoveDirection();
 
-		if ((statc[0] > 0 || ruleopt.dasInMoveFirstFrame) && dasDirection != moveDirection) {
+		if ((statc0 > 0 || ruleopt.dasInMoveFirstFrame) && dasDirection != moveDirection) {
 			dasDirection = moveDirection;
 			if (!(dasDirection == 0 && ruleopt.dasStoreChargeOnNeutral)) {
 				dasCount = 0;
@@ -2236,8 +2263,8 @@ public class GameEngine {
 		}
 
 		// Processing at the time of emergence
-		if (statc[0] == 0) {
-			if (statc[1] == 0 && !initialHoldFlag) {
+		if (statc0 == 0) {
+			if (statc1 == 0 && !initialHoldFlag) {
 				// Normal appearance
 				nowPieceObject = getNextObjectCopy(nextPieceCount);
 				nextPieceCount++;
@@ -2260,8 +2287,10 @@ public class GameEngine {
 						}
 
 						if (bone) {
-							getNextObject(nextPieceCount + ruleopt.nextDisplay - 1)
-									.setAttribute(Block.BLOCK_ATTRIBUTE_BONE, true);
+							Piece next = getNextObject(nextPieceCount + ruleopt.nextDisplay - 1);
+							for (Block block : next.block) {
+								block.setBone(bone);
+							}
 						}
 
 						nowPieceObject = getNextObjectCopy(nextPieceCount);
@@ -2370,7 +2399,10 @@ public class GameEngine {
 			tspinmini = false;
 			tspinez = false;
 
-			getNextObject(nextPieceCount + ruleopt.nextDisplay - 1).setAttribute(Block.BLOCK_ATTRIBUTE_BONE, bone);
+			Piece next = getNextObject(nextPieceCount + ruleopt.nextDisplay - 1);
+			for (Block block : next.block) {
+				block.setBone(bone);
+			}
 
 			if (ending == 0) {
 				timerActive = true;
@@ -2396,8 +2428,8 @@ public class GameEngine {
 			// Hold
 			if (ctrl.isPush(Controller.BUTTON_D) || initialHoldFlag) {
 				if (isHoldOK()) {
-					statc[0] = 0;
-					statc[1] = 1;
+					statc0 = 0;
+					statc1 = 1;
 					if (!initialHoldFlag) {
 						playSE("hold");
 					}
@@ -2407,7 +2439,7 @@ public class GameEngine {
 					initialRotate(); // Hold swap triggered IRS
 					statMove();
 					return;
-				} else if (statc[0] > 0 && !initialHoldFlag) {
+				} else if (statc0 > 0 && !initialHoldFlag) {
 					playSE("holdfail");
 				}
 			}
@@ -2422,7 +2454,7 @@ public class GameEngine {
 				initialRotateLastDirection = initialRotateDirection;
 				initialRotateContinuousUse = true;
 				playSE("initialrotate");
-			} else if (statc[0] > 0 || ruleopt.moveFirstFrame) {
+			} else if (statc0 > 0 || ruleopt.moveFirstFrame) {
 				if (itemRollRollEnable && replayTimer % itemRollRollInterval == 0) {
 					move = 1; // Roll Roll
 				}
@@ -2541,7 +2573,7 @@ public class GameEngine {
 			initialRotateDirection = 0;
 
 			// game over check
-			if (statc[0] == 0 && nowPieceObject.checkCollision(nowPieceX, nowPieceY, field)) {
+			if (statc0 == 0 && nowPieceObject.checkCollision(nowPieceX, nowPieceY, field)) {
 				// BlockSo if you can shift on the position of the emergence of
 				for (int i = 0; i < ruleopt.pieceEnterMaxDistanceY; i++) {
 					if (nowPieceObject.big) {
@@ -2574,13 +2606,13 @@ public class GameEngine {
 		int move = 0;
 		boolean sidemoveflag = false; // This frame I moved next totrue
 
-		if (statc[0] > 0 || ruleopt.moveFirstFrame) {
+		if (statc0 > 0 || ruleopt.moveFirstFrame) {
 			// Lateral motion
 			boolean onGroundBeforeMove = nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field);
 
 			move = moveDirection;
 
-			if (statc[0] == 0 && delayCancel) {
+			if (statc0 == 0 && delayCancel) {
 				if (delayCancelMoveLeft) {
 					move = -1;
 				}
@@ -2591,7 +2623,7 @@ public class GameEngine {
 				// delayCancel = false;
 				delayCancelMoveLeft = false;
 				delayCancelMoveRight = false;
-			} else if (statc[0] == 1 && delayCancel && dasCount < getDAS()) {
+			} else if (statc0 == 1 && delayCancel && dasCount < getDAS()) {
 				move = 0;
 				delayCancel = false;
 			}
@@ -2768,8 +2800,7 @@ public class GameEngine {
 		}
 
 		// And fixed ground
-		if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field)
-				&& (statc[0] > 0 || ruleopt.moveFirstFrame)) {
+		if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) && (statc0 > 0 || ruleopt.moveFirstFrame)) {
 			if (lockDelayNow == 0 && getLockDelay() > 0) {
 				playSE("step");
 			}
@@ -2845,7 +2876,7 @@ public class GameEngine {
 					nowPieceObject.setDarkness(-0.8f);
 				}
 
-				// T-Spin判定
+				// T-Spin judgement
 				if ((lastmove == LastMove.ROTATE_GROUND || lastmove == LastMove.ROTATE_AIR) && tspinEnable) {
 					if (useAllSpinBonus) {
 						setAllSpin(nowPieceX, nowPieceY, nowPieceObject, field);
@@ -2917,7 +2948,7 @@ public class GameEngine {
 				dasRepeat = false;
 				dasInstant = false;
 
-				// Next 処理を決める(Mode 側でステータスを弄っている場合は何もしない)
+				// Next decide on a treatment (Mode If you're playing with your stats, do nothing)
 				if (stat == Status.MOVE || version.isLower(6, 4, 0)) {
 					resetStatc();
 
@@ -2926,7 +2957,7 @@ public class GameEngine {
 						stat = Status.ENDINGSTART;
 					} else if (!put && ruleopt.fieldLockoutDeath
 							|| partialLockOut && ruleopt.fieldPartialLockoutDeath) {
-						// 画面外に置いて死亡
+						// Left off-screen and killed
 						stat = Status.GAMEOVER;
 						if (ending == 2 && staffrollNoDeath) {
 							stat = Status.NOTHING;
@@ -2934,7 +2965,7 @@ public class GameEngine {
 					} else if ((lineGravityType == LineGravity.CASCADE || lineGravityType == LineGravity.CASCADE_SLOW)
 							&& !connectBlocks) {
 						stat = Status.LINECLEAR;
-						statc[0] = getLineDelay();
+						statc0 = getLineDelay();
 						statLineClear();
 					} else if (lineClearing > 0 && (ruleopt.lockflash <= 0 || !ruleopt.lockflashBeforeLineClear)) {
 						// Line clear
@@ -2942,11 +2973,11 @@ public class GameEngine {
 						statLineClear();
 					} else if ((getARE() > 0 || lagARE || ruleopt.lockflashBeforeLineClear) && ruleopt.lockflash > 0
 							&& ruleopt.lockflashOnlyFrame) {
-						// AREあり (光あり）
+						// ARE yes (with light）
 						stat = Status.LOCKFLASH;
 					} else if (getARE() > 0 || lagARE) {
 						// ARESome (No light)
-						statc[1] = getARE();
+						statc1 = getARE();
 						stat = Status.ARE;
 					} else if (interruptItemNumber != INTERRUPTITEM_NONE) {
 						// Effective treatment interruption item
@@ -2954,7 +2985,7 @@ public class GameEngine {
 						interruptItemPreviousStat = Status.MOVE;
 						stat = Status.INTERRUPTITEM;
 					} else {
-						// AREなし
+						// ARE none
 						stat = Status.MOVE;
 						if (!ruleopt.moveFirstFrame) {
 							statMove();
@@ -2966,11 +2997,11 @@ public class GameEngine {
 		}
 
 		// Horizontal reservoir
-		if ((statc[0] > 0 || ruleopt.dasInMoveFirstFrame) && moveDirection != 0 && moveDirection == dasDirection
+		if ((statc0 > 0 || ruleopt.dasInMoveFirstFrame) && moveDirection != 0 && moveDirection == dasDirection
 				&& (dasCount < getDAS() || getDAS() <= 0)) {
 			dasCount++;
 		}
-		statc[0]++;
+		statc0++;
 	}
 
 	/**
@@ -2984,7 +3015,7 @@ public class GameEngine {
 
 		owner.receiver.onLockFlash(this, playerID);
 
-		statc[0]++;
+		statc0++;
 
 		checkDropContinuousUse();
 
@@ -2996,7 +3027,7 @@ public class GameEngine {
 		}
 
 		// Next Status
-		if (statc[0] >= ruleopt.lockflash) {
+		if (statc0 >= ruleopt.lockflash) {
 			resetStatc();
 
 			if (lineClearing > 0) {
@@ -3005,7 +3036,7 @@ public class GameEngine {
 				statLineClear();
 			} else {
 				// ARE
-				statc[1] = getARE();
+				statc1 = getARE();
 				stat = Status.ARE;
 			}
 		}
@@ -3032,7 +3063,7 @@ public class GameEngine {
 		}
 
 		// First frame
-		if (statc[0] == 0) {
+		if (statc0 == 0) {
 			if (sticky > 0) {
 				field.setBlockLinkByColor();
 			}
@@ -3112,10 +3143,10 @@ public class GameEngine {
 					b2bcount++;
 
 					if (b2bcount == 1) {
-						playSE("b2b_start");
+						playSE(Sounds.B2B_START);
 					} else {
 						b2b = true;
-						playSE("b2b_continue");
+						playSE(Sounds.B2B_CONTINUE);
 
 						if (ending == 0 || staffrollEnableStatistics) {
 							if (linesCleared == 4) {
@@ -3128,7 +3159,7 @@ public class GameEngine {
 				} else if (b2bcount != 0) {
 					b2b = false;
 					b2bcount = 0;
-					playSE("b2b_end");
+					playSE(Sounds.B2B_END);
 				}
 			}
 
@@ -3158,7 +3189,7 @@ public class GameEngine {
 			}
 
 			if (field.getHowManyGemClears() > 0) {
-				playSE("gem");
+				playSE(Sounds.GEM);
 			}
 
 			// Calculate score
@@ -3178,7 +3209,7 @@ public class GameEngine {
 								if (owner.mode != null) {
 									owner.mode.blockBreak(this, playerID, j, i, blk);
 								}
-								owner.receiver.blockBreak(this, playerID, j, i, blk);
+								owner.renderer.blockBreak(this, playerID, j, i, blk);
 							}
 						}
 					}
@@ -3188,21 +3219,19 @@ public class GameEngine {
 				for (int y = 0; y < field.getHeight(); y++) {
 					for (int x = 0; x < field.getWidth(); x++) {
 						Block block = field.getBlock(x, y);
-						if (block == null) {
+						if (block == null || !block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 							continue;
 						}
-						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
-							if (owner.mode != null) {
-								owner.mode.blockBreak(this, playerID, x, y, block);
-							}
-							if (displaySize == DisplaySize.BIG) {
-								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y, block);
-								owner.receiver.blockBreak(this, playerID, 2 * x + 1, 2 * y, block);
-								owner.receiver.blockBreak(this, playerID, 2 * x, 2 * y + 1, block);
-								owner.receiver.blockBreak(this, playerID, 2 * x + 1, 2 * y + 1, block);
-							} else {
-								owner.receiver.blockBreak(this, playerID, x, y, block);
-							}
+						if (owner.mode != null) {
+							owner.mode.blockBreak(this, playerID, x, y, block);
+						}
+						if (displaySize == DisplaySize.BIG) {
+							owner.renderer.blockBreak(this, playerID, 2 * x, 2 * y, block);
+							owner.renderer.blockBreak(this, playerID, 2 * x + 1, 2 * y, block);
+							owner.renderer.blockBreak(this, playerID, 2 * x, 2 * y + 1, block);
+							owner.renderer.blockBreak(this, playerID, 2 * x + 1, 2 * y + 1, block);
+						} else {
+							owner.renderer.blockBreak(this, playerID, x, y, block);
 						}
 					}
 				}
@@ -3230,7 +3259,7 @@ public class GameEngine {
 
 		// Linesを1段落とす
 		if (lineGravityType == LineGravity.NATIVE && getLineDelay() >= lineClearing - 1
-				&& statc[0] >= getLineDelay() - (lineClearing - 1) && ruleopt.lineFallAnim) {
+				&& statc0 >= getLineDelay() - (lineClearing - 1) && ruleopt.lineFallAnim) {
 			field.downFloatingBlocksSingleLine();
 		}
 
@@ -3247,25 +3276,25 @@ public class GameEngine {
 
 		delayCancel = moveCancel || rotateCancel || holdCancel;
 
-		if (statc[0] < getLineDelay() && delayCancel) {
-			statc[0] = getLineDelay();
+		if (statc0 < getLineDelay() && delayCancel) {
+			statc0 = getLineDelay();
 		}
 
 		// Next Status
-		if (statc[0] >= getLineDelay()) {
+		if (statc0 >= getLineDelay()) {
 			// Cascade
 			if (lineGravityType == LineGravity.CASCADE || lineGravityType == LineGravity.CASCADE_SLOW) {
-				if (statc[6] < getCascadeDelay()) {
-					statc[6]++;
+				if (statc6 < cascadeDelay) {
+					statc6++;
 					return;
 				} else if (field.doCascadeGravity(lineGravityType)) {
-					statc[6] = 0;
+					statc6 = 0;
 					return;
-				} else if (statc[6] < getCascadeClearDelay()) {
+				} else if (statc6 < cascadeClearDelay) {
 					if (sticky > 0) {
 						field.setBlockLinkByColor();
 					}
-					statc[6]++;
+					statc6++;
 					return;
 				} else if (clearMode == ClearType.LINE && field.checkLineNoFlag() > 0 || clearMode == ClearType.COLOR
 						&& field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden) > 0
@@ -3279,8 +3308,8 @@ public class GameEngine {
 					if (chain > statistics.maxChain) {
 						statistics.maxChain = chain;
 					}
-					statc[0] = 0;
-					statc[6] = 0;
+					statc0 = 0;
+					statc6 = 0;
 					return;
 				}
 			}
@@ -3301,7 +3330,7 @@ public class GameEngine {
 				if (lineGravityType == LineGravity.NATIVE) {
 					field.downFloatingBlocks();
 				}
-				playSE("linefall");
+				playSE(Sounds.LINE_FALL);
 
 				field.lineColorsCleared = null;
 
@@ -3312,9 +3341,9 @@ public class GameEngine {
 						stat = Status.ENDINGSTART;
 					} else if (getARELine() > 0 || lagARE) {
 						// ARESome
-						statc[0] = 0;
-						statc[1] = getARELine();
-						statc[2] = 1;
+						statc0 = 0;
+						statc1 = getARELine();
+						statc2 = 1;
 						stat = Status.ARE;
 					} else if (interruptItemNumber != INTERRUPTITEM_NONE) {
 						// Effective treatment interruption item
@@ -3325,7 +3354,7 @@ public class GameEngine {
 						// ARENo
 						nowPieceObject = null;
 						if (version.isLower(7, 5, 0)) {
-							initialRotate(); // XXX: Weird IRS thing on lines cleared but no ARE
+							initialRotate(); // XX: Weird IRS thing on lines cleared but no ARE
 						}
 						stat = Status.MOVE;
 					}
@@ -3335,19 +3364,11 @@ public class GameEngine {
 			return;
 		}
 
-		statc[0]++;
-	}
-
-	public int getCascadeDelay() {
-		return cascadeDelay;
-	}
-
-	public int getCascadeClearDelay() {
-		return cascadeClearDelay;
+		statc0++;
 	}
 
 	/**
-	 * AREProcessing during
+	 * Processing during ARE
 	 */
 	public void statARE() {
 		// event 発生
@@ -3357,7 +3378,7 @@ public class GameEngine {
 
 		owner.receiver.onARE(this, playerID);
 
-		statc[0]++;
+		statc0++;
 
 		checkDropContinuousUse();
 
@@ -3374,19 +3395,19 @@ public class GameEngine {
 
 		delayCancel = moveCancel || rotateCancel || holdCancel;
 
-		if (statc[0] < statc[1] && delayCancel) {
-			statc[0] = statc[1];
+		if (statc0 < statc1 && delayCancel) {
+			statc0 = statc1;
 		}
 
 		// Horizontal reservoir
-		if (ruleopt.dasInARE && (statc[0] < statc[1] - 1 || ruleopt.dasInARELastFrame)) {
+		if (ruleopt.dasInARE && (statc0 < statc1 - 1 || ruleopt.dasInARELastFrame)) {
 			padRepeat();
 		} else if (ruleopt.dasRedirectInDelay) {
 			dasRedirect();
 		}
 
 		// Next Status
-		if (statc[0] >= statc[1] && !lagARE) {
+		if (statc0 >= statc1 && !lagARE) {
 			nowPieceObject = null;
 			resetStatc();
 
@@ -3420,36 +3441,36 @@ public class GameEngine {
 			dasRedirect();
 		}
 
-		if (statc[2] == 0) {
+		if (statc2 == 0) {
 			timerActive = false;
 			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-			playSE("endingstart");
-			statc[2] = 1;
+			playSE(Sounds.ENDING_START);
+			statc2 = 1;
 		}
 
-		if (statc[0] < getLineDelay()) {
-			statc[0]++;
-		} else if (statc[1] < field.getHeight() * 6) {
-			if (statc[1] % 6 == 0) {
-				int y = field.getHeight() - statc[1] / 6;
+		if (statc0 < getLineDelay()) {
+			statc0++;
+		} else if (statc1 < field.getHeight() * 6) {
+			if (statc1 % 6 == 0) {
+				int y = field.getHeight() - statc1 / 6;
 				field.setLineFlag(y, true);
 
-				for (int i = 0; i < field.getWidth(); i++) {
-					Block blk = field.getBlock(i, y);
+				for (int x = 0; x < field.getWidth(); x++) {
+					Block block = field.getBlock(x, y);
 
-					if (blk != null && blk.color != Colors.BLOCK_COLOR_NONE) {
+					if (block != null && block.color != Colors.BLOCK_COLOR_NONE) {
 						if (owner.mode != null) {
-							owner.mode.blockBreak(this, playerID, i, y, blk);
+							owner.mode.blockBreak(this, playerID, x, y, block);
 						}
-						owner.receiver.blockBreak(this, playerID, i, y, blk);
-						field.setBlockColor(i, y, Colors.BLOCK_COLOR_NONE);
+						owner.renderer.blockBreak(this, playerID, x, y, block);
+						field.setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
 					}
 				}
 			}
 
-			statc[1]++;
-		} else if (statc[0] < getLineDelay() + 2) {
-			statc[0]++;
+			statc1++;
+		} else if (statc0 < getLineDelay() + 2) {
+			statc0++;
 		} else {
 			ending = 2;
 			field.reset();
@@ -3487,24 +3508,24 @@ public class GameEngine {
 
 		owner.receiver.onExcellent(this, playerID);
 
-		if (statc[0] == 0) {
+		if (statc0 == 0) {
 			gameEnded();
 			owner.bgmStatus.fadesw = true;
 
 			resetFieldVisible();
 
-			playSE("excellent");
+			playSE(Sounds.EXCELLENT);
 		}
 
-		if (statc[0] >= 120 && ctrl.isPush(Controller.BUTTON_A)) {
-			statc[0] = 600;
+		if (statc0 >= 120 && ctrl.isPush(Controller.BUTTON_A)) {
+			statc0 = 600;
 		}
 
-		if (statc[0] >= 600 && statc[1] == 0) {
+		if (statc0 >= 600 && statc1 == 0) {
 			resetStatc();
 			stat = Status.GAMEOVER;
 		} else {
-			statc[0]++;
+			statc0++;
 		}
 	}
 
@@ -3521,7 +3542,7 @@ public class GameEngine {
 
 		if (lives <= 0) {
 			// When I can not be recovered anymore
-			if (statc[0] == 0) {
+			if (statc0 == 0) {
 				gameEnded();
 				blockShowOutlineOnly = false;
 				if (owner.getPlayers() < 2) {
@@ -3529,16 +3550,16 @@ public class GameEngine {
 				}
 
 				if (field.isEmpty()) {
-					statc[0] = field.getHeight() + 1;
+					statc0 = field.getHeight() + 1;
 				} else {
 					resetFieldVisible();
 				}
 			}
 
-			if (statc[0] < field.getHeight() + 1) {
+			if (statc0 < field.getHeight() + 1) {
 				for (int i = 0; i < field.getWidth(); i++) {
-					if (field.getBlockColor(i, field.getHeight() - statc[0]) != Colors.BLOCK_COLOR_NONE) {
-						Block blk = field.getBlock(i, field.getHeight() - statc[0]);
+					if (field.getBlockColor(i, field.getHeight() - statc0) != Colors.BLOCK_COLOR_NONE) {
+						Block blk = field.getBlock(i, field.getHeight() - statc0);
 
 						if (blk != null) {
 							if (!blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
@@ -3552,16 +3573,16 @@ public class GameEngine {
 						}
 					}
 				}
-				statc[0]++;
-			} else if (statc[0] == field.getHeight() + 1) {
-				playSE("gameover");
-				statc[0]++;
-			} else if (statc[0] < field.getHeight() + 1 + 180) {
-				if (statc[0] >= field.getHeight() + 1 + 60 && ctrl.isPush(Controller.BUTTON_A)) {
-					statc[0] = field.getHeight() + 1 + 180;
+				statc0++;
+			} else if (statc0 == field.getHeight() + 1) {
+				playSE(Sounds.GAME_OVER);
+				statc0++;
+			} else if (statc0 < field.getHeight() + 1 + 180) {
+				if (statc0 >= field.getHeight() + 1 + 60 && ctrl.isPush(Controller.BUTTON_A)) {
+					statc0 = field.getHeight() + 1 + 180;
 				}
 
-				statc[0]++;
+				statc0++;
 			} else {
 				if (!owner.replayMode || owner.replayRerecord) {
 					owner.saveReplay();
@@ -3579,9 +3600,9 @@ public class GameEngine {
 			}
 		} else {
 			// When it can be revived
-			if (statc[0] == 0) {
+			if (statc0 == 0) {
 				blockShowOutlineOnly = false;
-				playSE("died");
+				playSE(Sounds.DIED);
 
 				resetFieldVisible();
 
@@ -3593,13 +3614,13 @@ public class GameEngine {
 					}
 				}
 
-				statc[0] = 1;
+				statc0 = 1;
 			}
 
 			if (!field.isEmpty()) {
 				field.pushDown();
-			} else if (statc[1] < getARE()) {
-				statc[1]++;
+			} else if (statc1 < getARE()) {
+				statc1++;
 			} else {
 				lives--;
 				resetStatc();
@@ -3626,19 +3647,19 @@ public class GameEngine {
 
 		// Cursor movement
 		if (ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT) || ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT)) {
-			if (statc[0] == 0) {
-				statc[0] = 1;
+			if (statc0 == 0) {
+				statc0 = 1;
 			} else {
-				statc[0] = 0;
+				statc0 = 0;
 			}
-			playSE("cursor");
+			playSE(Sounds.CURSOR);
 		}
 
 		// Confirm
 		if (ctrl.isPush(Controller.BUTTON_A)) {
 			playSE("decide");
 
-			if (statc[0] == 0) {
+			if (statc0 == 0) {
 				owner.reset();
 			} else {
 				quitflag = true;
@@ -3661,28 +3682,28 @@ public class GameEngine {
 
 		// Cursor movement
 		if (ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("move");
+			playSE(Sounds.MOVE);
 			fldeditX--;
 			if (fldeditX < 0) {
 				fldeditX = fieldWidth - 1;
 			}
 		}
 		if (ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && !ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("move");
+			playSE(Sounds.MOVE);
 			fldeditX++;
 			if (fldeditX > fieldWidth - 1) {
 				fldeditX = 0;
 			}
 		}
 		if (ctrl.isMenuRepeatKey(getUp(), false)) {
-			playSE("move");
+			playSE(Sounds.MOVE);
 			fldeditY--;
 			if (fldeditY < 0) {
 				fldeditY = fieldHeight - 1;
 			}
 		}
 		if (ctrl.isMenuRepeatKey(getDown(), false)) {
-			playSE("move");
+			playSE(Sounds.MOVE);
 			fldeditY++;
 			if (fldeditY > fieldHeight - 1) {
 				fldeditY = 0;
@@ -3691,14 +3712,14 @@ public class GameEngine {
 
 		// Color selection
 		if (ctrl.isMenuRepeatKey(Controller.BUTTON_LEFT, false) && ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("cursor");
+			playSE(Sounds.CURSOR);
 			fldeditColor--;
 			if (fldeditColor < Colors.BLOCK_COLOR_GRAY) {
 				fldeditColor = Colors.BLOCK_COLOR_GEM_PURPLE;
 			}
 		}
 		if (ctrl.isMenuRepeatKey(Controller.BUTTON_RIGHT, false) && ctrl.isPress(Controller.BUTTON_C)) {
-			playSE("cursor");
+			playSE(Sounds.CURSOR);
 			fldeditColor++;
 			if (fldeditColor > Colors.BLOCK_COLOR_GEM_PURPLE) {
 				fldeditColor = Colors.BLOCK_COLOR_GRAY;
@@ -3712,9 +3733,9 @@ public class GameEngine {
 					Block blk = new Block(fldeditColor, getSkin(),
 							Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE);
 					field.setBlock(fldeditX, fldeditY, blk);
-					playSE("change");
+					playSE(Sounds.CHANGE);
 				}
-			} catch (Exception e) {
+			} catch (Exception _) {
 			}
 		}
 
@@ -3723,9 +3744,9 @@ public class GameEngine {
 			try {
 				if (!field.getBlockEmpty(fldeditX, fldeditY)) {
 					field.setBlockColor(fldeditX, fldeditY, Colors.BLOCK_COLOR_NONE);
-					playSE("change");
+					playSE(Sounds.CHANGE);
 				}
-			} catch (Exception e) {
+			} catch (Exception _) {
 			}
 		}
 
@@ -3763,28 +3784,28 @@ public class GameEngine {
 	 * @return When true,Process continues Miller
 	 */
 	protected boolean interruptItemMirrorProc() {
-		if (statc[0] == 0) {
+		if (statc0 == 0) {
 			// fieldCopy the backup
 			interruptItemMirrorField = new Field(field);
 			// fieldOfBlockTurn off all the
 			field.reset();
-		} else if (statc[0] >= 21 && statc[0] < 21 + field.getWidth() * 2 && statc[0] % 2 == 0) {
+		} else if (statc0 >= 21 && statc0 < 21 + field.getWidth() * 2 && statc0 % 2 == 0) {
 			// Inversion
-			int x = (statc[0] - 20) / 2 - 1;
+			int x = (statc0 - 20) / 2 - 1;
 
 			for (int y = field.getHiddenHeight() * -1; y < field.getHeight(); y++) {
 				field.setBlock(field.getWidth() - x - 1, y, interruptItemMirrorField.getBlock(x, y));
 			}
-		} else if (statc[0] < 21 + field.getWidth() * 2 + 5) {
+		} else if (statc0 < 21 + field.getWidth() * 2 + 5) {
 			// Wait time
 		} else {
 			// End
-			statc[0] = 0;
+			statc0 = 0;
 			interruptItemMirrorField = null;
 			return false;
 		}
 
-		statc[0]++;
+		statc0++;
 		return true;
 	}
 }

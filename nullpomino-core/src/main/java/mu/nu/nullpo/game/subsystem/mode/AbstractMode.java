@@ -29,10 +29,11 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
-import mu.nu.nullpo.game.event.EventReceiver;
+import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.mode.menu.AbstractMenuItem;
@@ -40,6 +41,7 @@ import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Dummy implementation of game mode. Used as a base of most game modes.
@@ -56,14 +58,14 @@ public abstract class AbstractMode implements GameMode {
 	protected GameManager owner;
 
 	/** Drawing and event handling EventReceiver */
-	protected EventReceiver<?> receiver;
+	protected Renderer<?> renderer;
 
 	/** Current state of menu for drawMenu */
 	protected int statcMenu;
 	protected int menuColor;
 	protected int menuY;
 
-	protected ArrayList<AbstractMenuItem<?>> menu;
+	protected List<AbstractMenuItem<?>> menu;
 
 	/** Name of mode in properties file */
 	protected String propName;
@@ -219,7 +221,7 @@ public abstract class AbstractMode implements GameMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 	}
 
 	@Override
@@ -279,11 +281,11 @@ public abstract class AbstractMode implements GameMode {
 		int endPage = Math.min(menu.size(), pageStart + 10);
 		for (int i = pageStart; i < endPage; i++) {
 			menuItem = menu.get(i);
-			receiver.drawMenuFont(engine, playerID, 0, i << 1, menuItem.displayName, menuItem.color);
+			renderer.drawMenuFont(engine, playerID, 0, i << 1, menuItem.displayName, menuItem.color);
 			if (menuCursor == i && !engine.owner.replayMode) {
-				receiver.drawMenuFont(engine, playerID, 0, (i << 1) + 1, "b" + menuItem.getValueString(), true);
+				renderer.drawMenuFont(engine, playerID, 0, (i << 1) + 1, "b" + menuItem.getValueString(), true);
 			} else {
-				receiver.drawMenuFont(engine, playerID, 1, (i << 1) + 1, menuItem.getValueString());
+				renderer.drawMenuFont(engine, playerID, 1, (i << 1) + 1, menuItem.getValueString());
 			}
 		}
 	}
@@ -348,7 +350,7 @@ public abstract class AbstractMode implements GameMode {
 			if (menuCursor < 0) {
 				menuCursor = maxCursor;
 			}
-			engine.playSE("cursor");
+			engine.playSE(Sounds.CURSOR);
 		}
 		// Down
 		if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -356,7 +358,7 @@ public abstract class AbstractMode implements GameMode {
 			if (menuCursor > maxCursor) {
 				menuCursor = 0;
 			}
-			engine.playSE("cursor");
+			engine.playSE(Sounds.CURSOR);
 		}
 
 		// Configuration changes
@@ -374,7 +376,7 @@ public abstract class AbstractMode implements GameMode {
 		int change = updateCursor(engine, menu.size() - 1);
 
 		if (change != 0) {
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 			int fast = 0;
 			if (engine.ctrl.isPush(Controller.BUTTON_E)) {
 				fast++;
@@ -398,7 +400,7 @@ public abstract class AbstractMode implements GameMode {
 		menuColor = color;
 	}
 
-	protected void drawMenu(GameEngine engine, int playerID, EventReceiver<?> receiver, String... str) {
+	protected void drawMenu(GameEngine engine, int playerID, Renderer<?> receiver, String... str) {
 		for (int i = 0; i < str.length; i++) {
 			if ((i & 1) == 0) {
 				receiver.drawMenuFont(engine, playerID, 0, menuY, str[i], menuColor);
@@ -413,7 +415,7 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawMenu(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color, int statc,
+	protected void drawMenu(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color, int statc,
 			String... str) {
 		menuY = y;
 		menuColor = color;
@@ -421,7 +423,7 @@ public abstract class AbstractMode implements GameMode {
 		drawMenu(engine, playerID, receiver, str);
 	}
 
-	protected void drawMenuCompact(GameEngine engine, int playerID, EventReceiver<?> receiver, String... str) {
+	protected void drawMenuCompact(GameEngine engine, int playerID, Renderer<?> receiver, String... str) {
 		for (int i = 0; i < str.length - 1; i += 2) {
 			receiver.drawMenuFont(engine, playerID, 1, menuY, str[i] + ":", menuColor);
 			if (menuCursor == statcMenu && !engine.owner.replayMode) {
@@ -435,7 +437,7 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawMenuCompact(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawMenuCompact(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			int statc, String... str) {
 		menuY = y;
 		menuColor = color;
@@ -443,24 +445,24 @@ public abstract class AbstractMode implements GameMode {
 		drawMenuCompact(engine, playerID, receiver, str);
 	}
 
-	protected void drawResult(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResult(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			String... str) {
 		drawResultScale(engine, playerID, receiver, y, color, 1.0f, str);
 	}
 
-	protected void drawResultScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			float scale, String... str) {
 		for (int i = 0; i < str.length; i++) {
 			receiver.drawMenuFont(engine, playerID, 0, y + i, str[i], (i & 1) == 0 ? color : Colors.FONT_WHITE, scale);
 		}
 	}
 
-	protected void drawResultRank(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultRank(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			int rank) {
 		drawResultRankScale(engine, playerID, receiver, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultRankScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultRankScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			float scale, int rank) {
 		if (rank != -1) {
 			receiver.drawMenuFont(engine, playerID, 0, y, "RANK", color, scale);
@@ -468,12 +470,12 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawResultNetRank(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultNetRank(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			int rank) {
 		drawResultNetRankScale(engine, playerID, receiver, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultNetRankScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			float scale, int rank) {
 		if (rank != -1) {
 			receiver.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, scale);
@@ -481,12 +483,12 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawResultNetRankDaily(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultNetRankDaily(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			int rank) {
 		drawResultNetRankDailyScale(engine, playerID, receiver, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y,
+	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, Renderer<?> receiver, int y,
 			int color, float scale, int rank) {
 		if (rank != -1) {
 			receiver.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, scale);
@@ -494,12 +496,12 @@ public abstract class AbstractMode implements GameMode {
 		}
 	}
 
-	protected void drawResultStats(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultStats(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			Statistic... stats) {
 		drawResultStatsScale(engine, playerID, receiver, y, color, 1.0f, stats);
 	}
 
-	protected void drawResultStatsScale(GameEngine engine, int playerID, EventReceiver<?> receiver, int y, int color,
+	protected void drawResultStatsScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
 			float scale, Statistic... statistics) {
 		var stats = engine.statistics;
 		for (Statistic stat : statistics) {
@@ -590,40 +592,40 @@ public abstract class AbstractMode implements GameMode {
 				color = Colors.FONT_RED;
 				y--;
 			}
-			receiver.drawScoreFont(engine, 0, -9, y, playerID + 1 + "P INPUT:", color);
+			renderer.drawScoreFont(engine, 0, -9, y, playerID + 1 + "P INPUT:", color);
 		} else {
-			receiver.drawScoreFont(engine, 0, -6, y, "INPUT:", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, 0, -6, y, "INPUT:", Colors.FONT_BLUE);
 		}
 		Controller ctrl = engine.ctrl;
 		if (ctrl.isPress(Controller.BUTTON_LEFT)) {
-			receiver.drawScoreFont(engine, 0, 0, y, "<");
+			renderer.drawScoreFont(engine, 0, 0, y, "<");
 		}
 		if (ctrl.isPress(Controller.BUTTON_DOWN)) {
-			receiver.drawScoreFont(engine, 0, 1, y, "n");
+			renderer.drawScoreFont(engine, 0, 1, y, "n");
 		}
 		if (ctrl.isPress(Controller.BUTTON_UP)) {
-			receiver.drawScoreFont(engine, 0, 2, y, "k");
+			renderer.drawScoreFont(engine, 0, 2, y, "k");
 		}
 		if (ctrl.isPress(Controller.BUTTON_RIGHT)) {
-			receiver.drawScoreFont(engine, 0, 3, y, ">");
+			renderer.drawScoreFont(engine, 0, 3, y, ">");
 		}
 		if (ctrl.isPress(Controller.BUTTON_A)) {
-			receiver.drawScoreFont(engine, 0, 4, y, "A");
+			renderer.drawScoreFont(engine, 0, 4, y, "A");
 		}
 		if (ctrl.isPress(Controller.BUTTON_B)) {
-			receiver.drawScoreFont(engine, 0, 5, y, "B");
+			renderer.drawScoreFont(engine, 0, 5, y, "B");
 		}
 		if (ctrl.isPress(Controller.BUTTON_C)) {
-			receiver.drawScoreFont(engine, 0, 6, y, "C");
+			renderer.drawScoreFont(engine, 0, 6, y, "C");
 		}
 		if (ctrl.isPress(Controller.BUTTON_D)) {
-			receiver.drawScoreFont(engine, 0, 7, y, "D");
+			renderer.drawScoreFont(engine, 0, 7, y, "D");
 		}
 		if (ctrl.isPress(Controller.BUTTON_E)) {
-			receiver.drawScoreFont(engine, 0, 8, y, "E");
+			renderer.drawScoreFont(engine, 0, 8, y, "E");
 		}
 		if (ctrl.isPress(Controller.BUTTON_F)) {
-			receiver.drawScoreFont(engine, 0, 9, y, "F");
+			renderer.drawScoreFont(engine, 0, 9, y, "F");
 		}
 	}
 }

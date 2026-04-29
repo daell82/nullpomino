@@ -39,18 +39,18 @@ import org.newdawn.slick.Image;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.event.EventReceiver;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.EffectObject;
+import mu.nu.nullpo.gui.common.AbstractRenderer;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Game event Processing and rendering process (SlickVersion)
  */
-public class RendererSlick extends EventReceiver<Graphics> {
+public class RendererSlick extends AbstractRenderer<Graphics> {
 
 	/** Production Object */
 	protected List<EffectObject> effects;
@@ -302,13 +302,11 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	/*
 	 * Save the replay
 	 */
-	@Override
 	public void saveReplay(GameManager owner, CustomProperties prop) {
 		if (owner.mode.isNetplayMode()) {
 			return;
 		}
-
-		saveReplay(owner, prop, NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay"));
+		owner.saveReplay(prop, NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay"));
 	}
 
 	/*
@@ -463,8 +461,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * @param blk BlockInstance of a class
 	 */
 	protected void drawBlock(int x, int y, Block blk) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				blk.alpha, 1.0f, blk.attribute);
+		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.isBone(), blk.darkness, blk.alpha, 1.0f, blk.attribute);
 	}
 
 	/**
@@ -477,8 +474,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * @param scale Enlargement factor
 	 */
 	protected void drawBlock(int x, int y, Block blk, float scale) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				blk.alpha, scale, blk.attribute);
+		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.isBone(), blk.darkness, blk.alpha, scale, blk.attribute);
 	}
 
 	/**
@@ -492,13 +488,12 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	 * @param darkness Lightness or darkness
 	 */
 	protected void drawBlock(int x, int y, Block blk, float scale, float darkness) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), darkness, blk.alpha,
-				scale, blk.attribute);
+		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.isBone(), darkness, blk.alpha, scale, blk.attribute);
 	}
 
 	protected void drawBlockForceVisible(int x, int y, Block blk, float scale) {
-		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness,
-				0.5f * blk.alpha + 0.5f, scale, blk.attribute);
+		drawBlock(x, y, blk.getDrawColor(), blk.skin, blk.isBone(), blk.darkness, 0.5f * blk.alpha + 0.5f, scale,
+				blk.attribute);
 	}
 
 	/**
@@ -614,7 +609,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 						int ls = blksize - 1;
 
 						int colorID = block.getDrawColor();
-						if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+						if (block.isBone()) {
 							colorID = -1;
 						}
 						Color color = getColorByID(colorID);
@@ -678,7 +673,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 					int ls = blksize * 2 - 1;
 
 					int colorID = block.getDrawColor();
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+					if (block.isBone()) {
 						colorID = -1;
 					}
 					Color color = getColorByID(colorID);
@@ -759,7 +754,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			int ls = blksize - 1;
 
 			int colorID = block.getDrawColor();
-			if (block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+			if (block.isBone()) {
 				colorID = -1;
 			}
 			Color color = getColorByID(colorID);
@@ -803,7 +798,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 			int ls = blksize * 2 - 1;
 
 			int colorID = blkTemp.getDrawColor();
-			if (blkTemp.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+			if (blkTemp.isBone()) {
 				colorID = -1;
 			}
 			Color color = getColorByID(colorID);
@@ -891,20 +886,19 @@ public class RendererSlick extends EventReceiver<Graphics> {
 
 				if (field != null && blk != null && blk.color > Colors.BLOCK_COLOR_NONE) {
 					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, blk.skin,
-								blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE), blk.darkness, blk.alpha, scale,
-								blk.attribute);
+						drawBlock(x2, y2, Colors.BLOCK_COLOR_NONE, blk.skin, blk.isBone(), blk.darkness, blk.alpha,
+								scale, blk.attribute);
 					} else if (engine.owner.replayMode && engine.owner.replayShowInvisible) {
 						drawBlockForceVisible(x2, y2, blk, scale);
 					} else if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE)) {
 						drawBlock(x2, y2, blk, scale);
 					}
 
-					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE)
-							&& !blk.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE) && !blk.isBone()) {
 						Color filter = new Color(Color.white);
 						filter.a = blk.alpha;
 						graphics.setColor(filter);
+						graphics.setLineWidth(2f);
 						int ls = blksize - 1;
 						switch (outlineType) {
 						case GameEngine.BLOCK_OUTLINE_NORMAL:
@@ -1009,8 +1003,8 @@ public class RendererSlick extends EventReceiver<Graphics> {
 				case BIG -> ResourceHolderSlick.imgFieldbg2Big;
 				};
 
-				graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0,
-						width * size, height * size, filter);
+				graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0, width * size,
+						height * size, filter);
 			} else if (showbg) {
 				Color filter = new Color(Color.black);
 				filter.a = fieldBGBright;
@@ -1048,8 +1042,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		} else {
 			tmpX = x + width * size + 4;
 		}
-		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 8, 4, offsetX + 8 + 4,
-				4 + 4);
+		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + height * size, offsetX + 8, 4, offsetX + 8 + 4, 4 + 4);
 
 		// Upper left
 		tmpX = x;
@@ -1569,7 +1562,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 		int x2 = getFieldDisplayPositionX(engine, playerID) + 4 + x * 16;
 		int y2 = getFieldDisplayPositionY(engine, playerID) + 52 + y * 16;
 		// Normal Block
-		if (block.isNormalBlock() && !block.getAttribute(Block.BLOCK_ATTRIBUTE_BONE)) {
+		if (block.isNormalBlock() && !block.isBone()) {
 			effects.add(new EffectObject(1, x2, y2, color));
 		}
 		// Gem Block
@@ -1689,7 +1682,7 @@ public class RendererSlick extends EventReceiver<Graphics> {
 	}
 
 	/*
-	 * Each frame Processing that takes place at the end of the
+	 * Processing that takes place at the end of each frame
 	 */
 	@Override
 	public void onLast(GameEngine engine, int playerID) {

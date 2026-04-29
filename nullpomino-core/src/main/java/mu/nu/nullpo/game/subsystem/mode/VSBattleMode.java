@@ -227,7 +227,7 @@ public class VSBattleMode extends AbstractMode {
 	@Override
 	public void modeInit(GameManager manager) {
 		owner = manager;
-		receiver = owner.receiver;
+		renderer = owner.renderer;
 
 		garbageType = new int[MAX_PLAYERS];
 		garbagePercent = new int[MAX_PLAYERS];
@@ -426,7 +426,7 @@ public class VSBattleMode extends AbstractMode {
 	private void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
 		if (propMap[playerID] == null || forceReload) {
 			mapMaxNo[playerID] = 0;
-			propMap[playerID] = receiver.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
+			propMap[playerID] = CustomProperties.load("config/map/vsbattle/" + mapSet[playerID] + ".map");
 		}
 
 		if (propMap[playerID] == null && engine.field != null) {
@@ -719,11 +719,11 @@ public class VSBattleMode extends AbstractMode {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
 				} else if (menuCursor == 8) {
 					savePreset(engine, owner.modeConfig, presetNumber[playerID]);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					engine.statc_4(1);
 				}
 			}
@@ -783,12 +783,12 @@ public class VSBattleMode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, receiver, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
+				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
 						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
 						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
-				drawMenu(engine, playerID, receiver, 14, Colors.FONT_GREEN, 7, "LOAD",
+				drawMenu(engine, playerID, renderer, 14, Colors.FONT_GREEN, 7, "LOAD",
 						String.valueOf(presetNumber[playerID]), "SAVE", String.valueOf(presetNumber[playerID]));
 			} else if (menuCursor < 19) {
 				String strTSpinEnable = "";
@@ -815,7 +815,7 @@ public class VSBattleMode extends AbstractMode {
 				if (b2bType[playerID] == 2) {
 					strB2BType = "SEPARATE";
 				}
-				drawMenu(engine, playerID, receiver, 0, Colors.FONT_CYAN, 9, "GARBAGE",
+				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "GARBAGE",
 						GARBAGE_TYPE_STRING[garbageType[playerID]], "CHANGERATE", garbagePercent[playerID] + "%",
 						"COUNTERING", GeneralUtil.getONorOFF(garbageCounter[playerID]), "BLOCKING",
 						GeneralUtil.getONorOFF(garbageBlocking[playerID]), "SPIN BONUS", strTSpinEnable, "KICK SPIN",
@@ -824,19 +824,19 @@ public class VSBattleMode extends AbstractMode {
 						GeneralUtil.getONorOFF(tspinEnableEZ[playerID]), "B2B", strB2BType, "COMBO",
 						GeneralUtil.getONorOFF(enableCombo[playerID]));
 			} else {
-				drawMenu(engine, playerID, receiver, 0, Colors.FONT_CYAN, 19, "BIG",
+				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 19, "BIG",
 						GeneralUtil.getONorOFF(big[playerID]), "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
 						"HURRYUP", hurryupSeconds[playerID] == -1 ? "NONE" : hurryupSeconds[playerID] + "SEC",
 						"INTERVAL", String.valueOf(hurryupInterval[playerID]));
-				drawMenu(engine, playerID, receiver, 8, Colors.FONT_PINK, 23, "BGM", String.valueOf(bgmno),
+				drawMenu(engine, playerID, renderer, 8, Colors.FONT_PINK, 23, "BGM", String.valueOf(bgmno),
 						"SHOW STATS", GeneralUtil.getONorOFF(showStats));
-				drawMenu(engine, playerID, receiver, 12, Colors.FONT_CYAN, 25, "USE MAP",
+				drawMenu(engine, playerID, renderer, 12, Colors.FONT_CYAN, 25, "USE MAP",
 						GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET", String.valueOf(mapSet[playerID]),
 						"MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
 			}
 		} else {
-			receiver.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -855,8 +855,8 @@ public class VSBattleMode extends AbstractMode {
 						engine.field.setAllSkin(engine.getSkin());
 					} else {
 						if (propMap[playerID] == null) {
-							propMap[playerID] = receiver
-									.loadProperties("config/map/vsbattle/" + mapSet[playerID] + ".map");
+							propMap[playerID] = CustomProperties
+									.load("config/map/vsbattle/" + mapSet[playerID] + ".map");
 						}
 
 						if (propMap[playerID] != null) {
@@ -928,36 +928,36 @@ public class VSBattleMode extends AbstractMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		// Status display
 		if (playerID == 0) {
-			receiver.drawDirectFont(engine, playerID, 256, 16, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawDirectFont(engine, playerID, 256, 16, GeneralUtil.getTime(engine.statistics.time));
 
 			if (hurryupSeconds[playerID] >= 0 && engine.timerActive
 					&& engine.statistics.time >= hurryupSeconds[playerID] * 60
 					&& engine.statistics.time < (hurryupSeconds[playerID] + 5) * 60) {
-				receiver.drawDirectFont(engine, playerID, 256 - 8, 32, "HURRY UP!", engine.statistics.time % 2 == 0);
+				renderer.drawDirectFont(engine, playerID, 256 - 8, 32, "HURRY UP!", engine.statistics.time % 2 == 0);
 			}
 		}
 
-		if (playerID == 0 && owner.receiver.getNextDisplayType() != 2 && showStats) {
-			receiver.drawScoreFont(engine, playerID, 0, 0, "VS-BATTLE", Colors.FONT_ORANGE);
+		if (playerID == 0 && owner.renderer.getNextDisplayType() != 2 && showStats) {
+			renderer.drawScoreFont(engine, playerID, 0, 0, "VS-BATTLE", Colors.FONT_ORANGE);
 
-			receiver.drawScoreFont(engine, playerID, 0, 2, "1P ATTACK", Colors.FONT_RED);
-			receiver.drawScoreFont(engine, playerID, 0, 3, String.valueOf(garbageSent[0]));
+			renderer.drawScoreFont(engine, playerID, 0, 2, "1P ATTACK", Colors.FONT_RED);
+			renderer.drawScoreFont(engine, playerID, 0, 3, String.valueOf(garbageSent[0]));
 
-			receiver.drawScoreFont(engine, playerID, 0, 5, "2P ATTACK", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 6, String.valueOf(garbageSent[1]));
+			renderer.drawScoreFont(engine, playerID, 0, 5, "2P ATTACK", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 6, String.valueOf(garbageSent[1]));
 
 			if (!owner.replayMode) {
-				receiver.drawScoreFont(engine, playerID, 0, 8, "1P WINS", Colors.FONT_RED);
-				receiver.drawScoreFont(engine, playerID, 0, 9, String.valueOf(winCount[0]));
+				renderer.drawScoreFont(engine, playerID, 0, 8, "1P WINS", Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 0, 9, String.valueOf(winCount[0]));
 
-				receiver.drawScoreFont(engine, playerID, 0, 11, "2P WINS", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 12, String.valueOf(winCount[1]));
+				renderer.drawScoreFont(engine, playerID, 0, 11, "2P WINS", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 12, String.valueOf(winCount[1]));
 			}
 		}
 
 		if (showStats) {
-			int x = receiver.getFieldDisplayPositionX(engine, playerID);
-			int y = receiver.getFieldDisplayPositionY(engine, playerID);
+			int x = renderer.getFieldDisplayPositionX(engine, playerID);
+			int y = renderer.getFieldDisplayPositionY(engine, playerID);
 			int fontColor = Colors.FONT_WHITE;
 
 			if (garbage[playerID] > 0) {
@@ -972,25 +972,25 @@ public class VSBattleMode extends AbstractMode {
 				}
 
 				String strTempGarbage = String.format("%5d", garbage[playerID]);
-				receiver.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor);
+				renderer.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor);
 			}
 
-			if (owner.receiver.getNextDisplayType() == 2) {
+			if (owner.renderer.getNextDisplayType() == 2) {
 				fontColor = playerID == 0 ? Colors.FONT_RED : Colors.FONT_BLUE;
 
-				receiver.drawDirectFont(engine, playerID, x - 48, y + 120, "TOTAL", fontColor, 0.5f);
-				receiver.drawDirectFont(engine, playerID, x - 52, y + 128, "ATTACK", fontColor, 0.5f);
+				renderer.drawDirectFont(engine, playerID, x - 48, y + 120, "TOTAL", fontColor, 0.5f);
+				renderer.drawDirectFont(engine, playerID, x - 52, y + 128, "ATTACK", fontColor, 0.5f);
 				if (garbageSent[playerID] >= 10) {
-					receiver.drawDirectFont(engine, playerID, x - 44, y + 142, String.valueOf(garbageSent[playerID]));
+					renderer.drawDirectFont(engine, playerID, x - 44, y + 142, String.valueOf(garbageSent[playerID]));
 				} else {
-					receiver.drawDirectFont(engine, playerID, x - 36, y + 142, String.valueOf(garbageSent[playerID]));
+					renderer.drawDirectFont(engine, playerID, x - 36, y + 142, String.valueOf(garbageSent[playerID]));
 				}
 
-				receiver.drawDirectFont(engine, playerID, x - 44, y + 190, "WINS", fontColor, 0.5f);
+				renderer.drawDirectFont(engine, playerID, x - 44, y + 190, "WINS", fontColor, 0.5f);
 				if (winCount[playerID] >= 10) {
-					receiver.drawDirectFont(engine, playerID, x - 44, y + 204, String.valueOf(winCount[playerID]));
+					renderer.drawDirectFont(engine, playerID, x - 44, y + 204, String.valueOf(winCount[playerID]));
 				} else {
-					receiver.drawDirectFont(engine, playerID, x - 36, y + 204, String.valueOf(winCount[playerID]));
+					renderer.drawDirectFont(engine, playerID, x - 36, y + 204, String.valueOf(winCount[playerID]));
 				}
 			}
 		}
@@ -1001,67 +1001,67 @@ public class VSBattleMode extends AbstractMode {
 
 			switch (lastevent[playerID]) {
 			case EVENT_SINGLE:
-				receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+				renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 				break;
 			case EVENT_DOUBLE:
-				receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+				renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 				break;
 			case EVENT_TRIPLE:
-				receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+				renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 				break;
 			case EVENT_FOUR:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_SINGLE_MINI:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_SINGLE:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_DOUBLE_MINI:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_DOUBLE:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_TRIPLE:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 				}
 				break;
 			case EVENT_TSPIN_EZ:
 				if (lastb2b[playerID]) {
-					receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
+					renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 				}
 				break;
 			}
 
 			if (lastcombo[playerID] >= 2) {
-				receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo[playerID] - 1 + "COMBO", Colors.FONT_CYAN);
+				renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo[playerID] - 1 + "COMBO", Colors.FONT_CYAN);
 			}
 		}
 	}
@@ -1341,13 +1341,13 @@ public class VSBattleMode extends AbstractMode {
 		// HURRY UP!
 		if (playerID == 0 && engine.timerActive && hurryupSeconds[playerID] >= 0
 				&& engine.statistics.time == hurryupSeconds[playerID] * 60) {
-			owner.receiver.playSE("hurryup");
+			owner.renderer.playSE("hurryup");
 		}
 
 		// Rising auctionMeter
-		if (garbage[playerID] * receiver.getBlockGraphicsHeight(engine, playerID) > engine.meterValue) {
-			engine.meterValue += receiver.getBlockGraphicsHeight(engine, playerID) / 2;
-		} else if (garbage[playerID] * receiver.getBlockGraphicsHeight(engine, playerID) < engine.meterValue) {
+		if (garbage[playerID] * renderer.getBlockGraphicsHeight(engine, playerID) > engine.meterValue) {
+			engine.meterValue += renderer.getBlockGraphicsHeight(engine, playerID) / 2;
+		} else if (garbage[playerID] * renderer.getBlockGraphicsHeight(engine, playerID) < engine.meterValue) {
 			engine.meterValue--;
 		}
 		if (garbage[playerID] >= 4) {
@@ -1404,13 +1404,13 @@ public class VSBattleMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 0, "RESULT", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 0, "RESULT", Colors.FONT_ORANGE);
 		if (winnerID == -1) {
-			receiver.drawMenuFont(engine, playerID, 6, 1, "DRAW", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 6, 1, "DRAW", Colors.FONT_GREEN);
 		} else if (winnerID == playerID) {
-			receiver.drawMenuFont(engine, playerID, 6, 1, "WIN!", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 6, 1, "WIN!", Colors.FONT_YELLOW);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 6, 1, "LOSE", Colors.FONT_WHITE);
+			renderer.drawMenuFont(engine, playerID, 6, 1, "LOSE", Colors.FONT_WHITE);
 		}
 
 		float apm = (float) (garbageSent[playerID] * 3600) / (float) engine.statistics.time;
@@ -1419,12 +1419,12 @@ public class VSBattleMode extends AbstractMode {
 			apl = (float) garbageSent[playerID] / (float) engine.statistics.lines;
 		}
 
-		drawResult(engine, playerID, receiver, 2, Colors.FONT_ORANGE, "ATTACK",
+		drawResult(engine, playerID, renderer, 2, Colors.FONT_ORANGE, "ATTACK",
 				String.format("%10d", garbageSent[playerID]));
-		drawResultStats(engine, playerID, receiver, 4, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
-		drawResult(engine, playerID, receiver, 8, Colors.FONT_ORANGE, "ATK/LINE", String.format("%10g", apl));
-		drawResult(engine, playerID, receiver, 10, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
-		drawResultStats(engine, playerID, receiver, 12, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
+		drawResultStats(engine, playerID, renderer, 4, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
+		drawResult(engine, playerID, renderer, 8, Colors.FONT_ORANGE, "ATK/LINE", String.format("%10g", apl));
+		drawResult(engine, playerID, renderer, 10, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
+		drawResultStats(engine, playerID, renderer, 12, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
 				Statistic.TIME);
 	}
 

@@ -39,13 +39,20 @@ public interface SoundManager {
 	 * @param name for access.playing the clip
 	 * @param filename of the sound clip
 	 */
-	public void load(String name, String filename);
+	void load(String name, String filename);
 
 	/**
 	 * Play a sound clip
 	 *
 	 * @param name of the clip to play
 	 */
-	public void play(String name);
+	void play(String name);
+
+	/**
+	 * Changes the volume level to the specified value
+	 *
+	 * @param volume level to change (range between 0 to 1)
+	 */
+	void setVolume(float volume);
 
 }

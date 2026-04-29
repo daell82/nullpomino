@@ -156,7 +156,7 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 		lastscore = 0;
 		lastmultiplier = 0;
 		scgettime = 0;
@@ -427,29 +427,29 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		receiver.drawMenuFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
 		String strScoreBefore = String.format("%10d", scoreBeforeBonus);
-		receiver.drawMenuFont(engine, playerID, 0, 4, strScoreBefore, Colors.FONT_GREEN);
+		renderer.drawMenuFont(engine, playerID, 0, 4, strScoreBefore, Colors.FONT_GREEN);
 
-		receiver.drawMenuFont(engine, playerID, 0, 5, "ZENKESHI", Colors.FONT_BLUE);
-		receiver.drawMenuFont(engine, playerID, 0, 6, String.format("%10d", zenKeshiCount));
+		renderer.drawMenuFont(engine, playerID, 0, 5, "ZENKESHI", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 6, String.format("%10d", zenKeshiCount));
 		String strZenKeshiBonus = "+" + zenKeshiBonus;
-		receiver.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus, Colors.FONT_GREEN);
+		renderer.drawMenuFont(engine, playerID, 10 - strZenKeshiBonus.length(), 7, strZenKeshiBonus, Colors.FONT_GREEN);
 
-		receiver.drawMenuFont(engine, playerID, 0, 8, "MAX CHAIN", Colors.FONT_BLUE);
-		receiver.drawMenuFont(engine, playerID, 0, 9, String.format("%10d", engine.statistics.maxChain));
+		renderer.drawMenuFont(engine, playerID, 0, 8, "MAX CHAIN", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 9, String.format("%10d", engine.statistics.maxChain));
 		String strMaxChainBonus = "+" + maxChainBonus;
-		receiver.drawMenuFont(engine, playerID, 10 - strMaxChainBonus.length(), 10, strMaxChainBonus,
+		renderer.drawMenuFont(engine, playerID, 10 - strMaxChainBonus.length(), 10, strMaxChainBonus,
 				Colors.FONT_GREEN);
 
-		receiver.drawMenuFont(engine, playerID, 0, 11, "TOTAL", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 11, "TOTAL", Colors.FONT_BLUE);
 		String strScore = String.format("%10d", engine.statistics.score);
-		receiver.drawMenuFont(engine, playerID, 0, 12, strScore, Colors.FONT_RED);
+		renderer.drawMenuFont(engine, playerID, 0, 12, strScore, Colors.FONT_RED);
 
-		receiver.drawMenuFont(engine, playerID, 0, 13, "TIME", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 13, "TIME", Colors.FONT_BLUE);
 		String strTime = String.format("%10s", GeneralUtil.getTime(engine.statistics.time));
-		receiver.drawMenuFont(engine, playerID, 0, 14, strTime);
+		renderer.drawMenuFont(engine, playerID, 0, 14, strTime);
 	}
 }

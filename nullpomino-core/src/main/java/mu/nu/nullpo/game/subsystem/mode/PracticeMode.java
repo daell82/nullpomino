@@ -230,7 +230,7 @@ public class PracticeMode extends AbstractMode {
 		log.debug("playerInit called");
 
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 		goal = 0;
 		lastgoal = 0;
 		lastscore = 0;
@@ -672,7 +672,7 @@ public class PracticeMode extends AbstractMode {
 					// Map読み込み
 					engine.createFieldIfNeeded();
 					engine.field.reset();
-					CustomProperties prop = receiver.loadProperties("config/map/practice/" + mapNumber + ".map");
+					CustomProperties prop = CustomProperties.load("config/map/practice/" + mapNumber + ".map");
 					if (prop != null) {
 						loadMap(engine.field, prop, 0);
 						engine.field.setAllSkin(engine.getSkin());
@@ -684,7 +684,7 @@ public class PracticeMode extends AbstractMode {
 					if (engine.field != null) {
 						CustomProperties prop = new CustomProperties();
 						saveMap(engine.field, prop, 0);
-						receiver.saveProperties("config/map/practice/" + mapNumber + ".map", prop);
+						prop.saveSilent("config/map/practice/" + mapNumber + ".map");
 					}
 					break;
 				case 44:
@@ -694,16 +694,16 @@ public class PracticeMode extends AbstractMode {
 				case 45:
 					// Preset保存
 					savePreset(engine, owner.modeConfig, presetNumber);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					break;
 				default:
 					// Start game
 					owner.modeConfig.setProperty("practice.presetNumber", presetNumber);
 					owner.modeConfig.setProperty("practice.mapNumber", mapNumber);
 					savePreset(engine, owner.modeConfig, -1);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					if (useMap && (engine.field == null || engine.field.isEmpty())) {
-						CustomProperties prop = receiver.loadProperties("config/map/practice/" + mapNumber + ".map");
+						CustomProperties prop = CustomProperties.load("config/map/practice/" + mapNumber + ".map");
 						if (prop != null) {
 							engine.createFieldIfNeeded();
 							loadMap(engine.field, prop, 0);
@@ -746,29 +746,29 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 1, 1, "PRACTICE MODE SETTINGS", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 1, 1, "PRACTICE MODE SETTINGS", Colors.FONT_ORANGE);
 
 		if (engine.owner.replayMode == false) {
-			receiver.drawMenuFont(engine, playerID, 1, 27, "A:START B:EXIT C+<>:FAST CHANGE", Colors.FONT_CYAN);
+			renderer.drawMenuFont(engine, playerID, 1, 27, "A:START B:EXIT C+<>:FAST CHANGE", Colors.FONT_CYAN);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 1, 27, "F:SKIP", Colors.FONT_RED);
+			renderer.drawMenuFont(engine, playerID, 1, 27, "F:SKIP", Colors.FONT_RED);
 		}
 
 		if (menuCursor < 23) {
 			if (owner.replayMode == false) {
-				receiver.drawMenuFont(engine, playerID, 1, menuCursor + 3, "b", Colors.FONT_RED);
+				renderer.drawMenuFont(engine, playerID, 1, menuCursor + 3, "b", Colors.FONT_RED);
 			}
 
-			receiver.drawMenuFont(engine, playerID, 2, 3, "GRAVITY:" + engine.speed.gravity, menuCursor == 0);
-			receiver.drawMenuFont(engine, playerID, 2, 4, "G-MAX:" + engine.speed.denominator, menuCursor == 1);
-			receiver.drawMenuFont(engine, playerID, 2, 5, "ARE:" + engine.speed.are, menuCursor == 2);
-			receiver.drawMenuFont(engine, playerID, 2, 6, "ARE LINE:" + engine.speed.areLine, menuCursor == 3);
-			receiver.drawMenuFont(engine, playerID, 2, 7, "LINE DELAY:" + engine.speed.lineDelay, menuCursor == 4);
-			receiver.drawMenuFont(engine, playerID, 2, 8, "LOCK DELAY:" + engine.speed.lockDelay, menuCursor == 5);
-			receiver.drawMenuFont(engine, playerID, 2, 9, "DAS:" + engine.speed.das, menuCursor == 6);
-			receiver.drawMenuFont(engine, playerID, 2, 10, "BGM:" + bgmno, menuCursor == 7);
-			receiver.drawMenuFont(engine, playerID, 2, 11, "BIG:" + GeneralUtil.getONorOFF(big), menuCursor == 8);
-			receiver.drawMenuFont(engine, playerID, 2, 12, "LEVEL TYPE:" + LEVELTYPE_STRING[leveltype],
+			renderer.drawMenuFont(engine, playerID, 2, 3, "GRAVITY:" + engine.speed.gravity, menuCursor == 0);
+			renderer.drawMenuFont(engine, playerID, 2, 4, "G-MAX:" + engine.speed.denominator, menuCursor == 1);
+			renderer.drawMenuFont(engine, playerID, 2, 5, "ARE:" + engine.speed.are, menuCursor == 2);
+			renderer.drawMenuFont(engine, playerID, 2, 6, "ARE LINE:" + engine.speed.areLine, menuCursor == 3);
+			renderer.drawMenuFont(engine, playerID, 2, 7, "LINE DELAY:" + engine.speed.lineDelay, menuCursor == 4);
+			renderer.drawMenuFont(engine, playerID, 2, 8, "LOCK DELAY:" + engine.speed.lockDelay, menuCursor == 5);
+			renderer.drawMenuFont(engine, playerID, 2, 9, "DAS:" + engine.speed.das, menuCursor == 6);
+			renderer.drawMenuFont(engine, playerID, 2, 10, "BGM:" + bgmno, menuCursor == 7);
+			renderer.drawMenuFont(engine, playerID, 2, 11, "BIG:" + GeneralUtil.getONorOFF(big), menuCursor == 8);
+			renderer.drawMenuFont(engine, playerID, 2, 12, "LEVEL TYPE:" + LEVELTYPE_STRING[leveltype],
 					menuCursor == 9);
 			String strTSpinEnable = "";
 			if (version >= 4) {
@@ -784,21 +784,21 @@ public class PracticeMode extends AbstractMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			receiver.drawMenuFont(engine, playerID, 2, 13, "SPIN BONUS:" + strTSpinEnable, menuCursor == 10);
-			receiver.drawMenuFont(engine, playerID, 2, 14, "EZ SPIN:" + GeneralUtil.getONorOFF(enableTSpinKick),
+			renderer.drawMenuFont(engine, playerID, 2, 13, "SPIN BONUS:" + strTSpinEnable, menuCursor == 10);
+			renderer.drawMenuFont(engine, playerID, 2, 14, "EZ SPIN:" + GeneralUtil.getONorOFF(enableTSpinKick),
 					menuCursor == 11);
-			receiver.drawMenuFont(engine, playerID, 2, 15,
+			renderer.drawMenuFont(engine, playerID, 2, 15,
 					"SPIN TYPE:" + (spinCheckType == 0 ? "4POINT" : "IMMOBILE"), menuCursor == 12);
-			receiver.drawMenuFont(engine, playerID, 2, 16, "EZ IMMOBILE:" + GeneralUtil.getONorOFF(tspinEnableEZ),
+			renderer.drawMenuFont(engine, playerID, 2, 16, "EZ IMMOBILE:" + GeneralUtil.getONorOFF(tspinEnableEZ),
 					menuCursor == 13);
-			receiver.drawMenuFont(engine, playerID, 2, 17, "B2B:" + GeneralUtil.getONorOFF(enableB2B),
+			renderer.drawMenuFont(engine, playerID, 2, 17, "B2B:" + GeneralUtil.getONorOFF(enableB2B),
 					menuCursor == 14);
-			receiver.drawMenuFont(engine, playerID, 2, 18, "COMBO:" + COMBOTYPE_STRING[comboType], menuCursor == 15);
-			receiver.drawMenuFont(engine, playerID, 2, 19, "LEVEL STOP SE:" + GeneralUtil.getONorOFF(lvstopse),
+			renderer.drawMenuFont(engine, playerID, 2, 18, "COMBO:" + COMBOTYPE_STRING[comboType], menuCursor == 15);
+			renderer.drawMenuFont(engine, playerID, 2, 19, "LEVEL STOP SE:" + GeneralUtil.getONorOFF(lvstopse),
 					menuCursor == 16);
-			receiver.drawMenuFont(engine, playerID, 2, 20, "BIG MOVE:" + (bigmove ? "2 CELL" : "1 CELL"),
+			renderer.drawMenuFont(engine, playerID, 2, 20, "BIG MOVE:" + (bigmove ? "2 CELL" : "1 CELL"),
 					menuCursor == 17);
-			receiver.drawMenuFont(engine, playerID, 2, 21, "BIG HALF:" + GeneralUtil.getONorOFF(bighalf),
+			renderer.drawMenuFont(engine, playerID, 2, 21, "BIG HALF:" + GeneralUtil.getONorOFF(bighalf),
 					menuCursor == 18);
 			String strGoalLv = "ENDLESS";
 			if (goallv >= 0) {
@@ -810,21 +810,21 @@ public class PracticeMode extends AbstractMode {
 					strGoalLv = "LV" + String.valueOf(goallv + 1);
 				}
 			}
-			receiver.drawMenuFont(engine, playerID, 2, 22, "GOAL LEVEL:" + strGoalLv, menuCursor == 19);
-			receiver.drawMenuFont(engine, playerID, 2, 23,
+			renderer.drawMenuFont(engine, playerID, 2, 22, "GOAL LEVEL:" + strGoalLv, menuCursor == 19);
+			renderer.drawMenuFont(engine, playerID, 2, 23,
 					"TIME LIMIT:" + (timelimit == 0 ? "NONE" : GeneralUtil.getTime(timelimit)), menuCursor == 20);
-			receiver.drawMenuFont(engine, playerID, 2, 24,
+			renderer.drawMenuFont(engine, playerID, 2, 24,
 					"ROLL LIMIT:" + (rolltimelimit == 0 ? "NONE" : GeneralUtil.getTime(rolltimelimit)),
 					menuCursor == 21);
-			receiver.drawMenuFont(engine, playerID, 2, 25,
+			renderer.drawMenuFont(engine, playerID, 2, 25,
 					"TIME LIMIT RESET EVERY LEVEL:" + GeneralUtil.getONorOFF(timelimitResetEveryLevel),
 					menuCursor == 22);
 		} else if (menuCursor < 46) {
 			if (owner.replayMode == false) {
-				receiver.drawMenuFont(engine, playerID, 1, menuCursor - 23 + 3, "b", Colors.FONT_RED);
+				renderer.drawMenuFont(engine, playerID, 1, menuCursor - 23 + 3, "b", Colors.FONT_RED);
 			}
 
-			receiver.drawMenuFont(engine, playerID, 2, 3, "USE BONE BLOCKS:" + GeneralUtil.getONorOFF(bone),
+			renderer.drawMenuFont(engine, playerID, 2, 3, "USE BONE BLOCKS:" + GeneralUtil.getONorOFF(bone),
 					menuCursor == 23);
 			String strHiddenFrames = "NONE";
 			if (blockHidden == -2) {
@@ -833,44 +833,44 @@ public class PracticeMode extends AbstractMode {
 			if (blockHidden >= 0) {
 				strHiddenFrames = String.format("%d (%.2f SEC.)", blockHidden, blockHidden / 60f);
 			}
-			receiver.drawMenuFont(engine, playerID, 2, 4, "BLOCK HIDDEN FRAMES:" + strHiddenFrames, menuCursor == 24);
-			receiver.drawMenuFont(engine, playerID, 2, 5,
+			renderer.drawMenuFont(engine, playerID, 2, 4, "BLOCK HIDDEN FRAMES:" + strHiddenFrames, menuCursor == 24);
+			renderer.drawMenuFont(engine, playerID, 2, 5,
 					"BLOCK HIDDEN ANIM:" + GeneralUtil.getONorOFF(blockHiddenAnim), menuCursor == 25);
-			receiver.drawMenuFont(engine, playerID, 2, 6,
+			renderer.drawMenuFont(engine, playerID, 2, 6,
 					"BLOCK OUTLINE TYPE:" + BLOCK_OUTLINE_TYPE_STRING[blockOutlineType], menuCursor == 26);
-			receiver.drawMenuFont(engine, playerID, 2, 7,
+			renderer.drawMenuFont(engine, playerID, 2, 7,
 					"BLOCK OUTLINE ONLY:" + GeneralUtil.getONorOFF(blockShowOutlineOnly), menuCursor == 27);
-			receiver.drawMenuFont(engine, playerID, 2, 8,
+			renderer.drawMenuFont(engine, playerID, 2, 8,
 					"HEBO HIDDEN:" + (heboHiddenLevel == 0 ? "NONE" : "LV" + heboHiddenLevel), menuCursor == 28);
-			receiver.drawMenuFont(engine, playerID, 2, 9, "PIECE I:" + GeneralUtil.getONorOFF(pieceEnable[0]),
+			renderer.drawMenuFont(engine, playerID, 2, 9, "PIECE I:" + GeneralUtil.getONorOFF(pieceEnable[0]),
 					menuCursor == 29);
-			receiver.drawMenuFont(engine, playerID, 2, 10, "PIECE L:" + GeneralUtil.getONorOFF(pieceEnable[1]),
+			renderer.drawMenuFont(engine, playerID, 2, 10, "PIECE L:" + GeneralUtil.getONorOFF(pieceEnable[1]),
 					menuCursor == 30);
-			receiver.drawMenuFont(engine, playerID, 2, 11, "PIECE O:" + GeneralUtil.getONorOFF(pieceEnable[2]),
+			renderer.drawMenuFont(engine, playerID, 2, 11, "PIECE O:" + GeneralUtil.getONorOFF(pieceEnable[2]),
 					menuCursor == 31);
-			receiver.drawMenuFont(engine, playerID, 2, 12, "PIECE Z:" + GeneralUtil.getONorOFF(pieceEnable[3]),
+			renderer.drawMenuFont(engine, playerID, 2, 12, "PIECE Z:" + GeneralUtil.getONorOFF(pieceEnable[3]),
 					menuCursor == 32);
-			receiver.drawMenuFont(engine, playerID, 2, 13, "PIECE T:" + GeneralUtil.getONorOFF(pieceEnable[4]),
+			renderer.drawMenuFont(engine, playerID, 2, 13, "PIECE T:" + GeneralUtil.getONorOFF(pieceEnable[4]),
 					menuCursor == 33);
-			receiver.drawMenuFont(engine, playerID, 2, 14, "PIECE J:" + GeneralUtil.getONorOFF(pieceEnable[5]),
+			renderer.drawMenuFont(engine, playerID, 2, 14, "PIECE J:" + GeneralUtil.getONorOFF(pieceEnable[5]),
 					menuCursor == 34);
-			receiver.drawMenuFont(engine, playerID, 2, 15, "PIECE S:" + GeneralUtil.getONorOFF(pieceEnable[6]),
+			renderer.drawMenuFont(engine, playerID, 2, 15, "PIECE S:" + GeneralUtil.getONorOFF(pieceEnable[6]),
 					menuCursor == 35);
-			receiver.drawMenuFont(engine, playerID, 2, 16, "PIECE I1:" + GeneralUtil.getONorOFF(pieceEnable[7]),
+			renderer.drawMenuFont(engine, playerID, 2, 16, "PIECE I1:" + GeneralUtil.getONorOFF(pieceEnable[7]),
 					menuCursor == 36);
-			receiver.drawMenuFont(engine, playerID, 2, 17, "PIECE I2:" + GeneralUtil.getONorOFF(pieceEnable[8]),
+			renderer.drawMenuFont(engine, playerID, 2, 17, "PIECE I2:" + GeneralUtil.getONorOFF(pieceEnable[8]),
 					menuCursor == 37);
-			receiver.drawMenuFont(engine, playerID, 2, 18, "PIECE I3:" + GeneralUtil.getONorOFF(pieceEnable[9]),
+			renderer.drawMenuFont(engine, playerID, 2, 18, "PIECE I3:" + GeneralUtil.getONorOFF(pieceEnable[9]),
 					menuCursor == 38);
-			receiver.drawMenuFont(engine, playerID, 2, 19, "PIECE L3:" + GeneralUtil.getONorOFF(pieceEnable[10]),
+			renderer.drawMenuFont(engine, playerID, 2, 19, "PIECE L3:" + GeneralUtil.getONorOFF(pieceEnable[10]),
 					menuCursor == 39);
-			receiver.drawMenuFont(engine, playerID, 2, 20, "USE MAP:" + GeneralUtil.getONorOFF(useMap),
+			renderer.drawMenuFont(engine, playerID, 2, 20, "USE MAP:" + GeneralUtil.getONorOFF(useMap),
 					menuCursor == 40);
-			receiver.drawMenuFont(engine, playerID, 2, 21, "[EDIT FIELD MAP]", menuCursor == 41);
-			receiver.drawMenuFont(engine, playerID, 2, 22, "[LOAD FIELD MAP]:" + mapNumber, menuCursor == 42);
-			receiver.drawMenuFont(engine, playerID, 2, 23, "[SAVE FIELD MAP]:" + mapNumber, menuCursor == 43);
-			receiver.drawMenuFont(engine, playerID, 2, 24, "[LOAD PRESET]:" + presetNumber, menuCursor == 44);
-			receiver.drawMenuFont(engine, playerID, 2, 25, "[SAVE PRESET]:" + presetNumber, menuCursor == 45);
+			renderer.drawMenuFont(engine, playerID, 2, 21, "[EDIT FIELD MAP]", menuCursor == 41);
+			renderer.drawMenuFont(engine, playerID, 2, 22, "[LOAD FIELD MAP]:" + mapNumber, menuCursor == 42);
+			renderer.drawMenuFont(engine, playerID, 2, 23, "[SAVE FIELD MAP]:" + mapNumber, menuCursor == 43);
+			renderer.drawMenuFont(engine, playerID, 2, 24, "[LOAD PRESET]:" + presetNumber, menuCursor == 44);
+			renderer.drawMenuFont(engine, playerID, 2, 25, "[SAVE PRESET]:" + presetNumber, menuCursor == 45);
 		}
 	}
 
@@ -1028,56 +1028,56 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "PRACTICE", Colors.FONT_YELLOW);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "PRACTICE", Colors.FONT_YELLOW);
 
 		if (engine.stat == GameEngine.Status.FIELDEDIT) {
 			// fieldエディットのとき
 
 			// 座標
-			receiver.drawScoreFont(engine, playerID, 0, 2, "X POS", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 3, "" + engine.fldeditX);
-			receiver.drawScoreFont(engine, playerID, 0, 4, "Y POS", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 5, "" + engine.fldeditY);
+			renderer.drawScoreFont(engine, playerID, 0, 2, "X POS", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "" + engine.fldeditX);
+			renderer.drawScoreFont(engine, playerID, 0, 4, "Y POS", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 5, "" + engine.fldeditY);
 
 			// Put your field-checking algorithm test codes here
 			/*
-			 * if(engine.field != null) { receiver.drawScoreFont(engine, playerID, 0, 7,
-			 * "T-SLOT+LINECLEAR", Colors.COLOR_BLUE); receiver.drawScoreFont(engine,
+			 * if(engine.field != null) { renderer.drawScoreFont(engine, playerID, 0, 7,
+			 * "T-SLOT+LINECLEAR", Colors.COLOR_BLUE); renderer.drawScoreFont(engine,
 			 * playerID, 0, 8, "" + engine.field.getTSlotLineClearAll(false));
-			 * receiver.drawScoreFont(engine, playerID, 0, 9, "HOLE",
-			 * Colors.COLOR_BLUE); receiver.drawScoreFont(engine, playerID, 0, 10, ""
-			 * + engine.field.getHowManyHoles()); }
+			 * renderer.drawScoreFont(engine, playerID, 0, 9, "HOLE", Colors.COLOR_BLUE);
+			 * renderer.drawScoreFont(engine, playerID, 0, 10, "" +
+			 * engine.field.getHowManyHoles()); }
 			 */
 		} else if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
 			// levelTypesMANIAWhen
 
 			// Score
-			receiver.drawScoreFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
 			String strScore = String.valueOf(engine.statistics.score);
 			if (lastscore > 0 && scgettime < 120) {
 				strScore += "(+" + lastscore + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 6, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 6, strScore);
 
 			// level
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
 			int tempLevel = engine.statistics.level;
 			if (tempLevel < 0) {
 				tempLevel = 0;
 			}
 			String strLevel = String.format("%3d", tempLevel);
-			receiver.drawScoreFont(engine, playerID, 0, 10, strLevel);
+			renderer.drawScoreFont(engine, playerID, 0, 10, strLevel);
 
 			int speed = engine.speed.gravity / 128;
 			if (engine.speed.gravity < 0) {
 				speed = 40;
 			}
-			receiver.drawSpeedMeter(engine, playerID, 0, 11, speed);
+			renderer.drawSpeedMeter(engine, playerID, 0, 11, speed);
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
+			renderer.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
 
 			// Time
-			receiver.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
 			int time = engine.statistics.time;
 			if (timelimit > 0) {
 				time = timelimitTimer;
@@ -1095,7 +1095,7 @@ public class PracticeMode extends AbstractMode {
 			if (time < 10 * 60 && time > 0 && timelimit > 0) {
 				fontcolor = Colors.FONT_RED;
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(time), fontcolor);
+			renderer.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(time), fontcolor);
 
 			// Roll Rest time
 			if (engine.gameActive && engine.ending == 2) {
@@ -1103,56 +1103,56 @@ public class PracticeMode extends AbstractMode {
 				if (remainTime < 0) {
 					remainTime = 0;
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(remainTime),
+				renderer.drawScoreFont(engine, playerID, 0, 17, "ROLL TIME", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(remainTime),
 						remainTime > 0 && remainTime < 10 * 60);
 			}
 		} else {
 			// levelTypesMANIAAt other times
 
 			// Score
-			receiver.drawScoreFont(engine, playerID, 0, 2, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 2, "SCORE", Colors.FONT_BLUE);
 			String strScore = String.valueOf(engine.statistics.score);
 			if (lastscore > 0 && scgettime < 120) {
 				strScore += "(+" + lastscore + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 3, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 3, strScore);
 
 			if (leveltype == LEVELTYPE_POINTS) {
 				// ゴール
-				receiver.drawScoreFont(engine, playerID, 0, 5, "GOAL", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 5, "GOAL", Colors.FONT_BLUE);
 				String strGoal = String.valueOf(goal);
 				if (lastgoal != 0 && scgettime < 120 && engine.ending == 0) {
 					strGoal += "(-" + String.valueOf(lastgoal) + ")";
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 6, strGoal);
+				renderer.drawScoreFont(engine, playerID, 0, 6, strGoal);
 			} else if (leveltype == LEVELTYPE_10LINES) {
 				// Lines( levelタイプが10LINESのとき)
-				receiver.drawScoreFont(engine, playerID, 0, 5, "LINE", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 6,
+				renderer.drawScoreFont(engine, playerID, 0, 5, "LINE", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 6,
 						engine.statistics.lines + "/" + (engine.statistics.level + 1) * 10);
 			} else {
 				// Lines( levelタイプがNONEのとき)
-				receiver.drawScoreFont(engine, playerID, 0, 5, "LINE", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 6, String.valueOf(engine.statistics.lines));
+				renderer.drawScoreFont(engine, playerID, 0, 5, "LINE", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 6, String.valueOf(engine.statistics.lines));
 			}
 
 			// level
 			if (leveltype != LEVELTYPE_NONE) {
-				receiver.drawScoreFont(engine, playerID, 0, 8, "LEVEL", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 9, String.valueOf(engine.statistics.level + 1));
+				renderer.drawScoreFont(engine, playerID, 0, 8, "LEVEL", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 9, String.valueOf(engine.statistics.level + 1));
 			}
 
 			// 1分間あたり score
-			receiver.drawScoreFont(engine, playerID, 0, 11, "SCORE/MIN", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 12, String.format("%-10g", engine.statistics.spm));
+			renderer.drawScoreFont(engine, playerID, 0, 11, "SCORE/MIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 12, String.format("%-10g", engine.statistics.spm));
 
 			// 1分間あたりのLines
-			receiver.drawScoreFont(engine, playerID, 0, 14, "LINE/MIN", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 15, String.valueOf(engine.statistics.lpm));
+			renderer.drawScoreFont(engine, playerID, 0, 14, "LINE/MIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 15, String.valueOf(engine.statistics.lpm));
 
 			// Time
-			receiver.drawScoreFont(engine, playerID, 0, 17, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 17, "TIME", Colors.FONT_BLUE);
 			int time = engine.statistics.time;
 			if (timelimit > 0) {
 				time = timelimitTimer;
@@ -1170,7 +1170,7 @@ public class PracticeMode extends AbstractMode {
 			if (time < 10 * 60 && time > 0 && timelimit > 0) {
 				fontcolor = Colors.FONT_RED;
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), fontcolor);
+			renderer.drawScoreFont(engine, playerID, 0, 18, GeneralUtil.getTime(time), fontcolor);
 
 			// Roll Rest time
 			if (engine.gameActive && engine.ending == 2) {
@@ -1178,8 +1178,8 @@ public class PracticeMode extends AbstractMode {
 				if (remainTime < 0) {
 					remainTime = 0;
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 20, "ROLL TIME", Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 0, 21, GeneralUtil.getTime(remainTime),
+				renderer.drawScoreFont(engine, playerID, 0, 20, "ROLL TIME", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 0, 21, GeneralUtil.getTime(remainTime),
 						remainTime > 0 && remainTime < 10 * 60);
 			}
 
@@ -1189,84 +1189,84 @@ public class PracticeMode extends AbstractMode {
 
 				switch (lastevent) {
 				case EVENT_SINGLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
 				case EVENT_DOUBLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
 				case EVENT_TRIPLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
 				case EVENT_FOUR:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_ZERO_MINI:
-					receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PURPLE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PURPLE);
 					break;
 				case EVENT_TSPIN_ZERO:
-					receiver.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PINK);
+					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PINK);
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
 								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
 								Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
 								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
 								Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
 								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
 								Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
 								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
 								Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
 								Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
 								Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_EZ:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
 								Colors.FONT_ORANGE);
 					}
 					break;
 				}
 
 				if (lastcombo >= 2 && lastevent != EVENT_TSPIN_ZERO_MINI && lastevent != EVENT_TSPIN_ZERO) {
-					receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			}
 		}
@@ -1295,12 +1295,12 @@ public class PracticeMode extends AbstractMode {
 				engine.stat = GameEngine.Status.EXCELLENT;
 			}
 		} else {
-			if (timelimitTimer > 0 && engine.timerActive == true) {
+			if (timelimitTimer > 0 && engine.timerActive) {
 				timelimitTimer--;
 			}
 
 			// Out of time
-			if (timelimit > 0 && timelimitTimer <= 0 && engine.timerActive == true) {
+			if (timelimit > 0 && timelimitTimer <= 0 && engine.timerActive) {
 				engine.gameEnded();
 				engine.timerActive = false;
 				engine.resetStatc();
@@ -1313,13 +1313,13 @@ public class PracticeMode extends AbstractMode {
 
 			// 10Seconds before the countdown
 			if (timelimit > 0 && timelimitTimer <= 10 * 60 && timelimitTimer % 60 == 0
-					&& engine.timerActive == true) {
+					&& engine.timerActive) {
 				engine.playSE("countdown");
 			}
 
 			// 5Of seconds beforeBGM fadeout
 			if (timelimit > 0 && timelimitTimer <= 5 * 60 && timelimitResetEveryLevel == false
-					&& engine.timerActive == true) {
+					&& engine.timerActive) {
 				owner.bgmStatus.fadesw = true;
 			}
 		}
@@ -1350,7 +1350,7 @@ public class PracticeMode extends AbstractMode {
 				// Level up
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
-					if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 						engine.playSE("levelstop");
 					}
 					setMeter(engine, playerID);
@@ -1393,7 +1393,7 @@ public class PracticeMode extends AbstractMode {
 			if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
-					if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+					if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 						engine.playSE("levelstop");
 					}
 					setMeter(engine, playerID);
@@ -1485,17 +1485,17 @@ public class PracticeMode extends AbstractMode {
 				nextseclv += 100;
 
 				// Limit timeReset
-				if (timelimitResetEveryLevel == true && timelimit > 0) {
+				if (timelimitResetEveryLevel && timelimit > 0) {
 					timelimitTimer = timelimit;
 				}
-			} else if (engine.statistics.level == nextseclv - 1 && lvstopse == true) {
+			} else if (engine.statistics.level == nextseclv - 1 && lvstopse) {
 				engine.playSE("levelstop");
 			}
 
 			// Calculate score
 			if (leveltype == LEVELTYPE_MANIA) {
 				int manuallock = 0;
-				if (engine.manualLock == true) {
+				if (engine.manualLock) {
 					manuallock = 1;
 				}
 
@@ -1518,7 +1518,7 @@ public class PracticeMode extends AbstractMode {
 				scgettime = 0;
 			} else {
 				int manuallock = 0;
-				if (engine.manualLock == true) {
+				if (engine.manualLock) {
 					manuallock = 1;
 				}
 
@@ -1706,7 +1706,7 @@ public class PracticeMode extends AbstractMode {
 				goal = 5 * (engine.statistics.level + 1);
 
 				// Limit timeReset
-				if (timelimitResetEveryLevel == true && timelimit > 0) {
+				if (timelimitResetEveryLevel && timelimit > 0) {
 					timelimitTimer = timelimit;
 				}
 
@@ -1748,7 +1748,7 @@ public class PracticeMode extends AbstractMode {
 	private void setMeter(GameEngine engine, int playerID) {
 		if (engine.gameActive && engine.ending == 2) {
 			int remainRollTime = rolltimelimit - rolltime;
-			engine.meterValue = remainRollTime * receiver.getMeterMax(engine) / rolltimelimit;
+			engine.meterValue = remainRollTime * renderer.getMeterMax(engine) / rolltimelimit;
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainRollTime <= 30 * 60) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -1761,7 +1761,7 @@ public class PracticeMode extends AbstractMode {
 			}
 		} else if (timelimit > 0) {
 			int remainTime = timelimitTimer;
-			engine.meterValue = remainTime * receiver.getMeterMax(engine) / timelimit;
+			engine.meterValue = remainTime * renderer.getMeterMax(engine) / timelimit;
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainTime <= 30 * 60) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -1775,7 +1775,7 @@ public class PracticeMode extends AbstractMode {
 		} else {
 			switch (leveltype) {
 			case LEVELTYPE_10LINES:
-				engine.meterValue = engine.statistics.lines % 10 * receiver.getMeterMax(engine) / 9;
+				engine.meterValue = engine.statistics.lines % 10 * renderer.getMeterMax(engine) / 9;
 				engine.meterColor = Colors.METER_COLOR_GREEN;
 				if (engine.statistics.lines % 10 >= 4) {
 					engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -1788,21 +1788,21 @@ public class PracticeMode extends AbstractMode {
 				}
 				break;
 			case LEVELTYPE_POINTS:
-				engine.meterValue = goal * receiver.getMeterMax(engine) / (5 * (engine.statistics.level + 1));
+				engine.meterValue = goal * renderer.getMeterMax(engine) / (5 * (engine.statistics.level + 1));
 				engine.meterColor = Colors.METER_COLOR_GREEN;
-				if (engine.meterValue <= receiver.getMeterMax(engine) / 2) {
+				if (engine.meterValue <= renderer.getMeterMax(engine) / 2) {
 					engine.meterColor = Colors.METER_COLOR_YELLOW;
 				}
-				if (engine.meterValue <= receiver.getMeterMax(engine) / 3) {
+				if (engine.meterValue <= renderer.getMeterMax(engine) / 3) {
 					engine.meterColor = Colors.METER_COLOR_ORANGE;
 				}
-				if (engine.meterValue <= receiver.getMeterMax(engine) / 4) {
+				if (engine.meterValue <= renderer.getMeterMax(engine) / 4) {
 					engine.meterColor = Colors.METER_COLOR_RED;
 				}
 				break;
 			case LEVELTYPE_MANIA:
 			case LEVELTYPE_MANIAPLUS:
-				engine.meterValue = engine.statistics.level % 100 * receiver.getMeterMax(engine) / 99;
+				engine.meterValue = engine.statistics.level % 100 * renderer.getMeterMax(engine) / 99;
 				engine.meterColor = Colors.METER_COLOR_GREEN;
 				if (engine.statistics.level % 100 >= 50) {
 					engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -1816,15 +1816,15 @@ public class PracticeMode extends AbstractMode {
 				break;
 			default:
 				if (leveltype == LEVELTYPE_NONE && goallv != -1) {
-					engine.meterValue = engine.statistics.lines * receiver.getMeterMax(engine) / (goallv + 1);
+					engine.meterValue = engine.statistics.lines * renderer.getMeterMax(engine) / (goallv + 1);
 					engine.meterColor = Colors.METER_COLOR_GREEN;
-					if (engine.meterValue >= receiver.getMeterMax(engine) / 10) {
+					if (engine.meterValue >= renderer.getMeterMax(engine) / 10) {
 						engine.meterColor = Colors.METER_COLOR_YELLOW;
 					}
-					if (engine.meterValue >= receiver.getMeterMax(engine) / 5) {
+					if (engine.meterValue >= renderer.getMeterMax(engine) / 5) {
 						engine.meterColor = Colors.METER_COLOR_ORANGE;
 					}
-					if (engine.meterValue >= receiver.getMeterMax(engine) / 2) {
+					if (engine.meterValue >= renderer.getMeterMax(engine) / 2) {
 						engine.meterColor = Colors.METER_COLOR_RED;
 					}
 				}
@@ -1835,8 +1835,8 @@ public class PracticeMode extends AbstractMode {
 		if (engine.meterValue < 0) {
 			engine.meterValue = 0;
 		}
-		if (engine.meterValue > receiver.getMeterMax(engine)) {
-			engine.meterValue = receiver.getMeterMax(engine);
+		if (engine.meterValue > renderer.getMeterMax(engine)) {
+			engine.meterValue = renderer.getMeterMax(engine);
 		}
 	}
 
@@ -1871,10 +1871,10 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 				Statistic.LEVEL_ADD_DISP, Statistic.TIME, Statistic.SPL, Statistic.SPM, Statistic.LPM);
 		if (secretGrade > 0) {
-			drawResult(engine, playerID, receiver, 14, Colors.FONT_BLUE, "S. GRADE",
+			drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
 					String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 		}
 	}

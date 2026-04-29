@@ -34,6 +34,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.FieldUtil;
 import mu.nu.nullpo.util.GeneralUtil;
 
 /**
@@ -123,7 +124,7 @@ public class PhysicianMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 		lastscore = 0;
 		scgettime = 0;
 		gemsClearedChainTotal = 0;
@@ -216,7 +217,7 @@ public class PhysicianMode extends AbstractMode {
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
 				engine.playSE("decide");
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
 			}
 
@@ -243,7 +244,7 @@ public class PhysicianMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GEMS", String.valueOf(hoverBlocks),
+		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GEMS", String.valueOf(hoverBlocks),
 				"SPEED", SPEED_NAME[speed]);
 	}
 
@@ -264,34 +265,34 @@ public class PhysicianMode extends AbstractMode {
 
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "PHYSICIAN", Colors.FONT_DARKBLUE);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "PHYSICIAN", Colors.FONT_DARKBLUE);
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
 			if (owner.replayMode == false && engine.ai == null) {
-				receiver.drawScoreFont(engine, playerID, 3, 3, "SCORE  TIME", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE  TIME", Colors.FONT_BLUE);
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW);
-					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[i]),
+					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[i]),
 							i == rankingRank);
-					receiver.drawScoreFont(engine, playerID, 10, 4 + i, GeneralUtil.getTime(rankingTime[i]),
+					renderer.drawScoreFont(engine, playerID, 10, 4 + i, GeneralUtil.getTime(rankingTime[i]),
 							i == rankingRank);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
 			String strScore;
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
 				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 4, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "REST", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 6, "REST", Colors.FONT_BLUE);
 			if (engine.field != null) {
-				receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.field.getHowManyGems()));
+				renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.field.getHowManyGems()));
 				int red = 0, yellow = 0, blue = 0;
 				for (int y = 0; y < engine.field.getHeight(); y++) {
 					for (int x = 0; x < engine.field.getWidth(); x++) {
@@ -311,19 +312,19 @@ public class PhysicianMode extends AbstractMode {
 						}
 					}
 				}
-				receiver.drawScoreFont(engine, playerID, 0, 8, "(");
-				receiver.drawScoreFont(engine, playerID, 1, 8, String.format("%2d", red), Colors.FONT_RED);
-				receiver.drawScoreFont(engine, playerID, 4, 8, String.format("%2d", yellow),
+				renderer.drawScoreFont(engine, playerID, 0, 8, "(");
+				renderer.drawScoreFont(engine, playerID, 1, 8, String.format("%2d", red), Colors.FONT_RED);
+				renderer.drawScoreFont(engine, playerID, 4, 8, String.format("%2d", yellow),
 						Colors.FONT_YELLOW);
-				receiver.drawScoreFont(engine, playerID, 7, 8, String.format("%2d", blue), Colors.FONT_BLUE);
-				receiver.drawScoreFont(engine, playerID, 9, 8, ")");
+				renderer.drawScoreFont(engine, playerID, 7, 8, String.format("%2d", blue), Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 9, 8, ")");
 			}
 
-			receiver.drawScoreFont(engine, playerID, 0, 10, "SPEED", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 11, SPEED_NAME[speed], SPEED_COLOR[speed]);
+			renderer.drawScoreFont(engine, playerID, 0, 10, "SPEED", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 11, SPEED_NAME[speed], SPEED_COLOR[speed]);
 
-			receiver.drawScoreFont(engine, playerID, 0, 13, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 14, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 13, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 14, GeneralUtil.getTime(engine.statistics.time));
 		}
 	}
 
@@ -342,7 +343,7 @@ public class PhysicianMode extends AbstractMode {
 			} else if (hoverBlocks >= 64) {
 				minY = 5;
 			}
-			engine.field.addRandomHoverBlocks(engine, hoverBlocks, HOVER_BLOCK_COLORS, minY, true);
+			FieldUtil.addRandomHoverBlocks(engine, engine.field, hoverBlocks, HOVER_BLOCK_COLORS, minY, true);
 			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
 		}
 		return false;
@@ -362,7 +363,7 @@ public class PhysicianMode extends AbstractMode {
 		}
 
 		int rest = engine.field.getHowManyGems();
-		engine.meterValue = rest * receiver.getMeterMax(engine) / hoverBlocks;
+		engine.meterValue = rest * renderer.getMeterMax(engine) / hoverBlocks;
 		if (rest <= 3) {
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 		} else if (rest < hoverBlocks >> 2) {
@@ -419,13 +420,13 @@ public class PhysicianMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResult(engine, playerID, receiver, 3, Colors.FONT_BLUE, "SCORE",
+		drawResult(engine, playerID, renderer, 3, Colors.FONT_BLUE, "SCORE",
 				String.format("%10d", engine.statistics.score), "CLEARED",
 				String.format("%10d", engine.statistics.lines), "TIME",
 				String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
-		drawResultRank(engine, playerID, receiver, 9, Colors.FONT_BLUE, rankingRank);
+		drawResultRank(engine, playerID, renderer, 9, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/*
@@ -441,7 +442,7 @@ public class PhysicianMode extends AbstractMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

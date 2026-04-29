@@ -41,8 +41,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,6 +71,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -540,7 +539,8 @@ public class RuleEditor extends JFrame implements ActionListener {
 		if (propConfig.getProperty("option.usenativelookandfeel", true)) {
 			try {
 				UIManager.getInstalledLookAndFeels();
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				UIManager.setLookAndFeel(new NimbusLookAndFeel());
 			} catch (Exception e) {
 				log.warn("Failed to set native look&feel", e);
 			}
@@ -614,7 +614,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 		// Entire tab --------------------------------------------------
 		tabPane = new JTabbedPane();
-		getContentPane().add(tabPane, BorderLayout.NORTH);
+		getContentPane().add(tabPane, BorderLayout.CENTER);
 
 		// Preferences tab --------------------------------------------------
 		JPanel panelBasic = new JPanel();
@@ -648,7 +648,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		JLabel lStyle = new JLabel(getUIText("Basic_Style"));
 		pStyle.add(lStyle);
 		String[] captions = new String[GameStyle.numStyles()];
-		for(GameStyle style : GameStyle.values()) {
+		for (GameStyle style : GameStyle.values()) {
 			captions[style.getMode()] = style.getName();
 		}
 		comboboxStyle = new JComboBox<>(captions);
@@ -1372,7 +1372,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		imgBlockSkins = new BufferedImage[numBlocks];
 
 		for (int i = 0; i < numBlocks; i++) {
-			BufferedImage imgBlock = loadImage(getURL(skindir + "/graphics/blockskin/normal/n" + i + ".png"));
+			BufferedImage imgBlock = loadImage(skindir + "/graphics/blockskin/normal/n" + i + ".png");
 			boolean isSticky = imgBlock != null && imgBlock.getWidth() >= 400 && imgBlock.getHeight() >= 304;
 
 			imgBlockSkins[i] = new BufferedImage(144, 16, BufferedImage.TYPE_INT_RGB);
@@ -1394,46 +1394,15 @@ public class RuleEditor extends JFrame implements ActionListener {
 	 * @param url Image filesURL
 	 * @return Image file (Failurenull)
 	 */
-	public BufferedImage loadImage(URL url) {
+	public BufferedImage loadImage(String filename) {
 		BufferedImage img = null;
 		try {
-			img = ImageIO.read(url);
-			log.debug("Loaded image from " + url);
+			img = ImageIO.read(new File(filename));
+			log.debug("Loaded image from " + filename);
 		} catch (IOException e) {
-			log.error("Failed to load image from " + url, e);
+			log.error("Failed to load image from " + filename, e);
 		}
 		return img;
-	}
-
-	/**
-	 * Resource FilesURLReturns
-	 *
-	 * @param str Filename
-	 * @return Resource FilesURL
-	 */
-	public URL getURL(String str) {
-		URL url = null;
-
-		try {
-			char sep = File.separator.charAt(0);
-			String file = str.replace(sep, '/');
-
-			// Note:http://www.asahi-net.or.jp/~DP8T-ASM/java/tips/HowToMakeURL.html
-			if (file.charAt(0) != '/') {
-				String dir = System.getProperty("user.dir");
-				dir = dir.replace(sep, '/') + '/';
-				if (dir.charAt(0) != '/') {
-					dir = "/" + dir;
-				}
-				file = dir + file;
-			}
-			url = new URL("file", "", file);
-		} catch (MalformedURLException e) {
-			log.warn("Invalid URL:" + str, e);
-			return null;
-		}
-
-		return url;
 	}
 
 	/**

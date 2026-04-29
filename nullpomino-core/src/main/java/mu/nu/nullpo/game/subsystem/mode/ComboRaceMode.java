@@ -87,7 +87,7 @@ public class ComboRaceMode extends NetDummyMode {
 			Colors.METER_COLOR_CYAN, Colors.METER_COLOR_DARKGREEN, };
 
 	/**
-	 * EventReceiver object (This receives many game events, can also be used for
+	 * Eventrenderer object (This receives many game events, can also be used for
 	 * drawing the fonts.)
 	 */
 
@@ -176,7 +176,7 @@ public class ComboRaceMode extends NetDummyMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 
 		scgettime = 0;
 		lastevent = EVENT_NONE;
@@ -440,11 +440,11 @@ public class ComboRaceMode extends NetDummyMode {
 					}
 				} else if (menuCursor == 15) {
 					savePreset(engine, owner.modeConfig, presetNumber);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					owner.modeConfig.setProperty("comborace.presetNumber", presetNumber);
 					savePreset(engine, owner.modeConfig, -1);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
@@ -487,24 +487,24 @@ public class ComboRaceMode extends NetDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (netIsNetRankingDisplayMode) {
 			// NET: Netplay Ranking
-			netOnRenderNetPlayRanking(engine, playerID, receiver);
+			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else if (menuCursor < 6) {
 			String strSpawn = spawnAboveField ? "ABOVE" : "BELOW";
 
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GOAL",
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GOAL",
 					GOAL_TABLE[goaltype] == -1 ? "ENDLESS" : String.valueOf(GOAL_TABLE[goaltype]));
-			drawMenu(engine, playerID, receiver, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
+			drawMenu(engine, playerID, renderer, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
 					"STARTSHAPE", SHAPE_NAME_TABLE[shapetype]);
-			drawMenu(engine, playerID, receiver, 4, Colors.FONT_BLUE, 2, "COLUMN", String.valueOf(comboColumn),
+			drawMenu(engine, playerID, renderer, 4, Colors.FONT_BLUE, 2, "COLUMN", String.valueOf(comboColumn),
 					"WIDTH", String.valueOf(comboWidth), "CEILING", String.valueOf(ceilingAdjust), "PIECESPAWN",
 					String.valueOf(strSpawn));
 		} else {
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 6, "GRAVITY",
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 6, "GRAVITY",
 					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
 					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
 					String.valueOf(engine.speed.das), "BGM", String.valueOf(bgmno));
-			drawMenu(engine, playerID, receiver, 16, Colors.FONT_GREEN, 14, "LOAD", String.valueOf(presetNumber),
+			drawMenu(engine, playerID, renderer, 16, Colors.FONT_GREEN, 14, "LOAD", String.valueOf(presetNumber),
 					"SAVE", String.valueOf(presetNumber));
 		}
 	}
@@ -517,7 +517,7 @@ public class ComboRaceMode extends NetDummyMode {
 		if (engine.statc_0() == 0) {
 			engine.createFieldIfNeeded();
 			engine.meterColor = Colors.METER_COLOR_GREEN;
-			engine.meterValue = GOAL_TABLE[goaltype] == -1 ? 0 : receiver.getMeterMax(engine);
+			engine.meterValue = GOAL_TABLE[goaltype] == -1 ? 0 : renderer.getMeterMax(engine);
 
 			if (!netIsWatch) {
 				fillStack(engine, goaltype);
@@ -606,108 +606,108 @@ public class ComboRaceMode extends NetDummyMode {
 			return;
 		}
 
-		receiver.drawScoreFont(engine, playerID, 0, 0, "COMBO RACE", Colors.FONT_RED);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "COMBO RACE", Colors.FONT_RED);
 		if (GOAL_TABLE[goaltype] == -1) {
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(ENDLESS GAME)", Colors.FONT_WHITE);
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(ENDLESS GAME)", Colors.FONT_WHITE);
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
 					Colors.FONT_WHITE);
 		}
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
 			if (!owner.replayMode && !big && engine.ai == null) {
-				receiver.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW);
-					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingCombo[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingCombo[goaltype][i]),
 							rankingRank == i);
-					receiver.drawScoreFont(engine, playerID, 9, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
+					renderer.drawScoreFont(engine, playerID, 9, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
 							rankingRank == i);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.lines));
+			renderer.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.lines));
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
+			renderer.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
+			renderer.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
 
-			receiver.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
 
 			if (lastevent != EVENT_NONE && scgettime < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece);
 
 				switch (lastevent) {
 				case EVENT_SINGLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
 				case EVENT_DOUBLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
 				case EVENT_TRIPLE:
-					receiver.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
 				case EVENT_FOUR:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						receiver.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
 				}
 
 				if (lastcombo >= 2) {
-					receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			} else if (engine.combo >= 2 && engine.gameActive) {
-				receiver.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+				renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 			} else if ((engine.combo == 0 || !engine.gameActive) && engine.statistics.maxCombo >= 2) {
-				receiver.drawMenuFont(engine, playerID, 2, 22, engine.statistics.maxCombo - 1 + "COMBO",
+				renderer.drawMenuFont(engine, playerID, 2, 22, engine.statistics.maxCombo - 1 + "COMBO",
 						Colors.FONT_WHITE);
 			}
 		}
@@ -802,7 +802,7 @@ public class ComboRaceMode extends NetDummyMode {
 			}
 
 			if (GOAL_TABLE[goaltype] == -1) {
-				int meterMax = receiver.getMeterMax(engine);
+				int meterMax = renderer.getMeterMax(engine);
 				int colorIndex = (engine.statistics.maxCombo - 1) / meterMax;
 				engine.meterValue = (engine.statistics.maxCombo - 1) % meterMax;
 				engine.meterColor = METER_COLOUR_TABLE[colorIndex % METER_COLOUR_TABLE.length];
@@ -810,7 +810,7 @@ public class ComboRaceMode extends NetDummyMode {
 				engine.meterColorSub = METER_COLOUR_TABLE[Math.max(colorIndex - 1, 0) % METER_COLOUR_TABLE.length];
 			} else {
 				int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
-				engine.meterValue = remainLines * receiver.getMeterMax(engine) / GOAL_TABLE[goaltype];
+				engine.meterValue = remainLines * renderer.getMeterMax(engine) / GOAL_TABLE[goaltype];
 
 				if (remainLines <= 30) {
 					engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -856,21 +856,21 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, receiver, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
-		drawResultStats(engine, playerID, receiver, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
+		drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
 				Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, receiver, 12, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, receiver, 14, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, receiver, 16, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
-			receiver.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
 		}
 
 		if (netIsNetPlay && netReplaySendStatus == 1) {
-			receiver.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+			renderer.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
 		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
-			receiver.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
+			renderer.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
 		}
 	}
 
@@ -893,7 +893,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

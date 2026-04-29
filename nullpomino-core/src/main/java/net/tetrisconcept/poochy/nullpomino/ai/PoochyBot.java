@@ -7,7 +7,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.SpeedParam;
 import mu.nu.nullpo.game.component.WallkickResult;
-import mu.nu.nullpo.game.event.EventReceiver;
+import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
@@ -313,7 +313,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			} else {
 				sameStatusTime = 0;
 			}
-			if (bestHold == true && thinkComplete && engine.isHoldOK()) {
+			if (bestHold && thinkComplete && engine.isHoldOK()) {
 				// Hold
 				input |= Controller.BUTTON_BIT_D;
 
@@ -1061,7 +1061,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 				}
 
 				// Hold piece
-				if (holdOK == true && pieceHold != null) {
+				if (holdOK && pieceHold != null) {
 					int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
 					int spawnY = engine.getSpawnPosY(pieceHold);
 					int minHoldX = Math.max(mostMovableX(spawnX, spawnY, -1, engine, engine.field, pieceHold, rt),
@@ -1979,11 +1979,11 @@ public class PoochyBot extends DummyAI implements Runnable {
 	 * Called to display internal state
 	 *
 	 * @param engine   The GameEngine that owns this AI
-	 * @param playerID Player ID
+	 * @param playerID Player IDJLayer for MP3
 	 */
 	@Override
 	public void renderState(GameEngine engine, int playerID) {
-		EventReceiver<?> r = engine.owner.receiver;
+		Renderer<?> r = engine.owner.renderer;
 		r.drawScoreFont(engine, playerID, 19, 39, getName().toUpperCase(), Colors.FONT_GREEN, 0.5f);
 		r.drawScoreFont(engine, playerID, 24, 40, "X", Colors.FONT_BLUE, 0.5f);
 		r.drawScoreFont(engine, playerID, 27, 40, "Y", Colors.FONT_BLUE, 0.5f);

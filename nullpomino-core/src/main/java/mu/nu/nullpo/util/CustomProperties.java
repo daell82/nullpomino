@@ -51,13 +51,28 @@ public class CustomProperties extends Properties {
 	 */
 	private static final long serialVersionUID = 2L;
 
+	/**
+	 * Loads properties from a given path. If loading fails, empty properties are
+	 * returned and an error is logged
+	 *
+	 * @param filename to load from
+	 * @return properties loaded or empty
+	 */
 	public static CustomProperties load(String filename) {
 		return load(new File(filename));
 	}
 
+	/**
+	 * Loads properties from a given file. If loading fails, empty properties are
+	 * returned and an error is logged
+	 *
+	 * @param file to load
+	 * @return properties loaded or empty
+	 */
 	public static CustomProperties load(File file) {
 		CustomProperties result = new CustomProperties();
 		if (!file.exists() || !file.canRead()) {
+			log.warn("cannot read file " + file.getPath());
 			return result;
 		}
 		try (var in = new FileInputStream(file)) {
@@ -77,6 +92,14 @@ public class CustomProperties extends Properties {
 	public void save(String filename) throws IOException {
 		try(var out = new FileOutputStream(filename)){
 			store(out, null);
+		}
+	}
+
+	public void saveSilent(String filename) {
+		try {
+			save(filename);
+		} catch (IOException ioe) {
+			log.error("failed to save properties", ioe);
 		}
 	}
 

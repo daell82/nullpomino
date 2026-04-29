@@ -113,7 +113,7 @@ public class ModeManager {
 		} catch (ReflectiveOperationException roe) {
 			log.warn("failed to load mode", roe);
 		} catch (IOException e) {
-			log.warn("Failed to load game modes", e);
+			log.warn("failed to load game modes", e);
 		}
 	}
 }

@@ -4,6 +4,8 @@ import java.util.Arrays;
 
 import javax.swing.JOptionPane;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * <b>Bare Bones Browser Launch for Java</b><br>
  * Utility class to open a web page from a Swing application in the user's
@@ -18,6 +20,7 @@ import javax.swing.JOptionPane;
  *
  * @version 3.1, June 6, 2010
  */
+@UtilityClass
 public class BareBonesBrowserLaunch {
 
 	static final String[] browsers = { "google-chrome", "firefox", "opera", "epiphany", "konqueror", "conkeror",
@@ -32,16 +35,15 @@ public class BareBonesBrowserLaunch {
 	public static void openURL(String url) {
 		try { // attempt to use Desktop library from JDK 1.6+
 			Class<?> d = Class.forName("java.awt.Desktop");
-			d.getDeclaredMethod("browse", new Class[] { java.net.URI.class })
-					.invoke(d.getDeclaredMethod("getDesktop").invoke(null), new Object[] { java.net.URI.create(url) });
+			d.getDeclaredMethod("browse", java.net.URI.class).invoke(d.getDeclaredMethod("getDesktop").invoke(null),
+					java.net.URI.create(url));
 			// above code mimicks: java.awt.Desktop.getDesktop().browse()
 		} catch (Exception ignore) { // library not available or failed
 			String osName = System.getProperty("os.name");
 			try {
 				if (osName.startsWith("Mac OS")) {
 					Class.forName("com.apple.eio.FileManager")
-							.getDeclaredMethod("openURL", new Class[] { String.class })
-							.invoke(null, new Object[] { url });
+							.getDeclaredMethod("openURL", String.class).invoke(null, url);
 				} else if (osName.startsWith("Windows")) {
 					Runtime.getRuntime().exec(new String[] { "rundll32", "url.dll,FileProtocolHandler", url });
 				} else { // assume Unix or Linux

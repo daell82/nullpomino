@@ -28,9 +28,12 @@
 */
 package mu.nu.nullpo.util;
 
+import lombok.experimental.UtilityClass;
+
 /**
  * @author daell
  */
+@UtilityClass
 public class Colors {
 
 	/** Font color constants */
@@ -112,6 +115,7 @@ public class Colors {
 
 	/** NormalBlock colorOfMaximumcount */
 	public static final int BLOCK_COLOR_COUNT = 9;
+
 	/** + Normal GemBlock colorOfMaximumcount */
 	public static final int BLOCK_COLOR_EXT_COUNT = 16;
 

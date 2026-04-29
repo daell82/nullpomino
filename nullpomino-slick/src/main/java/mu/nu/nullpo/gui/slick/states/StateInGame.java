@@ -346,8 +346,8 @@ public class StateInGame extends BasicGameState {
 			gameManager.renderAll();
 
 			if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-				int offsetX = gameManager.receiver.getFieldDisplayPositionX(gameManager.engine[0], 0);
-				int offsetY = gameManager.receiver.getFieldDisplayPositionY(gameManager.engine[0], 0);
+				int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engine[0], 0);
+				int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engine[0], 0);
 
 				// Pause menu
 				if (pause && !enableframestep && !pauseMessageHide) {

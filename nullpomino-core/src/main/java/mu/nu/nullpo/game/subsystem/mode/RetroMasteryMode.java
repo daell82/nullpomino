@@ -152,7 +152,7 @@ public class RetroMasteryMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 		lastscore = 0;
 		scgettime = 0;
 		softdropscore = 0;
@@ -229,7 +229,7 @@ public class RetroMasteryMode extends AbstractMode {
 				if (menuCursor < 0) {
 					menuCursor = 2;
 				}
-				receiver.playSE("cursor");
+				renderer.playSE("cursor");
 			}
 			// Check for DOWN button, when pressed it will move cursor down.
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -240,7 +240,7 @@ public class RetroMasteryMode extends AbstractMode {
 				if (menuCursor > 2) {
 					menuCursor = 0;
 				}
-				receiver.playSE("cursor");
+				renderer.playSE("cursor");
 			}
 
 			// Check for LEFT/RIGHT keys
@@ -253,7 +253,7 @@ public class RetroMasteryMode extends AbstractMode {
 			}
 
 			if (change != 0) {
-				receiver.playSE("change");
+				renderer.playSE("change");
 
 				switch (menuCursor) {
 				case 0:
@@ -284,9 +284,9 @@ public class RetroMasteryMode extends AbstractMode {
 
 			// Check for A button, when pressed this will begin the game
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				receiver.playSE("decide");
+				renderer.playSE("decide");
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
 			}
 
@@ -314,17 +314,17 @@ public class RetroMasteryMode extends AbstractMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.owner.replayMode == false) {
-			receiver.drawMenuFont(engine, playerID, 0, menuCursor * 2 + 1, "b", Colors.FONT_RED);
+			renderer.drawMenuFont(engine, playerID, 0, menuCursor * 2 + 1, "b", Colors.FONT_RED);
 		}
 
-		receiver.drawMenuFont(engine, playerID, 0, 0, "GAME TYPE", Colors.FONT_BLUE);
-		receiver.drawMenuFont(engine, playerID, 1, 1, GAMETYPE_NAME[gametype], menuCursor == 0);
+		renderer.drawMenuFont(engine, playerID, 0, 0, "GAME TYPE", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 1, 1, GAMETYPE_NAME[gametype], menuCursor == 0);
 		if (gametype != GAMETYPE_PRESSURE) {
-			receiver.drawMenuFont(engine, playerID, 0, 2, "LEVEL", Colors.FONT_BLUE);
-			receiver.drawMenuFont(engine, playerID, 1, 3, String.format("%02d", startlevel), menuCursor == 1);
+			renderer.drawMenuFont(engine, playerID, 0, 2, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 1, 3, String.format("%02d", startlevel), menuCursor == 1);
 		}
-		receiver.drawMenuFont(engine, playerID, 0, 4, "BIG", Colors.FONT_BLUE);
-		receiver.drawMenuFont(engine, playerID, 1, 5, GeneralUtil.getONorOFF(big), menuCursor == 2);
+		renderer.drawMenuFont(engine, playerID, 0, 4, "BIG", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 1, 5, GeneralUtil.getONorOFF(big), menuCursor == 2);
 	}
 
 	/**
@@ -359,46 +359,46 @@ public class RetroMasteryMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		receiver.drawScoreFont(engine, playerID, 0, 0, "RETRO MASTERY", Colors.FONT_GREEN);
-		receiver.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME[gametype] + ")", Colors.FONT_GREEN);
+		renderer.drawScoreFont(engine, playerID, 0, 0, "RETRO MASTERY", Colors.FONT_GREEN);
+		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME[gametype] + ")", Colors.FONT_GREEN);
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
 			if (owner.replayMode == false && big == false && engine.ai == null) {
-				receiver.drawScoreFont(engine, playerID, 3, 3, "SCORE    LINE LV.", Colors.FONT_BLUE);
+				renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE    LINE LV.", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW);
-					receiver.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
+					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
 							i == rankingRank);
-					receiver.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingLines[gametype][i]),
+					renderer.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingLines[gametype][i]),
 							i == rankingRank);
-					receiver.drawScoreFont(engine, playerID, 17, 4 + i,
+					renderer.drawScoreFont(engine, playerID, 17, 4 + i,
 							String.format("%02d", rankingLevel[gametype][i]), i == rankingRank);
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
 			String strScore;
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
 				strScore = String.valueOf(engine.statistics.score) + " (+" + String.valueOf(lastscore) + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 4, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
 			String strLine;
 			strLine = String.valueOf(loons);
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "LINES", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, strLine);
+			renderer.drawScoreFont(engine, playerID, 0, 6, "LINES", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, strLine);
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 10, String.format("%02d", engine.statistics.level));
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.format("%02d", engine.statistics.level));
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
 		}
 	}
 
@@ -486,13 +486,13 @@ public class RetroMasteryMode extends AbstractMode {
 			owner.backgroundStatus.fadebg = lv;
 
 			setSpeed(engine);
-			receiver.playSE("levelup");
+			renderer.playSE("levelup");
 		}
 
 		// Update meter
 		int togo = levellines - loons;
 		if (gametype == GAMETYPE_PRESSURE) {
-			engine.meterValue = loons % 5 * receiver.getMeterMax(engine) / 4;
+			engine.meterValue = loons % 5 * renderer.getMeterMax(engine) / 4;
 			if (togo == 1) {
 				engine.meterColor = Colors.METER_COLOR_RED;
 			} else if (togo == 2) {
@@ -503,7 +503,7 @@ public class RetroMasteryMode extends AbstractMode {
 				engine.meterColor = Colors.METER_COLOR_GREEN;
 			}
 		} else if (engine.statistics.level == startlevel && startlevel != 0) {
-			engine.meterValue = loons * receiver.getMeterMax(engine) / (levellines - 1);
+			engine.meterValue = loons * renderer.getMeterMax(engine) / (levellines - 1);
 			if (togo <= 5) {
 				engine.meterColor = Colors.METER_COLOR_RED;
 			} else if (togo <= 10) {
@@ -514,7 +514,7 @@ public class RetroMasteryMode extends AbstractMode {
 				engine.meterColor = Colors.METER_COLOR_GREEN;
 			}
 		} else {
-			engine.meterValue = (10 - togo) * receiver.getMeterMax(engine) / 9;
+			engine.meterValue = (10 - togo) * renderer.getMeterMax(engine) / 9;
 			if (togo <= 2) {
 				engine.meterColor = Colors.METER_COLOR_RED;
 			} else if (togo <= 5) {
@@ -549,20 +549,20 @@ public class RetroMasteryMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResultStats(engine, playerID, receiver, 3, Colors.FONT_BLUE, Statistic.SCORE);
+		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_BLUE, Statistic.SCORE);
 
-		receiver.drawMenuFont(engine, playerID, 0, 5, "LINES", Colors.FONT_BLUE);
+		renderer.drawMenuFont(engine, playerID, 0, 5, "LINES", Colors.FONT_BLUE);
 		String strLines = String.format("%10d", loons);
-		receiver.drawMenuFont(engine, playerID, 0, 6, strLines);
+		renderer.drawMenuFont(engine, playerID, 0, 6, strLines);
 		String strFour = String.format("%10s", String.format("+%d", engine.statistics.totalFour));
-		receiver.drawMenuFont(engine, playerID, 0, 7, strFour);
+		renderer.drawMenuFont(engine, playerID, 0, 7, strFour);
 
-		drawResultStats(engine, playerID, receiver, 8, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME);
-		drawResult(engine, playerID, receiver, 12, Colors.FONT_BLUE, "EFFICIENCY",
+		drawResultStats(engine, playerID, renderer, 8, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME);
+		drawResult(engine, playerID, renderer, 12, Colors.FONT_BLUE, "EFFICIENCY",
 				String.format("%10.3f", efficiency));
-		drawResultRank(engine, playerID, receiver, 14, Colors.FONT_BLUE, rankingRank);
+		drawResultRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/**
@@ -578,7 +578,7 @@ public class RetroMasteryMode extends AbstractMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

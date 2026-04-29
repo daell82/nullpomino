@@ -28,10 +28,8 @@
 */
 package mu.nu.nullpo.util;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -98,30 +96,6 @@ public class GeneralUtil {
 		Calendar c = Calendar.getInstance();
 		DateFormat dfm = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
 		return dfm.format(c.getTime()) + ".rep";
-	}
-
-	/**
-	 * Resource FilesURLReturns
-	 *
-	 * @param filename Filename
-	 * @return Resource FilesURL
-	 */
-	public static URL getURL(String filename) {
-		try {
-			String file = filename.replace(File.separator, "/");
-			if (!file.startsWith("/")) {
-				String dir = System.getProperty("user.dir");
-				dir = dir.replace(File.separator, "/") + "/";
-				if (!dir.startsWith("/")) {
-					dir = "/" + dir;
-				}
-				file = dir + file;
-			}
-			return new File(file).toURI().toURL();
-		} catch (MalformedURLException e) {
-			log.warn("Invalid URL: " + filename, e);
-			return null;
-		}
 	}
 
 	/**
@@ -235,7 +209,7 @@ public class GeneralUtil {
 		try {
 			Date date = dfm.parse(s);
 			c.setTime(date);
-		} catch (Exception e) {
+		} catch (Exception _) {
 			return null;
 		}
 
@@ -288,26 +262,14 @@ public class GeneralUtil {
 	 */
 	public static int[] createNextPieceArrayFromNumberString(String strSrc) {
 		int len = strSrc.length();
-		if (len < 1) {
-			return new int[0];
-		}
-
 		int[] nextArray = new int[len];
 		for (int i = 0; i < len; i++) {
-			int pieceID = Piece.PIECE_I;
-
-			try {
-				pieceID = Integer.parseInt(strSrc.substring(i, i + 1));
-			} catch (NumberFormatException e) {
-			}
-
+			int pieceID = strSrc.charAt(i) - 48; // subtract non-ascii
 			if (pieceID < 0 || pieceID >= Piece.PIECE_COUNT) {
 				pieceID = Piece.PIECE_I;
 			}
-
 			nextArray[i] = pieceID;
 		}
-
 		return nextArray;
 	}
 
@@ -382,7 +344,20 @@ public class GeneralUtil {
 	 * @param startIndex First element which will be combined
 	 * @return Combined string
 	 */
-	public static String StringCombine(String[] strings, String separator, int startIndex) {
+	public static String stringCombine(String[] strings, String separator, int startIndex) {
 		return Arrays.stream(strings, startIndex, strings.length).collect(Collectors.joining(separator));
+	}
+
+	/**
+	 * Save properties to "config/setting/mode.cfg"
+	 *
+	 * @param modeConfig Properties you want to save
+	 */
+	public static void saveModeConfig(CustomProperties modeConfig) {
+		try {
+			modeConfig.save("config/setting/mode.cfg", "NullpoMino Mode Config");
+		} catch (IOException e) {
+			log.error("Failed to save mode config", e);
+		}
 	}
 }

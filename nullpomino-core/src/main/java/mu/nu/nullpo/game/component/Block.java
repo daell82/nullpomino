@@ -30,6 +30,8 @@ package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
 
+import lombok.Getter;
+import lombok.Setter;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 
@@ -40,14 +42,11 @@ public class Block implements Serializable {
 	/** Serial version ID */
 	private static final long serialVersionUID = -7126899262733374545L;
 
-	/** BlockIndicator */
+	/** Block Indicator */
 	public static final int BLOCK_ATTRIBUTE_VISIBLE = 1;
 
 	/** Display some border */
 	public static final int BLOCK_ATTRIBUTE_OUTLINE = 2;
-
-	/** BoneBlock */
-	public static final int BLOCK_ATTRIBUTE_BONE = 4;
 
 	/** On theBlockAre connected with */
 	public static final int BLOCK_ATTRIBUTE_CONNECT_UP = 8;
@@ -106,6 +105,11 @@ public class Block implements Serializable {
 	/** I have elapsed since a fixed frame count */
 	public int elapsedFrames = 0;
 
+	/** whether this block is a block block (drawn as []) */
+	@Getter
+	@Setter
+	private boolean bone;
+
 	/**
 	 * BlockThe darkness of the, It or brightness (0.03If it&#39;s the case3%Darkly,
 	 * -0.05If it&#39;s the case5%Bright)
@@ -114,10 +118,6 @@ public class Block implements Serializable {
 
 	/** Transparency (1.0f Opacity in, 0.0f Completely transparent in) */
 	public float alpha = 1f;
-
-	/** Item number */
-	@Deprecated(forRemoval = true)
-	public int item = 0;
 
 	/** Number of extra clears required before block is erased */
 	public int hard = 0;
@@ -192,11 +192,11 @@ public class Block implements Serializable {
 		elapsedFrames = 0;
 		darkness = 0f;
 		alpha = 1f;
-		item = 0;
 		hard = 0;
 		countdown = 0;
 		secondaryColor = 0;
 		bonusValue = 0;
+		bone = false;
 	}
 
 	/**
@@ -211,11 +211,11 @@ public class Block implements Serializable {
 		elapsedFrames = b.elapsedFrames;
 		darkness = b.darkness;
 		alpha = b.alpha;
-		item = b.item;
 		hard = b.hard;
 		countdown = b.countdown;
 		secondaryColor = b.secondaryColor;
 		bonusValue = b.bonusValue;
+		bone = b.isBone();
 	}
 
 	/**
@@ -243,12 +243,12 @@ public class Block implements Serializable {
 	}
 
 	/**
-	 * ThisBlockDetermine whether the space is
+	 * Determine whether the this Block is space
 	 *
-	 * @return ThisBlockIf it is left blanktrue
+	 * @return If this block is left blank
 	 */
 	public boolean isEmpty() {
-		return color < Colors.BLOCK_COLOR_GRAY;
+		return color <= Colors.BLOCK_COLOR_NONE;
 	}
 
 	/**

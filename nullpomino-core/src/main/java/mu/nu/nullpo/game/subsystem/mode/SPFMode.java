@@ -327,7 +327,7 @@ public class SPFMode extends AbstractMode {
 	@Override
 	public void modeInit(GameManager manager) {
 		owner = manager;
-		receiver = owner.receiver;
+		renderer = owner.renderer;
 
 		ojama = new int[MAX_PLAYERS];
 		ojamaSent = new int[MAX_PLAYERS];
@@ -484,7 +484,7 @@ public class SPFMode extends AbstractMode {
 	private void loadMapPreview(GameEngine engine, int playerID, int id, boolean forceReload) {
 		if (propMap[playerID] == null || forceReload) {
 			mapMaxNo[playerID] = 0;
-			propMap[playerID] = receiver.loadProperties("config/map/spf/" + mapSet[playerID] + ".map");
+			propMap[playerID] = CustomProperties.load("config/map/spf/" + mapSet[playerID] + ".map");
 		}
 
 		if (propMap[playerID] == null && engine.field != null) {
@@ -807,11 +807,11 @@ public class SPFMode extends AbstractMode {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
 				} else if (menuCursor == 8) {
 					savePreset(engine, owner.modeConfig, presetNumber[playerID]);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID);
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					engine.statc_4(1);
 				}
 			}
@@ -876,57 +876,57 @@ public class SPFMode extends AbstractMode {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				initMenu(Colors.FONT_ORANGE, 0);
-				drawMenu(engine, playerID, receiver, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+				drawMenu(engine, playerID, renderer, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
 						String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
 						String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
 						"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, receiver, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", Colors.FONT_YELLOW);
 			} else if (menuCursor < 18) {
 				initMenu(Colors.FONT_PINK, 9);
-				drawMenu(engine, playerID, receiver, "BGM", String.valueOf(bgmno));
+				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, receiver, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1), "SE",
 						GeneralUtil.getONorOFF(enableSE[playerID]), "HURRYUP",
 						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "COUNTDOWN",
 						String.valueOf(ojamaCountdown[playerID]));
 				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, receiver, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+				drawMenu(engine, playerID, renderer, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, receiver, "RAINBOW");
-				drawMenu(engine, playerID, receiver, "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
+				drawMenu(engine, playerID, renderer, "RAINBOW");
+				drawMenu(engine, playerID, renderer, "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", Colors.FONT_YELLOW);
 			} else {
-				receiver.drawMenuFont(engine, playerID, 0, 0, "ATTACK", Colors.FONT_CYAN);
+				renderer.drawMenuFont(engine, playerID, 0, 0, "ATTACK", Colors.FONT_CYAN);
 				int multiplier = (int) (100 * getAttackMultiplier(dropSet[playerID], dropMap[playerID]));
 				if (multiplier >= 100) {
-					receiver.drawMenuFont(engine, playerID, 2, 1, multiplier + "%",
+					renderer.drawMenuFont(engine, playerID, 2, 1, multiplier + "%",
 							multiplier == 100 ? Colors.FONT_YELLOW : Colors.FONT_GREEN);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 3, 1, multiplier + "%", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 3, 1, multiplier + "%", Colors.FONT_RED);
 				}
-				receiver.drawMenuFont(engine, playerID, 0, 2, "DEFEND", Colors.FONT_CYAN);
+				renderer.drawMenuFont(engine, playerID, 0, 2, "DEFEND", Colors.FONT_CYAN);
 				multiplier = (int) (100 * getDefendMultiplier(dropSet[playerID], dropMap[playerID]));
 				if (multiplier >= 100) {
-					receiver.drawMenuFont(engine, playerID, 2, 3, multiplier + "%",
+					renderer.drawMenuFont(engine, playerID, 2, 3, multiplier + "%",
 							multiplier == 100 ? Colors.FONT_YELLOW : Colors.FONT_RED);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", Colors.FONT_GREEN);
+					renderer.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", Colors.FONT_GREEN);
 				}
 
-				drawMenu(engine, playerID, receiver, 14, Colors.FONT_CYAN, 18, "DROP SET",
+				drawMenu(engine, playerID, renderer, 14, Colors.FONT_CYAN, 18, "DROP SET",
 						DROP_SET_NAMES[dropSet[playerID]], "DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/"
 								+ String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/3", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/3", Colors.FONT_YELLOW);
 			}
 		} else {
-			receiver.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -969,7 +969,7 @@ public class SPFMode extends AbstractMode {
 					engine.field.setAllSkin(engine.getSkin());
 				} else {
 					if (propMap[playerID] == null) {
-						propMap[playerID] = receiver.loadProperties("config/map/spf/" + mapSet[playerID] + ".map");
+						propMap[playerID] = CustomProperties.load("config/map/spf/" + mapSet[playerID] + ".map");
 					}
 
 					if (propMap[playerID] != null) {
@@ -1027,14 +1027,14 @@ public class SPFMode extends AbstractMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		int fldPosX = receiver.getFieldDisplayPositionX(engine, playerID);
-		int fldPosY = receiver.getFieldDisplayPositionY(engine, playerID);
+		int fldPosX = renderer.getFieldDisplayPositionX(engine, playerID);
+		int fldPosY = renderer.getFieldDisplayPositionY(engine, playerID);
 		int playerColor = playerID == 0 ? Colors.FONT_RED : Colors.FONT_BLUE;
 		int fontColor = Colors.FONT_WHITE;
 
 		// Timer
 		if (playerID == 0) {
-			receiver.drawDirectFont(engine, playerID, 224, 0, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawDirectFont(engine, playerID, 224, 0, GeneralUtil.getTime(engine.statistics.time));
 		}
 
 		// Ojama Counter
@@ -1051,18 +1051,18 @@ public class SPFMode extends AbstractMode {
 
 		String strOjama = String.valueOf(ojama[playerID]);
 		if (!strOjama.equals("0")) {
-			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 32, strOjama, fontColor);
+			renderer.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 32, strOjama, fontColor);
 		}
 
 		// Score
 		if (engine.displaySize == DisplaySize.BIG) {
-			receiver.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 472,
+			renderer.drawDirectFont(engine, playerID, fldPosX + 4, fldPosY + 472,
 					String.format("%12d", score[playerID]), playerColor);
 		} else if (engine.gameStarted) {
-			receiver.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 264,
+			renderer.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 264,
 					String.format("%8d", score[playerID]), playerColor);
 		}
-		// receiver.drawDirectFont(engine, playerID, fldPosX + 209, fldPosY + 456,
+		// renderer.drawDirectFont(engine, playerID, fldPosX + 209, fldPosY + 456,
 		// String.valueOf(score[playerID]), playerColor);
 
 		// Countdown Blocks
@@ -1093,10 +1093,10 @@ public class SPFMode extends AbstractMode {
 						}
 
 						if (engine.displaySize == DisplaySize.BIG) {
-							receiver.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(b.countdown),
+							renderer.drawMenuFont(engine, playerID, x * 2, y * 2, String.valueOf(b.countdown),
 									textColor, 2.0f);
 						} else {
-							receiver.drawMenuFont(engine, playerID, x, y, String.valueOf(b.countdown), textColor);
+							renderer.drawMenuFont(engine, playerID, x, y, String.valueOf(b.countdown), textColor);
 						}
 					}
 				}
@@ -1117,10 +1117,10 @@ public class SPFMode extends AbstractMode {
 
 
 		if (techBonusDisplay[playerID] > 0) {
-			receiver.drawMenuFont(engine, playerID, baseX, textHeight, "TECH BONUS", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, baseX, textHeight, "TECH BONUS", Colors.FONT_YELLOW);
 		}
 		if (zenKeshiDisplay[playerID] > 0) {
-			receiver.drawMenuFont(engine, playerID, baseX + 1, textHeight + 1, "ZENKESHI!", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, baseX + 1, textHeight + 1, "ZENKESHI!", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -1168,12 +1168,12 @@ public class SPFMode extends AbstractMode {
 				for (int x = 0; x < width && diamondBreakColor == Colors.BLOCK_COLOR_INVALID; x++) {
 					if (engine.field.getBlockColor(x, y) == DIAMOND_COLOR) {
 						if (engine.displaySize == DisplaySize.BIG) {
-							receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
 						} else {
-							receiver.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
 						}
 
 						engine.field.setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
@@ -1200,12 +1200,12 @@ public class SPFMode extends AbstractMode {
 					if (engine.field.getBlockColor(x, y, true) == diamondBreakColor) {
 						pts += multiplier * 7;
 						if (engine.displaySize == DisplaySize.BIG) {
-							receiver.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
-							receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x, 2 * y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x, 2 * y + 1, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, engine.field.getBlock(x, y));
 						} else {
-							receiver.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
+							renderer.blockBreak(engine, playerID, x, y, engine.field.getBlock(x, y));
 						}
 						engine.field.setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
 					}
@@ -1240,12 +1240,12 @@ public class SPFMode extends AbstractMode {
 					b.secondaryColor = 0;
 				}
 				if (engine.displaySize == DisplaySize.BIG) {
-					receiver.blockBreak(engine, playerID, 2 * x, 2 * y, b);
-					receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y, b);
-					receiver.blockBreak(engine, playerID, 2 * x, 2 * y + 1, b);
-					receiver.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, b);
+					renderer.blockBreak(engine, playerID, 2 * x, 2 * y, b);
+					renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y, b);
+					renderer.blockBreak(engine, playerID, 2 * x, 2 * y + 1, b);
+					renderer.blockBreak(engine, playerID, 2 * x + 1, 2 * y + 1, b);
 				} else {
-					receiver.blockBreak(engine, playerID, x, y, b);
+					renderer.blockBreak(engine, playerID, x, y, b);
 				}
 				engine.field.setBlockColor(x, y, Colors.BLOCK_COLOR_NONE);
 				pts += add;
@@ -1618,7 +1618,7 @@ public class SPFMode extends AbstractMode {
 		if (engine.field != null) {
 			width = engine.field.getWidth();
 		}
-		int blockHeight = receiver.getBlockGraphicsHeight(engine, playerID);
+		int blockHeight = renderer.getBlockGraphicsHeight(engine, playerID);
 		// Rising auctionMeter
 		if (ojama[playerID] * blockHeight / width > engine.meterValue) {
 			engine.meterValue++;
@@ -1671,21 +1671,21 @@ public class SPFMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		receiver.drawMenuFont(engine, playerID, 0, 1, "RESULT", Colors.FONT_ORANGE);
+		renderer.drawMenuFont(engine, playerID, 0, 1, "RESULT", Colors.FONT_ORANGE);
 		if (winnerID == -1) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "DRAW", Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "DRAW", Colors.FONT_GREEN);
 		} else if (winnerID == playerID) {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "WIN!", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "WIN!", Colors.FONT_YELLOW);
 		} else {
-			receiver.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
+			renderer.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
 		}
 
 		float apm = (float) (ojamaSent[playerID] * 3600) / (float) engine.statistics.time;
-		drawResult(engine, playerID, receiver, 3, Colors.FONT_ORANGE, "ATTACK",
+		drawResult(engine, playerID, renderer, 3, Colors.FONT_ORANGE, "ATTACK",
 				String.format("%10d", ojamaSent[playerID]));
-		drawResultStats(engine, playerID, receiver, 5, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
-		drawResult(engine, playerID, receiver, 9, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
-		drawResultStats(engine, playerID, receiver, 11, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
+		drawResultStats(engine, playerID, renderer, 5, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
+		drawResult(engine, playerID, renderer, 9, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
+		drawResultStats(engine, playerID, renderer, 11, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
 				Statistic.TIME);
 	}
 

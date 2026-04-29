@@ -133,7 +133,7 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * Menu Determines whether the cursor is moved in
+	 * Determines whether the cursor is moved in Menu
 	 *
 	 * @param key Button number
 	 * @return If the cursor movestrue
@@ -143,7 +143,7 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * Menu Determines whether the cursor is moved in
+	 * Determines whether the cursor is moved in Menu
 	 *
 	 * @param key           Button number
 	 * @param enableCButton C buttonAllow for high-speed movement

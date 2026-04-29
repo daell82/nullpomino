@@ -286,8 +286,9 @@ public class StateConfigGameTuning extends BaseGameState {
 		if(isPreview) {
 			// Preview
 			try {
-				String strButtonF = gameManager.receiver.getKeyNameByButtonID(gameManager.engine[0], Controller.BUTTON_F);
-				int fontY = gameManager.receiver.getNextDisplayType() == 2 ? 1 : 27;
+				String strButtonF = gameManager.renderer.getKeyNameByButtonID(gameManager.engine[0],
+						Controller.BUTTON_F);
+				int fontY = gameManager.renderer.getNextDisplayType() == 2 ? 1 : 27;
 				NormalFontSlick.printFontGrid(1, fontY, "PUSH F BUTTON (" + strButtonF.toUpperCase() + " KEY) TO EXIT", Colors.FONT_YELLOW);
 
 				gameManager.renderAll();
@@ -317,7 +318,7 @@ public class StateConfigGameTuning extends BaseGameState {
 				//ResourceHolder.imgBlock.draw(256, 64, 256 + 144, 64 + 16, 0, owSkin * 16, 144, (owSkin * 16) + 16);
 				Image imgBlock = ResourceHolderSlick.imgNormalBlockList.get(owSkin);
 
-				if(ResourceHolderSlick.blockStickyFlagList.get(owSkin) == true) {
+				if(ResourceHolderSlick.blockStickyFlagList.get(owSkin)) {
 					for(int j = 0; j < 9; j++) {
 						imgBlock.draw(256 + j * 16, 64, 256 + j * 16 + 16, 64 + 16, 0, j * 16, 16, j * 16 + 16);
 					}

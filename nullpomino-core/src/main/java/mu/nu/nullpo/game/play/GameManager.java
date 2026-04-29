@@ -28,14 +28,19 @@
 */
 package mu.nu.nullpo.game.play;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGImageStatus;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.event.EventReceiver;
+import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
 
 /**
  * GameManager: The container of the game
@@ -64,10 +69,8 @@ public class GameManager implements Serializable {
 	/** true if display menus only (No game screens) */
 	public boolean menuOnly;
 
-	/**
-	 * EventReceiver: Manages various events, and renders everything to the screen
-	 */
-	public final EventReceiver<?> receiver;
+	/** renders everything to the screen */
+	public final Renderer<?> renderer;
 
 	/** BGMStatus: Manages the status of background music */
 	public BGMusicStatus bgmStatus;
@@ -84,13 +87,15 @@ public class GameManager implements Serializable {
 	/** Show input */
 	public boolean showInput;
 
+	public EventReceiver receiver = new EventReceiver();
+
 	/**
 	 * Normal constructor
 	 *
-	 * @param receiver EventReceiver
+	 * @param renderer the rendering engine for drawing the game
 	 */
-	public GameManager(EventReceiver<?> receiver) {
-		this.receiver = receiver;
+	public GameManager(Renderer<?> renderer) {
+		this.renderer = renderer;
 	}
 
 	/**
@@ -253,6 +258,38 @@ public class GameManager implements Serializable {
 		for (GameEngine element : engine) {
 			element.saveReplay();
 		}
-		receiver.saveReplay(this, replayProp);
+		saveReplay(replayProp, "replay");
+	}
+
+	/**
+	 * Called when saving replay (This is main body)
+	 *
+	 * @param owner      GameManager
+	 * @param prop       CustomProperties where the replay is going to stored
+	 * @param foldername Replay folder name
+	 */
+	public void saveReplay(CustomProperties prop, String foldername) {
+		if (mode.isNetplayMode()) {
+			return;
+		}
+
+		String filename = foldername + "/" + GeneralUtil.getReplayFilename();
+		try {
+			File repfolder = new File(foldername);
+			if (!repfolder.exists()) {
+				if (repfolder.mkdir()) {
+					log.info("Created replay folder: " + foldername);
+				} else {
+					log.info("Couldn't create replay folder at " + foldername);
+				}
+			}
+
+			FileOutputStream out = new FileOutputStream(filename);
+			prop.store(new FileOutputStream(filename), "NullpoMino Replay");
+			out.close();
+			log.info("Saved replay file: " + filename);
+		} catch (IOException e) {
+			log.error("Couldn't save replay file to " + filename, e);
+		}
 	}
 }

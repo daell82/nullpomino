@@ -151,20 +151,20 @@ public class StateLoading extends BasicGameState {
 	public void update(GameContainer container, StateBasedGame game, int delta) throws SlickException {
 		if(preloadSet > 2) {
 			// Change title bar caption
-			if(container instanceof AppGameContainer) {
-				((AppGameContainer) container).setTitle("NullpoMino version" + Version.getCurrent());
-				((AppGameContainer) container).setUpdateOnlyWhenVisible(true);
+			if(container instanceof AppGameContainer app) {
+				app.setTitle("NullpoMino version " + Version.getCurrent());
+				app.setUpdateOnlyWhenVisible(true);
 			}
 
 			// First run
-			if(NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true) == true) {
+			if(NullpoMinoSlick.propConfig.getProperty("option.firstSetupMode", true)) {
 				// Set various default settings here
 				GameKeySlick.gamekey[0].loadDefaultKeymap();
 				GameKeySlick.gamekey[0].saveConfig(NullpoMinoSlick.propConfig);
 				NullpoMinoSlick.propConfig.setProperty("option.firstSetupMode", false);
 
 				// Set default rotation button setting (only for first run)
-				if(NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true) == true) {
+				if(NullpoMinoSlick.propGlobal.getProperty("global.firstSetupMode", true)) {
 					for(int pl = 0; pl < 2; pl++) {
 						if(NullpoMinoSlick.propGlobal.getProperty(pl + ".tuning.owRotateButtonDefaultRight") == null) {
 							NullpoMinoSlick.propGlobal.setProperty(pl + ".tuning.owRotateButtonDefaultRight", 0);

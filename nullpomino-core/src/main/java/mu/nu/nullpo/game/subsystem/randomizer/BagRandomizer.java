@@ -58,7 +58,7 @@ public class BagRandomizer implements Randomizer {
 				// Draw
 				do {
 					id = random.nextInt(Piece.PIECE_COUNT);
-				} while ((pieceEnable[id] == false) || (alreadyAppeared[id] == true));
+				} while ((pieceEnable[id] == false) || (alreadyAppeared[id]));
 
 				// Set block drawn flag to ON
 				alreadyAppeared[id] = true;

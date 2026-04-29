@@ -225,7 +225,7 @@ public class Nohoho extends DummyAI implements Runnable {
 			} else {
 				sameStatusTime = 0;
 			}
-			if (bestHold == true && thinkComplete && engine.isHoldOK()) {
+			if (bestHold && thinkComplete && engine.isHoldOK()) {
 				// Hold
 				input |= Controller.BUTTON_BIT_D;
 			} else {
@@ -459,7 +459,7 @@ public class Nohoho extends DummyAI implements Runnable {
 						thinkSuccess = true;
 					}
 				}
-				if (holdOK == true && pieceHold != null) {
+				if (holdOK && pieceHold != null) {
 					x = maxX - pieceHold.getMaximumBlockX();
 					fld.copy(engine.field);
 					y = pieceHold.getBottom(x, nowY, rt, fld);
@@ -514,7 +514,7 @@ public class Nohoho extends DummyAI implements Runnable {
 				}
 
 				// Hold piece
-				if (holdOK == true && pieceHold != null) {
+				if (holdOK && pieceHold != null) {
 					int spawnX = engine.getSpawnPosX(engine.field, pieceHold);
 					int spawnY = engine.getSpawnPosY(pieceHold);
 					int minHoldX = pieceHold.getMostMovableLeft(spawnX, spawnY, rt, engine.field);

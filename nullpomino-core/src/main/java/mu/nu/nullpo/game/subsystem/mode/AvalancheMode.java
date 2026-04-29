@@ -113,8 +113,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	 */
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
-		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		super.playerInit(engine, playerID);
 
 		showChains = true;
 
@@ -267,7 +266,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
 				engine.playSE("decide");
 				saveSetting(owner.modeConfig);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
 			}
 
@@ -297,18 +296,18 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (menuCursor <= 8) {
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype]);
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype]);
 			if (gametype == 2) {
-				drawMenu(engine, playerID, receiver, 2, Colors.FONT_BLUE, 1, "TARGET",
+				drawMenu(engine, playerID, renderer, 2, Colors.FONT_BLUE, 1, "TARGET",
 						String.valueOf(SPRINT_MAX_SCORE[sprintTarget]));
 			}
-			drawMenu(engine, playerID, receiver, 4, Colors.FONT_BLUE, 2, "SCORE TYPE", SCORETYPE_NAME[scoreType],
+			drawMenu(engine, playerID, renderer, 4, Colors.FONT_BLUE, 2, "SCORE TYPE", SCORETYPE_NAME[scoreType],
 					"COLORS", String.valueOf(numColors), "X COLUMN", dangerColumnDouble ? "3 AND 4" : "3 ONLY",
 					"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX), "CLEAR SIZE",
 					String.valueOf(engine.colorClearSize), "FALL ANIM", cascadeSlow ? "FEVER" : "CLASSIC", "BIG DISP",
 					GeneralUtil.getONorOFF(bigDisplay));
 
-			receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/2", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/2", Colors.FONT_YELLOW);
 		} else {
 			String strOutline = "";
 			if (outlinetype == 0) {
@@ -320,10 +319,10 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (outlinetype == 2) {
 				strOutline = "NONE";
 			}
-			drawMenu(engine, playerID, receiver, 0, Colors.FONT_BLUE, 9, "OUTLINE", strOutline, "SHOW CHAIN",
+			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 9, "OUTLINE", strOutline, "SHOW CHAIN",
 					GeneralUtil.getONorOFF(showChains));
 
-			receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/2", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/2", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -346,48 +345,48 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		if (gametype == 2) {
 			modeStr = modeStr + " " + SPRINT_MAX_SCORE[sprintTarget] / 1000 + "K";
 		}
-		receiver.drawScoreFont(engine, playerID, 0, 0, "AVALANCHE (" + modeStr + ")", Colors.FONT_DARKBLUE);
-		receiver.drawScoreFont(engine, playerID, 0, 1, "(" + SCORETYPE_NAME[scoreType] + " " + numColors + " COLORS)",
+		renderer.drawScoreFont(engine, playerID, 0, 0, "AVALANCHE (" + modeStr + ")", Colors.FONT_DARKBLUE);
+		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + SCORETYPE_NAME[scoreType] + " " + numColors + " COLORS)",
 				Colors.FONT_DARKBLUE);
 
 		if (engine.stat == GameEngine.Status.SETTING
 				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
 			if (owner.replayMode == false && engine.ai == null && engine.colorClearSize == 4) {
-				float scale = receiver.getNextDisplayType() == 2 && gametype == 0 ? 0.5f : 1.0f;
-				int topY = receiver.getNextDisplayType() == 2 && gametype == 0 ? 6 : 4;
+				float scale = renderer.getNextDisplayType() == 2 && gametype == 0 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 && gametype == 0 ? 6 : 4;
 
 				switch (gametype) {
 				case 0:
-					receiver.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE      TIME", Colors.FONT_BLUE, scale);
+					renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE      TIME", Colors.FONT_BLUE, scale);
 					break;
 				case 1:
-					receiver.drawScoreFont(engine, playerID, 3, 3, "SCORE", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE", Colors.FONT_BLUE);
 					break;
 				case 2:
-					receiver.drawScoreFont(engine, playerID, 3, 3, "TIME", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 3, 3, "TIME", Colors.FONT_BLUE);
 					break;
 				default:
 					break;
 				}
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					receiver.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
 							Colors.FONT_YELLOW, scale);
 					switch (gametype) {
 					case 0:
-						receiver.drawScoreFont(engine, playerID, 3, topY + i,
+						renderer.drawScoreFont(engine, playerID, 3, topY + i,
 								String.valueOf(rankingScore[scoreType][numColors - 3][gametype][i]), i == rankingRank,
 								scale);
-						receiver.drawScoreFont(engine, playerID, 14, topY + i,
+						renderer.drawScoreFont(engine, playerID, 14, topY + i,
 								GeneralUtil.getTime(rankingTime[scoreType][numColors - 3][gametype][i]),
 								i == rankingRank, scale);
 						break;
 					case 1:
-						receiver.drawScoreFont(engine, playerID, 3, 4 + i,
+						renderer.drawScoreFont(engine, playerID, 3, 4 + i,
 								String.valueOf(rankingScore[scoreType][numColors - 3][gametype][i]), i == rankingRank);
 						break;
 					case 2:
-						receiver.drawScoreFont(engine, playerID, 3, 4 + i,
+						renderer.drawScoreFont(engine, playerID, 3, 4 + i,
 								GeneralUtil.getTime(rankingTime[scoreType][numColors - 3][gametype][i]),
 								i == rankingRank);
 						break;
@@ -397,7 +396,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 				}
 			}
 		} else {
-			receiver.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
 			String strScore;
 			if (lastscore == 0 || lastmultiplier == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
@@ -405,29 +404,29 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + "X"
 						+ String.valueOf(lastmultiplier) + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 4, strScore);
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
-			receiver.drawScoreFont(engine, playerID, 0, 6, "LEVEL", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 7, String.valueOf(level));
+			renderer.drawScoreFont(engine, playerID, 0, 6, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(level));
 
-			receiver.drawScoreFont(engine, playerID, 0, 9, "OJAMA SENT", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 9, "OJAMA SENT", Colors.FONT_BLUE);
 			String strSent = String.valueOf(garbageSent);
 			if (garbageAdd > 0) {
 				strSent = strSent + "(+" + String.valueOf(garbageAdd) + ")";
 			}
-			receiver.drawScoreFont(engine, playerID, 0, 10, strSent);
+			renderer.drawScoreFont(engine, playerID, 0, 10, strSent);
 
-			receiver.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
 
-			receiver.drawScoreFont(engine, playerID, 11, 6, "CLEARED", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 11, 7, String.valueOf(blocksCleared));
+			renderer.drawScoreFont(engine, playerID, 11, 6, "CLEARED", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 11, 7, String.valueOf(blocksCleared));
 
-			receiver.drawScoreFont(engine, playerID, 11, 9, "ZENKESHI", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 11, 10, String.valueOf(zenKeshiCount));
+			renderer.drawScoreFont(engine, playerID, 11, 9, "ZENKESHI", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 11, 10, String.valueOf(zenKeshiCount));
 
-			receiver.drawScoreFont(engine, playerID, 11, 12, "MAX CHAIN", Colors.FONT_BLUE);
-			receiver.drawScoreFont(engine, playerID, 11, 13, String.valueOf(engine.statistics.maxChain));
+			renderer.drawScoreFont(engine, playerID, 11, 12, "MAX CHAIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 11, 13, String.valueOf(engine.statistics.maxChain));
 
 			if (dangerColumnShowX && engine.gameStarted && engine.stat != GameEngine.Status.MOVE
 					&& engine.stat != GameEngine.Status.RESULT) {
@@ -445,11 +444,11 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 
 			if (engine.chain > 0 && chainDisplay > 0 && showChains) {
-				receiver.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight,
+				renderer.drawMenuFont(engine, playerID, baseX + (engine.chain > 9 ? 0 : 1), textHeight,
 						engine.chain + " CHAIN!", Colors.FONT_YELLOW);
 			}
 			if (zenKeshi) {
-				receiver.drawMenuFont(engine, playerID, baseX, textHeight + 1, "ZENKESHI!", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, baseX, textHeight + 1, "ZENKESHI!", Colors.FONT_YELLOW);
 			}
 		}
 	}
@@ -465,9 +464,9 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		for (int i = 0; i < (dangerColumnDouble ? 2 : 1); i++) {
 			if (engine.field == null || engine.field.getBlockEmpty(2 + i, 0)) {
 				if (engine.displaySize == DisplaySize.BIG) {
-					receiver.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, scale);
+					renderer.drawMenuFont(engine, playerID, 4 + i * 2, 0, "e", Colors.FONT_RED, scale);
 				} else {
-					receiver.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
+					renderer.drawMenuFont(engine, playerID, 2 + i, 0, "e", Colors.FONT_RED);
 				}
 			}
 		}
@@ -488,7 +487,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		if (gametype == 1) {
 			int remainTime = ULTRA_MAX_TIME - engine.statistics.time;
 			// Time meter
-			engine.meterValue = remainTime * receiver.getMeterMax(engine) / ULTRA_MAX_TIME;
+			engine.meterValue = remainTime * renderer.getMeterMax(engine) / ULTRA_MAX_TIME;
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainTime <= 3600) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -501,7 +500,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 
 			// Out of time
-			if (engine.statistics.time >= ULTRA_MAX_TIME && engine.timerActive == true) {
+			if (engine.statistics.time >= ULTRA_MAX_TIME && engine.timerActive) {
 				engine.gameEnded();
 				engine.resetStatc();
 				engine.stat = GameEngine.Status.ENDINGSTART;
@@ -512,7 +511,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (!engine.timerActive) {
 				remainScore = 0;
 			}
-			engine.meterValue = remainScore * receiver.getMeterMax(engine) / SPRINT_MAX_SCORE[sprintTarget];
+			engine.meterValue = remainScore * renderer.getMeterMax(engine) / SPRINT_MAX_SCORE[sprintTarget];
 			engine.meterColor = Colors.METER_COLOR_GREEN;
 			if (remainScore <= 50) {
 				engine.meterColor = Colors.METER_COLOR_YELLOW;
@@ -525,7 +524,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 
 			// Goal
-			if (engine.statistics.score >= SPRINT_MAX_SCORE[sprintTarget] && engine.timerActive == true) {
+			if (engine.statistics.score >= SPRINT_MAX_SCORE[sprintTarget] && engine.timerActive) {
 				engine.gameEnded();
 				engine.resetStatc();
 				engine.stat = GameEngine.Status.ENDINGSTART;
@@ -580,27 +579,27 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		if (gametype == 2) {
-			receiver.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
-			receiver.drawMenuFont(engine, playerID, 0, 3, "TIME", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 0, 3, "TIME", Colors.FONT_BLUE);
 			String strTime = String.format("%10s", GeneralUtil.getTime(engine.statistics.time));
-			receiver.drawMenuFont(engine, playerID, 0, 4, strTime);
-			receiver.drawMenuFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
-			receiver.drawMenuFont(engine, playerID, 0, 6, String.valueOf(engine.statistics.score));
-			receiver.drawMenuFont(engine, playerID, 0, 7, "ZENKESHI", Colors.FONT_BLUE);
-			receiver.drawMenuFont(engine, playerID, 0, 8, String.format("%10d", zenKeshiCount));
-			receiver.drawMenuFont(engine, playerID, 0, 9, "MAX CHAIN", Colors.FONT_BLUE);
-			receiver.drawMenuFont(engine, playerID, 0, 10, String.format("%10d", engine.statistics.maxChain));
+			renderer.drawMenuFont(engine, playerID, 0, 4, strTime);
+			renderer.drawMenuFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 6, String.valueOf(engine.statistics.score));
+			renderer.drawMenuFont(engine, playerID, 0, 7, "ZENKESHI", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 8, String.format("%10d", zenKeshiCount));
+			renderer.drawMenuFont(engine, playerID, 0, 9, "MAX CHAIN", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 10, String.format("%10d", engine.statistics.maxChain));
 			if (rankingRank != -1) {
-				receiver.drawMenuFont(engine, playerID, 0, 11, "RANK", Colors.FONT_BLUE);
+				renderer.drawMenuFont(engine, playerID, 0, 11, "RANK", Colors.FONT_BLUE);
 				String strRank = String.format("%10d", rankingRank + 1);
-				receiver.drawMenuFont(engine, playerID, 0, 12, strRank);
+				renderer.drawMenuFont(engine, playerID, 0, 12, strRank);
 			}
 		} else {
 			super.renderResult(engine, playerID);
 			if (rankingRank != -1) {
-				receiver.drawMenuFont(engine, playerID, 0, 15, "RANK", Colors.FONT_BLUE);
+				renderer.drawMenuFont(engine, playerID, 0, 15, "RANK", Colors.FONT_BLUE);
 				String strRank = String.format("%10d", rankingRank + 1);
-				receiver.drawMenuFont(engine, playerID, 0, 16, strRank);
+				renderer.drawMenuFont(engine, playerID, 0, 16, strRank);
 			}
 		}
 	}
@@ -618,7 +617,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 
 			if (rankingRank != -1) {
 				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
-				receiver.saveModeConfig(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
 			}
 		}
 	}

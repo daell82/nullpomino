@@ -107,7 +107,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		owner = engine.owner;
-		receiver = engine.owner.receiver;
+		renderer = engine.owner.renderer;
 		if (engine.owner.replayMode == false) {
 			loadOtherSetting(engine, engine.owner.modeConfig);
 			loadPreset(engine, engine.owner.modeConfig, -1 - playerID, "bombbattle");
@@ -440,11 +440,11 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID], "bombbattle");
 				} else if (menuCursor == 33) {
 					savePreset(engine, owner.modeConfig, presetNumber[playerID], "bombbattle");
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 				} else {
 					saveOtherSetting(engine, owner.modeConfig);
 					savePreset(engine, owner.modeConfig, -1 - playerID, "bombbattle");
-					receiver.saveModeConfig(owner.modeConfig);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
 					engine.statc_4(1);
 				}
 			}
@@ -506,16 +506,16 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, receiver, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
+				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
 						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
 						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das), "FALL DELAY",
 						String.valueOf(engine.cascadeDelay), "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/4", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 17) {
-				drawMenu(engine, playerID, receiver, 0, Colors.FONT_CYAN, 9, "COUNTER",
+				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "COUNTER",
 						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
 						String.valueOf(maxAttack[playerID]), "COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
 						String.valueOf(rensaShibari[playerID]), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
@@ -523,40 +523,40 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "HARD OJAMA",
 						String.valueOf(ojamaHard[playerID]));
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/4", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 26) {
 				initMenu(Colors.FONT_CYAN, 17);
-				drawMenu(engine, playerID, receiver, "X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
+				drawMenu(engine, playerID, renderer, "X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
 						"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]), "COUNTDOWN",
 						String.valueOf(ojamaCountdown[playerID]), "ZENKESHI",
 						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
 				menuColor = zenKeshiType[playerID] == ZENKESHI_MODE_FEVER ? Colors.FONT_PURPLE : Colors.FONT_WHITE;
-				drawMenu(engine, playerID, receiver, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
+				drawMenu(engine, playerID, renderer, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, receiver, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
+				drawMenu(engine, playerID, renderer, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
 						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
 						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, receiver, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
+				drawMenu(engine, playerID, renderer, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/4", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/4", Colors.FONT_YELLOW);
 			} else {
 				initMenu(Colors.FONT_PINK, 26);
-				drawMenu(engine, playerID, receiver, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
 						"BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, receiver, "BGM", String.valueOf(bgmno), "SE",
+				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno), "SE",
 						GeneralUtil.getONorOFF(enableSE[playerID]));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, receiver, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 
-				receiver.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/4", Colors.FONT_YELLOW);
+				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/4", Colors.FONT_YELLOW);
 			}
 		} else {
-			receiver.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
+			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}
 	}
 
@@ -575,13 +575,13 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 	 */
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		int x = receiver.getFieldDisplayPositionX(engine, playerID);
-		int y = receiver.getFieldDisplayPositionY(engine, playerID);
+		int x = renderer.getFieldDisplayPositionX(engine, playerID);
+		int y = renderer.getFieldDisplayPositionY(engine, playerID);
 		int playerColor = playerID == 0 ? Colors.FONT_RED : Colors.FONT_BLUE;
 
 		// Timer
 		if (playerID == 0) {
-			receiver.drawDirectFont(engine, playerID, 224, 8, GeneralUtil.getTime(engine.statistics.time));
+			renderer.drawDirectFont(engine, playerID, 224, 8, GeneralUtil.getTime(engine.statistics.time));
 		}
 
 		// Ojama Counter
@@ -602,7 +602,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 		}
 
 		if (ojama[playerID] > 0 || ojamaAdd[playerID] > 0) {
-			receiver.drawDirectFont(engine, playerID, x + 4, y + 32, strOjama, fontColor);
+			renderer.drawDirectFont(engine, playerID, x + 4, y + 32, strOjama, fontColor);
 		}
 
 		// Score
@@ -612,14 +612,14 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 		}
 
 		if (engine.displaySize == DisplaySize.BIG) {
-			receiver.drawDirectFont(engine, playerID, x + 4, y + 440, String.format("%12d", score[playerID]),
+			renderer.drawDirectFont(engine, playerID, x + 4, y + 440, String.format("%12d", score[playerID]),
 					playerColor);
-			receiver.drawDirectFont(engine, playerID, x + 4, y + 456, String.format("%12s", strScoreMultiplier),
+			renderer.drawDirectFont(engine, playerID, x + 4, y + 456, String.format("%12s", strScoreMultiplier),
 					playerColor);
 		} else if (engine.gameStarted) {
-			receiver.drawDirectFont(engine, playerID, x - 28, y + 248, String.format("%8d", score[playerID]),
+			renderer.drawDirectFont(engine, playerID, x - 28, y + 248, String.format("%8d", score[playerID]),
 					playerColor);
-			receiver.drawDirectFont(engine, playerID, x - 28, y + 264, String.format("%8s", strScoreMultiplier),
+			renderer.drawDirectFont(engine, playerID, x - 28, y + 264, String.format("%8s", strScoreMultiplier),
 					playerColor);
 		}
 
@@ -636,18 +636,18 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 					}
 					if (b.hard > 0) {
 						if (engine.displaySize == DisplaySize.BIG) {
-							receiver.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.hard),
+							renderer.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.hard),
 									Colors.FONT_YELLOW, 2.0f);
 						} else {
-							receiver.drawMenuFont(engine, playerID, x2, y2, String.valueOf(b.hard), Colors.FONT_YELLOW);
+							renderer.drawMenuFont(engine, playerID, x2, y2, String.valueOf(b.hard), Colors.FONT_YELLOW);
 						}
 					}
 					if (b.countdown > 0) {
 						if (engine.displaySize == DisplaySize.BIG) {
-							receiver.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.countdown),
+							renderer.drawMenuFont(engine, playerID, x2 * 2, y2 * 2, String.valueOf(b.countdown),
 									Colors.FONT_RED, 2.0f);
 						} else {
-							receiver.drawMenuFont(engine, playerID, x2, y2, String.valueOf(b.countdown),
+							renderer.drawMenuFont(engine, playerID, x2, y2, String.valueOf(b.countdown),
 									Colors.FONT_RED);
 						}
 					}
@@ -712,10 +712,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 		for (int x2 = x - 1; x2 <= x + 1; x2++) {
 			for (int y2 = y - 1; y2 <= y + 1; y2++) {
 				Block b2 = engine.field.getBlock(x2, y2);
-				if (b2 == null) {
-					continue;
-				}
-				if (b2.isEmpty()) {
+				if (b2 == null || b2.isEmpty()) {
 					continue;
 				}
 				if (b2.countdown > 0) {
@@ -726,12 +723,12 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 				b2.hard = ojamaHard[playerID];
 
 				if (engine.displaySize == DisplaySize.BIG) {
-					owner.receiver.blockBreak(engine, playerID, 2 * x2, 2 * y2, b2);
-					owner.receiver.blockBreak(engine, playerID, 2 * x2 + 1, 2 * y2, b2);
-					owner.receiver.blockBreak(engine, playerID, 2 * x2, 2 * y2 + 1, b2);
-					owner.receiver.blockBreak(engine, playerID, 2 * x2 + 1, 2 * y2 + 1, b2);
+					owner.renderer.blockBreak(engine, playerID, 2 * x2, 2 * y2, b2);
+					owner.renderer.blockBreak(engine, playerID, 2 * x2 + 1, 2 * y2, b2);
+					owner.renderer.blockBreak(engine, playerID, 2 * x2, 2 * y2 + 1, b2);
+					owner.renderer.blockBreak(engine, playerID, 2 * x2 + 1, 2 * y2 + 1, b2);
 				} else {
-					owner.receiver.blockBreak(engine, playerID, x2, y2, b2);
+					owner.renderer.blockBreak(engine, playerID, x2, y2, b2);
 				}
 			}
 		}
@@ -753,7 +750,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 			width = engine.field.getWidth();
 		}
 		width *= 6;
-		int blockHeight = receiver.getBlockGraphicsHeight(engine, playerID);
+		int blockHeight = renderer.getBlockGraphicsHeight(engine, playerID);
 		// Rising auctionMeter
 		int value = ojama[playerID] * blockHeight / width;
 		if (ojama[playerID] >= 5 * width) {

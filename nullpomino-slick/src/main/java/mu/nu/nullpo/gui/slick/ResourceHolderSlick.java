@@ -44,6 +44,8 @@ import org.newdawn.slick.font.effects.ShadowEffect;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
+import mu.nu.nullpo.game.play.SoundManager;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Class to the management of image and sound
@@ -99,10 +101,10 @@ public class ResourceHolderSlick {
 	public static UnicodeFont ttfFont;
 
 	/** Sound effects */
-	public static SlickSoundManager soundManager;
+	public static SoundManager soundManager;
 
 	/** BGM */
-	public static Music[] bgm;
+	private static Music[] bgm;
 
 	/** Current BGM number */
 	public static int bgmPlaying;
@@ -180,72 +182,72 @@ public class ResourceHolderSlick {
 		soundManager = new SlickSoundManager();
 		if (NullpoMinoSlick.propConfig.getProperty("option.se", true)) {
 			log.info("Loading Sound Effect");
-			soundManager.load("cursor", skindir + "/se/cursor.wav");
-			soundManager.load("decide", skindir + "/se/decide.wav");
-			soundManager.load("erase1", skindir + "/se/erase1.wav");
-			soundManager.load("erase2", skindir + "/se/erase2.wav");
-			soundManager.load("erase3", skindir + "/se/erase3.wav");
-			soundManager.load("erase4", skindir + "/se/erase4.wav");
-			soundManager.load("died", skindir + "/se/died.wav");
-			soundManager.load("gameover", skindir + "/se/gameover.wav");
-			soundManager.load("hold", skindir + "/se/hold.wav");
-			soundManager.load("holdfail", skindir + "/se/holdfail.wav");
-			soundManager.load("initialhold", skindir + "/se/initialhold.wav");
-			soundManager.load("initialrotate", skindir + "/se/initialrotate.wav");
-			soundManager.load("levelup", skindir + "/se/levelup.wav");
-			soundManager.load("linefall", skindir + "/se/linefall.wav");
-			soundManager.load("lock", skindir + "/se/lock.wav");
-			soundManager.load("move", skindir + "/se/move.wav");
-			soundManager.load("pause", skindir + "/se/pause.wav");
-			soundManager.load("rotate", skindir + "/se/rotate.wav");
-			soundManager.load("step", skindir + "/se/step.wav");
-			soundManager.load("piece0", skindir + "/se/piece0.wav");
-			soundManager.load("piece1", skindir + "/se/piece1.wav");
-			soundManager.load("piece2", skindir + "/se/piece2.wav");
-			soundManager.load("piece3", skindir + "/se/piece3.wav");
-			soundManager.load("piece4", skindir + "/se/piece4.wav");
-			soundManager.load("piece5", skindir + "/se/piece5.wav");
-			soundManager.load("piece6", skindir + "/se/piece6.wav");
-			soundManager.load("piece7", skindir + "/se/piece7.wav");
-			soundManager.load("piece8", skindir + "/se/piece8.wav");
-			soundManager.load("piece9", skindir + "/se/piece9.wav");
-			soundManager.load("piece10", skindir + "/se/piece10.wav");
-			soundManager.load("harddrop", skindir + "/se/harddrop.wav");
-			soundManager.load("softdrop", skindir + "/se/softdrop.wav");
-			soundManager.load("levelstop", skindir + "/se/levelstop.wav");
-			soundManager.load("endingstart", skindir + "/se/endingstart.wav");
-			soundManager.load("excellent", skindir + "/se/excellent.wav");
-			soundManager.load("b2b_start", skindir + "/se/b2b_start.wav");
-			soundManager.load("b2b_continue", skindir + "/se/b2b_continue.wav");
-			soundManager.load("b2b_end", skindir + "/se/b2b_end.wav");
-			soundManager.load("gradeup", skindir + "/se/gradeup.wav");
-			soundManager.load("countdown", skindir + "/se/countdown.wav");
-			soundManager.load("tspin0", skindir + "/se/tspin0.wav");
-			soundManager.load("tspin1", skindir + "/se/tspin1.wav");
-			soundManager.load("tspin2", skindir + "/se/tspin2.wav");
-			soundManager.load("tspin3", skindir + "/se/tspin3.wav");
-			soundManager.load("ready", skindir + "/se/ready.wav");
-			soundManager.load("go", skindir + "/se/go.wav");
-			soundManager.load("movefail", skindir + "/se/movefail.wav");
-			soundManager.load("rotfail", skindir + "/se/rotfail.wav");
-			soundManager.load("medal", skindir + "/se/medal.wav");
-			soundManager.load("change", skindir + "/se/change.wav");
-			soundManager.load("bravo", skindir + "/se/bravo.wav");
-			soundManager.load("cool", skindir + "/se/cool.wav");
-			soundManager.load("regret", skindir + "/se/regret.wav");
-			soundManager.load("garbage", skindir + "/se/garbage.wav");
-			soundManager.load("stageclear", skindir + "/se/stageclear.wav");
-			soundManager.load("stagefail", skindir + "/se/stagefail.wav");
-			soundManager.load("gem", skindir + "/se/gem.wav");
-			soundManager.load("danger", skindir + "/se/danger.wav");
-			soundManager.load("matchend", skindir + "/se/matchend.wav");
-			soundManager.load("hurryup", skindir + "/se/hurryup.wav");
-			soundManager.load("square_s", skindir + "/se/square_s.wav");
-			soundManager.load("square_g", skindir + "/se/square_g.wav");
-			soundManager.load("slide", skindir + "/se/slide.wav");
+			soundManager.load(Sounds.CURSOR, skindir + "/se/cursor.wav");
+			soundManager.load(Sounds.DECIDE, skindir + "/se/decide.wav");
+			soundManager.load(Sounds.ERASE1, skindir + "/se/erase1.wav");
+			soundManager.load(Sounds.ERASE2, skindir + "/se/erase2.wav");
+			soundManager.load(Sounds.ERASE3, skindir + "/se/erase3.wav");
+			soundManager.load(Sounds.ERASE4, skindir + "/se/erase4.wav");
+			soundManager.load(Sounds.DIED, skindir + "/se/died.wav");
+			soundManager.load(Sounds.GAME_OVER, skindir + "/se/gameover.wav");
+			soundManager.load(Sounds.HOLD, skindir + "/se/hold.wav");
+			soundManager.load(Sounds.HOLD_FAIL, skindir + "/se/holdfail.wav");
+			soundManager.load(Sounds.INITIAL_HOLD, skindir + "/se/initialhold.wav");
+			soundManager.load(Sounds.INITIAL_ROTATE, skindir + "/se/initialrotate.wav");
+			soundManager.load(Sounds.LEVEL_UP, skindir + "/se/levelup.wav");
+			soundManager.load(Sounds.LINE_FALL, skindir + "/se/linefall.wav");
+			soundManager.load(Sounds.LOCK, skindir + "/se/lock.wav");
+			soundManager.load(Sounds.MOVE, skindir + "/se/move.wav");
+			soundManager.load(Sounds.PAUSE, skindir + "/se/pause.wav");
+			soundManager.load(Sounds.ROTATE, skindir + "/se/rotate.wav");
+			soundManager.load(Sounds.STEP, skindir + "/se/step.wav");
+			soundManager.load(Sounds.PIECE_I, skindir + "/se/piece0.wav");
+			soundManager.load(Sounds.PIECE_L, skindir + "/se/piece1.wav");
+			soundManager.load(Sounds.PIECE_O, skindir + "/se/piece2.wav");
+			soundManager.load(Sounds.PIECE_Z, skindir + "/se/piece3.wav");
+			soundManager.load(Sounds.PIECE_T, skindir + "/se/piece4.wav");
+			soundManager.load(Sounds.PIECE_J, skindir + "/se/piece5.wav");
+			soundManager.load(Sounds.PIECE_S, skindir + "/se/piece6.wav");
+			soundManager.load(Sounds.PIECE_I1, skindir + "/se/piece7.wav");
+			soundManager.load(Sounds.PIECE_I2, skindir + "/se/piece8.wav");
+			soundManager.load(Sounds.PIECE_I3, skindir + "/se/piece9.wav");
+			soundManager.load(Sounds.PIECE_L3, skindir + "/se/piece10.wav");
+			soundManager.load(Sounds.HARDDROP, skindir + "/se/harddrop.wav");
+			soundManager.load(Sounds.SOFTDROP, skindir + "/se/softdrop.wav");
+			soundManager.load(Sounds.LEVEL_STOP, skindir + "/se/levelstop.wav");
+			soundManager.load(Sounds.ENDING_START, skindir + "/se/endingstart.wav");
+			soundManager.load(Sounds.EXCELLENT, skindir + "/se/excellent.wav");
+			soundManager.load(Sounds.B2B_START, skindir + "/se/b2b_start.wav");
+			soundManager.load(Sounds.B2B_CONTINUE, skindir + "/se/b2b_continue.wav");
+			soundManager.load(Sounds.B2B_END, skindir + "/se/b2b_end.wav");
+			soundManager.load(Sounds.GRADE_UP, skindir + "/se/gradeup.wav");
+			soundManager.load(Sounds.COUNTDOWN, skindir + "/se/countdown.wav");
+			soundManager.load(Sounds.TSPIN0, skindir + "/se/tspin0.wav");
+			soundManager.load(Sounds.TSPIN1, skindir + "/se/tspin1.wav");
+			soundManager.load(Sounds.TSPIN2, skindir + "/se/tspin2.wav");
+			soundManager.load(Sounds.TSPIN3, skindir + "/se/tspin3.wav");
+			soundManager.load(Sounds.READY, skindir + "/se/ready.wav");
+			soundManager.load(Sounds.GO, skindir + "/se/go.wav");
+			soundManager.load(Sounds.MOVE_FAIL, skindir + "/se/movefail.wav");
+			soundManager.load(Sounds.ROTATE_FAIL, skindir + "/se/rotfail.wav");
+			soundManager.load(Sounds.MEDAL, skindir + "/se/medal.wav");
+			soundManager.load(Sounds.CHANGE, skindir + "/se/change.wav");
+			soundManager.load(Sounds.BRAVO, skindir + "/se/bravo.wav");
+			soundManager.load(Sounds.COOL, skindir + "/se/cool.wav");
+			soundManager.load(Sounds.REGRET, skindir + "/se/regret.wav");
+			soundManager.load(Sounds.GARBAGE, skindir + "/se/garbage.wav");
+			soundManager.load(Sounds.STAGE_CLEAR, skindir + "/se/stageclear.wav");
+			soundManager.load(Sounds.STAGE_FAIL, skindir + "/se/stagefail.wav");
+			soundManager.load(Sounds.GEM, skindir + "/se/gem.wav");
+			soundManager.load(Sounds.DANGER, skindir + "/se/danger.wav");
+			soundManager.load(Sounds.MATCH_END, skindir + "/se/matchend.wav");
+			soundManager.load(Sounds.HURRY_UP, skindir + "/se/hurryup.wav");
+			soundManager.load(Sounds.SQUARE_SILVER, skindir + "/se/square_s.wav");
+			soundManager.load(Sounds.SQUARE_GOLD, skindir + "/se/square_g.wav");
+			soundManager.load(Sounds.SLIDE, skindir + "/se/slide.wav");
 
-			for (int i = 0; i < 20; i++) {
-				soundManager.load("combo" + (i + 1), skindir + "/se/combo" + (i + 1) + ".wav");
+			for (int i = 1; i < 21; i++) {
+				soundManager.load("combo" + i, skindir + "/se/combo" + i + ".wav");
 			}
 		}
 
@@ -253,7 +255,7 @@ public class ResourceHolderSlick {
 		bgm = new Music[BGMusicStatus.BGM_COUNT];
 		bgmPlaying = -1;
 
-		if (NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false) == true) {
+		if (NullpoMinoSlick.propConfig.getProperty("option.bgmpreload", false)) {
 			for (int i = 0; i < BGMusicStatus.BGM_COUNT; i++) {
 				bgmLoad(i, false);
 			}
@@ -360,7 +362,7 @@ public class ResourceHolderSlick {
 	 * @param showerr displayed on the console when an exception occurs
 	 */
 	public static void bgmLoad(int no, boolean showerr) {
-		if (NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) {
+		if (!NullpoMinoSlick.propConfig.getProperty("option.bgm", false)) {
 			return;
 		}
 
@@ -401,7 +403,7 @@ public class ResourceHolderSlick {
 	 * @param no BGM number
 	 */
 	public static void bgmStart(int no) {
-		if (NullpoMinoSlick.propConfig.getProperty("option.bgm", false) == false) {
+		if (!NullpoMinoSlick.propConfig.getProperty("option.bgm", false)) {
 			return;
 		}
 
@@ -417,7 +419,7 @@ public class ResourceHolderSlick {
 
 			if (bgm[no] != null) {
 				try {
-					if (NullpoMinoSlick.propMusic.getProperty("music.noloop." + no, false) == true) {
+					if (NullpoMinoSlick.propMusic.getProperty("music.noloop." + no, false)) {
 						bgm[no].play();
 					} else {
 						bgm[no].loop();

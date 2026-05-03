@@ -40,8 +40,8 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.tool.airankstool.AIRanksConstants;
-import mu.nu.nullpo.tool.airankstool.Ranks;
+import mu.nu.nullpo.game.subsystem.ai.util.AIRanksConstants;
+import mu.nu.nullpo.game.subsystem.ai.util.Ranks;
 import mu.nu.nullpo.util.CustomProperties;
 
 @Log4j

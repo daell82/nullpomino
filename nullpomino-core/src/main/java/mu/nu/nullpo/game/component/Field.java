@@ -195,8 +195,8 @@ public class Field implements Serializable {
 			for (int y = 0; y < height; y++) {
 				fieldBlocks[y][x] = new Block();
 			}
-			for (int j = 0; j < hiddenHeight; j++) {
-				hiddenBlocks[j][x] = new Block();
+			for (int y = 0; y < hiddenHeight; y++) {
+				hiddenBlocks[y][x] = new Block();
 			}
 		}
 	}
@@ -229,8 +229,8 @@ public class Field implements Serializable {
 			for (int y = 0; y < height; y++) {
 				fieldBlocks[y][x] = new Block(f.getBlock(x, y));
 			}
-			for (int j = 0; j < hiddenHeight; j++) {
-				hiddenBlocks[j][x] = new Block(f.getBlock(x, -j - 1));
+			for (int y = 0; y < hiddenHeight; y++) {
+				hiddenBlocks[y][x] = new Block(f.getBlock(x, -y - 1));
 			}
 		}
 	}
@@ -389,12 +389,13 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlock colorGet the
+	 * Get the Block color located at the specified coordinates
 	 *
 	 * @param x X-coordinate
 	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlock color
-	 *         (FailedBLOCK_COLOR_INVALID)
+	 * @return Block color located at the specified coordinates or
+	 *         {@link Colors#BLOCK_COLOR_INVALID} on invalid values
+	 *
 	 */
 	public int getBlockColor(int x, int y) {
 		Block block = getBlock(x, y);
@@ -402,21 +403,22 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlock colorGet the
+	 * Get the Block color located at the specified coordinates
 	 *
 	 * @param x       X-coordinate
 	 * @param y       Y-coordinate
 	 * @param gemSame If true, a gem block will return the color of the
 	 *                corresponding normal block.
-	 * @return Is located at the specified coordinatesBlock color
-	 *         (FailedBLOCK_COLOR_INVALID)
+	 * @return Block color located at the specified coordinates or
+	 *         {@link Colors#BLOCK_COLOR_INVALID} on invalid values
 	 */
 	public int getBlockColor(int x, int y, boolean gemSame) {
-		return Block.gemToNormalColor(getBlockColor(x, y));
+		var color = getBlockColor(x, y);
+		return gemSame ? Block.gemToNormalColor(color) : color;
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlock colorChange
+	 * Change the Block color located at the specified coordinates
 	 *
 	 * @param x     X-coordinate
 	 * @param y     Y-coordinate
@@ -437,7 +439,7 @@ public class Field implements Serializable {
 	 *
 	 * @param y Y-coordinate
 	 * @return true If the column is to disappear, Otherwise (If the coordinates are
-	 *         out of range) orfalse
+	 *         out of range) or false
 	 */
 	public boolean getLineFlag(int y) {
 		// check visible field
@@ -445,7 +447,7 @@ public class Field implements Serializable {
 			return lineflagField[y];
 		}
 		// check hidden field
-		int y2 = y * -1 - 1;
+		int y2 = -y - 1;
 		if (y2 >= 0 && y2 < hiddenHeight) {
 			return lineflagHidden[y2];
 		}
@@ -453,12 +455,11 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Is located at the specified coordinatesBlockDetermine whether the space is
+	 * Determine whether the block is an empty space at the specified coordinates
 	 *
 	 * @param x X-coordinate
 	 * @param y Y-coordinate
-	 * @return Is located at the specified coordinatesBlockIf space istrue (In the
-	 *         case of a specified coordinate is out of rangetrue)
+	 * @return whether the block is an empty space at the specified coordinates
 	 */
 	public boolean getBlockEmpty(int x, int y) {
 		Block block = getBlock(x, y);
@@ -482,7 +483,7 @@ public class Field implements Serializable {
 			return false;
 		}
 		// fieldOutside
-		int y2 = y * -1 - 1;
+		int y2 = -y - 1;
 		if (y2 >= 0 && y2 < hiddenHeight) {
 			lineflagHidden[y2] = flag;
 			return true;
@@ -503,31 +504,28 @@ public class Field implements Serializable {
 		}
 		lastLinesCleared.clear();
 
-		Block[] row = new Block[width];
-
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			boolean flag = true;
-
-			for (int j = 0; j < width; j++) {
-				row[j] = new Block(getBlock(j, i));
-				if (getBlockEmpty(j, i) || getBlock(j, i).getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-					flag = false;
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			Block[] row = new Block[width];
+			boolean lineClear = true;
+			for (int x = 0; x < width; x++) {
+				Block block = getBlock(x, y);
+				if (block == null || block.isEmpty() || block.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
+					lineClear = false;
 					break;
 				}
+				row[x] = new Block(block);
 			}
+			setLineFlag(y, lineClear);
 
-			setLineFlag(i, flag);
-
-			if (flag) {
+			if (lineClear) {
 				lines++;
 				lastLinesCleared.add(row);
 
 				for (int j = 0; j < width; j++) {
-					getBlock(j, i).setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
+					getBlock(j, y).setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
 				}
 			}
 		}
-
 		return lines;
 	}
 

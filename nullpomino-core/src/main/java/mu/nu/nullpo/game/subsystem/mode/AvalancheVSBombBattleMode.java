@@ -48,9 +48,6 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 	/** Version */
 	private int version;
 
-	/** True to use new (Fever) chain powers */
-	private boolean[] newChainPower;
-
 	/** Settings for starting countdown for ojama blocks */
 	private int[] ojamaCountdown;
 

@@ -30,6 +30,7 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import mu.nu.nullpo.game.component.Block;
@@ -49,7 +50,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 	private CustomProperties propMap;
 
 	/** Current MapAll contained in the filefield data */
-	private LinkedList<Field> listFields;
+	private List<Field> listFields;
 
 	/** Current MapSetID */
 	private int nowMapSetID;
@@ -87,7 +88,6 @@ public class ToolVSMapEditMode extends AbstractMode {
 	 */
 	private void loadMap(Field field, CustomProperties prop, int id) {
 		field.reset();
-		// field.readProperty(prop, id);
 		field.stringToField(prop.getProperty("map." + id, ""));
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -102,7 +102,6 @@ public class ToolVSMapEditMode extends AbstractMode {
 	 * @param id    AnyID
 	 */
 	private void saveMap(Field field, CustomProperties prop, int id) {
-		// field.writeProperty(prop, id);
 		prop.setProperty("map." + id, field.fieldToString());
 	}
 
@@ -184,13 +183,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 			engine.playSE("change");
 
 			switch (menuCursor) {
-			case 0:
-			case 1:
-			case 2:
-				break;
-			case 3:
-			case 4:
-			case 5:
+			case 3, 4, 5:
 				nowMapID += change;
 				if (nowMapID < 0) {
 					nowMapID = listFields.size();
@@ -199,8 +192,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 					nowMapID = 0;
 				}
 				break;
-			case 6:
-			case 7:
+			case 6, 7:
 				nowMapSetID += change;
 				if (nowMapSetID < 0) {
 					nowMapSetID = 99;
@@ -208,6 +200,8 @@ public class ToolVSMapEditMode extends AbstractMode {
 				if (nowMapSetID > 99) {
 					nowMapSetID = 0;
 				}
+				break;
+			default:
 				break;
 			}
 		}
@@ -293,7 +287,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 		renderer.drawMenuFont(engine, playerID, 1, 4, "[CLEAR]", menuCursor == 2);
 
 		renderer.drawMenuFont(engine, playerID, 0, 6, "MAP DATA", Colors.FONT_DARKBLUE);
-		if (listFields.size() > 0) {
+		if (!listFields.isEmpty()) {
 			renderer.drawMenuFont(engine, playerID, 0, 7, nowMapID + "/" + (listFields.size() - 1),
 					menuCursor >= 3 && menuCursor <= 5);
 		} else {

@@ -13,17 +13,22 @@
 		<dependency>
 			<groupId>mu.nu.nullpo</groupId>
 			<artifactId>nullpomino-core</artifactId>
-			<version>7.6.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mu.nu.nullpo</groupId>
 			<artifactId>nullpomino-swing</artifactId>
-			<version>7.6.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>mu.nu.nullpo</groupId>
 			<artifactId>nullpomino-slick</artifactId>
-			<version>7.6.0-SNAPSHOT</version>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mu.nu.nullpo</groupId>
+			<artifactId>nullpomino-tools</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	

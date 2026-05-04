@@ -222,11 +222,11 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 		int place = 0;
 
 		for (int i = 0; i < getPlayers(); i++) {
-			if (i != playerID && netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engine[i].field != null) {
+			if (i != playerID && netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engines[i].field != null) {
 				if (playerRemainLines[playerID] > playerRemainLines[i]) {
 					place++;
 				} else if (playerRemainLines[playerID] == playerRemainLines[i]
-						&& engine.field.getHighestBlockY() < owner.engine[i].field.getHighestBlockY()) {
+						&& engine.field.getHighestBlockY() < owner.engines[i].field.getHighestBlockY()) {
 					place++;
 				}
 			}
@@ -295,7 +295,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 					int[] places = new int[NETVS_MAX_PLAYERS];
 					int[] uidArray = new int[NETVS_MAX_PLAYERS];
 					for (int i = 0; i < getPlayers(); i++) {
-						places[i] = getNowPlayerPlace(owner.engine[i], i);
+						places[i] = getNowPlayerPlace(owner.engines[i], i);
 						uidArray[i] = -1;
 					}
 					for (int i = 0; i < getPlayers(); i++) {
@@ -516,7 +516,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
-			GameEngine engine = owner.engine[playerID];
+			GameEngine engine = owner.engines[playerID];
 
 			engine.statistics.lines = Integer.parseInt(message[8]);
 			engine.statistics.lpm = Float.parseFloat(message[9]);

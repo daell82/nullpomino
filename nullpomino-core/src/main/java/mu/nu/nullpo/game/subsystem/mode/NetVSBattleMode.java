@@ -993,7 +993,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
-			GameEngine engine = owner.engine[playerID];
+			GameEngine engine = owner.engines[playerID];
 
 			float tempGarbageSend = Float.parseFloat(message[5]);
 			garbageSent[playerID] = (int) (tempGarbageSend * GARBAGE_DENOMINATOR);
@@ -1057,7 +1057,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 				scgettime[playerID] = 0;
 				int targetSeatID = Integer.parseInt(message[ATTACK_CATEGORIES + 10]);
 
-				if (!netvsIsWatch() && owner.engine[0].timerActive && sumPts > 0 && !netvsIsPractice
+				if (!netvsIsWatch() && owner.engines[0].timerActive && sumPts > 0 && !netvsIsPractice
 						&& !netvsIsNewcomer && (targetSeatID == -1 || netvsPlayerSeatID[0] == targetSeatID
 								|| !netCurrentRoomInfo.isTarget)
 						&& netvsIsAttackable(playerID)) {
@@ -1076,15 +1076,15 @@ public class NetVSBattleMode extends NetDummyVSMode {
 
 					garbage[0] = getTotalGarbageLines();
 					if (garbage[0] >= 4 * GARBAGE_DENOMINATOR) {
-						owner.engine[0].playSE("danger");
+						owner.engines[0].playSE("danger");
 					}
-					netSendStats(owner.engine[0]);
+					netSendStats(owner.engines[0]);
 				}
 			}
 			// HurryUp
 			if (message[3].equals("hurryup")) {
 				if (!hurryupStarted && netCurrentRoomInfo != null && netCurrentRoomInfo.hurryupSeconds > 0) {
-					if (!netvsIsWatch() && !netvsIsPractice && owner.engine[0].timerActive) {
+					if (!netvsIsWatch() && !netvsIsPractice && owner.engines[0].timerActive) {
 						owner.renderer.playSE("hurryup");
 					}
 					hurryupStarted = true;

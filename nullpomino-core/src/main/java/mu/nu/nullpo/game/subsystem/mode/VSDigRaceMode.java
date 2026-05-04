@@ -157,8 +157,8 @@ public class VSDigRaceMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		if (playerID == 1) {
-			engine.randSeed = owner.engine[0].randSeed;
-			engine.random = new Random(owner.engine[0].randSeed);
+			engine.randSeed = owner.engines[0].randSeed;
+			engine.random = new Random(owner.engines[0].randSeed);
 		}
 
 		engine.framecolor = PLAYER_COLOR_FRAME[playerID];
@@ -337,11 +337,11 @@ public class VSDigRaceMode extends AbstractMode {
 				engine.statc_4(1);
 			}
 		} else // Start the game when both players are ready
-		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
-			owner.engine[0].stat = GameEngine.Status.READY;
-			owner.engine[1].stat = GameEngine.Status.READY;
-			owner.engine[0].resetStatc();
-			owner.engine[1].resetStatc();
+		if (owner.engines[0].statc_4() == 1 && owner.engines[1].statc_4() == 1 && playerID == 1) {
+			owner.engines[0].stat = GameEngine.Status.READY;
+			owner.engines[1].stat = GameEngine.Status.READY;
+			owner.engines[0].resetStatc();
+			owner.engines[1].resetStatc();
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
@@ -520,7 +520,7 @@ public class VSDigRaceMode extends AbstractMode {
 			fontColor = Colors.FONT_RED;
 		}
 
-		int enemyRemainLines = Math.max(0, getRemainGarbageLines(owner.engine[enemyID], enemyID));
+		int enemyRemainLines = Math.max(0, getRemainGarbageLines(owner.engines[enemyID], enemyID));
 		/*
 		 * int fontColorEnemy = Colors.COLOR_WHITE; if((enemyRemainLines <= 14)
 		 * && (enemyRemainLines > 0)) fontColorEnemy = Colors.COLOR_YELLOW;
@@ -557,10 +557,10 @@ public class VSDigRaceMode extends AbstractMode {
 		// Normal layout
 		if (owner.renderer.getNextDisplayType() != 2 && playerID == 0) {
 			renderer.drawScoreFont(engine, playerID, 0, 2, "1P LINES", Colors.FONT_RED);
-			renderer.drawScoreFont(engine, playerID, 0, 3, String.valueOf(owner.engine[0].statistics.lines));
+			renderer.drawScoreFont(engine, playerID, 0, 3, String.valueOf(owner.engines[0].statistics.lines));
 
 			renderer.drawScoreFont(engine, playerID, 0, 5, "2P LINES", Colors.FONT_BLUE);
-			renderer.drawScoreFont(engine, playerID, 0, 6, String.valueOf(owner.engine[1].statistics.lines));
+			renderer.drawScoreFont(engine, playerID, 0, 6, String.valueOf(owner.engines[1].statistics.lines));
 
 			if (!owner.replayMode) {
 				renderer.drawScoreFont(engine, playerID, 0, 8, "1P WINS", Colors.FONT_RED);
@@ -612,44 +612,44 @@ public class VSDigRaceMode extends AbstractMode {
 		// Game completed
 		if (lines > 0 && remainLines <= 0) {
 			engine.timerActive = false;
-			owner.engine[enemyID].stat = GameEngine.Status.GAMEOVER;
-			owner.engine[enemyID].resetStatc();
+			owner.engines[enemyID].stat = GameEngine.Status.GAMEOVER;
+			owner.engines[enemyID].resetStatc();
 		}
 	}
 
 	@Override
 	public void onLast(GameEngine engine, int playerID) {
 		// Game End
-		if (playerID == 1 && owner.engine[0].gameActive) {
-			if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat == GameEngine.Status.GAMEOVER) {
+		if (playerID == 1 && owner.engines[0].gameActive) {
+			if (owner.engines[0].stat == GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat == GameEngine.Status.GAMEOVER) {
 				// Draw
 				winnerID = -1;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-			} else if (owner.engine[0].stat != GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat == GameEngine.Status.GAMEOVER) {
+			} else if (owner.engines[0].stat != GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat == GameEngine.Status.GAMEOVER) {
 				// 1P win
 				winnerID = 0;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[0].resetStatc();
-				owner.engine[0].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[0].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[0].resetStatc();
+				owner.engines[0].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				if (!owner.replayMode) {
 					winCount[0]++;
 				}
-			} else if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat != GameEngine.Status.GAMEOVER) {
+			} else if (owner.engines[0].stat == GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat != GameEngine.Status.GAMEOVER) {
 				// 2P win
 				winnerID = 1;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[1].resetStatc();
-				owner.engine[1].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[1].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[1].resetStatc();
+				owner.engines[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 				if (!owner.replayMode) {
 					winCount[1]++;

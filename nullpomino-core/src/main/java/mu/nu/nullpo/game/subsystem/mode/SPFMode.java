@@ -528,8 +528,8 @@ public class SPFMode extends AbstractMode {
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
 		if (playerID == 1) {
-			engine.randSeed = owner.engine[0].randSeed;
-			engine.random = new Random(owner.engine[0].randSeed);
+			engine.randSeed = owner.engines[0].randSeed;
+			engine.random = new Random(owner.engines[0].randSeed);
 		}
 
 		engine.framecolor = PLAYER_COLOR_FRAME[playerID];
@@ -854,11 +854,11 @@ public class SPFMode extends AbstractMode {
 				menuCursor = 9;
 			}
 		} else // Start
-		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
-			owner.engine[0].stat = GameEngine.Status.READY;
-			owner.engine[1].stat = GameEngine.Status.READY;
-			owner.engine[0].resetStatc();
-			owner.engine[1].resetStatc();
+		if (owner.engines[0].statc_4() == 1 && owner.engines[1].statc_4() == 1 && playerID == 1) {
+			owner.engines[0].stat = GameEngine.Status.READY;
+			owner.engines[1].stat = GameEngine.Status.READY;
+			owner.engines[0].resetStatc();
+			owner.engines[1].resetStatc();
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
@@ -977,7 +977,7 @@ public class SPFMode extends AbstractMode {
 
 						if (mapNumber[playerID] < 0) {
 							if (playerID == 1 && useMap[0] && mapNumber[0] < 0) {
-								engine.field.copy(owner.engine[0].field);
+								engine.field.copy(owner.engines[0].field);
 							} else {
 								int no = mapMaxNo[playerID] < 1 ? 0 : randMap.nextInt(mapMaxNo[playerID]);
 								loadMap(engine.field, propMap[playerID], no);
@@ -1634,33 +1634,33 @@ public class SPFMode extends AbstractMode {
 		}
 
 		// Settlement
-		if (playerID == 1 && owner.engine[0].gameActive) {
-			if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat == GameEngine.Status.GAMEOVER) {
+		if (playerID == 1 && owner.engines[0].gameActive) {
+			if (owner.engines[0].stat == GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat == GameEngine.Status.GAMEOVER) {
 				// Draw
 				winnerID = -1;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-			} else if (owner.engine[0].stat != GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat == GameEngine.Status.GAMEOVER) {
+			} else if (owner.engines[0].stat != GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat == GameEngine.Status.GAMEOVER) {
 				// 1P win
 				winnerID = 0;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[0].resetStatc();
-				owner.engine[0].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[0].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[0].resetStatc();
+				owner.engines[0].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-			} else if (owner.engine[0].stat == GameEngine.Status.GAMEOVER
-					&& owner.engine[1].stat != GameEngine.Status.GAMEOVER) {
+			} else if (owner.engines[0].stat == GameEngine.Status.GAMEOVER
+					&& owner.engines[1].stat != GameEngine.Status.GAMEOVER) {
 				// 2P win
 				winnerID = 1;
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[1].resetStatc();
-				owner.engine[1].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[1].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[1].resetStatc();
+				owner.engines[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}

@@ -29,7 +29,6 @@
 package mu.nu.nullpo.game.play;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -79,7 +78,7 @@ public class GameManager implements Serializable {
 	public BGImageStatus backgroundStatus;
 
 	/** GameEngine: This is where the most action takes place */
-	public GameEngine[] engine;
+	public GameEngine[] engines;
 
 	/** true to show invisible blocks in replay */
 	public boolean replayShowInvisible;
@@ -122,9 +121,9 @@ public class GameManager implements Serializable {
 			mode.modeInit(this);
 			players = mode.getPlayers();
 		}
-		engine = new GameEngine[players];
-		for (int i = 0; i < engine.length; i++) {
-			engine[i] = new GameEngine(this, i);
+		engines = new GameEngine[players];
+		for (int i = 0; i < engines.length; i++) {
+			engines[i] = new GameEngine(this, i);
 		}
 	}
 
@@ -140,8 +139,8 @@ public class GameManager implements Serializable {
 		if (!replayMode) {
 			replayProp = new CustomProperties();
 		}
-		for (GameEngine element : engine) {
-			element.init();
+		for (GameEngine engine : engines) {
+			engine.init();
 		}
 	}
 
@@ -152,11 +151,11 @@ public class GameManager implements Serializable {
 		log.debug("GameManager shutdown()");
 
 		try {
-			for (int i = 0; i < engine.length; i++) {
-				engine[i].shutdown();
-				engine[i] = null;
+			for (int i = 0; i < engines.length; i++) {
+				engines[i].shutdown();
+				engines[i] = null;
 			}
-			engine = null;
+			engines = null;
 			mode = null;
 			modeConfig = null;
 			replayProp = null;
@@ -173,7 +172,7 @@ public class GameManager implements Serializable {
 	 * @return Number of players
 	 */
 	public int getPlayers() {
-		return engine != null ? engine.length : 0;
+		return engines != null ? engines.length : 0;
 	}
 
 	/**
@@ -182,11 +181,11 @@ public class GameManager implements Serializable {
 	 * @return true if the game should quit
 	 */
 	public boolean getQuitFlag() {
-		if (engine == null) {
+		if (engines == null) {
 			return false;
 		}
-		for (GameEngine gameEngine : engine) {
-			if (gameEngine != null && gameEngine.quitflag) {
+		for (GameEngine engine : engines) {
+			if (engine != null && engine.quitflag) {
 				return true;
 			}
 		}
@@ -199,9 +198,9 @@ public class GameManager implements Serializable {
 	 * @return true if there is a active GameEngine
 	 */
 	public boolean isGameActive() {
-		if (engine != null) {
-			for (GameEngine gameEngine : engine) {
-				if (gameEngine != null && gameEngine.gameActive) {
+		if (engines != null) {
+			for (GameEngine engine : engines) {
+				if (engine != null && engine.gameActive) {
 					return true;
 				}
 			}
@@ -217,12 +216,12 @@ public class GameManager implements Serializable {
 	 *         game.
 	 */
 	public int getWinner() {
-		if (engine.length < 2) {
+		if (engines.length < 2) {
 			return -1;
 		}
 
-		for (int i = 0; i < engine.length; i++) {
-			if (engine[i].stat != GameEngine.Status.GAMEOVER) {
+		for (int i = 0; i < engines.length; i++) {
+			if (engines[i].stat != GameEngine.Status.GAMEOVER) {
 				return i;
 			}
 		}
@@ -234,8 +233,8 @@ public class GameManager implements Serializable {
 	 * Update every GameEngine
 	 */
 	public void updateAll() {
-		for (GameEngine element : engine) {
-			element.update();
+		for (GameEngine engine : engines) {
+			engine.update();
 		}
 		bgmStatus.fadeUpdate();
 		backgroundStatus.fadeUpdate();
@@ -245,8 +244,8 @@ public class GameManager implements Serializable {
 	 * Dispatches all render events to EventReceiver
 	 */
 	public void renderAll() {
-		for (GameEngine element : engine) {
-			element.render();
+		for (GameEngine engine : engines) {
+			engine.render();
 		}
 	}
 
@@ -255,8 +254,8 @@ public class GameManager implements Serializable {
 	 */
 	public void saveReplay() {
 		replayProp = new CustomProperties();
-		for (GameEngine element : engine) {
-			element.saveReplay();
+		for (GameEngine engine : engines) {
+			engine.saveReplay();
 		}
 		saveReplay(replayProp, "replay");
 	}
@@ -283,10 +282,7 @@ public class GameManager implements Serializable {
 					log.info("Couldn't create replay folder at " + foldername);
 				}
 			}
-
-			FileOutputStream out = new FileOutputStream(filename);
-			prop.store(new FileOutputStream(filename), "NullpoMino Replay");
-			out.close();
+			prop.save(filename, "NullpoMino Replay");
 			log.info("Saved replay file: " + filename);
 		} catch (IOException e) {
 			log.error("Couldn't save replay file to " + filename, e);

@@ -1140,7 +1140,7 @@ public class MarathonPlusMode extends NetDummyMode {
 
 		// Game messages
 		if (message[0].equals("game")) {
-			GameEngine engine = owner.engine[0];
+			GameEngine engine = owner.engines[0];
 
 			// Bonus level entered
 			if (message[3].equals("bonuslevelenter")) {

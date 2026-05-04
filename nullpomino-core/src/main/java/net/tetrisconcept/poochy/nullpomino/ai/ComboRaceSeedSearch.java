@@ -94,7 +94,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 	/**
 	 * Search for the best choice
 	 *
-	 * @param engine   The GameEngine that owns this AI
+	 * @param engines   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
 	public static void thinkBestPosition(int state, int nextIndex, int holdID) {
@@ -147,7 +147,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 	/**
 	 * Think routine
 	 *
-	 * @param engine GameEngine
+	 * @param engines GameEngine
 	 * @param state  Think state
 	 * @param holdID Hold piece ID
 	 * @param depth  Search depth

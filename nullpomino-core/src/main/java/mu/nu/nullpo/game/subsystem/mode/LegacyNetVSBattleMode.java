@@ -369,7 +369,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			isPlayerExist[i] = false;
 			isReady[i] = false;
 			allPlayerSeatNumbers[i] = -1;
-			owner.engine[i].framecolor = Colors.FRAME_COLOR_GRAY;
+			owner.engines[i].framecolor = Colors.FRAME_COLOR_GRAY;
 		}
 
 		if (currentRoomID != -1 && netLobby != null) {
@@ -383,7 +383,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 						numPlayers++;
 
 						if (pInfo.seatID < PLAYER_COLOR_FRAME.length) {
-							owner.engine[playerID].framecolor = PLAYER_COLOR_FRAME[pInfo.seatID];
+							owner.engines[playerID].framecolor = PLAYER_COLOR_FRAME[pInfo.seatID];
 						}
 					} else {
 						numSpectators++;
@@ -403,7 +403,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		int noTeamCount = 0;
 
 		for (int i = 0; i < MAX_PLAYERS; i++) {
-			if (isPlayerExist[i] && !isDead[i] && owner.engine[i].gameActive) {
+			if (isPlayerExist[i] && !isDead[i] && owner.engines[i].gameActive) {
 				if (playerTeams[i].length() > 0) {
 					if (!listTeamName.contains(playerTeams[i])) {
 						listTeamName.add(playerTeams[i]);
@@ -643,29 +643,29 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			// useTankMode = roomInfo.useTankMode;
 
 			for (int i = 0; i < getPlayers(); i++) {
-				owner.engine[i].speed.gravity = roomInfo.gravity;
-				owner.engine[i].speed.denominator = roomInfo.denominator;
-				owner.engine[i].speed.are = roomInfo.are;
-				owner.engine[i].speed.areLine = roomInfo.areLine;
-				owner.engine[i].speed.lineDelay = roomInfo.lineDelay;
-				owner.engine[i].speed.lockDelay = roomInfo.lockDelay;
-				owner.engine[i].speed.das = roomInfo.das;
-				owner.engine[i].b2bEnable = roomInfo.b2b;
-				owner.engine[i].comboType = roomInfo.combo ? GameEngine.COMBO_TYPE_NORMAL
+				owner.engines[i].speed.gravity = roomInfo.gravity;
+				owner.engines[i].speed.denominator = roomInfo.denominator;
+				owner.engines[i].speed.are = roomInfo.are;
+				owner.engines[i].speed.areLine = roomInfo.areLine;
+				owner.engines[i].speed.lineDelay = roomInfo.lineDelay;
+				owner.engines[i].speed.lockDelay = roomInfo.lockDelay;
+				owner.engines[i].speed.das = roomInfo.das;
+				owner.engines[i].b2bEnable = roomInfo.b2b;
+				owner.engines[i].comboType = roomInfo.combo ? GameEngine.COMBO_TYPE_NORMAL
 						: GameEngine.COMBO_TYPE_DISABLE;
 
 				switch (roomInfo.tspinEnableType) {
 				case 0:
-					owner.engine[i].tspinEnable = false;
-					owner.engine[i].useAllSpinBonus = false;
+					owner.engines[i].tspinEnable = false;
+					owner.engines[i].useAllSpinBonus = false;
 					break;
 				case 1:
-					owner.engine[i].tspinEnable = true;
-					owner.engine[i].useAllSpinBonus = false;
+					owner.engines[i].tspinEnable = true;
+					owner.engines[i].useAllSpinBonus = false;
 					break;
 				case 2:
-					owner.engine[i].tspinEnable = true;
-					owner.engine[i].useAllSpinBonus = true;
+					owner.engines[i].tspinEnable = true;
+					owner.engines[i].useAllSpinBonus = true;
 					break;
 				default:
 					break;
@@ -676,18 +676,18 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 			if (!rulelockFlag) {
 				// Revert rules
-				owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);
-				owner.engine[0].randomizer = GeneralUtil.loadRandomizer(owner.engine[0].ruleopt.strRandomizer);
-				owner.engine[0].wallkick = GeneralUtil.loadWallkick(owner.engine[0].ruleopt.strWallkick);
+				owner.engines[0].ruleopt.copy(netLobby.ruleOptPlayer);
+				owner.engines[0].randomizer = GeneralUtil.loadRandomizer(owner.engines[0].ruleopt.strRandomizer);
+				owner.engines[0].wallkick = GeneralUtil.loadWallkick(owner.engines[0].ruleopt.strWallkick);
 			} else // Set to locked rule
 			if (netLobby != null && netLobby.ruleOptLock != null) {
 				log.info("Set locked rule");
 				Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
 				Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
 				for (int i = 0; i < getPlayers(); i++) {
-					owner.engine[i].ruleopt.copy(netLobby.ruleOptLock);
-					owner.engine[i].randomizer = randomizer;
-					owner.engine[i].wallkick = wallkick;
+					owner.engines[i].ruleopt.copy(netLobby.ruleOptLock);
+					owner.engines[i].randomizer = randomizer;
+					owner.engines[i].wallkick = wallkick;
 				}
 			} else {
 				log.warn("Tried to set locked rule, but rule was not received yet!");
@@ -698,25 +698,25 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		numWins = 0;
 
 		for (int i = 0; i < getPlayers(); i++) {
-			owner.engine[i].enableSE = false;
+			owner.engines[i].enableSE = false;
 			if (i >= numMaxPlayers) {
-				owner.engine[i].isVisible = false;
+				owner.engines[i].isVisible = false;
 			} else {
-				owner.engine[i].isVisible = true;
+				owner.engines[i].isVisible = true;
 			}
 		}
 		if (playerSeatNumber >= 0) {
-			owner.engine[0].displaySize = DisplaySize.NORMAL;
-			owner.engine[0].enableSE = true;
+			owner.engines[0].displaySize = DisplaySize.NORMAL;
+			owner.engines[0].enableSE = true;
 		} else {
-			owner.engine[0].displaySize = DisplaySize.SMALL;
-			owner.engine[0].enableSE = false;
+			owner.engines[0].displaySize = DisplaySize.SMALL;
+			owner.engines[0].enableSE = false;
 		}
 
 		// Apply 1vs1 layout
 		if (roomInfo != null && roomInfo.maxPlayers == 2) {
-			owner.engine[0].displaySize = DisplaySize.NORMAL;
-			owner.engine[1].displaySize = DisplaySize.NORMAL;
+			owner.engines[0].displaySize = DisplaySize.NORMAL;
+			owner.engines[1].displaySize = DisplaySize.NORMAL;
 		}
 
 		updatePlayerExist();
@@ -893,7 +893,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		int playerID = getPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || playerSeatNumber < 0) {
-			GameEngine engine = owner.engine[playerID];
+			GameEngine engine = owner.engines[playerID];
 
 			float tempGarbageSend = Float.parseFloat(message[5]);
 			garbageSent[playerID] = (int) (tempGarbageSend * GARBAGE_DENOMINATOR);
@@ -990,8 +990,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 			// Apply 1vs1 layout
 			if (currentRoomInfo != null && currentRoomInfo.maxPlayers == 2) {
-				owner.engine[0].displaySize = DisplaySize.NORMAL;
-				owner.engine[1].displaySize = DisplaySize.NORMAL;
+				owner.engines[0].displaySize = DisplaySize.NORMAL;
+				owner.engines[1].displaySize = DisplaySize.NORMAL;
 			}
 
 			if (netLobby != null && netLobby.netPlayerClient != null) {
@@ -1705,7 +1705,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		// Number of players
 		if (playerID == getPlayers() - 1 && netLobby != null && netLobby.netPlayerClient != null
 				&& netLobby.netPlayerClient.isConnected()
-				&& (!owner.engine[1].isVisible || owner.engine[1].displaySize == DisplaySize.SMALL || !isNetGameActive)) {
+				&& (!owner.engines[1].isVisible || owner.engines[1].displaySize == DisplaySize.SMALL || !isNetGameActive)) {
 			int x = owner.renderer.getNextDisplayType() == 2 ? 544 : 503;
 			if (owner.renderer.getNextDisplayType() == 2 && numMaxPlayers == 2) {
 				x = 321;
@@ -2333,7 +2333,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	@Override
 	public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
 		for (int i = 0; i < getPlayers(); i++) {
-			owner.engine[i].stat = GameEngine.Status.NOTHING;
+			owner.engines[i].stat = GameEngine.Status.NOTHING;
 		}
 	}
 
@@ -2385,39 +2385,39 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 				if (playerSeatNumber >= 0) {
 					// Participation in a war
-					owner.engine[0].displaySize = DisplaySize.NORMAL;
-					owner.engine[0].enableSE = true;
+					owner.engines[0].displaySize = DisplaySize.NORMAL;
+					owner.engines[0].enableSE = true;
 					for (int i = 1; i < getPlayers(); i++) {
-						owner.engine[i].displaySize = DisplaySize.SMALL;
+						owner.engines[i].displaySize = DisplaySize.SMALL;
 					}
 				} else {
 					// Spectator
 					for (int i = 0; i < getPlayers(); i++) {
-						owner.engine[i].displaySize = DisplaySize.SMALL;
-						owner.engine[i].enableSE = false;
+						owner.engines[i].displaySize = DisplaySize.SMALL;
+						owner.engines[i].enableSE = false;
 					}
 				}
 
 				// Apply 1vs1 layout
 				if (currentRoomInfo != null && currentRoomInfo.maxPlayers == 2) {
-					owner.engine[0].displaySize = DisplaySize.NORMAL;
-					owner.engine[1].displaySize = DisplaySize.NORMAL;
+					owner.engines[0].displaySize = DisplaySize.NORMAL;
+					owner.engines[1].displaySize = DisplaySize.NORMAL;
 				}
 
 				isPractice = false;
-				owner.engine[0].stat = GameEngine.Status.SETTING;
+				owner.engines[0].stat = GameEngine.Status.SETTING;
 
 				for (int i = 0; i < getPlayers(); i++) {
-					if (owner.engine[i].field != null) {
-						owner.engine[i].field.reset();
+					if (owner.engines[i].field != null) {
+						owner.engines[i].field.reset();
 					}
-					owner.engine[i].nowPieceObject = null;
+					owner.engines[i].nowPieceObject = null;
 					garbage[i] = 0;
 
-					if (owner.engine[i].stat == GameEngine.Status.NOTHING || isNetGameFinished) {
-						owner.engine[i].stat = GameEngine.Status.SETTING;
+					if (owner.engines[i].stat == GameEngine.Status.NOTHING || isNetGameFinished) {
+						owner.engines[i].stat = GameEngine.Status.SETTING;
 					}
-					owner.engine[i].resetStatc();
+					owner.engines[i].resetStatc();
 				}
 			} else if (message[1].equals("watchonly")) {
 				int seatID = Integer.parseInt(message[4]);
@@ -2485,7 +2485,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 
 			if (playerSeatNumber != -1 && !rulelockFlag && netLobby.ruleOptPlayer != null) {
-				owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer); // Restore rules
+				owner.engines[0].ruleopt.copy(netLobby.ruleOptPlayer); // Restore rules
 			}
 
 			updatePlayerExist();
@@ -2495,7 +2495,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					+ mapNo);
 
 			for (int i = 0; i < getPlayers(); i++) {
-				GameEngine engine = owner.engine[i];
+				GameEngine engine = owner.engines[i];
 				engine.resetStatc();
 
 				if (isPlayerExist[i]) {
@@ -2513,7 +2513,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 							engine.isHoldVisible = true;
 
 							if (i != 0) {
-								engine.randomizer = owner.engine[0].randomizer;
+								engine.randomizer = owner.engines[0].randomizer;
 							}
 						} else {
 							engine.isNextVisible = false;
@@ -2563,9 +2563,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			if (!isDead[playerID]) {
 				isDead[playerID] = true;
 				playerPlace[playerID] = Integer.parseInt(message[4]);
-				owner.engine[playerID].gameEnded();
-				owner.engine[playerID].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[playerID].resetStatc();
+				owner.engines[playerID].gameEnded();
+				owner.engines[playerID].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[playerID].resetStatc();
 				numAlivePlayers--;
 
 				if (koUID == netLobby.netPlayerClient.getPlayerUID()) {
@@ -2573,7 +2573,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					currentKO++;
 				}
 				if (seatID == playerSeatNumber && playerSeatNumber != -1) {
-					sendGameStat(owner.engine[playerID], playerID);
+					sendGameStat(owner.engines[playerID], playerID);
 				}
 			}
 		}
@@ -2597,9 +2597,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			if (isPractice) {
 				isPractice = false;
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-				owner.engine[0].gameEnded();
-				owner.engine[0].stat = GameEngine.Status.SETTING;
-				owner.engine[0].resetStatc();
+				owner.engines[0].gameEnded();
+				owner.engines[0].stat = GameEngine.Status.SETTING;
+				owner.engines[0].resetStatc();
 			}
 
 			boolean flagTeamWin = Boolean.parseBoolean(message[4]);
@@ -2609,15 +2609,15 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				for (int i = 0; i < MAX_PLAYERS; i++) {
 					if (isPlayerExist[i] && !isDead[i]) {
 						playerPlace[i] = 1;
-						owner.engine[i].gameEnded();
-						owner.engine[i].stat = GameEngine.Status.EXCELLENT;
-						owner.engine[i].resetStatc();
-						owner.engine[i].statistics.time = netPlayTimer;
+						owner.engines[i].gameEnded();
+						owner.engines[i].stat = GameEngine.Status.EXCELLENT;
+						owner.engines[i].resetStatc();
+						owner.engines[i].statistics.time = netPlayTimer;
 						numAlivePlayers--;
 
 						if (i == 0 && playerSeatNumber != -1) {
 							numWins++;
-							sendGameStat(owner.engine[i], i);
+							sendGameStat(owner.engines[i], i);
 						}
 					}
 				}
@@ -2627,15 +2627,15 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					int playerID = getPlayerIDbySeatID(seatID);
 					if (isPlayerExist[playerID]) {
 						playerPlace[playerID] = 1;
-						owner.engine[playerID].gameEnded();
-						owner.engine[playerID].stat = GameEngine.Status.EXCELLENT;
-						owner.engine[playerID].resetStatc();
-						owner.engine[playerID].statistics.time = netPlayTimer;
+						owner.engines[playerID].gameEnded();
+						owner.engines[playerID].stat = GameEngine.Status.EXCELLENT;
+						owner.engines[playerID].resetStatc();
+						owner.engines[playerID].statistics.time = netPlayTimer;
 						numAlivePlayers--;
 
 						if (seatID == playerSeatNumber && playerSeatNumber != -1) {
 							numWins++;
-							sendGameStat(owner.engine[playerID], playerID);
+							sendGameStat(owner.engines[playerID], playerID);
 						}
 					}
 				}
@@ -2654,15 +2654,15 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			int seatID = Integer.parseInt(message[2]);
 			int playerID = getPlayerIDbySeatID(seatID);
 
-			if (owner.engine[playerID].field == null) {
-				owner.engine[playerID].field = new Field();
+			if (owner.engines[playerID].field == null) {
+				owner.engines[playerID].field = new Field();
 			}
 
 			// Field without attributes
 			if (message[3].equals("field")) {
 				if (message.length > 7) {
-					owner.engine[playerID].nowPieceObject = null;
-					owner.engine[playerID].holdDisable = false;
+					owner.engines[playerID].nowPieceObject = null;
+					owner.engines[playerID].holdDisable = false;
 					garbage[playerID] = Integer.parseInt(message[4]);
 					int skin = Integer.parseInt(message[5]);
 					int highestGarbageY = Integer.parseInt(message[6]);
@@ -2674,17 +2674,17 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 						if (isCompressed) {
 							strFieldData = NetUtil.decompressString(strFieldData);
 						}
-						owner.engine[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
+						owner.engines[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
 					} else {
-						owner.engine[playerID].field.reset();
+						owner.engines[playerID].field.reset();
 					}
 				}
 			}
 			// Field with attributes
 			if (message[3].equals("fieldattr")) {
 				if (message.length > 5) {
-					owner.engine[playerID].nowPieceObject = null;
-					owner.engine[playerID].holdDisable = false;
+					owner.engines[playerID].nowPieceObject = null;
+					owner.engines[playerID].holdDisable = false;
 					garbage[playerID] = Integer.parseInt(message[4]);
 					int skin = Integer.parseInt(message[5]);
 					playerSkin[playerID] = skin;
@@ -2694,9 +2694,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 						if (isCompressed) {
 							strFieldData = NetUtil.decompressString(strFieldData);
 						}
-						owner.engine[playerID].field.attrStringToField(strFieldData, skin);
+						owner.engines[playerID].field.attrStringToField(strFieldData, skin);
 					} else {
-						owner.engine[playerID].field.reset();
+						owner.engines[playerID].field.reset();
 					}
 				}
 			}
@@ -2713,27 +2713,27 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					int pieceSkin = Integer.parseInt(message[10]);
 					boolean pieceBig = message.length > 11 ? Boolean.parseBoolean(message[11]) : false;
 
-					owner.engine[playerID].nowPieceObject = new Piece(id);
-					owner.engine[playerID].nowPieceObject.direction = pieceDir;
-					owner.engine[playerID].nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
-					owner.engine[playerID].nowPieceObject.setColor(pieceColor);
-					owner.engine[playerID].nowPieceObject.setSkin(pieceSkin);
-					owner.engine[playerID].nowPieceX = pieceX;
-					owner.engine[playerID].nowPieceY = pieceY;
+					owner.engines[playerID].nowPieceObject = new Piece(id);
+					owner.engines[playerID].nowPieceObject.direction = pieceDir;
+					owner.engines[playerID].nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+					owner.engines[playerID].nowPieceObject.setColor(pieceColor);
+					owner.engines[playerID].nowPieceObject.setSkin(pieceSkin);
+					owner.engines[playerID].nowPieceX = pieceX;
+					owner.engines[playerID].nowPieceY = pieceY;
 					// owner.engine[playerID].nowPieceBottomY = pieceBottomY;
-					owner.engine[playerID].nowPieceObject.big = pieceBig;
-					owner.engine[playerID].nowPieceObject.updateConnectData();
-					owner.engine[playerID].nowPieceBottomY = owner.engine[playerID].nowPieceObject.getBottom(pieceX,
-							pieceY, owner.engine[playerID].field);
+					owner.engines[playerID].nowPieceObject.big = pieceBig;
+					owner.engines[playerID].nowPieceObject.updateConnectData();
+					owner.engines[playerID].nowPieceBottomY = owner.engines[playerID].nowPieceObject.getBottom(pieceX,
+							pieceY, owner.engines[playerID].field);
 
-					if (owner.engine[playerID].stat != GameEngine.Status.EXCELLENT) {
-						owner.engine[playerID].stat = GameEngine.Status.MOVE;
-						owner.engine[playerID].statc_0(2);
+					if (owner.engines[playerID].stat != GameEngine.Status.EXCELLENT) {
+						owner.engines[playerID].stat = GameEngine.Status.MOVE;
+						owner.engines[playerID].statc_0(2);
 					}
 
 					playerSkin[playerID] = pieceSkin;
 				} else {
-					owner.engine[playerID].nowPieceObject = null;
+					owner.engines[playerID].nowPieceObject = null;
 				}
 
 				if (playerSeatNumber == -1 && !netPlayTimerActive && !isNetGameFinished && !isNewcomer) {
@@ -2742,9 +2742,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 
 				if (playerSeatNumber != -1 && netPlayTimerActive && !isPractice
-						&& owner.engine[0].stat == GameEngine.Status.READY
-						&& owner.engine[0].statc_0() < owner.engine[0].goEnd) {
-					owner.engine[0].statc_0(owner.engine[0].goEnd);
+						&& owner.engines[0].stat == GameEngine.Status.READY
+						&& owner.engines[0].statc_0() < owner.engines[0].goEnd) {
+					owner.engines[0].statc_0(owner.engines[0].goEnd);
 				}
 			}
 //			if((message[3].equals("tank")) && (useTankMode)){
@@ -2779,7 +2779,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				scgettime[playerID] = 0;
 				int targetSeatID = Integer.parseInt(message[ATTACK_CATEGORIES + 10]);
 
-				if (playerSeatNumber != -1 && owner.engine[0].timerActive && sumPts > 0 && !isPractice && !isNewcomer
+				if (playerSeatNumber != -1 && owner.engines[0].timerActive && sumPts > 0 && !isPractice && !isNewcomer
 						&& (targetSeatID == -1 || playerSeatNumber == targetSeatID || !currentRoomInfo.isTarget)
 						&& (playerTeams[0].length() <= 0 || playerTeams[playerID].length() <= 0
 								|| !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
@@ -2803,7 +2803,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 					garbage[0] = getTotalGarbageLines();
 					if (garbage[0] >= 4 * GARBAGE_DENOMINATOR) {
-						owner.engine[0].playSE("danger");
+						owner.engines[0].playSE("danger");
 					}
 					netLobby.netPlayerClient.send("game\tgarbageupdate\t" + garbage[0] + "\n");
 				}
@@ -2815,8 +2815,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			// NEXT and HOLD
 			if (message[3].equals("next")) {
 				int maxNext = Integer.parseInt(message[4]);
-				owner.engine[playerID].ruleopt.nextDisplay = maxNext;
-				owner.engine[playerID].holdDisable = Boolean.parseBoolean(message[5]);
+				owner.engines[playerID].ruleopt.nextDisplay = maxNext;
+				owner.engines[playerID].holdDisable = Boolean.parseBoolean(message[5]);
 
 				for (int i = 0; i < maxNext + 1; i++) {
 					if (i + 6 < message.length) {
@@ -2827,35 +2827,35 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 						if (i == 0) {
 							if (pieceID == Piece.PIECE_NONE) {
-								owner.engine[playerID].holdPieceObject = null;
+								owner.engines[playerID].holdPieceObject = null;
 							} else {
-								owner.engine[playerID].holdPieceObject = new Piece(pieceID);
-								owner.engine[playerID].holdPieceObject.direction = pieceDirection;
-								owner.engine[playerID].holdPieceObject.setColor(pieceColor);
-								owner.engine[playerID].holdPieceObject.setSkin(playerSkin[playerID]);
-								owner.engine[playerID].holdPieceObject.updateConnectData();
+								owner.engines[playerID].holdPieceObject = new Piece(pieceID);
+								owner.engines[playerID].holdPieceObject.direction = pieceDirection;
+								owner.engines[playerID].holdPieceObject.setColor(pieceColor);
+								owner.engines[playerID].holdPieceObject.setSkin(playerSkin[playerID]);
+								owner.engines[playerID].holdPieceObject.updateConnectData();
 							}
 						} else {
-							if (owner.engine[playerID].nextPieces == null
-									|| owner.engine[playerID].nextPieces.length < maxNext) {
-								owner.engine[playerID].nextPieces = new Piece[maxNext];
+							if (owner.engines[playerID].nextPieces == null
+									|| owner.engines[playerID].nextPieces.length < maxNext) {
+								owner.engines[playerID].nextPieces = new Piece[maxNext];
 							}
-							owner.engine[playerID].nextPieces[i - 1] = new Piece(pieceID);
-							owner.engine[playerID].nextPieces[i - 1].direction = pieceDirection;
-							owner.engine[playerID].nextPieces[i - 1].setColor(pieceColor);
-							owner.engine[playerID].nextPieces[i - 1].setSkin(playerSkin[playerID]);
-							owner.engine[playerID].nextPieces[i - 1].updateConnectData();
+							owner.engines[playerID].nextPieces[i - 1] = new Piece(pieceID);
+							owner.engines[playerID].nextPieces[i - 1].direction = pieceDirection;
+							owner.engines[playerID].nextPieces[i - 1].setColor(pieceColor);
+							owner.engines[playerID].nextPieces[i - 1].setSkin(playerSkin[playerID]);
+							owner.engines[playerID].nextPieces[i - 1].updateConnectData();
 						}
 					}
 				}
 
-				owner.engine[playerID].isNextVisible = true;
-				owner.engine[playerID].isHoldVisible = true;
+				owner.engines[playerID].isNextVisible = true;
+				owner.engines[playerID].isHoldVisible = true;
 			}
 			// HurryUp
 			if (message[3].equals("hurryup")) {
 				if (!hurryupStarted && hurryupSeconds > 0) {
-					if (playerSeatNumber != -1 && owner.engine[0].timerActive) {
+					if (playerSeatNumber != -1 && owner.engines[0].timerActive) {
 						owner.renderer.playSE("hurryup");
 					}
 					hurryupStarted = true;

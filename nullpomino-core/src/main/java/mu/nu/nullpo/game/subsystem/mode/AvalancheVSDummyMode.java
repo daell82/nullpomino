@@ -480,8 +480,8 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		owner = engine.owner;
 		renderer = engine.owner.renderer;
 		if (playerID == 1) {
-			engine.randSeed = owner.engine[0].randSeed;
-			engine.random = new Random(owner.engine[0].randSeed);
+			engine.randSeed = owner.engines[0].randSeed;
+			engine.random = new Random(owner.engines[0].randSeed);
 		}
 
 		engine.framecolor = PLAYER_COLOR_FRAME[playerID];
@@ -564,7 +564,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 					if (mapNumber[playerID] < 0) {
 						if (playerID == 1 && useMap[0] && mapNumber[0] < 0) {
-							engine.field.copy(owner.engine[0].field);
+							engine.field.copy(owner.engines[0].field);
 						} else {
 							int no = mapMaxNo[playerID] < 1 ? 0 : randMap.nextInt(mapMaxNo[playerID]);
 							loadMap(engine.field, propMap[playerID], no);
@@ -801,32 +801,32 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 		}
 
 		// Settlement
-		if (playerID == 1 && owner.engine[0].gameActive) {
-			boolean p1Lose = owner.engine[0].stat == GameEngine.Status.GAMEOVER;
-			boolean p2Lose = owner.engine[1].stat == GameEngine.Status.GAMEOVER;
+		if (playerID == 1 && owner.engines[0].gameActive) {
+			boolean p1Lose = owner.engines[0].stat == GameEngine.Status.GAMEOVER;
+			boolean p2Lose = owner.engines[1].stat == GameEngine.Status.GAMEOVER;
 			if (p1Lose && p2Lose) {
 				// Draw
 				winnerID = -1;
-				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[1].stat = GameEngine.Status.GAMEOVER;
 			} else if (p2Lose && !p1Lose) {
 				// 1P win
 				winnerID = 0;
-				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[0].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[1].stat = GameEngine.Status.GAMEOVER;
 			} else if (p1Lose && !p2Lose) {
 				// 2P win
 				winnerID = 1;
-				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[1].stat = GameEngine.Status.EXCELLENT;
 			}
 			if (p1Lose || p2Lose) {
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[0].resetStatc();
-				owner.engine[1].resetStatc();
-				owner.engine[0].statc_1(1);
-				owner.engine[1].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[0].resetStatc();
+				owner.engines[1].resetStatc();
+				owner.engines[0].statc_1(1);
+				owner.engines[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}
@@ -864,7 +864,7 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 
 	@Override
 	public void renderLast(GameEngine engine, int playerID) {
-		if (!owner.engine[playerID].gameActive) {
+		if (!owner.engines[playerID].gameActive) {
 			return;
 		}
 
@@ -998,6 +998,6 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 				"MAX CHAIN", String.format("%10d", engine.statistics.maxChain), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "ATTACK/MIN", String.format("%10g", apm),
 				"PIECE/SEC", String.format("%10g", engine.statistics.pps), "TIME",
-				String.format("%10s", GeneralUtil.getTime(owner.engine[0].statistics.time)));
+				String.format("%10s", GeneralUtil.getTime(owner.engines[0].statistics.time)));
 	}
 }

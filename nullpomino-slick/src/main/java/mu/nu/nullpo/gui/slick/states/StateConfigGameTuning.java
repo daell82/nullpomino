@@ -204,15 +204,15 @@ public class StateConfigGameTuning extends BaseGameState {
 		// Initialization for each player
 		for(int i = 0; i < gameManager.getPlayers(); i++) {
 			// Tuning
-			gameManager.engine[i].owRotateButtonDefaultRight = owRotateButtonDefaultRight;
-			gameManager.engine[i].owSkin = owSkin;
-			gameManager.engine[i].owMinDAS = owMinDAS;
-			gameManager.engine[i].owMaxDAS = owMaxDAS;
-			gameManager.engine[i].owDasDelay = owDasDelay;
-			gameManager.engine[i].owReverseUpDown = owReverseUpDown;
-			gameManager.engine[i].owMoveDiagonal = owMoveDiagonal;
-			gameManager.engine[i].owBlockOutlineType = owBlockOutlineType;
-			gameManager.engine[i].owBlockShowOutlineOnly = owBlockShowOutlineOnly;
+			gameManager.engines[i].owRotateButtonDefaultRight = owRotateButtonDefaultRight;
+			gameManager.engines[i].owSkin = owSkin;
+			gameManager.engines[i].owMinDAS = owMinDAS;
+			gameManager.engines[i].owMaxDAS = owMaxDAS;
+			gameManager.engines[i].owDasDelay = owDasDelay;
+			gameManager.engines[i].owReverseUpDown = owReverseUpDown;
+			gameManager.engines[i].owMoveDiagonal = owMoveDiagonal;
+			gameManager.engines[i].owBlockOutlineType = owBlockOutlineType;
+			gameManager.engines[i].owBlockShowOutlineOnly = owBlockShowOutlineOnly;
 
 			// Rule
 			RuleOptions ruleopt = null;
@@ -228,36 +228,36 @@ public class StateConfigGameTuning extends BaseGameState {
 				ruleopt = new RuleOptions();
 				ruleopt.readProperty(NullpoMinoSlick.propGlobal, i);
 			}
-			gameManager.engine[i].ruleopt = ruleopt;
+			gameManager.engines[i].ruleopt = ruleopt;
 
 			// Randomizer
 			if(ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
-				gameManager.engine[i].randomizer = randomizerObject;
+				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if(ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
-				gameManager.engine[i].wallkick = wallkickObject;
+				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
 			// AI
 			String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
 			if(!aiName.isEmpty()) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[i].ai = aiObj;
-				gameManager.engine[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engine[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engine[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engine[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engine[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engine[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
+				gameManager.engines[i].ai = aiObj;
+				gameManager.engines[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
+				gameManager.engines[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
+				gameManager.engines[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
+				gameManager.engines[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
+				gameManager.engines[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
+				gameManager.engines[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
 			}
 			gameManager.showInput = NullpoMinoSlick.propConfig.getProperty("option.showInput", false);
 
 			// Init
-			gameManager.engine[i].init();
+			gameManager.engines[i].init();
 		}
 
 		isPreview = true;
@@ -286,7 +286,7 @@ public class StateConfigGameTuning extends BaseGameState {
 		if(isPreview) {
 			// Preview
 			try {
-				String strButtonF = gameManager.renderer.getKeyNameByButtonID(gameManager.engine[0],
+				String strButtonF = gameManager.renderer.getKeyNameByButtonID(gameManager.engines[0],
 						Controller.BUTTON_F);
 				int fontY = gameManager.renderer.getNextDisplayType() == 2 ? 1 : 27;
 				NormalFontSlick.printFontGrid(1, fontY, "PUSH F BUTTON (" + strButtonF.toUpperCase() + " KEY) TO EXIT", Colors.FONT_YELLOW);
@@ -375,7 +375,7 @@ public class StateConfigGameTuning extends BaseGameState {
 				GameKeySlick.gamekey[0].update(container.getInput(), true);
 
 				// Execute game loops
-				GameKeySlick.gamekey[0].inputStatusUpdate(gameManager.engine[0].ctrl);
+				GameKeySlick.gamekey[0].inputStatusUpdate(gameManager.engines[0].ctrl);
 				gameManager.updateAll();
 
 				// Retry button

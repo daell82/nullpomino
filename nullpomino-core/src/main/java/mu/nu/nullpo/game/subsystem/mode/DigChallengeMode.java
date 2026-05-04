@@ -971,7 +971,7 @@ public class DigChallengeMode extends NetDummyMode {
 		tspinEnableEZ = prop.getProperty("digchallenge.tspinEnableEZ", false);
 		enableB2B = prop.getProperty("digchallenge.enableB2B", true);
 		enableCombo = prop.getProperty("digchallenge.enableCombo", true);
-		owner.engine[0].speed.das = prop.getProperty("digchallenge.das", 11);
+		owner.engines[0].speed.das = prop.getProperty("digchallenge.das", 11);
 		version = prop.getProperty("digchallenge.version", 0);
 	}
 
@@ -991,7 +991,7 @@ public class DigChallengeMode extends NetDummyMode {
 		prop.setProperty("digchallenge.enableTSpinKick", enableTSpinKick);
 		prop.setProperty("digchallenge.enableB2B", enableB2B);
 		prop.setProperty("digchallenge.enableCombo", enableCombo);
-		prop.setProperty("digchallenge.das", owner.engine[0].speed.das);
+		prop.setProperty("digchallenge.das", owner.engines[0].speed.das);
 		prop.setProperty("digchallenge.version", version);
 	}
 

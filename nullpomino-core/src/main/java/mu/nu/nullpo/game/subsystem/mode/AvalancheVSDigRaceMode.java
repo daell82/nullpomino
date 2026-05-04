@@ -409,11 +409,11 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 				menuCursor = 9;
 			}
 		} else // Start
-		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
-			owner.engine[0].stat = GameEngine.Status.READY;
-			owner.engine[1].stat = GameEngine.Status.READY;
-			owner.engine[0].resetStatc();
-			owner.engine[1].resetStatc();
+		if (owner.engines[0].statc_4() == 1 && owner.engines[1].statc_4() == 1 && playerID == 1) {
+			owner.engines[0].stat = GameEngine.Status.READY;
+			owner.engines[1].stat = GameEngine.Status.READY;
+			owner.engines[0].resetStatc();
+			owner.engines[1].resetStatc();
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {
@@ -607,7 +607,7 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 					String.format("%8s", strScoreMultiplier), playerColor);
 		}
 
-		if (!owner.engine[playerID].gameActive) {
+		if (!owner.engines[playerID].gameActive) {
 			return;
 		}
 		if (engine.stat != GameEngine.Status.MOVE && engine.stat != GameEngine.Status.RESULT && engine.gameStarted) {
@@ -663,38 +663,38 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 		updateOjamaMeter(engine, playerID);
 
 		// Settlement
-		if (playerID == 1 && owner.engine[0].gameActive) {
-			boolean p1Lose = owner.engine[0].stat == GameEngine.Status.GAMEOVER;
-			if (!p1Lose && owner.engine[1].field != null && owner.engine[1].stat != GameEngine.Status.READY) {
-				p1Lose = owner.engine[1].field.getHowManyGems() == 0;
+		if (playerID == 1 && owner.engines[0].gameActive) {
+			boolean p1Lose = owner.engines[0].stat == GameEngine.Status.GAMEOVER;
+			if (!p1Lose && owner.engines[1].field != null && owner.engines[1].stat != GameEngine.Status.READY) {
+				p1Lose = owner.engines[1].field.getHowManyGems() == 0;
 			}
-			boolean p2Lose = owner.engine[1].stat == GameEngine.Status.GAMEOVER;
-			if (!p2Lose && owner.engine[0].field != null && owner.engine[0].stat != GameEngine.Status.READY) {
-				p2Lose = owner.engine[0].field.getHowManyGems() == 0;
+			boolean p2Lose = owner.engines[1].stat == GameEngine.Status.GAMEOVER;
+			if (!p2Lose && owner.engines[0].field != null && owner.engines[0].stat != GameEngine.Status.READY) {
+				p2Lose = owner.engines[0].field.getHowManyGems() == 0;
 			}
 			if (p1Lose && p2Lose) {
 				// Draw
 				winnerID = -1;
-				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[1].stat = GameEngine.Status.GAMEOVER;
 			} else if (p2Lose && !p1Lose) {
 				// 1P win
 				winnerID = 0;
-				owner.engine[0].stat = GameEngine.Status.EXCELLENT;
-				owner.engine[1].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[0].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[1].stat = GameEngine.Status.GAMEOVER;
 			} else if (p1Lose && !p2Lose) {
 				// 2P win
 				winnerID = 1;
-				owner.engine[0].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[1].stat = GameEngine.Status.EXCELLENT;
+				owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[1].stat = GameEngine.Status.EXCELLENT;
 			}
 			if (p1Lose || p2Lose) {
-				owner.engine[0].gameEnded();
-				owner.engine[1].gameEnded();
-				owner.engine[0].resetStatc();
-				owner.engine[1].resetStatc();
-				owner.engine[0].statc_1(1);
-				owner.engine[1].statc_1(1);
+				owner.engines[0].gameEnded();
+				owner.engines[1].gameEnded();
+				owner.engines[0].resetStatc();
+				owner.engines[1].resetStatc();
+				owner.engines[0].statc_1(1);
+				owner.engines[1].statc_1(1);
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			}
 		}

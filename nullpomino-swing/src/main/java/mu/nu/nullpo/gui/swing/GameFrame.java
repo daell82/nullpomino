@@ -365,7 +365,7 @@ public class GameFrame extends JFrame implements Runnable {
 	 */
 	protected void gameUpdate() {
 		GameManager gameManager = owner.getGameManager();
-		if (gameManager == null || gameManager.engine == null) {
+		if (gameManager == null || gameManager.engines == null) {
 			return;
 		}
 
@@ -373,8 +373,8 @@ public class GameFrame extends JFrame implements Runnable {
 		for (int i = 0; i < 2; i++) {
 			boolean prevInGame = isInGame[i];
 
-			if (gameManager.engine.length > i) {
-				isInGame[i] = gameManager.engine[i].isInGame;
+			if (gameManager.engines.length > i) {
+				isInGame[i] = gameManager.engines[i].isInGame;
 			}
 			if (pause && !enableframestep) {
 				isInGame[i] = false;
@@ -389,8 +389,8 @@ public class GameFrame extends JFrame implements Runnable {
 		GameKeySwing.gamekey[1].update();
 
 		// Title bar update
-		if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-			boolean nowInGame = gameManager.engine[0].isInGame;
+		if (gameManager.engines.length > 0 && gameManager.engines[0] != null) {
+			boolean nowInGame = gameManager.engines[0].isInGame;
 			if (prevInGameFlag != nowInGame) {
 				prevInGameFlag = nowInGame;
 				updateTitleBarCaption();
@@ -485,7 +485,7 @@ public class GameFrame extends JFrame implements Runnable {
 		// Hide pause menu
 		pauseMessageHide = GameKeySwing.gamekey[0].isPressKey(GameKeyDummy.BUTTON_C);
 
-		if (gameManager.replayMode && !gameManager.replayRerecord && gameManager.engine[0].gameActive) {
+		if (gameManager.replayMode && !gameManager.replayRerecord && gameManager.engines[0].gameActive) {
 			// Replay speed
 			if (GameKeySwing.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_LEFT) && fastforward > 0) {
 				fastforward--;
@@ -512,8 +512,8 @@ public class GameFrame extends JFrame implements Runnable {
 		// Execute game loops
 		if (!pause || GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_FRAMESTEP) && enableframestep) {
 			for (int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
-				if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
-					GameKeySwing.gamekey[i].inputStatusUpdate(gameManager.engine[i].ctrl);
+				if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engines[i].gameActive) {
+					GameKeySwing.gamekey[i].inputStatusUpdate(gameManager.engines[i].ctrl);
 				}
 			}
 
@@ -555,7 +555,7 @@ public class GameFrame extends JFrame implements Runnable {
 	 */
 	protected void gameUpdateNet() {
 		GameManager gameManager = owner.getGameManager();
-		if (gameManager == null || gameManager.engine == null) {
+		if (gameManager == null || gameManager.engines == null) {
 			return;
 		}
 
@@ -563,8 +563,8 @@ public class GameFrame extends JFrame implements Runnable {
 			// Set ingame flag
 			boolean prevInGame = isInGame[0];
 
-			if (gameManager.engine.length > 0) {
-				isInGame[0] = gameManager.engine[0].isInGame;
+			if (gameManager.engines.length > 0) {
+				isInGame[0] = gameManager.engines[0].isInGame;
 			}
 			if (pause && !enableframestep) {
 				isInGame[0] = false;
@@ -582,8 +582,8 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 
 			// Title bar update
-			if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-				boolean nowInGame = gameManager.engine[0].isInGame;
+			if (gameManager.engines.length > 0 && gameManager.engines[0] != null) {
+				boolean nowInGame = gameManager.engines[0].isInGame;
 				if (prevInGameFlag != nowInGame) {
 					prevInGameFlag = nowInGame;
 					updateTitleBarCaption();
@@ -592,7 +592,7 @@ public class GameFrame extends JFrame implements Runnable {
 
 			// Execute game loops
 			if (gameManager.mode != null) {
-				GameKeySwing.gamekey[0].inputStatusUpdate(gameManager.engine[0].ctrl);
+				GameKeySwing.gamekey[0].inputStatusUpdate(gameManager.engines[0].ctrl);
 				gameManager.updateAll();
 
 				// Return to title
@@ -603,7 +603,7 @@ public class GameFrame extends JFrame implements Runnable {
 
 				// Retry button
 				if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_RETRY)) {
-					gameManager.mode.netplayOnRetryKey(gameManager.engine[0], 0);
+					gameManager.mode.netplayOnRetryKey(gameManager.engines[0], 0);
 				}
 			}
 
@@ -681,9 +681,9 @@ public class GameFrame extends JFrame implements Runnable {
 		((RendererSwing) gameManager.renderer).setGraphics(g);
 		gameManager.renderAll();
 
-		if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-			int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engine[0], 0);
-			int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engine[0], 0);
+		if (gameManager.engines.length > 0 && gameManager.engines[0] != null) {
+			int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engines[0], 0);
+			int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engines[0], 0);
 
 			// Pause menu
 			if (pause && !enableframestep && !pauseMessageHide) {
@@ -931,11 +931,11 @@ public class GameFrame extends JFrame implements Runnable {
 
 		if (isNetPlay && "NET-DUMMY".equals(strModeName)) {
 			title = "NullpoMino NetPlay";
-		} else if (gameManager != null && gameManager.engine != null && gameManager.engine.length > 0
-				&& gameManager.engine[0] != null) {
+		} else if (gameManager != null && gameManager.engines != null && gameManager.engines.length > 0
+				&& gameManager.engines[0] != null) {
 			if (pause && !enableframestep) {
 				title = "[PAUSE] " + baseTitle;
-			} else if (gameManager.engine[0].isInGame && !gameManager.replayMode && !gameManager.replayRerecord) {
+			} else if (gameManager.engines[0].isInGame && !gameManager.replayMode && !gameManager.replayRerecord) {
 				title = "[PLAY] " + baseTitle;
 			} else if (gameManager.replayMode && gameManager.replayRerecord) {
 				title = "[RERECORD] " + baseTitle;

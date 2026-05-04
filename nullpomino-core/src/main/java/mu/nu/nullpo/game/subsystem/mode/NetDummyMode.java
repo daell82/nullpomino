@@ -165,7 +165,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			netLobby.setNetDummyMode(this);
 
 			try {
-				netLobby.ruleOptPlayer = new RuleOptions(owner.engine[0].ruleopt);
+				netLobby.ruleOptPlayer = new RuleOptions(owner.engines[0].ruleopt);
 			} catch (NullPointerException e) {
 				log.error("NPE on netplayInit; Most likely the mode is overriding 'owner' variable", e);
 			}
@@ -528,8 +528,8 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 
 			if (netIsWatch) {
 				owner.reset();
-				owner.engine[0].stat = GameEngine.Status.READY;
-				owner.engine[0].resetStatc();
+				owner.engines[0].stat = GameEngine.Status.READY;
+				owner.engines[0].resetStatc();
 			}
 		}
 		// Dead
@@ -537,19 +537,19 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			log.debug("NET: Dead");
 
 			if (netIsWatch) {
-				owner.engine[0].gameEnded();
+				owner.engines[0].gameEnded();
 
-				if (owner.engine[0].stat != GameEngine.Status.GAMEOVER
-						&& owner.engine[0].stat != GameEngine.Status.RESULT) {
-					owner.engine[0].stat = GameEngine.Status.GAMEOVER;
-					owner.engine[0].resetStatc();
+				if (owner.engines[0].stat != GameEngine.Status.GAMEOVER
+						&& owner.engines[0].stat != GameEngine.Status.RESULT) {
+					owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+					owner.engines[0].resetStatc();
 				}
 			}
 		}
 		// Replay send fail
 		if (message[0].equals("spsendng")) {
 			netReplaySendStatus = 1;
-			netSendReplay(owner.engine[0]);
+			netSendReplay(owner.engines[0]);
 		}
 		// Replay send complete
 		if (message[0].equals("spsendok")) {
@@ -560,7 +560,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 		}
 		// Netplay Ranking
 		if (message[0].equals("spranking")) {
-			netRecvNetPlayRanking(owner.engine[0], message);
+			netRecvNetPlayRanking(owner.engines[0], message);
 		}
 		// Reset
 		if (message[0].equals("reset1p")) {
@@ -571,7 +571,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 		// Game messages
 		if (message[0].equals("game")) {
 			if (netIsWatch) {
-				GameEngine engine = owner.engine[0];
+				GameEngine engine = owner.engines[0];
 				if (engine.field == null) {
 					engine.field = new Field();
 				}
@@ -641,8 +641,8 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	@Override
 	public void netlobbyOnExit(NetLobbyFrame lobby) {
 		try {
-			for (int i = 0; i < owner.engine.length; i++) {
-				owner.engine[i].quitflag = true;
+			for (int i = 0; i < owner.engines.length; i++) {
+				owner.engines[i].quitflag = true;
 			}
 		} catch (Exception e) {
 		}
@@ -665,8 +665,8 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 		netUpdatePlayerExist();
 
 		if (netIsWatch) {
-			owner.engine[0].isNextVisible = false;
-			owner.engine[0].isHoldVisible = false;
+			owner.engines[0].isNextVisible = false;
+			owner.engines[0].isHoldVisible = false;
 		}
 
 		if (roomInfo != null) {
@@ -675,10 +675,10 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				log.info("Set locked rule");
 				Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
 				Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
-				owner.engine[0].ruleopt.copy(netLobby.ruleOptLock);
-				owner.engine[0].randomizer = randomizer;
-				owner.engine[0].wallkick = wallkick;
-				loadRanking(owner.modeConfig, owner.engine[0].ruleopt.strRuleName);
+				owner.engines[0].ruleopt.copy(netLobby.ruleOptLock);
+				owner.engines[0].randomizer = randomizer;
+				owner.engines[0].wallkick = wallkick;
+				loadRanking(owner.modeConfig, owner.engines[0].ruleopt.strRuleName);
 			}
 		}
 	}

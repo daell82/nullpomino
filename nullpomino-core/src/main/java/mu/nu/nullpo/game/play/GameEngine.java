@@ -3590,11 +3590,11 @@ public class GameEngine {
 
 				for (int i = 0; i < owner.getPlayers(); i++) {
 					if (i == playerID || gameoverAll) {
-						if (owner.engine[i].field != null) {
-							owner.engine[i].field.reset();
+						if (owner.engines[i].field != null) {
+							owner.engines[i].field.reset();
 						}
-						owner.engine[i].resetStatc();
-						owner.engine[i].stat = Status.RESULT;
+						owner.engines[i].resetStatc();
+						owner.engines[i].stat = Status.RESULT;
 					}
 				}
 			}

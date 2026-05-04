@@ -298,7 +298,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			netvsPlayerPlayCount[i] = 0;
 			netvsPlayerName[i] = "";
 			netvsPlayerTeam[i] = "";
-			owner.engine[i].framecolor = Colors.FRAME_COLOR_GRAY;
+			owner.engines[i].framecolor = Colors.FRAME_COLOR_GRAY;
 		}
 
 		LinkedList<NetPlayerInfo> pList = netLobby.updateSameRoomPlayerInfoList();
@@ -324,7 +324,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 					// Set frame color
 					if (pInfo.seatID < NETVS_PLAYER_COLOR_FRAME.length) {
-						owner.engine[playerID].framecolor = NETVS_PLAYER_COLOR_FRAME[pInfo.seatID];
+						owner.engines[playerID].framecolor = NETVS_PLAYER_COLOR_FRAME[pInfo.seatID];
 					}
 
 					// Set team color
@@ -456,18 +456,18 @@ public class NetDummyVSMode extends NetDummyMode {
 				Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
 				Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
 				for (int i = 0; i < getPlayers(); i++) {
-					owner.engine[i].ruleopt.copy(netLobby.ruleOptLock);
-					owner.engine[i].randomizer = randomizer;
-					owner.engine[i].wallkick = wallkick;
+					owner.engines[i].ruleopt.copy(netLobby.ruleOptLock);
+					owner.engines[i].randomizer = randomizer;
+					owner.engines[i].wallkick = wallkick;
 				}
 			} else {
 				log.warn("Tried to set locked rule, but rule was not received yet!");
 			}
 		} else if (!netvsIsWatch()) {
 			// Revert rules
-			owner.engine[0].ruleopt.copy(netLobby.ruleOptPlayer);
-			owner.engine[0].randomizer = GeneralUtil.loadRandomizer(owner.engine[0].ruleopt.strRandomizer);
-			owner.engine[0].wallkick = GeneralUtil.loadWallkick(owner.engine[0].ruleopt.strWallkick);
+			owner.engines[0].ruleopt.copy(netLobby.ruleOptPlayer);
+			owner.engines[0].randomizer = GeneralUtil.loadRandomizer(owner.engines[0].ruleopt.strRandomizer);
+			owner.engines[0].wallkick = GeneralUtil.loadWallkick(owner.engines[0].ruleopt.strWallkick);
 		}
 	}
 
@@ -476,7 +476,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	 */
 	protected void netvsSetGameScreenLayout() {
 		for (int i = 0; i < getPlayers(); i++) {
-			netvsSetGameScreenLayout(owner.engine[i]);
+			netvsSetGameScreenLayout(owner.engines[i]);
 		}
 	}
 
@@ -515,7 +515,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	 */
 	protected void netvsApplyRoomSettings() {
 		for (int i = 0; i < getPlayers(); i++) {
-			netvsApplyRoomSettings(owner.engine[i]);
+			netvsApplyRoomSettings(owner.engines[i]);
 		}
 	}
 
@@ -645,7 +645,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		int noTeamCount = 0;
 
 		for (int i = 0; i < getPlayers(); i++) {
-			if (netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engine[i].gameActive) {
+			if (netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engines[i].gameActive) {
 				if (netvsPlayerTeam[i].length() > 0) {
 					if (!listTeamName.contains(netvsPlayerTeam[i])) {
 						listTeamName.add(netvsPlayerTeam[i]);
@@ -1313,7 +1313,7 @@ public class NetDummyVSMode extends NetDummyMode {
 	@Override
 	public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
 		for (int i = 0; i < getPlayers(); i++) {
-			owner.engine[i].stat = GameEngine.Status.NOTHING;
+			owner.engines[i].stat = GameEngine.Status.NOTHING;
 		}
 	}
 
@@ -1366,18 +1366,18 @@ public class NetDummyVSMode extends NetDummyMode {
 					netvsIsNewcomer = true;
 				}
 
-				owner.engine[0].stat = GameEngine.Status.SETTING;
+				owner.engines[0].stat = GameEngine.Status.SETTING;
 
 				for (int i = 0; i < getPlayers(); i++) {
-					if (owner.engine[i].field != null) {
-						owner.engine[i].field.reset();
+					if (owner.engines[i].field != null) {
+						owner.engines[i].field.reset();
 					}
-					owner.engine[i].nowPieceObject = null;
+					owner.engines[i].nowPieceObject = null;
 
-					if (owner.engine[i].stat == GameEngine.Status.NOTHING || !netvsIsGameActive) {
-						owner.engine[i].stat = GameEngine.Status.SETTING;
+					if (owner.engines[i].stat == GameEngine.Status.NOTHING || !netvsIsGameActive) {
+						owner.engines[i].stat = GameEngine.Status.SETTING;
 					}
-					owner.engine[i].resetStatc();
+					owner.engines[i].resetStatc();
 				}
 			}
 		}
@@ -1424,8 +1424,8 @@ public class NetDummyVSMode extends NetDummyMode {
 			owner.replayProp.clear();
 			for (int i = 0; i < getPlayers(); i++) {
 				if (netvsPlayerExist[i]) {
-					owner.engine[i].init();
-					netvsSetGameScreenLayout(owner.engine[i]);
+					owner.engines[i].init();
+					netvsSetGameScreenLayout(owner.engines[i]);
 				}
 			}
 
@@ -1437,7 +1437,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			netvsSetLockedRule(); // Set locked rule/Restore rule
 
 			for (int i = 0; i < getPlayers(); i++) {
-				GameEngine engine = owner.engine[i];
+				GameEngine engine = owner.engines[i];
 				engine.resetStatc();
 
 				if (netvsPlayerExist[i]) {
@@ -1455,7 +1455,7 @@ public class NetDummyVSMode extends NetDummyMode {
 							engine.isHoldVisible = true;
 
 							if (i != 0) {
-								engine.randomizer = owner.engine[0].randomizer;
+								engine.randomizer = owner.engines[0].randomizer;
 							}
 						} else {
 							engine.isNextVisible = false;
@@ -1489,21 +1489,21 @@ public class NetDummyVSMode extends NetDummyMode {
 			if (!netvsPlayerDead[playerID]) {
 				netvsPlayerDead[playerID] = true;
 				netvsPlayerPlace[playerID] = Integer.parseInt(message[4]);
-				owner.engine[playerID].stat = GameEngine.Status.GAMEOVER;
-				owner.engine[playerID].resetStatc();
+				owner.engines[playerID].stat = GameEngine.Status.GAMEOVER;
+				owner.engines[playerID].resetStatc();
 				netvsNumAlivePlayers--;
 
 				if (seatID == netLobby.netPlayerClient.getYourPlayerInfo().seatID) {
 					if (!netvsIsDeadPending) {
 						// Forced death
-						netSendField(owner.engine[0]);
-						netSendNextAndHold(owner.engine[0]);
-						netSendStats(owner.engine[0]);
+						netSendField(owner.engines[0]);
+						netSendNextAndHold(owner.engines[0]);
+						netSendStats(owner.engines[0]);
 						netvsPlayerResultReceived[0] = true;
 					}
 
 					// Send end game stats
-					netSendEndGameStats(owner.engine[0]);
+					netSendEndGameStats(owner.engines[0]);
 				}
 			}
 		}
@@ -1523,9 +1523,9 @@ public class NetDummyVSMode extends NetDummyMode {
 				netvsIsPractice = false;
 				netvsIsPracticeExitAllowed = false;
 				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-				owner.engine[0].gameEnded();
-				owner.engine[0].stat = GameEngine.Status.SETTING;
-				owner.engine[0].resetStatc();
+				owner.engines[0].gameEnded();
+				owner.engines[0].stat = GameEngine.Status.SETTING;
+				owner.engines[0].resetStatc();
 			}
 
 			boolean flagTeamWin = Boolean.parseBoolean(message[4]);
@@ -1535,14 +1535,14 @@ public class NetDummyVSMode extends NetDummyMode {
 				for (int i = 0; i < getPlayers(); i++) {
 					if (netvsPlayerExist[i] && !netvsPlayerDead[i]) {
 						netvsPlayerPlace[i] = 1;
-						owner.engine[i].gameEnded();
-						owner.engine[i].stat = GameEngine.Status.EXCELLENT;
-						owner.engine[i].resetStatc();
-						owner.engine[i].statistics.time = netvsPlayTimer;
+						owner.engines[i].gameEnded();
+						owner.engines[i].stat = GameEngine.Status.EXCELLENT;
+						owner.engines[i].resetStatc();
+						owner.engines[i].statistics.time = netvsPlayTimer;
 						netvsNumAlivePlayers--;
 
 						if (i == 0 && !netvsIsWatch()) {
-							netSendEndGameStats(owner.engine[0]);
+							netSendEndGameStats(owner.engines[0]);
 						}
 					}
 				}
@@ -1553,14 +1553,14 @@ public class NetDummyVSMode extends NetDummyMode {
 					int playerID = netvsGetPlayerIDbySeatID(seatID);
 					if (netvsPlayerExist[playerID]) {
 						netvsPlayerPlace[playerID] = 1;
-						owner.engine[playerID].gameEnded();
-						owner.engine[playerID].stat = GameEngine.Status.EXCELLENT;
-						owner.engine[playerID].resetStatc();
-						owner.engine[playerID].statistics.time = netvsPlayTimer;
+						owner.engines[playerID].gameEnded();
+						owner.engines[playerID].stat = GameEngine.Status.EXCELLENT;
+						owner.engines[playerID].resetStatc();
+						owner.engines[playerID].statistics.time = netvsPlayTimer;
 						netvsNumAlivePlayers--;
 
 						if (seatID == netLobby.netPlayerClient.getYourPlayerInfo().seatID && !netvsIsWatch()) {
-							netSendEndGameStats(owner.engine[0]);
+							netSendEndGameStats(owner.engines[0]);
 						}
 					}
 				}
@@ -1577,7 +1577,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			// int uid = Integer.parseInt(message[1]);
 			int seatID = Integer.parseInt(message[2]);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
-			GameEngine engine = owner.engine[playerID];
+			GameEngine engine = owner.engines[playerID];
 
 			if (engine.field == null) {
 				engine.createFieldIfNeeded();

@@ -157,19 +157,19 @@ public class StateInGame extends BasicGameState {
 		// Initialization for each player
 		for (int i = 0; i < gameManager.getPlayers(); i++) {
 			// Tuning settings
-			gameManager.engine[i].owRotateButtonDefaultRight = NullpoMinoSlick.propGlobal
+			gameManager.engines[i].owRotateButtonDefaultRight = NullpoMinoSlick.propGlobal
 					.getProperty(i + ".tuning.owRotateButtonDefaultRight", -1);
-			gameManager.engine[i].owSkin = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owSkin", -1);
-			gameManager.engine[i].owMinDAS = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMinDAS", -1);
-			gameManager.engine[i].owMaxDAS = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMaxDAS", -1);
-			gameManager.engine[i].owDasDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owDasDelay", -1);
-			gameManager.engine[i].owReverseUpDown = NullpoMinoSlick.propGlobal
+			gameManager.engines[i].owSkin = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owSkin", -1);
+			gameManager.engines[i].owMinDAS = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMinDAS", -1);
+			gameManager.engines[i].owMaxDAS = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMaxDAS", -1);
+			gameManager.engines[i].owDasDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owDasDelay", -1);
+			gameManager.engines[i].owReverseUpDown = NullpoMinoSlick.propGlobal
 					.getProperty(i + ".tuning.owReverseUpDown", false);
-			gameManager.engine[i].owMoveDiagonal = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMoveDiagonal",
+			gameManager.engines[i].owMoveDiagonal = NullpoMinoSlick.propGlobal.getProperty(i + ".tuning.owMoveDiagonal",
 					-1);
-			gameManager.engine[i].owBlockOutlineType = NullpoMinoSlick.propGlobal
+			gameManager.engines[i].owBlockOutlineType = NullpoMinoSlick.propGlobal
 					.getProperty(i + ".tuning.owBlockOutlineType", -1);
-			gameManager.engine[i].owBlockShowOutlineOnly = NullpoMinoSlick.propGlobal
+			gameManager.engines[i].owBlockShowOutlineOnly = NullpoMinoSlick.propGlobal
 					.getProperty(i + ".tuning.owBlockShowOutlineOnly", -1);
 
 			// Rule
@@ -190,36 +190,36 @@ public class StateInGame extends BasicGameState {
 				ruleopt = new RuleOptions();
 				ruleopt.readProperty(NullpoMinoSlick.propGlobal, i);
 			}
-			gameManager.engine[i].ruleopt = ruleopt;
+			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
 			if (ruleopt.strRandomizer != null && ruleopt.strRandomizer.length() > 0) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
-				gameManager.engine[i].randomizer = randomizerObject;
+				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if (ruleopt.strWallkick != null && ruleopt.strWallkick.length() > 0) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
-				gameManager.engine[i].wallkick = wallkickObject;
+				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
 			// AI
 			String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
 			if (aiName.length() > 0) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[i].ai = aiObj;
-				gameManager.engine[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engine[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engine[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engine[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engine[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engine[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
+				gameManager.engines[i].ai = aiObj;
+				gameManager.engines[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
+				gameManager.engines[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
+				gameManager.engines[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
+				gameManager.engines[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
+				gameManager.engines[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
+				gameManager.engines[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
 			}
 			gameManager.showInput = NullpoMinoSlick.propConfig.getProperty("option.showInput", false);
 
 			// Called at initialization
-			gameManager.engine[i].init();
+			gameManager.engines[i].init();
 		}
 
 		updateTitleBarCaption();
@@ -252,36 +252,36 @@ public class StateInGame extends BasicGameState {
 			// Rule
 			RuleOptions ruleopt = new RuleOptions();
 			ruleopt.readProperty(prop, i);
-			gameManager.engine[i].ruleopt = ruleopt;
+			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
 			if (ruleopt.strRandomizer != null && ruleopt.strRandomizer.length() > 0) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
-				gameManager.engine[i].randomizer = randomizerObject;
+				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if (ruleopt.strWallkick != null && ruleopt.strWallkick.length() > 0) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
-				gameManager.engine[i].wallkick = wallkickObject;
+				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
 			// AI (For added replay)
 			String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
 			if (aiName.length() > 0) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[i].ai = aiObj;
-				gameManager.engine[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engine[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engine[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engine[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engine[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engine[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
+				gameManager.engines[i].ai = aiObj;
+				gameManager.engines[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
+				gameManager.engines[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
+				gameManager.engines[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
+				gameManager.engines[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
+				gameManager.engines[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
+				gameManager.engines[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
 			}
 			gameManager.showInput = NullpoMinoSlick.propConfig.getProperty("option.showInput", false);
 
 			// Called at initialization
-			gameManager.engine[i].init();
+			gameManager.engines[i].init();
 		}
 
 		updateTitleBarCaption();
@@ -293,11 +293,11 @@ public class StateInGame extends BasicGameState {
 	public void updateTitleBarCaption() {
 		String strTitle = "NullpoMino - " + modeName;
 
-		if (gameManager != null && gameManager.engine != null && gameManager.engine.length > 0
-				&& gameManager.engine[0] != null) {
+		if (gameManager != null && gameManager.engines != null && gameManager.engines.length > 0
+				&& gameManager.engines[0] != null) {
 			if (pause && !enableframestep) {
 				strTitle = "[PAUSE] NullpoMino - " + modeName;
-			} else if (gameManager.engine[0].isInGame && !gameManager.replayMode && !gameManager.replayRerecord) {
+			} else if (gameManager.engines[0].isInGame && !gameManager.replayMode && !gameManager.replayRerecord) {
 				strTitle = "[PLAY] NullpoMino - " + modeName;
 			} else if (gameManager.replayMode && gameManager.replayRerecord) {
 				strTitle = "[RERECORD] NullpoMino - " + modeName;
@@ -345,9 +345,9 @@ public class StateInGame extends BasicGameState {
 		if (gameManager != null) {
 			gameManager.renderAll();
 
-			if (gameManager.engine.length > 0 && gameManager.engine[0] != null) {
-				int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engine[0], 0);
-				int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engine[0], 0);
+			if (gameManager.engines.length > 0 && gameManager.engines[0] != null) {
+				int offsetX = gameManager.renderer.getFieldDisplayPositionX(gameManager.engines[0], 0);
+				int offsetY = gameManager.renderer.getFieldDisplayPositionY(gameManager.engines[0], 0);
 
 				// Pause menu
 				if (pause && !enableframestep && !pauseMessageHide) {
@@ -407,8 +407,8 @@ public class StateInGame extends BasicGameState {
 
 		// Update key input states
 		for (int i = 0; i < 2; i++) {
-			if (gameManager != null && gameManager.engine.length > i && gameManager.engine[i] != null
-					&& gameManager.engine[i].isInGame && (!pause || enableframestep)) {
+			if (gameManager != null && gameManager.engines.length > i && gameManager.engines[i] != null
+					&& gameManager.engines[i].isInGame && (!pause || enableframestep)) {
 				GameKeySlick.gamekey[i].update(container.getInput(), true);
 			} else {
 				GameKeySlick.gamekey[i].update(container.getInput(), false);
@@ -416,9 +416,9 @@ public class StateInGame extends BasicGameState {
 		}
 
 		// Title bar update
-		if (gameManager != null && gameManager.engine != null && gameManager.engine.length > 0
-				&& gameManager.engine[0] != null) {
-			boolean nowInGame = gameManager.engine[0].isInGame;
+		if (gameManager != null && gameManager.engines != null && gameManager.engines.length > 0
+				&& gameManager.engines[0] != null) {
+			boolean nowInGame = gameManager.engines[0].isInGame;
 			if (prevInGameFlag != nowInGame) {
 				prevInGameFlag = nowInGame;
 				updateTitleBarCaption();
@@ -529,7 +529,7 @@ public class StateInGame extends BasicGameState {
 		// Hide pause menu
 		pauseMessageHide = GameKeySlick.gamekey[0].isPressKey(GameKeyDummy.BUTTON_C);
 
-		if (gameManager.replayMode && !gameManager.replayRerecord && gameManager.engine[0].gameActive) {
+		if (gameManager.replayMode && !gameManager.replayRerecord && gameManager.engines[0].gameActive) {
 			// Replay speed
 			if (GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_LEFT)) {
 				if (fastforward > 0) {
@@ -584,8 +584,8 @@ public class StateInGame extends BasicGameState {
 		if (!pause || GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_FRAMESTEP) && enableframestep) {
 			if (gameManager != null) {
 				for (int i = 0; i < Math.min(gameManager.getPlayers(), 2); i++) {
-					if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engine[i].gameActive) {
-						GameKeySlick.gamekey[i].inputStatusUpdate(gameManager.engine[i].ctrl);
+					if (!gameManager.replayMode || gameManager.replayRerecord || !gameManager.engines[i].gameActive) {
+						GameKeySlick.gamekey[i].inputStatusUpdate(gameManager.engines[i].ctrl);
 					}
 				}
 

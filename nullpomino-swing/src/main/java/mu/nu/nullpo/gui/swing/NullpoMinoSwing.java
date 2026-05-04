@@ -900,16 +900,16 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		// Initialization for each player
 		for (int i = 0; i < gameManager.getPlayers(); i++) {
 			// Tuning settings
-			gameManager.engine[i].owRotateButtonDefaultRight = propGlobal
+			gameManager.engines[i].owRotateButtonDefaultRight = propGlobal
 					.getProperty(i + ".tuning.owRotateButtonDefaultRight", -1);
-			gameManager.engine[i].owSkin = propGlobal.getProperty(i + ".tuning.owSkin", -1);
-			gameManager.engine[i].owMinDAS = propGlobal.getProperty(i + ".tuning.owMinDAS", -1);
-			gameManager.engine[i].owMaxDAS = propGlobal.getProperty(i + ".tuning.owMaxDAS", -1);
-			gameManager.engine[i].owDasDelay = propGlobal.getProperty(i + ".tuning.owDasDelay", -1);
-			gameManager.engine[i].owReverseUpDown = propGlobal.getProperty(i + ".tuning.owReverseUpDown", false);
-			gameManager.engine[i].owMoveDiagonal = propGlobal.getProperty(i + ".tuning.owMoveDiagonal", -1);
-			gameManager.engine[i].owBlockOutlineType = propGlobal.getProperty(i + ".tuning.owBlockOutlineType", -1);
-			gameManager.engine[i].owBlockShowOutlineOnly = propGlobal.getProperty(i + ".tuning.owBlockShowOutlineOnly",
+			gameManager.engines[i].owSkin = propGlobal.getProperty(i + ".tuning.owSkin", -1);
+			gameManager.engines[i].owMinDAS = propGlobal.getProperty(i + ".tuning.owMinDAS", -1);
+			gameManager.engines[i].owMaxDAS = propGlobal.getProperty(i + ".tuning.owMaxDAS", -1);
+			gameManager.engines[i].owDasDelay = propGlobal.getProperty(i + ".tuning.owDasDelay", -1);
+			gameManager.engines[i].owReverseUpDown = propGlobal.getProperty(i + ".tuning.owReverseUpDown", false);
+			gameManager.engines[i].owMoveDiagonal = propGlobal.getProperty(i + ".tuning.owMoveDiagonal", -1);
+			gameManager.engines[i].owBlockOutlineType = propGlobal.getProperty(i + ".tuning.owBlockOutlineType", -1);
+			gameManager.engines[i].owBlockShowOutlineOnly = propGlobal.getProperty(i + ".tuning.owBlockShowOutlineOnly",
 					-1);
 
 			// Rule
@@ -929,36 +929,36 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 				ruleopt = new RuleOptions();
 				ruleopt.readProperty(propGlobal, i);
 			}
-			gameManager.engine[i].ruleopt = ruleopt;
+			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
 			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
-				gameManager.engine[i].randomizer = randomizerObject;
+				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
-				gameManager.engine[i].wallkick = wallkickObject;
+				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
 			// AI
 			String aiName = propGlobal.getProperty(i + ".ai", "");
 			if (!aiName.isEmpty()) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[i].ai = aiObj;
-				gameManager.engine[i].aiMoveDelay = propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engine[i].aiThinkDelay = propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engine[i].aiUseThread = propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engine[i].aiShowHint = propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engine[i].aiPrethink = propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engine[i].aiShowState = propGlobal.getProperty(i + ".aiShowState", false);
+				gameManager.engines[i].ai = aiObj;
+				gameManager.engines[i].aiMoveDelay = propGlobal.getProperty(i + ".aiMoveDelay", 0);
+				gameManager.engines[i].aiThinkDelay = propGlobal.getProperty(i + ".aiThinkDelay", 0);
+				gameManager.engines[i].aiUseThread = propGlobal.getProperty(i + ".aiUseThread", true);
+				gameManager.engines[i].aiShowHint = propGlobal.getProperty(i + ".aiShowHint", false);
+				gameManager.engines[i].aiPrethink = propGlobal.getProperty(i + ".aiPrethink", false);
+				gameManager.engines[i].aiShowState = propGlobal.getProperty(i + ".aiShowState", false);
 			}
 			gameManager.showInput = propConfig.getProperty("option.showInput", false);
 
 			// Called at initialization
-			gameManager.engine[i].init();
+			gameManager.engines[i].init();
 		}
 	}
 
@@ -998,36 +998,36 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			// Rule
 			RuleOptions ruleopt = new RuleOptions();
 			ruleopt.readProperty(prop, i);
-			gameManager.engine[i].ruleopt = ruleopt;
+			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
 			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
-				gameManager.engine[i].randomizer = randomizerObject;
+				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
-				gameManager.engine[i].wallkick = wallkickObject;
+				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
 			// AI (For added replay)
 			String aiName = propGlobal.getProperty(i + ".ai", "");
 			if (!aiName.isEmpty()) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[i].ai = aiObj;
-				gameManager.engine[i].aiMoveDelay = propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engine[i].aiThinkDelay = propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engine[i].aiUseThread = propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engine[i].aiShowHint = propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engine[i].aiPrethink = propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engine[i].aiShowState = propGlobal.getProperty(i + ".aiShowState", false);
+				gameManager.engines[i].ai = aiObj;
+				gameManager.engines[i].aiMoveDelay = propGlobal.getProperty(i + ".aiMoveDelay", 0);
+				gameManager.engines[i].aiThinkDelay = propGlobal.getProperty(i + ".aiThinkDelay", 0);
+				gameManager.engines[i].aiUseThread = propGlobal.getProperty(i + ".aiUseThread", true);
+				gameManager.engines[i].aiShowHint = propGlobal.getProperty(i + ".aiShowHint", false);
+				gameManager.engines[i].aiPrethink = propGlobal.getProperty(i + ".aiPrethink", false);
+				gameManager.engines[i].aiShowState = propGlobal.getProperty(i + ".aiShowState", false);
 			}
 			gameManager.showInput = propConfig.getProperty("option.showInput", false);
 
 			// Called at initialization
-			gameManager.engine[i].init();
+			gameManager.engines[i].init();
 		}
 	}
 
@@ -1067,8 +1067,8 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			log.info("Enter new mode:" + newModeTemp.getName());
 
 			if (previousMode != null) {
-				if (gameManager.engine[0].ai != null) {
-					gameManager.engine[0].ai.shutdown(gameManager.engine[0], 0);
+				if (gameManager.engines[0].ai != null) {
+					gameManager.engines[0].ai.shutdown(gameManager.engines[0], 0);
 				}
 				previousMode.netplayUnload(netLobby);
 			}
@@ -1076,16 +1076,16 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			gameManager.init();
 
 			// Tuning
-			gameManager.engine[0].owRotateButtonDefaultRight = propGlobal
+			gameManager.engines[0].owRotateButtonDefaultRight = propGlobal
 					.getProperty(0 + ".tuning.owRotateButtonDefaultRight", -1);
-			gameManager.engine[0].owSkin = propGlobal.getProperty(0 + ".tuning.owSkin", -1);
-			gameManager.engine[0].owMinDAS = propGlobal.getProperty(0 + ".tuning.owMinDAS", -1);
-			gameManager.engine[0].owMaxDAS = propGlobal.getProperty(0 + ".tuning.owMaxDAS", -1);
-			gameManager.engine[0].owDasDelay = propGlobal.getProperty(0 + ".tuning.owDasDelay", -1);
-			gameManager.engine[0].owReverseUpDown = propGlobal.getProperty(0 + ".tuning.owReverseUpDown", false);
-			gameManager.engine[0].owMoveDiagonal = propGlobal.getProperty(0 + ".tuning.owMoveDiagonal", -1);
-			gameManager.engine[0].owBlockOutlineType = propGlobal.getProperty(0 + ".tuning.owBlockOutlineType", -1);
-			gameManager.engine[0].owBlockShowOutlineOnly = propGlobal.getProperty(0 + ".tuning.owBlockShowOutlineOnly",
+			gameManager.engines[0].owSkin = propGlobal.getProperty(0 + ".tuning.owSkin", -1);
+			gameManager.engines[0].owMinDAS = propGlobal.getProperty(0 + ".tuning.owMinDAS", -1);
+			gameManager.engines[0].owMaxDAS = propGlobal.getProperty(0 + ".tuning.owMaxDAS", -1);
+			gameManager.engines[0].owDasDelay = propGlobal.getProperty(0 + ".tuning.owDasDelay", -1);
+			gameManager.engines[0].owReverseUpDown = propGlobal.getProperty(0 + ".tuning.owReverseUpDown", false);
+			gameManager.engines[0].owMoveDiagonal = propGlobal.getProperty(0 + ".tuning.owMoveDiagonal", -1);
+			gameManager.engines[0].owBlockOutlineType = propGlobal.getProperty(0 + ".tuning.owBlockOutlineType", -1);
+			gameManager.engines[0].owBlockShowOutlineOnly = propGlobal.getProperty(0 + ".tuning.owBlockShowOutlineOnly",
 					-1);
 
 			// Rule
@@ -1102,37 +1102,37 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 				ruleOptions = new RuleOptions();
 				ruleOptions.readProperty(propGlobal, 0);
 			}
-			gameManager.engine[0].ruleopt = ruleOptions;
+			gameManager.engines[0].ruleopt = ruleOptions;
 
 			// Randomizer
 			if (ruleOptions.strRandomizer != null && !ruleOptions.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleOptions.strRandomizer);
-				gameManager.engine[0].randomizer = randomizerObject;
+				gameManager.engines[0].randomizer = randomizerObject;
 			}
 
 			// Wallkick
 			if (ruleOptions.strWallkick != null && !ruleOptions.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleOptions.strWallkick);
-				gameManager.engine[0].wallkick = wallkickObject;
+				gameManager.engines[0].wallkick = wallkickObject;
 			}
 
 			// AI
 			String aiName = propGlobal.getProperty(0 + ".ai", "");
 			if (!aiName.isEmpty()) {
 				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engine[0].ai = aiObj;
-				gameManager.engine[0].aiMoveDelay = propGlobal.getProperty(0 + ".aiMoveDelay", 0);
-				gameManager.engine[0].aiThinkDelay = propGlobal.getProperty(0 + ".aiThinkDelay", 0);
-				gameManager.engine[0].aiUseThread = propGlobal.getProperty(0 + ".aiUseThread", true);
-				gameManager.engine[0].aiShowHint = propGlobal.getProperty(0 + ".aiShowHint", false);
-				gameManager.engine[0].aiPrethink = propGlobal.getProperty(0 + ".aiPrethink", false);
-				gameManager.engine[0].aiShowState = propGlobal.getProperty(0 + ".aiShowState", false);
+				gameManager.engines[0].ai = aiObj;
+				gameManager.engines[0].aiMoveDelay = propGlobal.getProperty(0 + ".aiMoveDelay", 0);
+				gameManager.engines[0].aiThinkDelay = propGlobal.getProperty(0 + ".aiThinkDelay", 0);
+				gameManager.engines[0].aiUseThread = propGlobal.getProperty(0 + ".aiUseThread", true);
+				gameManager.engines[0].aiShowHint = propGlobal.getProperty(0 + ".aiShowHint", false);
+				gameManager.engines[0].aiPrethink = propGlobal.getProperty(0 + ".aiPrethink", false);
+				gameManager.engines[0].aiShowState = propGlobal.getProperty(0 + ".aiShowState", false);
 			}
 			gameManager.showInput = propConfig.getProperty("option.showInput", false);
 
 			// Initialization for each player
 			for (int i = 0; i < gameManager.getPlayers(); i++) {
-				gameManager.engine[i].init();
+				gameManager.engines[i].init();
 			}
 
 			newMode.netplayInit(netLobby);
@@ -1210,7 +1210,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	@Override
 	public void netlobbyOnExit(NetLobbyFrame lobby) {
 		if (gameManager != null) {
-			gameManager.engine[0].quitflag = true;
+			gameManager.engines[0].quitflag = true;
 		}
 	}
 

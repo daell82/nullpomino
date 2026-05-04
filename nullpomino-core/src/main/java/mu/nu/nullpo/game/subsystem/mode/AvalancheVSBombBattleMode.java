@@ -482,11 +482,11 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 				menuCursor = 9;
 			}
 		} else // Start
-		if (owner.engine[0].statc_4() == 1 && owner.engine[1].statc_4() == 1 && playerID == 1) {
-			owner.engine[0].stat = GameEngine.Status.READY;
-			owner.engine[1].stat = GameEngine.Status.READY;
-			owner.engine[0].resetStatc();
-			owner.engine[1].resetStatc();
+		if (owner.engines[0].statc_4() == 1 && owner.engines[1].statc_4() == 1 && playerID == 1) {
+			owner.engines[0].stat = GameEngine.Status.READY;
+			owner.engines[1].stat = GameEngine.Status.READY;
+			owner.engines[0].resetStatc();
+			owner.engines[1].resetStatc();
 		}
 		// Cancel
 		else if (engine.ctrl.isPush(Controller.BUTTON_B)) {

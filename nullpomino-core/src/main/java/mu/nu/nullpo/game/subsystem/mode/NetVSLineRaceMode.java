@@ -82,14 +82,14 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 
 		for (int i = 0; i < getPlayers(); i++) {
 			if (i != playerID && netvsPlayerExist[i] && !netvsPlayerDead[i]) {
-				int enemyLines = Math.min(owner.engine[i].statistics.lines, goalLines);
+				int enemyLines = Math.min(owner.engines[i].statistics.lines, goalLines);
 
 				if (myLines < enemyLines) {
 					place++;
-				} else if (myLines == enemyLines && engine.statistics.pps < owner.engine[i].statistics.pps) {
+				} else if (myLines == enemyLines && engine.statistics.pps < owner.engines[i].statistics.pps) {
 					place++;
-				} else if (myLines == enemyLines && engine.statistics.pps == owner.engine[i].statistics.pps
-						&& engine.statistics.lpm < owner.engine[i].statistics.lpm) {
+				} else if (myLines == enemyLines && engine.statistics.pps == owner.engines[i].statistics.pps
+						&& engine.statistics.lpm < owner.engines[i].statistics.lpm) {
 					place++;
 				}
 			}
@@ -143,7 +143,7 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 				int[] places = new int[NETVS_MAX_PLAYERS];
 				int[] uidArray = new int[NETVS_MAX_PLAYERS];
 				for (int i = 0; i < getPlayers(); i++) {
-					places[i] = getNowPlayerPlace(owner.engine[i], i);
+					places[i] = getNowPlayerPlace(owner.engines[i], i);
 					uidArray[i] = -1;
 				}
 				for (int i = 0; i < getPlayers(); i++) {
@@ -366,7 +366,7 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
-			GameEngine engine = owner.engine[playerID];
+			GameEngine engine = owner.engines[playerID];
 
 			engine.statistics.lines = Integer.parseInt(message[8]);
 			engine.statistics.lpm = Float.parseFloat(message[9]);

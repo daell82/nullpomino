@@ -1609,9 +1609,8 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		for (EffectObject effect : effects) {
 			// Normal Block
 			if (effect.effect == 1) {
-				float scale = engine.displaySize.getScale();
-				int x = (int) ((effect.x - 32 + 6) * scale);
-				int y = (int) ((effect.y - 32) * scale);
+				int x = effect.x - 40;
+				int y = effect.y - 15;
 				int color = effect.param - Colors.BLOCK_COLOR_GRAY;
 
 				if (effect.anim < 30) {

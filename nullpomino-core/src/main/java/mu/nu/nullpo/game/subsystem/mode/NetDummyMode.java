@@ -669,17 +669,18 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			owner.engines[0].isHoldVisible = false;
 		}
 
-		if (roomInfo != null) {
-			// Set to locked rule
-			if (roomInfo.ruleLock && netLobby != null && netLobby.ruleOptLock != null) {
-				log.info("Set locked rule");
-				Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
-				Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
-				owner.engines[0].ruleopt.copy(netLobby.ruleOptLock);
-				owner.engines[0].randomizer = randomizer;
-				owner.engines[0].wallkick = wallkick;
-				loadRanking(owner.modeConfig, owner.engines[0].ruleopt.strRuleName);
-			}
+		if (roomInfo == null) {
+			return;
+		}
+		// Set to locked rule
+		if (roomInfo.ruleLock && netLobby != null && netLobby.ruleOptLock != null) {
+			log.info("Set locked rule");
+			Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
+			Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
+			owner.engines[0].ruleopt.copy(netLobby.ruleOptLock);
+			owner.engines[0].randomizer = randomizer;
+			owner.engines[0].wallkick = wallkick;
+			loadRanking(owner.modeConfig, owner.engines[0].ruleopt.strRuleName);
 		}
 	}
 
@@ -698,15 +699,15 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	protected void netUpdatePlayerExist() {
 		netNumSpectators = 0;
 		netPlayerName = "";
-
-		if (netCurrentRoomInfo != null && netCurrentRoomInfo.roomID != -1 && netLobby != null) {
-			for (NetPlayerInfo pInfo : netLobby.updateSameRoomPlayerInfoList()) {
-				if (pInfo.roomID == netCurrentRoomInfo.roomID) {
-					if (pInfo.seatID == 0) {
-						netPlayerName = pInfo.strName;
-					} else if (pInfo.seatID == -1) {
-						netNumSpectators++;
-					}
+		if (netCurrentRoomInfo == null || netCurrentRoomInfo.roomID == -1 || netLobby == null) {
+			return;
+		}
+		for (NetPlayerInfo pInfo : netLobby.updateSameRoomPlayerInfoList()) {
+			if (pInfo.roomID == netCurrentRoomInfo.roomID) {
+				if (pInfo.seatID == 0) {
+					netPlayerName = pInfo.strName;
+				} else if (pInfo.seatID == -1) {
+					netNumSpectators++;
 				}
 			}
 		}
@@ -741,7 +742,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 */
 	protected void netDrawGameRate(GameEngine engine) {
 		if (netIsNetPlay && !netIsWatch && engine.gameStarted && engine.startTime != 0) {
-			float gamerate = 0f;
+			float gamerate;
 			if (engine.endTime != 0) {
 				gamerate = engine.statistics.gamerate;
 			} else {
@@ -797,12 +798,13 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param engine GameEngine
 	 */
 	protected void netDrawPlayerName(GameEngine engine) {
-		if (netPlayerName != null && netPlayerName.length() > 0) {
-			String name = netPlayerName;
-			owner.renderer.drawTTFDirectFont(engine, engine.playerID,
-					owner.renderer.getFieldDisplayPositionX(engine, engine.playerID),
-					owner.renderer.getFieldDisplayPositionY(engine, engine.playerID) - 20, name);
+		if (netPlayerName == null || netPlayerName.isBlank()) {
+			return;
 		}
+		String name = netPlayerName;
+		owner.renderer.drawTTFDirectFont(engine, engine.playerID,
+				owner.renderer.getFieldDisplayPositionX(engine, engine.playerID),
+				owner.renderer.getFieldDisplayPositionY(engine, engine.playerID) - 20, name);
 	}
 
 	/**
@@ -1148,19 +1150,18 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 
 				String headers = switch (netRankingType) {
 				case NetSPRecord.RANKINGTYPE_GENERIC_SCORE -> "    SCORE   LINE TIME     NAME";
-				case NetSPRecord.RANKINGTYPE_GENERIC_TIME ->  "    TIME     PIECE PPS    NAME";
-				case NetSPRecord.RANKINGTYPE_SCORERACE ->     "    TIME     LINE SPL    NAME";
-				case NetSPRecord.RANKINGTYPE_DIGRACE ->       "    TIME     LINE PIECE  NAME";
-				case NetSPRecord.RANKINGTYPE_ULTRA ->         "    SCORE   LINE PIECE    NAME";
-				case NetSPRecord.RANKINGTYPE_COMBORACE ->     "    COMBO TIME     PPS    NAME";
-				case NetSPRecord.RANKINGTYPE_DIGCHALLENGE ->  "    SCORE   LINE TIME     NAME";
-				case NetSPRecord.RANKINGTYPE_TIMEATTACK ->    "    LINE  TIME     PPS    NAME";
+				case NetSPRecord.RANKINGTYPE_GENERIC_TIME -> "    TIME     PIECE PPS    NAME";
+				case NetSPRecord.RANKINGTYPE_SCORERACE -> "    TIME     LINE SPL    NAME";
+				case NetSPRecord.RANKINGTYPE_DIGRACE -> "    TIME     LINE PIECE  NAME";
+				case NetSPRecord.RANKINGTYPE_ULTRA -> "    SCORE   LINE PIECE    NAME";
+				case NetSPRecord.RANKINGTYPE_COMBORACE -> "    COMBO TIME     PPS    NAME";
+				case NetSPRecord.RANKINGTYPE_DIGCHALLENGE -> "    SCORE   LINE TIME     NAME";
+				case NetSPRecord.RANKINGTYPE_TIMEATTACK -> "    LINE  TIME     PPS    NAME";
 				default -> null;
 				};
-				if(headers != null) {
+				if (headers != null) {
 					renderer.drawMenuFont(engine, playerID, 1, 3, headers, Colors.FONT_BLUE);
 				}
-
 
 				int c = 0;
 				for (int i = startIndex; i < endIndex; i++) {

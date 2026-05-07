@@ -74,11 +74,6 @@ public class DummyAI implements AIPlayer {
 	@Setter
 	private Piece hintPiece;
 
-	/** True if AI Hint is ready */
-	@Getter
-	@Setter
-	private boolean hintReady;
-
 	/** Hold will be used */
 	public boolean bestHold;
 
@@ -102,6 +97,10 @@ public class DummyAI implements AIPlayer {
 
 	/** Did the thinking thread finish successfully? */
 	public boolean thinkComplete;
+
+	public boolean isHintReady() {
+		return thinkComplete || thinkCurrentPieceNo > 0 && thinkCurrentPieceNo <= thinkLastPieceNo;
+	}
 
 	@Override
 	public String getName() {

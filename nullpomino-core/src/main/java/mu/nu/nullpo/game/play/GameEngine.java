@@ -1847,8 +1847,6 @@ public class GameEngine {
 					if (!ai.isShowHint()) {
 						ai.setControl(this, playerID, ctrl);
 					} else {
-						ai.setHintReady(ai.thinkComplete
-								|| ai.thinkCurrentPieceNo > 0 && ai.thinkCurrentPieceNo <= ai.thinkLastPieceNo);
 						if (ai.isHintReady()) {
 							Piece hint = null;
 							if (ai.bestHold) {

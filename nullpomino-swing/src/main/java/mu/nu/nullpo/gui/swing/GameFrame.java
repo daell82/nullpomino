@@ -56,6 +56,7 @@ import mu.nu.nullpo.game.net.NetObserverClient;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Game screen frame
@@ -247,7 +248,7 @@ public class GameFrame extends JFrame implements Runnable {
 		// Initialization
 		maxfpsCurrent = maxfps;
 		periodCurrent = (long) (1.0 / maxfpsCurrent * ONE_SECOND_IN_NS);
-		log.debug("current period: " + periodCurrent);
+
 		beforeTime = System.nanoTime();
 		prevCalcTime = beforeTime;
 		pause = false;
@@ -402,7 +403,7 @@ public class GameFrame extends JFrame implements Runnable {
 				|| GameKeySwing.gamekey[1].isPushKey(GameKeyDummy.BUTTON_PAUSE)) {
 			if (!pause) {
 				if (gameManager.isGameActive() && pauseFrame <= 0) {
-					resourceManager.getSoundManager().play("pause");
+					resourceManager.getSoundManager().play(Sounds.PAUSE);
 					pause = true;
 					if (!enableframestep) {
 						pauseFrame = 5;
@@ -410,7 +411,7 @@ public class GameFrame extends JFrame implements Runnable {
 					cursor = 0;
 				}
 			} else {
-				resourceManager.getSoundManager().play("pause");
+				resourceManager.getSoundManager().play(Sounds.PAUSE);
 				pause = false;
 				pauseFrame = 0;
 			}
@@ -420,7 +421,7 @@ public class GameFrame extends JFrame implements Runnable {
 		if (pause && !enableframestep && !pauseMessageHide) {
 			// Cursor movement
 			if (GameKeySwing.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_UP)) {
-				resourceManager.getSoundManager().play("cursor");
+				resourceManager.getSoundManager().play(Sounds.CURSOR);
 				cursor--;
 
 				if (cursor < 0) {
@@ -432,7 +433,7 @@ public class GameFrame extends JFrame implements Runnable {
 				}
 			}
 			if (GameKeySwing.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_DOWN)) {
-				resourceManager.getSoundManager().play("cursor");
+				resourceManager.getSoundManager().play(Sounds.CURSOR);
 				cursor++;
 				if (cursor > 3) {
 					cursor = 0;
@@ -445,7 +446,7 @@ public class GameFrame extends JFrame implements Runnable {
 
 			// Confirm
 			if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_A)) {
-				resourceManager.getSoundManager().play("decide");
+				resourceManager.getSoundManager().play(Sounds.DECIDE);
 				switch (cursor) {
 				case 0 -> {
 					// Resumption
@@ -471,7 +472,7 @@ public class GameFrame extends JFrame implements Runnable {
 			}
 			// Unpause by cancel key
 			else if (GameKeySwing.gamekey[0].isPushKey(GameKeyDummy.BUTTON_B) && pauseFrame <= 0) {
-				resourceManager.getSoundManager().play("pause");
+				resourceManager.getSoundManager().play(Sounds.PAUSE);
 				pause = false;
 				pauseFrame = 5;
 				GameKeySwing.gamekey[0].clear();

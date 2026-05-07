@@ -375,61 +375,34 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	}
 
 	protected void printPieceAndDirection(int pieceType, int rt) {
+		if (!DEBUG_ALL) {
+			return;
+		}
 		String result = "Piece ";
-		switch (pieceType) {
-		case Piece.PIECE_I:
-			result = result + "I";
-			break;
-		case Piece.PIECE_L:
-			result = result + "L";
-			break;
-		case Piece.PIECE_O:
-			result = result + "O";
-			break;
-		case Piece.PIECE_Z:
-			result = result + "Z";
-			break;
-		case Piece.PIECE_T:
-			result = result + "T";
-			break;
-		case Piece.PIECE_J:
-			result = result + "J";
-			break;
-		case Piece.PIECE_S:
-			result = result + "S";
-			break;
-		case Piece.PIECE_I1:
-			result = result + "I1";
-			break;
-		case Piece.PIECE_I2:
-			result = result + "I2";
-			break;
-		case Piece.PIECE_I3:
-			result = result + "I3";
-			break;
-		case Piece.PIECE_L3:
-			result = result + "L3";
-			break;
-		}
-		result = result + ", direction ";
+		result += switch (pieceType) {
+		case Piece.PIECE_I -> "I";
+		case Piece.PIECE_L -> "L";
+		case Piece.PIECE_O -> "O";
+		case Piece.PIECE_Z -> "Z";
+		case Piece.PIECE_T -> "T";
+		case Piece.PIECE_J -> "J";
+		case Piece.PIECE_S -> "S";
+		case Piece.PIECE_I1 -> "I1";
+		case Piece.PIECE_I2 -> "I2";
+		case Piece.PIECE_I3 -> "I3";
+		case Piece.PIECE_L3 -> "L3";
+		default -> "??";
+		};
+		result += ", direction ";
 
-		switch (rt) {
-		case Piece.DIRECTION_LEFT:
-			result = result + "left";
-			break;
-		case Piece.DIRECTION_DOWN:
-			result = result + "down";
-			break;
-		case Piece.DIRECTION_UP:
-			result = result + "up";
-			break;
-		case Piece.DIRECTION_RIGHT:
-			result = result + "right";
-			break;
-		}
-		if (DEBUG_ALL) {
-			log.debug(result);
-		}
+		result += switch (rt) {
+		case Piece.DIRECTION_LEFT -> "left";
+		case Piece.DIRECTION_DOWN -> "down";
+		case Piece.DIRECTION_UP -> "up";
+		case Piece.DIRECTION_RIGHT -> "right";
+		default -> "????";
+		};
+		log.debug(result);
 	}
 
 	/*
@@ -924,8 +897,8 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 		r.drawScoreFont(engine, playerID, 32, 39, GeneralUtil.getOorX(thinking), 0.5f);
 		r.drawScoreFont(engine, playerID, 19, 40, "THINK REQUEST:", Colors.FONT_BLUE, 0.5f);
 		r.drawScoreFont(engine, playerID, 33, 40, GeneralUtil.getOorX(thinkRequest.active), 0.5f);
-		r.drawScoreFont(engine, playerID, 19, 41, "THINK SUCCESS:",
-				thinkSuccess ? Colors.FONT_BLUE : Colors.FONT_RED, 0.5f);
+		r.drawScoreFont(engine, playerID, 19, 41, "THINK SUCCESS:", thinkSuccess ? Colors.FONT_BLUE : Colors.FONT_RED,
+				0.5f);
 		r.drawScoreFont(engine, playerID, 33, 41, GeneralUtil.getOorX(thinkSuccess), !thinkSuccess, 0.5f);
 		r.drawScoreFont(engine, playerID, 19, 42, "THINK COMPLETE:", Colors.FONT_BLUE, 0.5f);
 		r.drawScoreFont(engine, playerID, 34, 42, GeneralUtil.getOorX(thinkComplete), 0.5f);
@@ -962,8 +935,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	public void renderHint(GameEngine engine, int playerID) {
 		Renderer<?> r = engine.owner.renderer;
 		r.drawScoreFont(engine, playerID, 10, 3, "AI HINT MOVE:", Colors.FONT_GREEN);
-		if (bestPts > 0
-				&& (thinkComplete || thinkCurrentPieceNo > 0 && thinkCurrentPieceNo <= thinkLastPieceNo)) {
+		if (bestPts > 0 && (thinkComplete || thinkCurrentPieceNo > 0 && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			if (bestHold && thinkComplete && engine.isHoldOK()) {
 				r.drawScoreFont(engine, playerID, 10, 4, "HOLD");
 			} else {

@@ -48,9 +48,6 @@ public class PoochyBot extends DummyAI implements Runnable {
 	/** true when thread is executing the think routine. */
 	public boolean thinking;
 
-	/** To stop a thread time */
-	public int thinkDelay;
-
 	/** When true,Running thread */
 	public volatile boolean threadRunning;
 
@@ -2025,7 +2022,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			} catch (InterruptedException e) {
 				log.debug("PoochyBot: InterruptedException waiting for thinkRequest signal");
 			}
-			if (thinkRequest.active) {
+			if (thinkRequest.active && gEngine.gameActive) {
 				thinkRequest.active = false;
 				thinking = true;
 				try {
@@ -2038,9 +2035,10 @@ public class PoochyBot extends DummyAI implements Runnable {
 				thinking = false;
 			}
 
-			if (thinkDelay > 0) {
+			int nextThink = getThinkDelay();
+			if (nextThink > 0) {
 				try {
-					Thread.sleep(thinkDelay);
+					Thread.sleep(nextThink);
 				} catch (InterruptedException e) {
 					log.debug("PoochyBot: InterruptedException trying to sleep");
 				}

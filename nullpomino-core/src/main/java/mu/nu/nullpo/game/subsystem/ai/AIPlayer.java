@@ -32,19 +32,19 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
 
 /**
- * AIInterface
+ * AI Interface
  */
 public interface AIPlayer {
 	/**
-	 * NameGet the
-	 * 
-	 * @return AIOfName
+	 * Get the Name
+	 *
+	 * @return Name of AI
 	 */
 	public String getName();
 
 	/**
 	 * Called at initialization
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -52,7 +52,7 @@ public interface AIPlayer {
 
 	/**
 	 * End processing
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -60,7 +60,7 @@ public interface AIPlayer {
 
 	/**
 	 * Set button input states
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 * @param ctrl     Button inputState management class
@@ -69,7 +69,7 @@ public interface AIPlayer {
 
 	/**
 	 * Called at the start of each frame
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -77,7 +77,7 @@ public interface AIPlayer {
 
 	/**
 	 * Called after every frame
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -85,7 +85,7 @@ public interface AIPlayer {
 
 	/**
 	 * Called to display internal state
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -93,7 +93,7 @@ public interface AIPlayer {
 
 	/**
 	 * Happens when a new piece appeared
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */
@@ -101,7 +101,7 @@ public interface AIPlayer {
 
 	/**
 	 * Called to display additional hint information
-	 * 
+	 *
 	 * @param engine   The GameEngine that owns this AI
 	 * @param playerID Player ID
 	 */

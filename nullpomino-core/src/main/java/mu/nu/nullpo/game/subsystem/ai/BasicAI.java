@@ -28,21 +28,18 @@
 */
 package mu.nu.nullpo.game.subsystem.ai;
 
-import org.apache.log4j.Logger;
-
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
 import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
 
 /**
  * CommonAI
  */
+@Log4j
 public class BasicAI extends DummyAI implements Runnable {
-	/** Log */
-	static Logger log = Logger.getLogger(BasicAI.class);
 
 	/** After that I was groundedX-coordinate */
 	public int bestXSub;
@@ -61,9 +58,6 @@ public class BasicAI extends DummyAI implements Runnable {
 
 	/** The GameEngine that owns this AI */
 	public GameEngine gEngine;
-
-	/** The GameManager that owns this AI */
-	public GameManager gManager;
 
 	/** When true,To threadThink routineInstructing the execution of the */
 	public boolean thinkRequest;
@@ -95,7 +89,6 @@ public class BasicAI extends DummyAI implements Runnable {
 	public void init(GameEngine engine, int playerID) {
 		delay = 0;
 		gEngine = engine;
-		gManager = engine.owner;
 		thinkRequest = false;
 		thinking = false;
 		threadRunning = false;

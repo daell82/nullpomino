@@ -9,6 +9,7 @@ import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * VS-LINE RACE Mode
@@ -21,7 +22,7 @@ public class VSLineRaceMode extends AbstractMode {
 	private static final int MAX_PLAYERS = 2;
 
 	/** Each player's frame color */
-	private final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
+	private static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** Number of lines to clear */
 	private int[] goalLines;
@@ -162,7 +163,7 @@ public class VSLineRaceMode extends AbstractMode {
 
 		engine.framecolor = PLAYER_COLOR_FRAME[playerID];
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			version = CURRENT_VERSION;
 			loadOtherSetting(engine, engine.owner.modeConfig);
 			loadPreset(engine, engine.owner.modeConfig, -1 - playerID);
@@ -179,12 +180,12 @@ public class VSLineRaceMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
+		if (!engine.owner.replayMode && engine.statc_4() == 0) {
 			// Configuration changes
 			int change = updateCursor(engine, 12, playerID);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -297,7 +298,7 @@ public class VSLineRaceMode extends AbstractMode {
 
 			// Confirm
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 7) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
@@ -347,19 +348,19 @@ public class VSLineRaceMode extends AbstractMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
+			drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
 					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
 					String.valueOf(engine.speed.das));
 			menuColor = Colors.FONT_GREEN;
-			drawMenuCompact(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+			drawMenuCompact(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 					String.valueOf(presetNumber[playerID]));
 			menuColor = Colors.FONT_CYAN;
-			drawMenuCompact(engine, playerID, renderer, "GOAL", String.valueOf(goalLines[playerID]), "BIG",
+			drawMenuCompact(engine, playerID, "GOAL", String.valueOf(goalLines[playerID]), "BIG",
 					GeneralUtil.getONorOFF(big[playerID]), "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
 			menuColor = Colors.FONT_PINK;
-			drawMenuCompact(engine, playerID, renderer, "BGM", String.valueOf(bgmno));
+			drawMenuCompact(engine, playerID, "BGM", String.valueOf(bgmno));
 		} else {
 			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}
@@ -395,7 +396,7 @@ public class VSLineRaceMode extends AbstractMode {
 		int fontColor = Colors.FONT_WHITE;
 
 		int remainLines = Math.max(0, goalLines[playerID] - engine.statistics.lines);
-		fontColor = Colors.FONT_WHITE;
+
 		if (remainLines <= 30 && remainLines > 0) {
 			fontColor = Colors.FONT_YELLOW;
 		}
@@ -498,7 +499,7 @@ public class VSLineRaceMode extends AbstractMode {
 
 		// All clear
 		if (lines >= 1 && engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 		}
 
 		// Game completed
@@ -563,7 +564,7 @@ public class VSLineRaceMode extends AbstractMode {
 		} else {
 			renderer.drawMenuFont(engine, playerID, 6, 1, "LOSE", Colors.FONT_WHITE);
 		}
-		drawResultStats(engine, playerID, renderer, 2, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, 2, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
 				Statistic.LPM, Statistic.PPS, Statistic.TIME);
 	}
 

@@ -383,16 +383,16 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 			}
 
 			initMenu(0, Colors.FONT_BLUE, 0);
-			drawMenu(engine, playerID, renderer, "MAP SET", FEVER_MAPS[mapSet].toUpperCase(), "OUTLINE", strOutline,
+			drawMenu(engine, playerID, "MAP SET", FEVER_MAPS[mapSet].toUpperCase(), "OUTLINE", strOutline,
 					"COLORS", String.valueOf(numColors), "SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType],
 					"BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 			if (xyzzy == 573) {
-				drawMenu(engine, playerID, renderer, "FAST", FAST_NAMES[fastenable]);
+				drawMenu(engine, playerID, "FAST", FAST_NAMES[fastenable]);
 			}
 		} else {
 			renderer.drawMenuFont(engine, playerID, 0, 13, "MAP PREVIEW", Colors.FONT_YELLOW);
 			renderer.drawMenuFont(engine, playerID, 0, 14, "A:DISPLAY", Colors.FONT_GREEN);
-			drawMenu(engine, playerID, renderer, 15, Colors.FONT_BLUE, 6, "MAP SET", FEVER_MAPS[mapSet].toUpperCase(),
+			drawMenu(engine, playerID, 15, Colors.FONT_BLUE, 6, "MAP SET", FEVER_MAPS[mapSet].toUpperCase(),
 					"SUBSET", mapSubsets[previewSubset].toUpperCase(), "CHAIN", String.valueOf(previewChain));
 		}
 	}

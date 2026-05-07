@@ -43,6 +43,7 @@ import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * VS-BATTLE Mode
@@ -55,36 +56,44 @@ public class VSBattleMode extends AbstractMode {
 	private static final int MAX_PLAYERS = 2;
 
 	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0, EVENT_SINGLE = 1, EVENT_DOUBLE = 2, EVENT_TRIPLE = 3, EVENT_FOUR = 4,
-			EVENT_TSPIN_SINGLE_MINI = 5, EVENT_TSPIN_SINGLE = 6, EVENT_TSPIN_DOUBLE = 7, EVENT_TSPIN_TRIPLE = 8,
-			EVENT_TSPIN_DOUBLE_MINI = 9, EVENT_TSPIN_EZ = 10;
+	private static final int EVENT_NONE = 0;
+	private static final int EVENT_SINGLE = 1;
+	private static final int EVENT_DOUBLE = 2;
+	private static final int EVENT_TRIPLE = 3;
+	private static final int EVENT_FOUR = 4;
+	private static final int EVENT_TSPIN_SINGLE_MINI = 5;
+	private static final int EVENT_TSPIN_SINGLE = 6;
+	private static final int EVENT_TSPIN_DOUBLE = 7;
+	private static final int EVENT_TSPIN_TRIPLE = 8;
+	private static final int EVENT_TSPIN_DOUBLE_MINI = 9;
+	private static final int EVENT_TSPIN_EZ = 10;
 
 	/** Combo attack table */
-	private final int[] COMBO_ATTACK_TABLE = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 };
+	private static final int[] COMBO_ATTACK_TABLE = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 };
 
 	/** garbage blockChanges to the position of the holes in the normally random */
-	private final int GARBAGE_TYPE_NORMAL = 0;
+	private static final int GARBAGE_TYPE_NORMAL = 0;
 
 	/**
 	 * garbage blockThe position of the holes in the1I would not change my time at
 	 * the rising auction
 	 */
-	private final int GARBAGE_TYPE_NOCHANGE_ONE_RISE = 1;
+	private static final int GARBAGE_TYPE_NOCHANGE_ONE_RISE = 1;
 
 	/**
 	 * garbage blockThe position of the holes in the1Of times Attack I will not
 	 * change(2If you change more than once)
 	 */
-	private final int GARBAGE_TYPE_NOCHANGE_ONE_ATTACK = 2;
+	private static final int GARBAGE_TYPE_NOCHANGE_ONE_ATTACK = 2;
 
 	/** garbage blockThe display name of the type */
-	private final String[] GARBAGE_TYPE_STRING = { "NORMAL", "ONE RISE", "1-ATTACK" };
+	private static final String[] GARBAGE_TYPE_STRING = { "NORMAL", "ONE RISE", "1-ATTACK" };
 
 	/** Each player's garbage block color */
-	private final int[] PLAYER_COLOR_BLOCK = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_BLUE };
+	private static final int[] PLAYER_COLOR_BLOCK = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_BLUE };
 
 	/** Each player's frame color */
-	private final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
+	private static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** garbage blockType of */
 	private int[] garbageType;
@@ -382,7 +391,6 @@ public class VSBattleMode extends AbstractMode {
 	 */
 	private void loadMap(Field field, CustomProperties prop, int id) {
 		field.reset();
-		// field.readProperty(prop, id);
 		field.stringToField(prop.getProperty("map." + id, ""));
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -397,7 +405,6 @@ public class VSBattleMode extends AbstractMode {
 	 * @param id    AnyID
 	 */
 	private void saveMap(Field field, CustomProperties prop, int id) {
-		// field.writeProperty(prop, id);
 		prop.setProperty("map." + id, field.fieldToString());
 	}
 
@@ -489,7 +496,7 @@ public class VSBattleMode extends AbstractMode {
 			int change = updateCursor(engine, 27, playerID);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -713,7 +720,7 @@ public class VSBattleMode extends AbstractMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 7) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
@@ -783,13 +790,13 @@ public class VSBattleMode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
-						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
-						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
-						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
-				drawMenu(engine, playerID, renderer, 14, Colors.FONT_GREEN, 7, "LOAD",
-						String.valueOf(presetNumber[playerID]), "SAVE", String.valueOf(presetNumber[playerID]));
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY", String.valueOf(engine.speed.gravity),
+						"G-MAX", String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are),
+						"ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
+						String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+						"DAS", String.valueOf(engine.speed.das));
+				drawMenu(engine, playerID, 14, Colors.FONT_GREEN, 7, "LOAD", String.valueOf(presetNumber[playerID]),
+						"SAVE", String.valueOf(presetNumber[playerID]));
 			} else if (menuCursor < 19) {
 				String strTSpinEnable = "";
 				if (version >= 4) {
@@ -815,7 +822,7 @@ public class VSBattleMode extends AbstractMode {
 				if (b2bType[playerID] == 2) {
 					strB2BType = "SEPARATE";
 				}
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "GARBAGE",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "GARBAGE",
 						GARBAGE_TYPE_STRING[garbageType[playerID]], "CHANGERATE", garbagePercent[playerID] + "%",
 						"COUNTERING", GeneralUtil.getONorOFF(garbageCounter[playerID]), "BLOCKING",
 						GeneralUtil.getONorOFF(garbageBlocking[playerID]), "SPIN BONUS", strTSpinEnable, "KICK SPIN",
@@ -824,13 +831,13 @@ public class VSBattleMode extends AbstractMode {
 						GeneralUtil.getONorOFF(tspinEnableEZ[playerID]), "B2B", strB2BType, "COMBO",
 						GeneralUtil.getONorOFF(enableCombo[playerID]));
 			} else {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 19, "BIG",
-						GeneralUtil.getONorOFF(big[playerID]), "SE", GeneralUtil.getONorOFF(enableSE[playerID]),
-						"HURRYUP", hurryupSeconds[playerID] == -1 ? "NONE" : hurryupSeconds[playerID] + "SEC",
-						"INTERVAL", String.valueOf(hurryupInterval[playerID]));
-				drawMenu(engine, playerID, renderer, 8, Colors.FONT_PINK, 23, "BGM", String.valueOf(bgmno),
-						"SHOW STATS", GeneralUtil.getONorOFF(showStats));
-				drawMenu(engine, playerID, renderer, 12, Colors.FONT_CYAN, 25, "USE MAP",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 19, "BIG", GeneralUtil.getONorOFF(big[playerID]), "SE",
+						GeneralUtil.getONorOFF(enableSE[playerID]), "HURRYUP",
+						hurryupSeconds[playerID] == -1 ? "NONE" : hurryupSeconds[playerID] + "SEC", "INTERVAL",
+						String.valueOf(hurryupInterval[playerID]));
+				drawMenu(engine, playerID, 8, Colors.FONT_PINK, 23, "BGM", String.valueOf(bgmno), "SHOW STATS",
+						GeneralUtil.getONorOFF(showStats));
+				drawMenu(engine, playerID, 12, Colors.FONT_CYAN, 25, "USE MAP",
 						GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET", String.valueOf(mapSet[playerID]),
 						"MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
@@ -1178,7 +1185,7 @@ public class VSBattleMode extends AbstractMode {
 
 			// All clear
 			if (lines >= 1 && engine.field.isEmpty()) {
-				engine.playSE("bravo");
+				engine.playSE(Sounds.BRAVO);
 				pts += 6;
 			}
 
@@ -1231,7 +1238,7 @@ public class VSBattleMode extends AbstractMode {
 				garbage[enemyID] = getTotalGarbageLines(enemyID);
 
 				if (owner.engines[enemyID].ai == null && garbage[enemyID] >= 4) {
-					owner.engines[enemyID].playSE("danger");
+					owner.engines[enemyID].playSE(Sounds.DANGER);
 				}
 			}
 		}
@@ -1239,7 +1246,7 @@ public class VSBattleMode extends AbstractMode {
 		// Rising auction
 		garbage[playerID] = getTotalGarbageLines(playerID);
 		if ((lines == 0 || !garbageBlocking[playerID]) && garbage[playerID] > 0) {
-			engine.playSE("garbage");
+			engine.playSE(Sounds.GARBAGE);
 			var playerGarbage = garbageEntries.get(playerID);
 			while (!playerGarbage.isEmpty()) {
 				GarbageEntry garbageEntry = playerGarbage.removeFirst();
@@ -1341,7 +1348,7 @@ public class VSBattleMode extends AbstractMode {
 		// HURRY UP!
 		if (playerID == 0 && engine.timerActive && hurryupSeconds[playerID] >= 0
 				&& engine.statistics.time == hurryupSeconds[playerID] * 60) {
-			owner.renderer.playSE("hurryup");
+			engine.playSE(Sounds.HURRY_UP);
 		}
 
 		// Rising auctionMeter
@@ -1419,13 +1426,11 @@ public class VSBattleMode extends AbstractMode {
 			apl = (float) garbageSent[playerID] / (float) engine.statistics.lines;
 		}
 
-		drawResult(engine, playerID, renderer, 2, Colors.FONT_ORANGE, "ATTACK",
-				String.format("%10d", garbageSent[playerID]));
-		drawResultStats(engine, playerID, renderer, 4, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
-		drawResult(engine, playerID, renderer, 8, Colors.FONT_ORANGE, "ATK/LINE", String.format("%10g", apl));
-		drawResult(engine, playerID, renderer, 10, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
-		drawResultStats(engine, playerID, renderer, 12, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
-				Statistic.TIME);
+		drawResult(engine, playerID, 2, Colors.FONT_ORANGE, "ATTACK", String.format("%10d", garbageSent[playerID]));
+		drawResultStats(engine, playerID, 4, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
+		drawResult(engine, playerID, 8, Colors.FONT_ORANGE, "ATK/LINE", String.format("%10g", apl));
+		drawResult(engine, playerID, 10, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
+		drawResultStats(engine, playerID, 12, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS, Statistic.TIME);
 	}
 
 	/*
@@ -1447,28 +1452,12 @@ public class VSBattleMode extends AbstractMode {
 	 * I was sent from the enemygarbage blockOf data
 	 */
 	private class GarbageEntry {
+
 		/** garbage blockcount */
 		public int lines = 0;
 
 		/** Source */
 		public int playerID = 0;
-
-		/**
-		 * Constructor
-		 */
-		@SuppressWarnings("unused")
-		public GarbageEntry() {
-		}
-
-		/**
-		 * With parametersConstructor
-		 *
-		 * @param g garbage blockcount
-		 */
-		@SuppressWarnings("unused")
-		public GarbageEntry(int g) {
-			lines = g;
-		}
 
 		/**
 		 * With parametersConstructor

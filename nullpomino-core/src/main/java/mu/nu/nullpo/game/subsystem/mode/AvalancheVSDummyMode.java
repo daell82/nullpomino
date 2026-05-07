@@ -993,9 +993,9 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
 		}
 		float apm = (float) (ojamaSent[playerID] * 3600) / (float) engine.statistics.time;
-		drawResult(engine, playerID, renderer, 3, Colors.FONT_ORANGE, "ATTACK",
-				String.format("%10d", ojamaSent[playerID]), "CLEARED", String.format("%10d", engine.statistics.lines),
-				"MAX CHAIN", String.format("%10d", engine.statistics.maxChain), "PIECE",
+		drawResult(engine, playerID, 3, Colors.FONT_ORANGE, "ATTACK", String.format("%10d", ojamaSent[playerID]),
+				"CLEARED", String.format("%10d", engine.statistics.lines), "MAX CHAIN",
+				String.format("%10d", engine.statistics.maxChain), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "ATTACK/MIN", String.format("%10g", apm),
 				"PIECE/SEC", String.format("%10g", engine.statistics.pps), "TIME",
 				String.format("%10s", GeneralUtil.getTime(owner.engines[0].statistics.time)));

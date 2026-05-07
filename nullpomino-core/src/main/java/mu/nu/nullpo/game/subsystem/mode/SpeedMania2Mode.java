@@ -518,7 +518,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
 				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
 				"BIG", GeneralUtil.getONorOFF(big), "LV500LIMIT", torikan == 0 ? "NONE" : GeneralUtil.getTime(torikan),
 				"GRADE DISP", GeneralUtil.getONorOFF(gradedisp));
@@ -1151,11 +1151,11 @@ public class SpeedMania2Mode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 			String strGrade = String.format("%10s", tableGradeName[grade]);
 			renderer.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
-			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
 			break;
@@ -1187,7 +1187,7 @@ public class SpeedMania2Mode extends AbstractMode {
 			if (medalCO >= 1) {
 				renderer.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
 			}
-			drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+			drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
 			break;
 		default:

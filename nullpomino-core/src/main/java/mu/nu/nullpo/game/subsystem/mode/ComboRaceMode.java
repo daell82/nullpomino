@@ -491,20 +491,20 @@ public class ComboRaceMode extends NetDummyMode {
 		} else if (menuCursor < 6) {
 			String strSpawn = spawnAboveField ? "ABOVE" : "BELOW";
 
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GOAL",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GOAL",
 					GOAL_TABLE[goaltype] == -1 ? "ENDLESS" : String.valueOf(GOAL_TABLE[goaltype]));
-			drawMenu(engine, playerID, renderer, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
+			drawMenu(engine, playerID, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
 					"STARTSHAPE", SHAPE_NAME_TABLE[shapetype]);
-			drawMenu(engine, playerID, renderer, 4, Colors.FONT_BLUE, 2, "COLUMN", String.valueOf(comboColumn),
+			drawMenu(engine, playerID, 4, Colors.FONT_BLUE, 2, "COLUMN", String.valueOf(comboColumn),
 					"WIDTH", String.valueOf(comboWidth), "CEILING", String.valueOf(ceilingAdjust), "PIECESPAWN",
 					String.valueOf(strSpawn));
 		} else {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 6, "GRAVITY",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 6, "GRAVITY",
 					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
 					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
 					String.valueOf(engine.speed.das), "BGM", String.valueOf(bgmno));
-			drawMenu(engine, playerID, renderer, 16, Colors.FONT_GREEN, 14, "LOAD", String.valueOf(presetNumber),
+			drawMenu(engine, playerID, 16, Colors.FONT_GREEN, 14, "LOAD", String.valueOf(presetNumber),
 					"SAVE", String.valueOf(presetNumber));
 		}
 	}
@@ -856,12 +856,12 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
-		drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
+		drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
 				Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);

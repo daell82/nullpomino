@@ -35,17 +35,19 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * TIME ATTACK mode (Original from NullpoUE build 010210 by Zircean. This mode
  * is heavily modified from the original.)
  */
 public class TimeAttackMode extends NetDummyMode {
+
 	/** Current version of this mode */
 	private static final int CURRENT_VERSION = 1;
 
 	/** Gravity tables */
-	private static final int tableGravity[][] = { { 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1 }, // NORMAL
+	private static final int[][] tableGravity = { { 4, 12, 48, 72, 96, 128, 256, 384, 512, 768, 1024, 1280, -1 }, // NORMAL
 			{ 84, 128, 256, 512, 768, 1024, 1280, -1 }, // HIGH SPEED 1
 			{ -1 }, // HIGH SPEED 2
 			{ -1 }, // ANOTHER
@@ -59,7 +61,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Denominator table */
-	private static final int tableDenominator[] = { 256, // NORMAL
+	private static final int[] tableDenominator = { 256, // NORMAL
 			256, // HIGH SPEED 1
 			256, // HIGH SPEED 2
 			256, // ANOTHER
@@ -73,7 +75,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Max level table */
-	private static final int tableGoalLevel[] = { 15, // NORMAL
+	private static final int[] tableGoalLevel = { 15, // NORMAL
 			15, // HIGH SPEED 1
 			15, // HIGH SPEED 2
 			15, // ANOTHER
@@ -87,7 +89,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Level timer tables */
-	private static final int tableLevelTimer[][] = { { 7200, 7200, 5400 }, // NORMAL
+	private static final int[][] tableLevelTimer = { { 7200, 7200, 5400 }, // NORMAL
 			{ 7200, 7200, 5400 }, // HIGH SPEED 1
 			{ 7200, 7200, 5400 }, // HIGH SPEED 2
 			{ 3600 }, // ANOTHER
@@ -104,14 +106,14 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Speed table for ANOTHER */
-	private static final int tableAnother[][] = { { 18, 14, 14, 14, 12, 12, 10, 8, 7, 6 }, // ARE
+	private static final int[][] tableAnother = { { 18, 14, 14, 14, 12, 12, 10, 8, 7, 6 }, // ARE
 			{ 14, 8, 8, 5, 5, 5, 5, 5, 5, 5 }, // Line delay
 			{ 28, 24, 22, 20, 18, 14, 14, 13, 13, 13 }, // Lock delay
 			{ 10, 10, 9, 9, 9, 8, 8, 7, 7, 7 } // DAS
 	};
 
 	/** Speed table for NORMAL 200 */
-	private static final int tableNormal200[][] = {
+	private static final int[][] tableNormal200 = {
 			{ 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 22, 16, 16, 12, 12, 10 }, // ARE
 			{ 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 16, 16, 16, 12, 12, 8 }, // Line delay
 			{ 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 25, 24, 22, 20, 17 }, // Lock delay
@@ -119,14 +121,14 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Speed table for VOID */
-	private static final int tableVoid[][] = { { 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // ARE
+	private static final int[][] tableVoid = { { 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // ARE
 			{ 3, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, // Line delay
 			{ 11, 10, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 8 }, // Lock delay
 			{ 7, 5, 5, 4, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 2 } // DAS
 	};
 
 	/** Speed table for BASIC */
-	private static final int tableBasic[][] = {
+	private static final int[][] tableBasic = {
 			{ 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 15, 11, 11, 11, 11, 10, 9, 5, 3, 2 }, // ARE
 			{ 40, 40, 40, 30, 30, 25, 25, 25, 25, 25, 20, 15, 12, 10, 6, 5, 4, 3, 3, 3 }, // Line delay
 			{ 28, 28, 28, 26, 26, 26, 26, 26, 25, 25, 25, 23, 23, 23, 20, 20, 18, 18, 14, 11 }, // Lock delay
@@ -134,7 +136,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** BGM change lines table */
-	private static final int tableBGMChange[][] = { { 50, 100 }, // NORMAL
+	private static final int[][] tableBGMChange = { { 50, 100 }, // NORMAL
 			{ 50, 100 }, // HI-SPEED 1
 			{ 50, 100 }, // HI-SPEED 2
 			{ 40, 100 }, // ANOTHER
@@ -148,7 +150,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** BGM fadeout lines table */
-	private static final int tableBGMFadeout[][] = { { 45, 95, 145 }, // NORMAL
+	private static final int[][] tableBGMFadeout = { { 45, 95, 145 }, // NORMAL
 			{ 45, 95, 145 }, // HI-SPEED 1
 			{ 45, 95, 145 }, // HI-SPEED 2
 			{ 35, 95, 145 }, // ANOTHER
@@ -162,7 +164,7 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** BGM kind table */
-	private static final int tableBGMNumber[][] = {
+	private static final int[][] tableBGMNumber = {
 			{ BGMusicStatus.BGM_SPECIAL1, BGMusicStatus.BGM_NORMAL2, BGMusicStatus.BGM_NORMAL3 }, // NORMAL
 			{ BGMusicStatus.BGM_NORMAL1, BGMusicStatus.BGM_NORMAL3, BGMusicStatus.BGM_NORMAL6 }, // HI-SPEED 1
 			{ BGMusicStatus.BGM_NORMAL3, BGMusicStatus.BGM_NORMAL6, BGMusicStatus.BGM_NORMAL4 }, // HI-SPEED 2
@@ -177,9 +179,17 @@ public class TimeAttackMode extends NetDummyMode {
 	};
 
 	/** Game types */
-	private static final int GAMETYPE_NORMAL = 0, GAMETYPE_HIGHSPEED1 = 1, GAMETYPE_HIGHSPEED2 = 2,
-			GAMETYPE_ANOTHER = 3, GAMETYPE_ANOTHER2 = 4, GAMETYPE_NORMAL200 = 5, GAMETYPE_ANOTHER200 = 6,
-			GAMETYPE_BASIC = 7, GAMETYPE_HELL = 8, GAMETYPE_HELLX = 9, GAMETYPE_VOID = 10;
+	private static final int GAMETYPE_NORMAL = 0;
+	private static final int GAMETYPE_HIGHSPEED1 = 1;
+	private static final int GAMETYPE_HIGHSPEED2 = 2;
+	private static final int GAMETYPE_ANOTHER = 3;
+	private static final int GAMETYPE_ANOTHER2 = 4;
+	private static final int GAMETYPE_NORMAL200 = 5;
+	private static final int GAMETYPE_ANOTHER200 = 6;
+	private static final int GAMETYPE_BASIC = 7;
+	private static final int GAMETYPE_HELL = 8;
+	private static final int GAMETYPE_HELLX = 9;
+	private static final int GAMETYPE_VOID = 10;
 
 	/** Number of game types */
 	private static final int GAMETYPE_MAX = 11;
@@ -193,7 +203,7 @@ public class TimeAttackMode extends NetDummyMode {
 			"ANOTHER 2", "NORMAL 200", "ANOTHER 200", "BASIC", "HELL", "HELL-X", "VOID" };
 
 	/** HELL-X fade table */
-	private static final int tableHellXFade[] = { -1, -1, -1, -1, -1, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
+	private static final int[] tableHellXFade = { -1, -1, -1, -1, -1, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
 			120, 120, 120, 120, 60 };
 
 	/** Ending time limit */
@@ -204,11 +214,6 @@ public class TimeAttackMode extends NetDummyMode {
 
 	/** Number of ranking types */
 	private static final int RANKING_TYPE = 11;
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
 
 	/** Remaining level time */
 	private int levelTimer;
@@ -307,7 +312,7 @@ public class TimeAttackMode extends NetDummyMode {
 
 		netPlayerInit(engine, playerID);
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -488,12 +493,12 @@ public class TimeAttackMode extends NetDummyMode {
 			netOnUpdateNetPlayRanking(engine, netGetGoalType());
 		}
 		// Menu
-		else if (engine.owner.replayMode == false) {
+		else if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 3);
 
 			if (change != 0) {
-				renderer.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
@@ -535,7 +540,7 @@ public class TimeAttackMode extends NetDummyMode {
 
 			// Check for A button, when pressed this will begin the game
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				renderer.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 
@@ -579,7 +584,7 @@ public class TimeAttackMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[goaltype], "LEVEL",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[goaltype], "LEVEL",
 					String.valueOf(startlevel + 1), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "BIG",
 					GeneralUtil.getONorOFF(big));
 		}
@@ -628,8 +633,8 @@ public class TimeAttackMode extends NetDummyMode {
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME_LONG[goaltype] + ")", Colors.FONT_PURPLE);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null && !netIsWatch) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && startlevel == 0 && !big && engine.ai == null && !netIsWatch) {
 				renderer.drawScoreFont(engine, playerID, 3, 3, "LINE TIME", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
@@ -734,11 +739,11 @@ public class TimeAttackMode extends NetDummyMode {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Enable timer again after the levelup
-		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && engine.ending == 0) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable) {
 			engine.timerActive = true;
 		}
 		// Ending start
-		if (engine.ending == 2 && engine.staffrollEnable && rollstarted == false && !netIsWatch) {
+		if (engine.ending == 2 && engine.staffrollEnable && !rollstarted && !netIsWatch) {
 			rollstarted = true;
 			owner.bgmStatus.bgm = BGMusicStatus.BGM_ENDING1;
 			owner.bgmStatus.fadesw = false;
@@ -764,7 +769,7 @@ public class TimeAttackMode extends NetDummyMode {
 			if (levelTimer > 0) {
 				levelTimer--;
 				if (levelTimer <= 600 && levelTimer % 60 == 0) {
-					renderer.playSE("countdown");
+					engine.playSE(Sounds.COUNTDOWN);
 				}
 			} else if (!netIsWatch) {
 				engine.gameEnded();
@@ -890,7 +895,7 @@ public class TimeAttackMode extends NetDummyMode {
 
 		// Game completed
 		if (norm >= tableGoalLevel[goaltype] * 10) {
-			renderer.playSE("levelup");
+			engine.playSE(Sounds.LEVEL_UP);
 
 			// Update section time
 			if (engine.timerActive) {
@@ -913,7 +918,7 @@ public class TimeAttackMode extends NetDummyMode {
 		}
 		// Level up
 		else if (norm >= (engine.statistics.level + 1) * 10 && engine.statistics.level < tableGoalLevel[goaltype] - 1) {
-			renderer.playSE("levelup");
+			engine.playSE(Sounds.LEVEL_UP);
 			engine.statistics.level++;
 
 			owner.backgroundStatus.fadesw = true;
@@ -950,11 +955,11 @@ public class TimeAttackMode extends NetDummyMode {
 			renderer.drawMenuFont(engine, playerID, 0, 2, "NORM", Colors.FONT_BLUE);
 			String strLines = String.format("%10d", norm);
 			renderer.drawMenuFont(engine, playerID, 0, 3, strLines, gcolor);
-			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME,
-					Statistic.PIECE, Statistic.LPM, Statistic.PPS);
-			drawResultRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, rankingRank);
-			drawResultNetRank(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[0]);
-			drawResultNetRankDaily(engine, playerID, renderer, 18, Colors.FONT_BLUE, netRankingRank[1]);
+			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME, Statistic.PIECE,
+					Statistic.LPM, Statistic.PPS);
+			drawResultRank(engine, playerID, 14, Colors.FONT_BLUE, rankingRank);
+			drawResultNetRank(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[0]);
+			drawResultNetRankDaily(engine, playerID, 18, Colors.FONT_BLUE, netRankingRank[1]);
 			break;
 		}
 		case 1:
@@ -1008,7 +1013,7 @@ public class TimeAttackMode extends NetDummyMode {
 					status1 = 2;
 				}
 				engine.statc_1(status1);
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 			}
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
 				status1 += 1;
@@ -1016,7 +1021,7 @@ public class TimeAttackMode extends NetDummyMode {
 					status1 = 0;
 				}
 				engine.statc_1(status1);
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 			}
 		}
 
@@ -1031,11 +1036,11 @@ public class TimeAttackMode extends NetDummyMode {
 		saveSetting(prop);
 
 		// NET: Save name
-		if (netPlayerName != null && netPlayerName.length() > 0) {
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
 			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
 		}
 
-		if (owner.replayMode == false && startlevel == 0 && big == false && engine.ai == null) {
+		if (!owner.replayMode && startlevel == 0 && !big && engine.ai == null) {
 			updateRanking(norm, engine.statistics.time, goaltype, engine.statistics.rollclear);
 
 			if (rankingRank != -1) {
@@ -1148,10 +1153,11 @@ public class TimeAttackMode extends NetDummyMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (clear > rankingRollclear[type][i]) {
 				return i;
-			} else if (clear == rankingRollclear[type][i] && li > rankingLines[type][i]) {
+			}
+			if (clear == rankingRollclear[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (clear == rankingRollclear[type][i] && li == rankingLines[type][i]
-					&& time < rankingTime[type][i]) {
+			}
+			if (clear == rankingRollclear[type][i] && li == rankingLines[type][i] && time < rankingTime[type][i]) {
 				return i;
 			}
 		}

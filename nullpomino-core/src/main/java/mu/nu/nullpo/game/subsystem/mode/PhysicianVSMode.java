@@ -605,22 +605,22 @@ public class PhysicianVSMode extends AbstractMode {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				initMenu(Colors.FONT_ORANGE, 0);
-				drawMenu(engine, playerID, renderer, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+				drawMenu(engine, playerID, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
 						String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
 						String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
 						"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 			} else {
 				initMenu(Colors.FONT_CYAN, 9);
-				drawMenu(engine, playerID, renderer, "SPEED", SPEED_NAME[speed[playerID]], "VIRUS",
+				drawMenu(engine, playerID, "SPEED", SPEED_NAME[speed[playerID]], "VIRUS",
 						String.valueOf(hoverBlocks[playerID]), "MODE", flash[playerID] ? "FLASH" : "NORMAL");
 				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, renderer, "SE", GeneralUtil.getONorOFF(enableSE[playerID]), "BGM",
+				drawMenu(engine, playerID, "SE", GeneralUtil.getONorOFF(enableSE[playerID]), "BGM",
 						String.valueOf(bgmno));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
 			}
@@ -972,8 +972,8 @@ public class PhysicianVSMode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 6, 2, "LOSE", Colors.FONT_WHITE);
 		}
 
-		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
-				Statistic.LPM, Statistic.PPS, Statistic.TIME);
+		drawResultStats(engine, playerID, 3, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE, Statistic.LPM,
+				Statistic.PPS, Statistic.TIME);
 		/*
 		 * float apm = (float)(garbageSent[playerID] * 3600) /
 		 * (float)(engine.statistics.time); drawResult(engine, playerID, renderer, 3,

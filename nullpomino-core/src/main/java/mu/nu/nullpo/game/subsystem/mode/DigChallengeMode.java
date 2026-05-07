@@ -367,7 +367,7 @@ public class DigChallengeMode extends NetDummyMode {
 				strTSpinEnable = "ALL";
 			}
 
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE",
 					goaltype == 0 ? "NORMAL" : "REALTIME", "LEVEL", String.valueOf(startlevel + 1), "BGM",
 					String.valueOf(bgmno), "SPIN BONUS", strTSpinEnable, "EZ SPIN",
 					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
@@ -913,13 +913,13 @@ public class DigChallengeMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
-		drawResult(engine, playerID, renderer, 4, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
-		drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.LEVEL,
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
+		drawResult(engine, playerID, 4, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
+		drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.LEVEL,
 				Statistic.TIME);
-		drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);

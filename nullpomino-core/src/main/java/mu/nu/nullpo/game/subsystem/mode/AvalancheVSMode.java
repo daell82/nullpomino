@@ -819,7 +819,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
 						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
@@ -828,7 +828,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 1/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 17) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "COUNTER",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "COUNTER",
 						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
 						String.valueOf(maxAttack[playerID]), "COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
 						String.valueOf(rensaShibari[playerID]), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
@@ -839,37 +839,37 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 2/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 26) {
 				initMenu(Colors.FONT_DARKBLUE, 17);
-				drawMenu(engine, playerID, renderer, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
+				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
 						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
 						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "BIG", GeneralUtil.getONorOFF(big[playerID]));
+				drawMenu(engine, playerID, "BIG", GeneralUtil.getONorOFF(big[playerID]));
 				if (big[playerID]) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, renderer, "HARD OJAMA", String.valueOf(ojamaHard[playerID]), "X COLUMN",
+				drawMenu(engine, playerID, "HARD OJAMA", String.valueOf(ojamaHard[playerID]), "X COLUMN",
 						dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY", "X SHOW",
 						GeneralUtil.getONorOFF(dangerColumnShowX[playerID]), "ZENKESHI",
 						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
 				if (zenKeshiType[playerID] == ZENKESHI_MODE_OFF) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, renderer, "ZK-BONUS",
+				drawMenu(engine, playerID, "ZK-BONUS",
 						zenKeshiType[playerID] == ZENKESHI_MODE_FEVER ? zenKeshiChain[playerID] + " CHAIN"
 								: zenKeshiOjama[playerID] + " OJAMA");
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 3/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 36) {
 				initMenu(big[playerID] ? Colors.FONT_WHITE : Colors.FONT_PURPLE, 26);
-				drawMenu(engine, playerID, renderer, "FEVER",
+				drawMenu(engine, playerID, "FEVER",
 						feverThreshold[playerID] == 0 ? "NONE" : feverThreshold[playerID] + " PTS");
 				if (feverThreshold[playerID] == 0 && zenKeshiType[playerID] != ZENKESHI_MODE_FEVER) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, renderer, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
+				drawMenu(engine, playerID, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
 				if (feverThreshold[playerID] == 0) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, renderer, "F-MIN TIME", feverTimeMin[playerID] + "SEC", "F-MAX TIME",
+				drawMenu(engine, playerID, "F-MIN TIME", feverTimeMin[playerID] + "SEC", "F-MAX TIME",
 						feverTimeMax[playerID] + "SEC", "F-DISPLAY", feverShowMeter[playerID] ? "METER" : "COUNT",
 						"F-ADDPOINT", FEVER_POINT_CRITERIA_NAMES[feverPointCriteria[playerID]], "F-ADDTIME",
 						FEVER_TIME_CRITERIA_NAMES[feverTimeCriteria[playerID]], "F-POWER",
@@ -879,24 +879,24 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 4/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 44) {
 				initMenu(Colors.FONT_PINK, 36);
-				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno));
+				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno));
 				menuColor = Colors.FONT_YELLOW;
-				drawMenu(engine, playerID, renderer, "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
+				drawMenu(engine, playerID, "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, renderer, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+				drawMenu(engine, playerID, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 5/5", Colors.FONT_YELLOW);
 			} else {
 				renderer.drawMenuFont(engine, playerID, 0, 13, "MAP PREVIEW", Colors.FONT_YELLOW);
 				renderer.drawMenuFont(engine, playerID, 0, 14, "A:DISPLAY", Colors.FONT_GREEN);
-				drawMenu(engine, playerID, renderer, 15, Colors.FONT_BLUE, 44, "F-MAP SET",
+				drawMenu(engine, playerID, 15, Colors.FONT_BLUE, 44, "F-MAP SET",
 						FEVER_MAPS[feverMapSet[playerID]].toUpperCase(), "SUBSET",
 						feverMapSubsets[playerID][previewSubset[playerID]].toUpperCase(), "CHAIN",
 						String.valueOf(previewChain[playerID]));

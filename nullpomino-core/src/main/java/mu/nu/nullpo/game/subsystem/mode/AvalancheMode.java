@@ -296,16 +296,15 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (menuCursor <= 8) {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype]);
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype]);
 			if (gametype == 2) {
-				drawMenu(engine, playerID, renderer, 2, Colors.FONT_BLUE, 1, "TARGET",
+				drawMenu(engine, playerID, 2, Colors.FONT_BLUE, 1, "TARGET",
 						String.valueOf(SPRINT_MAX_SCORE[sprintTarget]));
 			}
-			drawMenu(engine, playerID, renderer, 4, Colors.FONT_BLUE, 2, "SCORE TYPE", SCORETYPE_NAME[scoreType],
-					"COLORS", String.valueOf(numColors), "X COLUMN", dangerColumnDouble ? "3 AND 4" : "3 ONLY",
-					"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX), "CLEAR SIZE",
-					String.valueOf(engine.colorClearSize), "FALL ANIM", cascadeSlow ? "FEVER" : "CLASSIC", "BIG DISP",
-					GeneralUtil.getONorOFF(bigDisplay));
+			drawMenu(engine, playerID, 4, Colors.FONT_BLUE, 2, "SCORE TYPE", SCORETYPE_NAME[scoreType], "COLORS",
+					String.valueOf(numColors), "X COLUMN", dangerColumnDouble ? "3 AND 4" : "3 ONLY", "X SHOW",
+					GeneralUtil.getONorOFF(dangerColumnShowX), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
+					"FALL ANIM", cascadeSlow ? "FEVER" : "CLASSIC", "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 
 			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/2", Colors.FONT_YELLOW);
 		} else {
@@ -319,7 +318,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (outlinetype == 2) {
 				strOutline = "NONE";
 			}
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 9, "OUTLINE", strOutline, "SHOW CHAIN",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 9, "OUTLINE", strOutline, "SHOW CHAIN",
 					GeneralUtil.getONorOFF(showChains));
 
 			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/2", Colors.FONT_YELLOW);

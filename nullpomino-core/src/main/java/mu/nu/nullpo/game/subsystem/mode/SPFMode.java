@@ -44,6 +44,7 @@ import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * SPF VS-BATTLE mode (Beta)
@@ -569,7 +570,7 @@ public class SPFMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
+		if (!engine.owner.replayMode && engine.statc_4() == 0) {
 			// Up
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 				menuCursor--;
@@ -579,7 +580,7 @@ public class SPFMode extends AbstractMode {
 				} else if (menuCursor == 17) {
 					engine.field = null;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 			// Down
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -590,7 +591,7 @@ public class SPFMode extends AbstractMode {
 				} else if (menuCursor == 18) {
 					loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 
 			// Configuration changes
@@ -603,7 +604,7 @@ public class SPFMode extends AbstractMode {
 			}
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -801,7 +802,7 @@ public class SPFMode extends AbstractMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 7) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
@@ -821,7 +822,7 @@ public class SPFMode extends AbstractMode {
 				engine.quitflag = true;
 			}
 
-			// プレビュー用Map読み込み
+			// Preview Map Loading
 			if (useMap[playerID] && menuTime == 0) {
 				loadMapPreview(engine, playerID, mapNumber[playerID] < 0 ? 0 : mapNumber[playerID], true);
 			}
@@ -876,29 +877,29 @@ public class SPFMode extends AbstractMode {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
 				initMenu(Colors.FONT_ORANGE, 0);
-				drawMenu(engine, playerID, renderer, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+				drawMenu(engine, playerID, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
 						String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
 						String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
 						"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", Colors.FONT_YELLOW);
 			} else if (menuCursor < 18) {
 				initMenu(Colors.FONT_PINK, 9);
-				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno));
+				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1), "SE",
 						GeneralUtil.getONorOFF(enableSE[playerID]), "HURRYUP",
 						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "COUNTDOWN",
 						String.valueOf(ojamaCountdown[playerID]));
 				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, renderer, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+				drawMenu(engine, playerID, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "RAINBOW");
-				drawMenu(engine, playerID, renderer, "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
+				drawMenu(engine, playerID, "RAINBOW");
+				drawMenu(engine, playerID, "GEM POWER", RAINBOW_POWER_NAMES[diamondPower[playerID]]);
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", Colors.FONT_YELLOW);
 			} else {
@@ -919,7 +920,7 @@ public class SPFMode extends AbstractMode {
 					renderer.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", Colors.FONT_GREEN);
 				}
 
-				drawMenu(engine, playerID, renderer, 14, Colors.FONT_CYAN, 18, "DROP SET",
+				drawMenu(engine, playerID, 14, Colors.FONT_CYAN, 18, "DROP SET",
 						DROP_SET_NAMES[dropSet[playerID]], "DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/"
 								+ String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
 
@@ -1681,11 +1682,11 @@ public class SPFMode extends AbstractMode {
 		}
 
 		float apm = (float) (ojamaSent[playerID] * 3600) / (float) engine.statistics.time;
-		drawResult(engine, playerID, renderer, 3, Colors.FONT_ORANGE, "ATTACK",
+		drawResult(engine, playerID, 3, Colors.FONT_ORANGE, "ATTACK",
 				String.format("%10d", ojamaSent[playerID]));
-		drawResultStats(engine, playerID, renderer, 5, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
-		drawResult(engine, playerID, renderer, 9, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
-		drawResultStats(engine, playerID, renderer, 11, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
+		drawResultStats(engine, playerID, 5, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE);
+		drawResult(engine, playerID, 9, Colors.FONT_ORANGE, "ATTACK/MIN", String.format("%10g", apm));
+		drawResultStats(engine, playerID, 11, Colors.FONT_ORANGE, Statistic.LPM, Statistic.PPS,
 				Statistic.TIME);
 	}
 

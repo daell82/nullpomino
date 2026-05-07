@@ -400,176 +400,171 @@ public abstract class AbstractMode implements GameMode {
 		menuColor = color;
 	}
 
-	protected void drawMenu(GameEngine engine, int playerID, Renderer<?> receiver, String... str) {
-		for (int i = 0; i < str.length; i++) {
+	protected void drawMenu(GameEngine engine, int playerID, String... strings) {
+		for (int i = 0; i < strings.length; i++) {
 			if ((i & 1) == 0) {
-				receiver.drawMenuFont(engine, playerID, 0, menuY, str[i], menuColor);
+				renderer.drawMenuFont(engine, playerID, 0, menuY, strings[i], menuColor);
 			} else if (menuCursor == statcMenu && !engine.owner.replayMode) {
-				receiver.drawMenuFont(engine, playerID, 0, menuY, "b" + str[i], true);
+				renderer.drawMenuFont(engine, playerID, 0, menuY, "b" + strings[i], true);
 				statcMenu++;
 			} else {
-				receiver.drawMenuFont(engine, playerID, 1, menuY, str[i]);
+				renderer.drawMenuFont(engine, playerID, 1, menuY, strings[i]);
 				statcMenu++;
 			}
 			menuY++;
 		}
 	}
 
-	protected void drawMenu(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color, int statc,
-			String... str) {
+	protected void drawMenu(GameEngine engine, int playerID, int y, int color, int statc, String... str) {
 		menuY = y;
 		menuColor = color;
 		statcMenu = statc;
-		drawMenu(engine, playerID, receiver, str);
+		drawMenu(engine, playerID, str);
 	}
 
-	protected void drawMenuCompact(GameEngine engine, int playerID, Renderer<?> receiver, String... str) {
-		for (int i = 0; i < str.length - 1; i += 2) {
-			receiver.drawMenuFont(engine, playerID, 1, menuY, str[i] + ":", menuColor);
+	protected void drawMenuCompact(GameEngine engine, int playerID, String... strings) {
+		for (int i = 0; i < strings.length - 1; i += 2) {
+			renderer.drawMenuFont(engine, playerID, 1, menuY, strings[i] + ":", menuColor);
 			if (menuCursor == statcMenu && !engine.owner.replayMode) {
-				receiver.drawMenuFont(engine, playerID, 0, menuY, "b", true);
-				receiver.drawMenuFont(engine, playerID, str[i].length() + 2, menuY, str[i + 1], true);
+				renderer.drawMenuFont(engine, playerID, 0, menuY, "b", true);
+				renderer.drawMenuFont(engine, playerID, strings[i].length() + 2, menuY, strings[i + 1], true);
 			} else {
-				receiver.drawMenuFont(engine, playerID, str[i].length() + 2, menuY, str[i + 1]);
+				renderer.drawMenuFont(engine, playerID, strings[i].length() + 2, menuY, strings[i + 1]);
 			}
 			statcMenu++;
 			menuY++;
 		}
 	}
 
-	protected void drawMenuCompact(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
-			int statc, String... str) {
+	protected void drawMenuCompact(GameEngine engine, int playerID, int y, int color, int statc, String... str) {
 		menuY = y;
 		menuColor = color;
 		statcMenu = statc;
-		drawMenuCompact(engine, playerID, receiver, str);
+		drawMenuCompact(engine, playerID, str);
 	}
 
-	protected void drawResult(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
-			String... str) {
-		drawResultScale(engine, playerID, receiver, y, color, 1.0f, str);
+	protected void drawResult(GameEngine engine, int playerID, int y, int color, String... str) {
+		drawResultScale(engine, playerID, y, color, 1.0f, str);
 	}
 
-	protected void drawResultScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
-			float scale, String... str) {
+	protected void drawResultScale(GameEngine engine, int playerID, int y, int color, float scale, String... str) {
 		for (int i = 0; i < str.length; i++) {
-			receiver.drawMenuFont(engine, playerID, 0, y + i, str[i], (i & 1) == 0 ? color : Colors.FONT_WHITE, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + i, str[i], (i & 1) == 0 ? color : Colors.FONT_WHITE, scale);
 		}
 	}
 
-	protected void drawResultRank(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
-			int rank) {
-		drawResultRankScale(engine, playerID, receiver, y, color, 1.0f, rank);
+	protected void drawResultRank(GameEngine engine, int playerID, int y, int color, int rank) {
+		drawResultRankScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultRankScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultRankScale(GameEngine engine, int playerID, int y, int color,
 			float scale, int rank) {
 		if (rank != -1) {
-			receiver.drawMenuFont(engine, playerID, 0, y, "RANK", color, scale);
-			receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
+			renderer.drawMenuFont(engine, playerID, 0, y, "RANK", color, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultNetRank(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultNetRank(GameEngine engine, int playerID, int y, int color,
 			int rank) {
-		drawResultNetRankScale(engine, playerID, receiver, y, color, 1.0f, rank);
+		drawResultNetRankScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultNetRankScale(GameEngine engine, int playerID, int y, int color,
 			float scale, int rank) {
 		if (rank != -1) {
-			receiver.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, scale);
-			receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
+			renderer.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultNetRankDaily(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultNetRankDaily(GameEngine engine, int playerID, int y, int color,
 			int rank) {
-		drawResultNetRankDailyScale(engine, playerID, receiver, y, color, 1.0f, rank);
+		drawResultNetRankDailyScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, Renderer<?> receiver, int y,
-			int color, float scale, int rank) {
+	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, int y, int color,
+			float scale, int rank) {
 		if (rank != -1) {
-			receiver.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, scale);
-			receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
+			renderer.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultStats(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultStats(GameEngine engine, int playerID, int y, int color,
 			Statistic... stats) {
-		drawResultStatsScale(engine, playerID, receiver, y, color, 1.0f, stats);
+		drawResultStatsScale(engine, playerID, y, color, 1.0f, stats);
 	}
 
-	protected void drawResultStatsScale(GameEngine engine, int playerID, Renderer<?> receiver, int y, int color,
+	protected void drawResultStatsScale(GameEngine engine, int playerID, int y, int color,
 			float scale, Statistic... statistics) {
 		var stats = engine.statistics;
 		for (Statistic stat : statistics) {
 			switch (stat) {
 			case SCORE -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.score), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.score), scale);
 			}
 			case LINES -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LINES", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.lines), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "LINES", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.lines), scale);
 			}
 			case TIME -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "TIME", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1,
+				renderer.drawMenuFont(engine, playerID, 0, y, "TIME", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1,
 						String.format("%10s", GeneralUtil.getTime(stats.time)), scale);
 			}
 			case LEVEL -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level + 1), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level + 1), scale);
 			}
 			case LEVEL_MANIA -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level), scale);
 			}
 			case PIECE -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.totalPieceLocked), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.totalPieceLocked), scale);
 			}
 			case MAXCOMBO -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "MAX COMBO", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxCombo - 1), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "MAX COMBO", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxCombo - 1), scale);
 			}
 			case SPL -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/LINE", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spl), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/LINE", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spl), scale);
 			}
 			case SPM -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spm), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/MIN", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spm), scale);
 			}
 			case SPS -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "SCORE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.sps), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/SEC", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.sps), scale);
 			}
 			case LPM -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LINE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lpm), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "LINE/MIN", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lpm), scale);
 			}
 			case LPS -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LINE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lps), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "LINE/SEC", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lps), scale);
 			}
 			case PPM -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/MIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.ppm), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE/MIN", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.ppm), scale);
 			}
 			case PPS -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "PIECE/SEC", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.pps), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE/SEC", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.pps), scale);
 			}
 			case MAXCHAIN -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "MAX CHAIN", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxChain), scale);
+				renderer.drawMenuFont(engine, playerID, 0, y, "MAX CHAIN", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxChain), scale);
 			}
 			case LEVEL_ADD_DISP -> {
-				receiver.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				receiver.drawMenuFont(engine, playerID, 0, y + 1,
+				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
+				renderer.drawMenuFont(engine, playerID, 0, y + 1,
 						String.format("%10d", stats.level + stats.levelDispAdd), scale);
 			}
 			}

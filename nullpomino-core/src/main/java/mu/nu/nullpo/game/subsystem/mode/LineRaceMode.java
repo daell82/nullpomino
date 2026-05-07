@@ -354,16 +354,15 @@ public class LineRaceMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GRAVITY",
-					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
-					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
-					String.valueOf(engine.speed.das));
-			drawMenuCompact(engine, playerID, renderer, "BGM", String.valueOf(bgmno), "BIG",
-					GeneralUtil.getONorOFF(big), "GOAL", String.valueOf(GOAL_TABLE[goaltype]));
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+					String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
+					String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+					"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
+			drawMenuCompact(engine, playerID, "BGM", String.valueOf(bgmno), "BIG", GeneralUtil.getONorOFF(big), "GOAL",
+					String.valueOf(GOAL_TABLE[goaltype]));
 			if (!engine.owner.replayMode) {
 				menuColor = Colors.FONT_GREEN;
-				drawMenuCompact(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber), "SAVE",
+				drawMenuCompact(engine, playerID, "LOAD", String.valueOf(presetNumber), "SAVE",
 						String.valueOf(presetNumber));
 			}
 		}
@@ -397,16 +396,13 @@ public class LineRaceMode extends NetDummyMode {
 		}
 
 		renderer.drawScoreFont(engine, playerID, 0, 0, "LINE RACE", Colors.FONT_RED);
-		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
-				Colors.FONT_RED);
+		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)", Colors.FONT_RED);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && !big && engine.ai == null && !netIsWatch) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
-				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "TIME     PIECE PPS", Colors.FONT_BLUE,
-						scale);
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "TIME     PIECE PPS", Colors.FONT_BLUE, scale);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
 					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
@@ -507,11 +503,11 @@ public class LineRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
-				Statistic.TIME, Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, renderer, 11, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, renderer, 13, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 15, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultStats(engine, playerID, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE, Statistic.TIME,
+				Statistic.LPM, Statistic.PPS);
+		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 13, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 15, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);

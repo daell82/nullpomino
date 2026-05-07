@@ -86,13 +86,6 @@ public class RetroManiaMode extends AbstractMode {
 	/** Max level */
 	private static final int MAX_LEVEL = 99;
 
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
-
 	/** Amount of points you just get from line clears */
 	private int lastscore;
 
@@ -278,7 +271,7 @@ public class RetroManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[gametype],
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "DIFFICULTY", GAMETYPE_NAME[gametype],
 				"LEVEL", String.valueOf(startlevel), "BIG", GeneralUtil.getONorOFF(big), "POWERON",
 				GeneralUtil.getONorOFF(poweron));
 	}
@@ -319,9 +312,9 @@ public class RetroManiaMode extends AbstractMode {
 				Colors.FONT_GREEN);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			// Leaderboard
-			if (owner.replayMode == false && big == false && startlevel == 0 && engine.ai == null) {
+			if (!owner.replayMode && !big && startlevel == 0 && engine.ai == null) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
 				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE,
@@ -500,9 +493,9 @@ public class RetroManiaMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+		drawResultStats(engine, playerID, 3, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 				Statistic.LEVEL, Statistic.TIME);
-		drawResultRank(engine, playerID, renderer, 11, Colors.FONT_BLUE, rankingRank);
+		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/**
@@ -513,7 +506,7 @@ public class RetroManiaMode extends AbstractMode {
 		saveSetting(prop);
 
 		// Checks/Updates the ranking
-		if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && !big && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, gametype);
 
 			if (rankingRank != -1) {
@@ -615,13 +608,14 @@ public class RetroManiaMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (sc > rankingScore[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i] && time < rankingTime[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li == rankingLines[type][i] && time < rankingTime[type][i]) {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 }

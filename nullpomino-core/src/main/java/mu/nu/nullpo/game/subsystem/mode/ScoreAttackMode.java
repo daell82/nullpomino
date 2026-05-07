@@ -379,7 +379,7 @@ public class ScoreAttackMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
 				"FULL GHOST", GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g),
 				"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "BIG", GeneralUtil.getONorOFF(big));
 	}
@@ -589,7 +589,7 @@ public class ScoreAttackMode extends AbstractMode {
 
 		if (engine.statistics.level >= nextseclv) {
 			nextseclv += 100;
-			renderer.playSE("levelup");
+			renderer.playSE(Sounds.LEVEL_UP);
 
 			// owner.backgroundStatus.fadesw = true;
 			// owner.backgroundStatus.fadecount = 0;
@@ -762,11 +762,11 @@ public class ScoreAttackMode extends AbstractMode {
 
 		switch (status1) {
 		case 0:
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL, Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 13, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, 13, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 15, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 15, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
 			break;
@@ -784,7 +784,7 @@ public class ScoreAttackMode extends AbstractMode {
 			}
 			break;
 		case 2:
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
 			break;
 		default:

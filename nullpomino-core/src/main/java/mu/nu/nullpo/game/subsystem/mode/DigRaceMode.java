@@ -362,7 +362,7 @@ public class DigRaceMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GRAVITY",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GRAVITY",
 					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
 					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
@@ -370,7 +370,7 @@ public class DigRaceMode extends NetDummyMode {
 					String.valueOf(GOAL_TABLE[goaltype]));
 			if (!engine.owner.replayMode) {
 				menuColor = Colors.FONT_GREEN;
-				drawMenuCompact(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber), "SAVE",
+				drawMenuCompact(engine, playerID, "LOAD", String.valueOf(presetNumber), "SAVE",
 						String.valueOf(presetNumber));
 			}
 		}
@@ -608,11 +608,11 @@ public class DigRaceMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID, 1, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE,
 				Statistic.TIME, Statistic.LPM, Statistic.PPS);
-		drawResultRank(engine, playerID, renderer, 11, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, renderer, 13, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 15, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 13, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 15, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);

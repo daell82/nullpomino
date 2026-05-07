@@ -458,7 +458,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 			scale = 0.5f;
 		}
 
-		drawResultScale(engine, playerID, owner.renderer, 2, Colors.FONT_ORANGE, scale, "LINE",
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, "LINE",
 				String.format("%10d", engine.statistics.lines), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "LINE/MIN",
 				String.format("%10g", engine.statistics.lpm), "PIECE/SEC", String.format("%10g", engine.statistics.pps),

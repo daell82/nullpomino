@@ -375,8 +375,8 @@ public class MarathonPlusMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1),
-					"SPIN BONUS", strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1), "SPIN BONUS",
+					strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
 					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
 					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo), "BIG",
 					GeneralUtil.getONorOFF(big));
@@ -931,24 +931,23 @@ public class MarathonPlusMode extends NetDummyMode {
 		renderer.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/2", Colors.FONT_RED);
 
 		if (status1 == 0) {
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
 			if (engine.statistics.level >= 20) {
-				drawResult(engine, playerID, renderer, 6, Colors.FONT_BLUE, "BONUS LINE",
-						String.format("%10d", bonusLines));
+				drawResult(engine, playerID, 6, Colors.FONT_BLUE, "BONUS LINE", String.format("%10d", bonusLines));
 			} else {
-				drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.LEVEL);
+				drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LEVEL);
 			}
-			drawResult(engine, playerID, renderer, 8, Colors.FONT_BLUE, "TOTAL TIME",
+			drawResult(engine, playerID, 8, Colors.FONT_BLUE, "TOTAL TIME",
 					String.format("%10s", GeneralUtil.getTime(engine.statistics.time)), "LV20- TIME",
 					String.format("%10s", GeneralUtil.getTime(engine.statistics.time - bonusTime)), "BONUS TIME",
 					String.format("%10s", GeneralUtil.getTime(bonusTime)));
 
-			drawResultRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, rankingRank);
-			drawResultNetRank(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[0]);
-			drawResultNetRankDaily(engine, playerID, renderer, 18, Colors.FONT_BLUE, netRankingRank[1]);
+			drawResultRank(engine, playerID, 14, Colors.FONT_BLUE, rankingRank);
+			drawResultNetRank(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[0]);
+			drawResultNetRankDaily(engine, playerID, 18, Colors.FONT_BLUE, netRankingRank[1]);
 		} else {
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.SPL, Statistic.SPM,
-					Statistic.LPM, Statistic.PPS);
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.SPL, Statistic.SPM, Statistic.LPM,
+					Statistic.PPS);
 		}
 
 		if (netIsPB) {

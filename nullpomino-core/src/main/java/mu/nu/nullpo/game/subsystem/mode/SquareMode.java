@@ -35,6 +35,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * SQUARE Mode
@@ -43,9 +44,10 @@ public class SquareMode extends AbstractMode {
 	/** Current version */
 	private static final int CURRENT_VERSION = 1;
 
-	public int[] tableGravityChangeScore = { 150, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2500, 4000, 5000 };
+	private static final int[] tableGravityChangeScore = { 150, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2500,
+			4000, 5000 };
 
-	public int[] tableGravityValue = { 1, 2, 3, 4, 6, 8, 10, 20, 30, 60, 120, 180, 300, -1 };
+	private static final int[] tableGravityValue = { 1, 2, 3, 4, 6, 8, 10, 20, 30, 60, 120, 180, 300, -1 };
 
 	/** Number of ranking records */
 	private static final int RANKING_MAX = 10;
@@ -64,13 +66,6 @@ public class SquareMode extends AbstractMode {
 
 	/** Max score in Sprint */
 	private static final int SPRINT_MAX_SCORE = 150;
-
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
 
 	/**
 	 * Current gravity number (When the point reaches tableGravityChangeScore's
@@ -148,7 +143,7 @@ public class SquareMode extends AbstractMode {
 		rankingTime = new int[RANKING_TYPE][RANKING_MAX];
 		rankingSquares = new int[RANKING_TYPE][RANKING_MAX];
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -190,7 +185,7 @@ public class SquareMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Main menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 4);
 
@@ -301,9 +296,8 @@ public class SquareMode extends AbstractMode {
 		if (grayoutEnable == 2) {
 			grayoutStr = "ALL";
 		}
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype],
-				"OUTLINE", strOutline, "AVALANCHE", strTSpinEnable, "AVALANCHE", tntAvalanche ? "TNT" : "WORLDS",
-				"GRAYOUT", grayoutStr);
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype], "OUTLINE", strOutline,
+				"AVALANCHE", strTSpinEnable, "AVALANCHE", tntAvalanche ? "TNT" : "WORLDS", "GRAYOUT", grayoutStr);
 	}
 
 	/*
@@ -360,15 +354,14 @@ public class SquareMode extends AbstractMode {
 				Colors.FONT_DARKBLUE);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && engine.ai == null) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && engine.ai == null) {
 				float scale = renderer.getNextDisplayType() == 2 && gametype == 0 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 && gametype == 0 ? 6 : 4;
 
 				switch (gametype) {
 				case 0:
-					renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE SQUARE TIME", Colors.FONT_BLUE,
-							scale);
+					renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE SQUARE TIME", Colors.FONT_BLUE, scale);
 					break;
 				case 1:
 					renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE SQUARE", Colors.FONT_BLUE);
@@ -475,8 +468,7 @@ public class SquareMode extends AbstractMode {
 			}
 
 			// Countdown
-			if (remainTime > 0 && remainTime <= 10 * 60 && engine.statistics.time % 60 == 0
-					&& engine.timerActive) {
+			if (remainTime > 0 && remainTime <= 10 * 60 && engine.statistics.time % 60 == 0 && engine.timerActive) {
 				engine.playSE("countdown");
 			}
 
@@ -490,11 +482,10 @@ public class SquareMode extends AbstractMode {
 				engine.gameEnded();
 				engine.resetStatc();
 				engine.stat = GameEngine.Status.ENDINGSTART;
-				return;
 			}
 		} else if (gametype == 2) {
 			int remainScore = SPRINT_MAX_SCORE - engine.statistics.score;
-			if (engine.timerActive == false) {
+			if (!engine.timerActive) {
 				remainScore = 0;
 			}
 			engine.meterValue = remainScore * renderer.getMeterMax(engine) / SPRINT_MAX_SCORE;
@@ -523,10 +514,8 @@ public class SquareMode extends AbstractMode {
 	 */
 	@Override
 	public boolean onLineClear(GameEngine engine, int playerID) {
-		if (engine.statc_0() == 1) {
-			if (grayoutEnable == 2) {
-				grayoutBrokenBlocks(engine.field);
-			}
+		if (engine.statc_0() == 1 && grayoutEnable == 2) {
+			grayoutBrokenBlocks(engine.field);
 		}
 		return false;
 	}
@@ -568,7 +557,7 @@ public class SquareMode extends AbstractMode {
 		if (lines > 0) {
 			engine.lineGravityType = GameEngine.LineGravity.NATIVE;
 			if (engine.field.isEmpty()) {
-				engine.playSE("bravo");
+				engine.playSE(Sounds.BRAVO);
 			}
 
 			if (lines > 3) {
@@ -595,20 +584,21 @@ public class SquareMode extends AbstractMode {
 	 */
 	public int[] getHowManySquareClears(Field field) {
 		int[] squares = { 0, 0 };
-		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor(); i++) {
+		for (int y = field.getHiddenHeight() * -1; y < field.getHeightWithoutHurryupFloor(); y++) {
 			// Check the lines we are clearing.
-			if (field.getLineFlag(i)) {
-				for (int j = 0; j < field.getWidth(); j++) {
-					Block blk = field.getBlock(j, i);
+			if (!field.getLineFlag(y)) {
+				continue;
+			}
+			for (int x = 0; x < field.getWidth(); x++) {
+				Block blk = field.getBlock(x, y);
 
-					// Silver blocks are worth 1, gold are worth 2, but not if they are garbage
-					// (avalanche)
-					if (blk != null && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
-						if (blk.isGoldSquareBlock()) {
-							squares[0]++;
-						} else if (blk.isSilverSquareBlock()) {
-							squares[1]++;
-						}
+				// Silver blocks are worth 1, gold are worth 2, but not if they are garbage
+				// (avalanche)
+				if (blk != null && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
+					if (blk.isGoldSquareBlock()) {
+						squares[0]++;
+					} else if (blk.isSilverSquareBlock()) {
+						squares[1]++;
 					}
 				}
 			}
@@ -700,7 +690,7 @@ public class SquareMode extends AbstractMode {
 	 * @param playerID Player ID
 	 * @param lines    Number of lines cleared
 	 */
-	@Deprecated
+	@Deprecated(since = "7.6")
 	private void avalancheOld(GameEngine engine, int playerID, int lines) {
 		Field field = engine.field;
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
@@ -933,11 +923,10 @@ public class SquareMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResult(engine, playerID, renderer, 3, Colors.FONT_BLUE, "SCORE",
-				String.format("%10d", engine.statistics.score), "LINE", String.format("%10d", engine.statistics.lines),
-				"SQUARE", String.format("%10d", squares), "TIME",
-				String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
-		drawResultRank(engine, playerID, renderer, 11, Colors.FONT_BLUE, rankingRank);
+		drawResult(engine, playerID, 3, Colors.FONT_BLUE, "SCORE", String.format("%10d", engine.statistics.score),
+				"LINE", String.format("%10d", engine.statistics.lines), "SQUARE", String.format("%10d", squares),
+				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/*
@@ -949,7 +938,7 @@ public class SquareMode extends AbstractMode {
 		prop.setProperty("square.squares", squares);
 
 		// Update the ranking
-		if (owner.replayMode == false && engine.ai == null) {
+		if (!owner.replayMode && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.time, squares, gametype);
 
 			if (rankingRank != -1) {
@@ -1067,24 +1056,27 @@ public class SquareMode extends AbstractMode {
 				// Marathon
 				if (sc > rankingScore[type][i]) {
 					return i;
-				} else if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
+				}
+				if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
 					return i;
-				} else if (sc == rankingScore[type][i] && sq == rankingSquares[type][i]
-						&& time < rankingTime[type][i]) {
+				}
+				if (sc == rankingScore[type][i] && sq == rankingSquares[type][i] && time < rankingTime[type][i]) {
 					return i;
 				}
 			} else if (gametype == 1 && time >= ULTRA_MAX_TIME) {
 				// Ultra
 				if (sc > rankingScore[type][i]) {
 					return i;
-				} else if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
+				}
+				if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
 					return i;
 				}
 			} else if (gametype == 2 && sc >= SPRINT_MAX_SCORE) {
 				// Sprint
 				if (time < rankingTime[type][i] || rankingTime[type][i] < 0) {
 					return i;
-				} else if (time == rankingTime[type][i] && sq > rankingSquares[type][i]) {
+				}
+				if (time == rankingTime[type][i] && sq > rankingSquares[type][i]) {
 					return i;
 				}
 			}

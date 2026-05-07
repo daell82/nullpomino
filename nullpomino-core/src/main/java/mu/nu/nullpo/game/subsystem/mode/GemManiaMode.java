@@ -896,16 +896,16 @@ public class GemManiaMode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		switch (editModeScreen) {
 		case 1 -> {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_GREEN, 0, "STAGE EDIT", "[PUSH A]", "LOAD STAGE",
+			drawMenu(engine, playerID, 0, Colors.FONT_GREEN, 0, "STAGE EDIT", "[PUSH A]", "LOAD STAGE",
 					"[" + getStageName(startstage) + "]", "SAVE STAGE", "[" + getStageName(startstage) + "]", "LOAD",
 					"[SET " + stageset + "]", "SAVE", "[SET " + stageset + "]");
 
 			renderer.drawMenuFont(engine, playerID, 0, 19, "EXIT-> D+E", Colors.FONT_ORANGE);
 		}
 		// エディットMenu stage 画面
-		case 2 -> drawMenu(engine, playerID, renderer, 0, Colors.FONT_GREEN, 0, "MAP EDIT", "[PUSH A]", "STAGE TIME",
-					GeneralUtil.getTime(stagetimeStart), "LIMIT TIME", GeneralUtil.getTime(limittimeStart), "BGM",
-					String.valueOf(stagebgm), "MIRROR", gimmickMirror == 0 ? "OFF" : String.valueOf(gimmickMirror));
+		case 2 -> drawMenu(engine, playerID, 0, Colors.FONT_GREEN, 0, "MAP EDIT", "[PUSH A]", "STAGE TIME",
+				GeneralUtil.getTime(stagetimeStart), "LIMIT TIME", GeneralUtil.getTime(limittimeStart), "BGM",
+				String.valueOf(stagebgm), "MIRROR", gimmickMirror == 0 ? "OFF" : String.valueOf(gimmickMirror));
 		// 普通のMenu
 		default -> {
 
@@ -919,12 +919,11 @@ public class GemManiaMode extends AbstractMode {
 			if (trainingType == 2) {
 				strTrainingType = "ON+RESET";
 			}
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_PINK, 0, "STAGE NO.", getStageName(startstage),
-					"STAGE SET", stageset < 0 ? "DEFAULT" : "EDIT " + stageset, "FULL GHOST",
-					GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE",
-					GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "RANDOM",
-					GeneralUtil.getONorOFF(randomnext), "TRAINING", strTrainingType, "NEXT COUNT",
-					String.valueOf(startnextc));
+			drawMenu(engine, playerID, 0, Colors.FONT_PINK, 0, "STAGE NO.", getStageName(startstage), "STAGE SET",
+					stageset < 0 ? "DEFAULT" : "EDIT " + stageset, "FULL GHOST", GeneralUtil.getONorOFF(alwaysghost),
+					"20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE", GeneralUtil.getONorOFF(lvstopse),
+					"SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "RANDOM", GeneralUtil.getONorOFF(randomnext),
+					"TRAINING", strTrainingType, "NEXT COUNT", String.valueOf(startnextc));
 		}
 		}
 	}
@@ -1002,8 +1001,7 @@ public class GemManiaMode extends AbstractMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "GEM MANIA " + (randomnext ? "(RANDOM)" : ""), Colors.FONT_RED);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (startstage == 0 && !always20g && trainingType == 0 && startnextc == 0 && stageset < 0
 					&& engine.ai == null) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
@@ -1674,8 +1672,7 @@ public class GemManiaMode extends AbstractMode {
 		if (engine.ending == 0 && !noContinue) {
 			int status0 = engine.statc_0();
 			int status1 = engine.statc_1();
-			if (status0 >= engine.field.getHeight() + 1
-					&& status0 < engine.field.getHeight() + 1 + 600) {
+			if (status0 >= engine.field.getHeight() + 1 && status0 < engine.field.getHeight() + 1 + 600) {
 				renderer.drawMenuFont(engine, playerID, 1, 7, "CONTINUE?", Colors.FONT_PINK);
 
 				renderer.drawMenuFont(engine, playerID, 3, 9 + status1 * 2, "b", Colors.FONT_RED);
@@ -1741,10 +1738,9 @@ public class GemManiaMode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 0, 2, "STAGE", Colors.FONT_PINK);
 			String strStage = String.format("%10s", getStageName(stage));
 			renderer.drawMenuFont(engine, playerID, 0, 3, strStage, gcolor);
-			drawResult(engine, playerID, renderer, 4, Colors.FONT_PINK, "CLEAR", String.format("%9d%%", clearper));
-			drawResultStats(engine, playerID, renderer, 6, Colors.FONT_PINK, Statistic.LINES, Statistic.PIECE,
-					Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_PINK, rankingRank);
+			drawResult(engine, playerID, 4, Colors.FONT_PINK, "CLEAR", String.format("%9d%%", clearper));
+			drawResultStats(engine, playerID, 6, Colors.FONT_PINK, Statistic.LINES, Statistic.PIECE, Statistic.TIME);
+			drawResultRank(engine, playerID, 12, Colors.FONT_PINK, rankingRank);
 			break;
 		}
 		case 1:
@@ -1896,12 +1892,11 @@ public class GemManiaMode extends AbstractMode {
 			if (clear == rankingAllClear[type][i] && stg > rankingStage[type][i]) {
 				return i;
 			}
-			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
-					&& clper > rankingClearPer[type][i]) {
+			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i] && clper > rankingClearPer[type][i]) {
 				return i;
 			}
-			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i]
-					&& clper == rankingClearPer[type][i] && time < rankingTime[type][i]) {
+			if (clear == rankingAllClear[type][i] && stg == rankingStage[type][i] && clper == rankingClearPer[type][i]
+					&& time < rankingTime[type][i]) {
 				return i;
 			}
 		}

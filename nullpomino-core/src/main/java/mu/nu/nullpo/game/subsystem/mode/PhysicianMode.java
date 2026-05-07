@@ -244,7 +244,7 @@ public class PhysicianMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GEMS", String.valueOf(hoverBlocks),
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GEMS", String.valueOf(hoverBlocks),
 				"SPEED", SPEED_NAME[speed]);
 	}
 
@@ -422,11 +422,11 @@ public class PhysicianMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResult(engine, playerID, renderer, 3, Colors.FONT_BLUE, "SCORE",
+		drawResult(engine, playerID, 3, Colors.FONT_BLUE, "SCORE",
 				String.format("%10d", engine.statistics.score), "CLEARED",
 				String.format("%10d", engine.statistics.lines), "TIME",
 				String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
-		drawResultRank(engine, playerID, renderer, 9, Colors.FONT_BLUE, rankingRank);
+		drawResultRank(engine, playerID, 9, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/*

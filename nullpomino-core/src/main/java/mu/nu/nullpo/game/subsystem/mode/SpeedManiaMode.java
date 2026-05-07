@@ -999,11 +999,11 @@ public class SpeedManiaMode extends AbstractMode {
 				String strGrade = String.format("%10s", tableGradeName[grade]);
 				renderer.drawMenuFont(engine, playerID, 0, 3, strGrade);
 			}
-			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
 			break;
@@ -1040,8 +1040,8 @@ public class SpeedManiaMode extends AbstractMode {
 			if (medalCO >= 1) {
 				renderer.drawMenuFont(engine, playerID, 8, 5, "CO", getMedalFontColor(medalCO));
 			}
-			drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
-					Statistic.PIECE, Statistic.PPS);
+			drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM, Statistic.PIECE,
+					Statistic.PPS);
 			break;
 		default:
 			break;
@@ -1145,7 +1145,7 @@ public class SpeedManiaMode extends AbstractMode {
 	 * @param time Time
 	 */
 	private void updateRanking(int gr, int lv, int time) {
-		rankingRank = checkRanking(gr, lv, time);
+		rankingRank = checkRanking(lv, time);
 
 		if (rankingRank != -1) {
 			// Shift down ranking entries
@@ -1165,12 +1165,11 @@ public class SpeedManiaMode extends AbstractMode {
 	/**
 	 * Calculate ranking position
 	 *
-	 * @param gr   Dan
 	 * @param lv   level
 	 * @param time Time
 	 * @return Position (-1 if unranked)
 	 */
-	private int checkRanking(int gr, int lv, int time) {
+	private int checkRanking(int lv, int time) {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (lv > rankingLevel[i]) {
 				return i;

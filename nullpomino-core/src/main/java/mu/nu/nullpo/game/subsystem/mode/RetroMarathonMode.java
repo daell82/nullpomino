@@ -117,13 +117,6 @@ public class RetroMarathonMode extends AbstractMode {
 			"A8", "4C", "BD", "97", "A5", "A8" // 250
 	};
 
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
-
 	/** Amount of points you just get from line clears */
 	private int lastscore;
 
@@ -207,7 +200,7 @@ public class RetroMarathonMode extends AbstractMode {
 		engine.speed.lockDelay = 0;
 		engine.speed.das = gametype == GAMETYPE_ARRANGE ? 12 : 16;
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -260,7 +253,7 @@ public class RetroMarathonMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 3);
 
@@ -334,9 +327,8 @@ public class RetroMarathonMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype],
-				"LEVEL", LEVEL_NAME[startlevel], "HEIGHT", String.valueOf(startheight), "BIG",
-				GeneralUtil.getONorOFF(big));
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype], "LEVEL",
+				LEVEL_NAME[startlevel], "HEIGHT", String.valueOf(startheight), "BIG", GeneralUtil.getONorOFF(big));
 	}
 
 	@Override
@@ -369,14 +361,12 @@ public class RetroMarathonMode extends AbstractMode {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "RETRO MARATHON", Colors.FONT_GREEN);
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME[gametype] + ")", Colors.FONT_GREEN);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && !big && engine.ai == null) {
 				renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE    LINE LV.", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
-							Colors.FONT_YELLOW);
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1), Colors.FONT_YELLOW);
 					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
 							i == rankingRank);
 					renderer.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingLines[gametype][i]),
@@ -391,7 +381,7 @@ public class RetroMarathonMode extends AbstractMode {
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -469,7 +459,7 @@ public class RetroMarathonMode extends AbstractMode {
 			engine.statistics.score += pts;
 		}
 
-		if (!(gametype == GAMETYPE_ARRANGE) && engine.statistics.score > 999999) {
+		if (gametype != GAMETYPE_ARRANGE && engine.statistics.score > 999999) {
 			engine.statistics.score = 999999;
 		}
 
@@ -500,7 +490,7 @@ public class RetroMarathonMode extends AbstractMode {
 			}
 		}
 
-		if (!(gametype == GAMETYPE_TYPE_B) && engine.statistics.lines >= levellines) {
+		if (gametype != GAMETYPE_TYPE_B && engine.statistics.lines >= levellines) {
 			// Level up
 			engine.statistics.level++;
 
@@ -552,13 +542,12 @@ public class RetroMarathonMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
+		drawResultStats(engine, playerID, 3, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
 		renderer.drawMenuFont(engine, playerID, 0, 7, "LEVEL", Colors.FONT_BLUE);
 		String strLevel = String.format("%10s", LEVEL_NAME[engine.statistics.level]);
 		renderer.drawMenuFont(engine, playerID, 0, 8, strLevel);
-		drawResultStats(engine, playerID, renderer, 9, Colors.FONT_BLUE, Statistic.TIME, Statistic.SPL,
-				Statistic.LPM);
-		drawResultRank(engine, playerID, renderer, 15, Colors.FONT_BLUE, rankingRank);
+		drawResultStats(engine, playerID, 9, Colors.FONT_BLUE, Statistic.TIME, Statistic.SPL, Statistic.LPM);
+		drawResultRank(engine, playerID, 15, Colors.FONT_BLUE, rankingRank);
 
 	}
 
@@ -570,7 +559,7 @@ public class RetroMarathonMode extends AbstractMode {
 		saveSetting(prop);
 
 		// Checks/Updates the ranking
-		if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && !big && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.level, gametype);
 
 			if (rankingRank != -1) {
@@ -685,13 +674,14 @@ public class RetroMarathonMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (sc > rankingScore[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i] && lv < rankingLevel[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li == rankingLines[type][i] && lv < rankingLevel[type][i]) {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 

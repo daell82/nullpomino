@@ -10,6 +10,7 @@ import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * VS-DIG RACE mode
@@ -22,7 +23,7 @@ public class VSDigRaceMode extends AbstractMode {
 	private static final int MAX_PLAYERS = 2;
 
 	/** Each player's frame color */
-	private final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
+	private static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** Number of garbage lines to clear */
 	private int[] goalLines;
@@ -163,7 +164,7 @@ public class VSDigRaceMode extends AbstractMode {
 
 		engine.framecolor = PLAYER_COLOR_FRAME[playerID];
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			version = CURRENT_VERSION;
 			loadOtherSetting(engine, engine.owner.modeConfig);
 			loadPreset(engine, engine.owner.modeConfig, -1 - playerID);
@@ -180,12 +181,12 @@ public class VSDigRaceMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
+		if (!engine.owner.replayMode && engine.statc_4() == 0) {
 			// Configuration changes
 			int change = updateCursor(engine, 12, playerID);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -304,7 +305,7 @@ public class VSDigRaceMode extends AbstractMode {
 
 			// Confirm
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 7) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID]);
@@ -358,19 +359,19 @@ public class VSDigRaceMode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
 						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
 						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
 						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
 						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das));
-				drawMenu(engine, playerID, renderer, 14, Colors.FONT_GREEN, 7, "LOAD",
+				drawMenu(engine, playerID, 14, Colors.FONT_GREEN, 7, "LOAD",
 						String.valueOf(presetNumber[playerID]), "SAVE", String.valueOf(presetNumber[playerID]));
 			} else {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "GOAL",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "GOAL",
 						String.valueOf(goalLines[playerID]), "CHANGERATE",
 						String.valueOf(garbagePercent[playerID]) + "%", "SE",
 						GeneralUtil.getONorOFF(enableSE[playerID]));
-				drawMenu(engine, playerID, renderer, 6, Colors.FONT_PINK, 12, "BGM", String.valueOf(bgmno));
+				drawMenu(engine, playerID, 6, Colors.FONT_PINK, 12, "BGM", String.valueOf(bgmno));
 			}
 		} else {
 			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
@@ -671,7 +672,7 @@ public class VSDigRaceMode extends AbstractMode {
 		} else {
 			renderer.drawMenuFont(engine, playerID, 6, 1, "LOSE", Colors.FONT_WHITE);
 		}
-		drawResultStats(engine, playerID, renderer, 2, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
+		drawResultStats(engine, playerID,  2, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE,
 				Statistic.LPM, Statistic.PPS, Statistic.TIME);
 	}
 

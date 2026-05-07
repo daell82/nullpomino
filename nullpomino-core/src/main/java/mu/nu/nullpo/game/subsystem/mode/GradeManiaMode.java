@@ -815,13 +815,13 @@ public class GradeManiaMode extends AbstractMode {
 
 		switch (status1) {
 		case 0:
-			drawResult(engine, playerID, renderer, 2, Colors.FONT_BLUE, "GRADE",
+			drawResult(engine, playerID, 2, Colors.FONT_BLUE, "GRADE",
 					String.format("%10s", tableGradeName[grade]));
-			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableGradeName[secretGrade - 1]));
 			}
 			break;
@@ -839,7 +839,7 @@ public class GradeManiaMode extends AbstractMode {
 			}
 			break;
 		case 2:
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
 			if (grade == 18) {
 				int pierRank = 0;
@@ -848,7 +848,7 @@ public class GradeManiaMode extends AbstractMode {
 						pierRank = i;
 					}
 				}
-				drawResult(engine, playerID, renderer, 10, Colors.FONT_BLUE, "PIER GRADE",
+				drawResult(engine, playerID, 10, Colors.FONT_BLUE, "PIER GRADE",
 						String.format("%10s", tablePier21GradeName[pierRank]));
 			}
 			break;

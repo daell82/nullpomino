@@ -36,6 +36,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * ULTRA Mode
@@ -54,9 +55,19 @@ public class UltraMode extends NetDummyMode {
 	private static final int GOALTYPE_MAX = 5;
 
 	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0, EVENT_SINGLE = 1, EVENT_DOUBLE = 2, EVENT_TRIPLE = 3, EVENT_FOUR = 4,
-			EVENT_TSPIN_ZERO_MINI = 5, EVENT_TSPIN_ZERO = 6, EVENT_TSPIN_SINGLE_MINI = 7, EVENT_TSPIN_SINGLE = 8,
-			EVENT_TSPIN_DOUBLE_MINI = 9, EVENT_TSPIN_DOUBLE = 10, EVENT_TSPIN_TRIPLE = 11, EVENT_TSPIN_EZ = 12;
+	private static final int EVENT_NONE = 0;
+	private static final int EVENT_SINGLE = 1;
+	private static final int EVENT_DOUBLE = 2;
+	private static final int EVENT_TRIPLE = 3;
+	private static final int EVENT_FOUR = 4;
+	private static final int EVENT_TSPIN_ZERO_MINI = 5;
+	private static final int EVENT_TSPIN_ZERO = 6;
+	private static final int EVENT_TSPIN_SINGLE_MINI = 7;
+	private static final int EVENT_TSPIN_SINGLE = 8;
+	private static final int EVENT_TSPIN_DOUBLE_MINI = 9;
+	private static final int EVENT_TSPIN_DOUBLE = 10;
+	private static final int EVENT_TSPIN_TRIPLE = 11;
+	private static final int EVENT_TSPIN_EZ = 12;
 
 	/** Most recent increase in score */
 	private int lastscore;
@@ -155,7 +166,7 @@ public class UltraMode extends NetDummyMode {
 
 		netPlayerInit(engine, playerID);
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			presetNumber = engine.owner.modeConfig.getProperty("ultra.presetNumber", 0);
 			loadPreset(engine, engine.owner.modeConfig, -1);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
@@ -233,7 +244,7 @@ public class UltraMode extends NetDummyMode {
 			netOnUpdateNetPlayRanking(engine, goaltype);
 		}
 		// Menu
-		else if (engine.owner.replayMode == false) {
+		else if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 17);
 
@@ -448,12 +459,11 @@ public class UltraMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else if (menuCursor < 10) {
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "GRAVITY",
-					String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-					String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
-					String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS",
-					String.valueOf(engine.speed.das), "BGM", String.valueOf(bgmno), "BIG", GeneralUtil.getONorOFF(big),
-					"GOAL", goaltype + 1 + "MIN");
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
+					String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
+					String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
+					"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das),
+					"BGM", String.valueOf(bgmno), "BIG", GeneralUtil.getONorOFF(big), "GOAL", goaltype + 1 + "MIN");
 		} else {
 			String strTSpinEnable = "";
 			if (version >= 1) {
@@ -469,12 +479,12 @@ public class UltraMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 10, "SPIN BONUS", strTSpinEnable,
-					"EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
-					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
-					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo));
-			drawMenu(engine, playerID, renderer, 12, Colors.FONT_GREEN, 16, "LOAD",
-					String.valueOf(presetNumber), "SAVE", String.valueOf(presetNumber));
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 10, "SPIN BONUS", strTSpinEnable, "EZ SPIN",
+					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
+					"EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ), "B2B", GeneralUtil.getONorOFF(enableB2B),
+					"COMBO", GeneralUtil.getONorOFF(enableCombo));
+			drawMenu(engine, playerID, 12, Colors.FONT_GREEN, 16, "LOAD", String.valueOf(presetNumber), "SAVE",
+					String.valueOf(presetNumber));
 		}
 	}
 
@@ -529,18 +539,15 @@ public class UltraMode extends NetDummyMode {
 		}
 
 		renderer.drawScoreFont(engine, playerID, 0, 0, "ULTRA", Colors.FONT_CYAN);
-		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + (goaltype + 1) + " MINUTE GAME)",
-				Colors.FONT_CYAN);
+		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + (goaltype + 1) + " MINUTE GAME)", Colors.FONT_CYAN);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && !big && engine.ai == null) {
 				renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE RANKING", Colors.FONT_GREEN);
 				renderer.drawScoreFont(engine, playerID, 3, 4, "SCORE  LINE", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					renderer.drawScoreFont(engine, playerID, 0, 5 + i, String.format("%2d", i + 1),
-							Colors.FONT_YELLOW);
+					renderer.drawScoreFont(engine, playerID, 0, 5 + i, String.format("%2d", i + 1), Colors.FONT_YELLOW);
 					renderer.drawScoreFont(engine, playerID, 3, 5 + i, String.valueOf(rankingScore[goaltype][0][i]),
 							i == rankingRank[0]);
 					renderer.drawScoreFont(engine, playerID, 10, 5 + i, String.valueOf(rankingLines[goaltype][0][i]),
@@ -565,7 +572,7 @@ public class UltraMode extends NetDummyMode {
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -623,55 +630,44 @@ public class UltraMode extends NetDummyMode {
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_EZ:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
 					break;
 				}
@@ -804,7 +800,7 @@ public class UltraMode extends NetDummyMode {
 
 		// All clear
 		if (lines >= 1 && engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 			pts += 3000;
 		}
 
@@ -873,7 +869,7 @@ public class UltraMode extends NetDummyMode {
 
 				// 10Seconds before the countdown
 				if (engine.statistics.time >= limitTime - 10 * 60 && engine.statistics.time % 60 == 0) {
-					engine.playSE("countdown");
+					engine.playSE(Sounds.COUNTDOWN);
 				}
 
 				// 5Of seconds beforeBGM fadeout
@@ -883,7 +879,7 @@ public class UltraMode extends NetDummyMode {
 
 				// 1Per-minuteBackgroundSwitching
 				if (engine.statistics.time > 0 && engine.statistics.time % 3600 == 0) {
-					engine.playSE("levelup");
+					engine.playSE(Sounds.LEVEL_UP);
 					owner.backgroundStatus.fadesw = true;
 					owner.backgroundStatus.fadebg = owner.backgroundStatus.bg + 1;
 				}
@@ -898,23 +894,23 @@ public class UltraMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE);
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE);
 		if (rankingRank[0] != -1) {
 			String strRank = String.format("RANK %d", rankingRank[0] + 1);
 			renderer.drawMenuFont(engine, playerID, 4, 2, strRank, Colors.FONT_ORANGE);
 		}
 
-		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_BLUE, Statistic.LINES);
+		drawResultStats(engine, playerID, 3, Colors.FONT_BLUE, Statistic.LINES);
 		if (rankingRank[1] != -1) {
 			String strRank = String.format("RANK %d", rankingRank[1] + 1);
 			renderer.drawMenuFont(engine, playerID, 4, 5, strRank, Colors.FONT_ORANGE);
 		}
 
-		drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.SPL,
-				Statistic.SPM, Statistic.LPM, Statistic.PPS);
+		drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.SPL, Statistic.SPM,
+				Statistic.LPM, Statistic.PPS);
 
-		drawResultNetRank(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 18, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultNetRank(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 18, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 21, "NEW PB", Colors.FONT_ORANGE);
@@ -936,12 +932,12 @@ public class UltraMode extends NetDummyMode {
 		engine.owner.replayProp.setProperty("ultra.version", version);
 
 		// NET: Save name
-		if (netPlayerName != null && netPlayerName.length() > 0) {
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
 			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
 		}
 
 		// Update rankings
-		if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && !big && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.lines);
 
 			if (rankingRank[0] != -1 || rankingRank[1] != -1) {
@@ -1027,14 +1023,13 @@ public class UltraMode extends NetDummyMode {
 			if (rankingtype == 0) {
 				if (sc > rankingScore[goaltype][rankingtype][i]) {
 					return i;
-				} else if (sc == rankingScore[goaltype][rankingtype][i]
-						&& li > rankingLines[goaltype][rankingtype][i]) {
+				}
+				if (sc == rankingScore[goaltype][rankingtype][i] && li > rankingLines[goaltype][rankingtype][i]) {
 					return i;
 				}
 			} else if (li > rankingLines[goaltype][rankingtype][i]) {
 				return i;
-			} else if (li == rankingLines[goaltype][rankingtype][i]
-					&& sc > rankingScore[goaltype][rankingtype][i]) {
+			} else if (li == rankingLines[goaltype][rankingtype][i] && sc > rankingScore[goaltype][rankingtype][i]) {
 				return i;
 			}
 		}

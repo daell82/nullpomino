@@ -355,7 +355,7 @@ public class ExtremeMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1),
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1),
 					"SPIN BONUS", strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
 					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
 					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo), "ENDLESS",
@@ -780,11 +780,11 @@ public class ExtremeMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 				Statistic.LEVEL, Statistic.TIME, Statistic.SPL, Statistic.LPM);
-		drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
-		drawResultNetRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, netRankingRank[0]);
-		drawResultNetRankDaily(engine, playerID, renderer, 16, Colors.FONT_BLUE, netRankingRank[1]);
+		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
 
 		if (netIsPB) {
 			renderer.drawMenuFont(engine, playerID, 2, 21, "NEW PB", Colors.FONT_ORANGE);

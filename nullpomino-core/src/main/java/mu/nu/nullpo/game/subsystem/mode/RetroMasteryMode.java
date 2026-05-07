@@ -42,7 +42,7 @@ public class RetroMasteryMode extends AbstractMode {
 	private static final int CURRENT_VERSION = 1;
 
 	/** Denominator table */
-	private static final int tableDenominator[] = {
+	private static final int[] tableDenominator = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			48, 40, 32, 27, 22, 18, 15, 12, 10, 8, // 00
 			7, 6, 11, 5, 9, 4, 7, 3, 11, 10, // 10
@@ -50,7 +50,7 @@ public class RetroMasteryMode extends AbstractMode {
 			1 };
 
 	/** Gravity table */
-	private static final int tableGravity[] = {
+	private static final int[] tableGravity = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 00
 			1, 1, 2, 1, 2, 1, 2, 1, 4, 4, // 10
@@ -58,7 +58,7 @@ public class RetroMasteryMode extends AbstractMode {
 			1 };
 
 	/** Lock delay table */
-	private static final int tableLockDelay[] = {
+	private static final int[] tableLockDelay = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			60, 52, 45, 39, 34, 30, 27, 24, 22, 20, // 00
 			19, 18, 17, 16, 15, 14, 13, 12, 11, 10, // 10
@@ -66,7 +66,10 @@ public class RetroMasteryMode extends AbstractMode {
 			6 };
 
 	/** Game types */
-	private static final int GAMETYPE_200 = 0, GAMETYPE_ENDLESS = 1, GAMETYPE_PRESSURE = 2, GAMETYPE_MAX = 3;
+	private static final int GAMETYPE_200 = 0;
+	private static final int GAMETYPE_ENDLESS = 1;
+	private static final int GAMETYPE_PRESSURE = 2;
+	private static final int GAMETYPE_MAX = 3;
 
 	/** Game type name */
 	private static final String[] GAMETYPE_NAME = { "200", "ENDLESS", "PRESSURE" };
@@ -76,13 +79,6 @@ public class RetroMasteryMode extends AbstractMode {
 
 	/** Number of ranking types */
 	private static final int RANKING_TYPE = 3;
-
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
 
 	/** Amount of points you just get from line clears */
 	private int lastscore;
@@ -177,7 +173,7 @@ public class RetroMasteryMode extends AbstractMode {
 		engine.speed.areLine = 15;
 		engine.speed.das = 12;
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -219,7 +215,7 @@ public class RetroMasteryMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Check for UP button, when pressed it will move cursor up.
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
 				menuCursor--;
@@ -313,7 +309,7 @@ public class RetroMasteryMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			renderer.drawMenuFont(engine, playerID, 0, menuCursor * 2 + 1, "b", Colors.FONT_RED);
 		}
 
@@ -362,14 +358,12 @@ public class RetroMasteryMode extends AbstractMode {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "RETRO MASTERY", Colors.FONT_GREEN);
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GAMETYPE_NAME[gametype] + ")", Colors.FONT_GREEN);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && !big && engine.ai == null) {
 				renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE    LINE LV.", Colors.FONT_BLUE);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
-					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
-							Colors.FONT_YELLOW);
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1), Colors.FONT_YELLOW);
 					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
 							i == rankingRank);
 					renderer.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingLines[gametype][i]),
@@ -384,7 +378,7 @@ public class RetroMasteryMode extends AbstractMode {
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + " (+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + " (+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -551,7 +545,7 @@ public class RetroMasteryMode extends AbstractMode {
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
 
-		drawResultStats(engine, playerID, renderer, 3, Colors.FONT_BLUE, Statistic.SCORE);
+		drawResultStats(engine, playerID, 3, Colors.FONT_BLUE, Statistic.SCORE);
 
 		renderer.drawMenuFont(engine, playerID, 0, 5, "LINES", Colors.FONT_BLUE);
 		String strLines = String.format("%10d", loons);
@@ -559,10 +553,9 @@ public class RetroMasteryMode extends AbstractMode {
 		String strFour = String.format("%10s", String.format("+%d", engine.statistics.totalFour));
 		renderer.drawMenuFont(engine, playerID, 0, 7, strFour);
 
-		drawResultStats(engine, playerID, renderer, 8, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME);
-		drawResult(engine, playerID, renderer, 12, Colors.FONT_BLUE, "EFFICIENCY",
-				String.format("%10.3f", efficiency));
-		drawResultRank(engine, playerID, renderer, 14, Colors.FONT_BLUE, rankingRank);
+		drawResultStats(engine, playerID, 8, Colors.FONT_BLUE, Statistic.LEVEL, Statistic.TIME);
+		drawResult(engine, playerID, 12, Colors.FONT_BLUE, "EFFICIENCY", String.format("%10.3f", efficiency));
+		drawResultRank(engine, playerID, 14, Colors.FONT_BLUE, rankingRank);
 	}
 
 	/**
@@ -573,7 +566,7 @@ public class RetroMasteryMode extends AbstractMode {
 		saveSetting(prop);
 
 		// Checks/Updates the ranking
-		if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && !big && engine.ai == null) {
 			updateRanking(engine.statistics.score, loons, engine.statistics.level, gametype);
 
 			if (rankingRank != -1) {
@@ -686,13 +679,14 @@ public class RetroMasteryMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (sc > rankingScore[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i] && lv < rankingLevel[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li == rankingLines[type][i] && lv < rankingLevel[type][i]) {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 }

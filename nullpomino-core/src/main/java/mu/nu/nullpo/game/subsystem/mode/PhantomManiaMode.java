@@ -1051,11 +1051,11 @@ public class PhantomManiaMode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 			String strGrade = String.format("%10s", tableGradeName[grade]);
 			renderer.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
-			drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 15, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 15, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
 			break;
@@ -1093,7 +1093,7 @@ public class PhantomManiaMode extends AbstractMode {
 			if (medalCO >= 1) {
 				renderer.drawMenuFont(engine, playerID, 8, 5, "CO", getMedalFontColor(medalCO));
 			}
-			drawResultStats(engine, playerID, renderer, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+			drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 					Statistic.PIECE, Statistic.PPS);
 			break;
 		default:

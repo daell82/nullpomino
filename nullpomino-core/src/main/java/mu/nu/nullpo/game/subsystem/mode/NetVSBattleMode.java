@@ -936,7 +936,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 			scale = 0.5f;
 		}
 
-		drawResultScale(engine, playerID, owner.renderer, 2, Colors.FONT_ORANGE, scale, "ATTACK",
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, "ATTACK",
 				String.format("%10g", (float) garbageSent[playerID] / GARBAGE_DENOMINATOR), "LINE",
 				String.format("%10d", engine.statistics.lines), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "ATK/LINE",

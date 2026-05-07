@@ -888,12 +888,12 @@ public class GradeMania3Mode extends AbstractMode {
 		} else {
 			speedlevel = String.valueOf(internalStartLevel);
 		}
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", level, "SPEED", speedlevel, "FULL GHOST",
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", level, "SPEED", speedlevel, "FULL GHOST",
 				GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE",
 				GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "GRADE DISP",
 				GeneralUtil.getONorOFF(gradedisp), "LV500LIMIT",
 				lv500torikan == 0 ? "NONE" : GeneralUtil.getTime(lv500torikan), "STIMECOLOR", scolorStr);
-		drawMenuCompact(engine, playerID, renderer, "BIG", GeneralUtil.getONorOFF(big), "EXAM",
+		drawMenuCompact(engine, playerID, "BIG", GeneralUtil.getONorOFF(big), "EXAM",
 				GeneralUtil.getONorOFF(enableexam));
 	}
 
@@ -1784,11 +1784,11 @@ public class GradeMania3Mode extends AbstractMode {
 				renderer.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
 				String strGrade = String.format("%10s", getGradeName(rgrade));
 				renderer.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
-				drawResultStats(engine, playerID, renderer, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+				drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 						Statistic.LEVEL_MANIA, Statistic.TIME);
-				drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+				drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 				if (secretGrade > 4) {
-					drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+					drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 							String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 				}
 				break;
@@ -1835,7 +1835,7 @@ public class GradeMania3Mode extends AbstractMode {
 					String strRollPointsTotal = String.format("%10g", rollPointsTotal);
 					renderer.drawMenuFont(engine, playerID, 0, 7, strRollPointsTotal);
 				}
-				drawResultStats(engine, playerID, renderer, 8, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
+				drawResultStats(engine, playerID, 8, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
 						Statistic.PIECE, Statistic.PPS);
 				break;
 			default:

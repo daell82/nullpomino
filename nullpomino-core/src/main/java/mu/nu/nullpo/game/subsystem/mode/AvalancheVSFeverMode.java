@@ -472,16 +472,16 @@ public class AvalancheVSFeverMode extends AvalancheVSDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
-						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
-						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
-						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das), "FALL DELAY",
-						String.valueOf(engine.cascadeDelay), "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY", String.valueOf(engine.speed.gravity),
+						"G-MAX", String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are),
+						"ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
+						String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+						"DAS", String.valueOf(engine.speed.das), "FALL DELAY", String.valueOf(engine.cascadeDelay),
+						"CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 18) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "ZENKESHI",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "ZENKESHI",
 						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]], "MAX ATTACK", String.valueOf(maxAttack[playerID]),
 						"COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
 						String.valueOf(rensaShibari[playerID]), "OJAMA RATE", String.valueOf(ojamaRate[playerID]),
@@ -493,27 +493,27 @@ public class AvalancheVSFeverMode extends AvalancheVSDummyMode {
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 25) {
 				initMenu(Colors.FONT_PURPLE, 18);
-				drawMenu(engine, playerID, renderer, "HANDICAP", String.valueOf(ojamaHandicap[playerID]), "F-MAP SET",
+				drawMenu(engine, playerID, "HANDICAP", String.valueOf(ojamaHandicap[playerID]), "F-MAP SET",
 						FEVER_MAPS[feverMapSet[playerID]].toUpperCase(), "STARTCHAIN",
 						String.valueOf(feverChainStart[playerID]));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, renderer, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
+				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
 						chainDisplayType[playerID] == CHAIN_DISPLAY_FEVERSIZE ? "FEVERSIZE"
 								: CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
 						"FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
+				drawMenu(engine, playerID, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/4", Colors.FONT_YELLOW);
 			} else {
 				initMenu(Colors.FONT_PINK, 25);
-				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno));
+				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno));
 				menuColor = Colors.FONT_YELLOW;
-				drawMenu(engine, playerID, renderer, "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
+				drawMenu(engine, playerID, "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
 				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, renderer, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+				drawMenu(engine, playerID, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/4", Colors.FONT_YELLOW);

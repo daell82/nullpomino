@@ -430,10 +430,10 @@ public class GarbageManiaMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, renderer, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
-				"FULL GHOST", GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g),
-				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"BIG", GeneralUtil.getONorOFF(big));
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100), "FULL GHOST",
+				GeneralUtil.getONorOFF(alwaysghost), "20G MODE", GeneralUtil.getONorOFF(always20g), "LVSTOPSE",
+				GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "BIG",
+				GeneralUtil.getONorOFF(big));
 	}
 
 	/*
@@ -886,13 +886,12 @@ public class GarbageManiaMode extends AbstractMode {
 		renderer.drawMenuFont(engine, playerID, 0, 0, "kn PAGE" + (status1 + 1) + "/3", Colors.FONT_RED);
 		switch (status1) {
 		case 0:
-			drawResultStats(engine, playerID, renderer, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
-			drawResult(engine, playerID, renderer, 10, Colors.FONT_BLUE, "GARBAGE",
-					String.format("%10d", garbageTotal));
-			drawResultRank(engine, playerID, renderer, 12, Colors.FONT_BLUE, rankingRank);
+			drawResult(engine, playerID, 10, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
+			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 			if (secretGrade > 4) {
-				drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+				drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 						String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 			}
 			break;
@@ -910,8 +909,8 @@ public class GarbageManiaMode extends AbstractMode {
 			}
 			break;
 		case 2:
-			drawResultStats(engine, playerID, renderer, 1, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
-					Statistic.PIECE, Statistic.PPS);
+			drawResultStats(engine, playerID, 1, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM, Statistic.PIECE,
+					Statistic.PPS);
 			break;
 		default:
 			break;

@@ -127,10 +127,16 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	};
 
 	/** Indexes of attack types in attack table */
-	private static final int LINE_ATTACK_INDEX_SINGLE = 0, LINE_ATTACK_INDEX_DOUBLE = 1, LINE_ATTACK_INDEX_TRIPLE = 2,
-			LINE_ATTACK_INDEX_FOUR = 3, LINE_ATTACK_INDEX_TMINI = 4, LINE_ATTACK_INDEX_TSINGLE = 5,
-			LINE_ATTACK_INDEX_TDOUBLE = 6, LINE_ATTACK_INDEX_TTRIPLE = 7, LINE_ATTACK_INDEX_TMINI_D = 8,
-			LINE_ATTACK_INDEX_EZ_T = 9;
+	private static final int LINE_ATTACK_INDEX_SINGLE = 0;
+	private static final int LINE_ATTACK_INDEX_DOUBLE = 1;
+	private static final int LINE_ATTACK_INDEX_TRIPLE = 2;
+	private static final int LINE_ATTACK_INDEX_FOUR = 3;
+	private static final int LINE_ATTACK_INDEX_TMINI = 4;
+	private static final int LINE_ATTACK_INDEX_TSINGLE = 5;
+	private static final int LINE_ATTACK_INDEX_TDOUBLE = 6;
+	private static final int LINE_ATTACK_INDEX_TTRIPLE = 7;
+	private static final int LINE_ATTACK_INDEX_TMINI_D = 8;
+	private static final int LINE_ATTACK_INDEX_EZ_T = 9;
 
 	/** Combo attack table */
 	private static final int[][] COMBO_ATTACK_TABLE = { { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 }, // 1-2 Player(s)
@@ -2289,7 +2295,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			renderer.drawMenuFont(engine, playerID, 0, 0, "PRACTICE", Colors.FONT_PINK, scale);
 		}
 
-		drawResultScale(engine, playerID, renderer, 2, Colors.FONT_ORANGE, scale, "ATTACK",
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, "ATTACK",
 				String.format("%10g", (float) garbageSent[playerID] / GARBAGE_DENOMINATOR), "LINE",
 				String.format("%10d", engine.statistics.lines), "PIECE",
 				String.format("%10d", engine.statistics.totalPieceLocked), "ATK/LINE",

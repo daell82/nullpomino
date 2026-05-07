@@ -46,8 +46,8 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 	private static final int CURRENT_VERSION = 0;
 
 	/** Block colors */
-	private static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_BLUE,
-			Colors.BLOCK_COLOR_YELLOW };
+	private static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
+			Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_YELLOW };
 
 	/** Names of drop map sets */
 	private static final String[] DROP_SET_NAMES = { "CLASSIC", "REMIX", "SWORD", "S-MIRROR", "AVALANCHE", "A-MIRROR" };
@@ -734,16 +734,15 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
-						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
-						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
-						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das), "FALL DELAY",
-						String.valueOf(engine.cascadeDelay), "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
-
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY", String.valueOf(engine.speed.gravity),
+						"G-MAX", String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are),
+						"ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
+						String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+						"DAS", String.valueOf(engine.speed.das), "FALL DELAY", String.valueOf(engine.cascadeDelay),
+						"CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 17) {
-				drawMenu(engine, playerID, renderer, 0, Colors.FONT_CYAN, 9, "COUNTER",
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "COUNTER",
 						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
 						String.valueOf(maxAttack[playerID]), "MIN CHAIN", String.valueOf(rensaShibari[playerID]),
 						"CLEAR SIZE", String.valueOf(engine.colorClearSize), "OJAMA RATE",
@@ -755,30 +754,30 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 24) {
 				initMenu(Colors.FONT_CYAN, 17);
-				drawMenu(engine, playerID, renderer, "COUNTDOWN",
+				drawMenu(engine, playerID, "COUNTDOWN",
 						ojamaCountdown[playerID] == 10 ? "NONE" : String.valueOf(ojamaCountdown[playerID]), "ZENKESHI",
 						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
 				menuColor = zenKeshiType[playerID] == ZENKESHI_MODE_FEVER ? Colors.FONT_PURPLE : Colors.FONT_WHITE;
-				drawMenu(engine, playerID, renderer, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
+				drawMenu(engine, playerID, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, renderer, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
+				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
 						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
 						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, renderer, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
+				drawMenu(engine, playerID, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 32) {
 				initMenu(Colors.FONT_PINK, 24);
-				drawMenu(engine, playerID, renderer, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
+				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
 						String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
 						"BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, renderer, "BGM", String.valueOf(bgmno), "SE",
+				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno), "SE",
 						GeneralUtil.getONorOFF(enableSE[playerID]));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, renderer, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
+				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
 						String.valueOf(presetNumber[playerID]));
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/5", Colors.FONT_YELLOW);
@@ -800,8 +799,8 @@ public class AvalancheVSSPFMode extends AvalancheVSDummyMode {
 					renderer.drawMenuFont(engine, playerID, 3, 3, multiplier + "%", Colors.FONT_GREEN);
 				}
 
-				drawMenu(engine, playerID, renderer, 14, Colors.FONT_CYAN, 32, "DROP SET",
-						DROP_SET_NAMES[dropSet[playerID]], "DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/"
+				drawMenu(engine, playerID, 14, Colors.FONT_CYAN, 32, "DROP SET", DROP_SET_NAMES[dropSet[playerID]],
+						"DROP MAP", String.format("%2d", dropMap[playerID] + 1) + "/"
 								+ String.format("%2d", DROP_PATTERNS[dropSet[playerID]].length));
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 5/5", Colors.FONT_YELLOW);

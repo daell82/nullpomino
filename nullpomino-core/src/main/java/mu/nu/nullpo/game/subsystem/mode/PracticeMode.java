@@ -1871,10 +1871,10 @@ public class PracticeMode extends AbstractMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, renderer, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 				Statistic.LEVEL_ADD_DISP, Statistic.TIME, Statistic.SPL, Statistic.SPM, Statistic.LPM);
 		if (secretGrade > 0) {
-			drawResult(engine, playerID, renderer, 14, Colors.FONT_BLUE, "S. GRADE",
+			drawResult(engine, playerID, 14, Colors.FONT_BLUE, "S. GRADE",
 					String.format("%10s", tableSecretGradeName[secretGrade - 1]));
 		}
 	}

@@ -62,9 +62,6 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	/** true when thread is executing the think routine. */
 	public boolean thinking;
 
-	/** To stop a thread time */
-	public int thinkDelay;
-
 	/** When true,Running thread */
 	public volatile boolean threadRunning;
 
@@ -109,11 +106,11 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 		thinkSuccess = false;
 		inARE = false;
 
-		if ((thread == null || !thread.isAlive()) && engine.aiUseThread) {
+		if ((thread == null || !thread.isAlive()) && isUseThread()) {
 			thread = new Thread(this, "AI_" + playerID);
 			thread.setDaemon(true);
 			thread.start();
-			thinkDelay = engine.aiThinkDelay;
+			// XXX thinkDelay = engine.aiThinkDelay
 			thinkCurrentPieceNo = 0;
 			thinkLastPieceNo = 0;
 		}
@@ -136,9 +133,9 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void newPiece(GameEngine engine, int playerID) {
-		if (!engine.aiUseThread) {
+		if (!isUseThread()) {
 			thinkBestPosition(engine, playerID);
-		} else if (!thinking && !thinkComplete || !engine.aiPrethink || engine.aiShowHint || engine.getARE() <= 0
+		} else if (!thinking && !thinkComplete || !isPrethink() || isShowHint() || engine.getARE() <= 0
 				|| engine.getARELine() <= 0) {
 			thinkCurrentPieceNo++;
 			thinkRequest.newRequest();
@@ -153,7 +150,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	public void onFirst(GameEngine engine, int playerID) {
 		inputARE = 0;
 		boolean newInARE = engine.stat == GameEngine.Status.ARE;
-		if (engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0
+		if (isPrethink() && engine.getARE() > 0 && engine.getARELine() > 0
 				&& (newInARE && !inARE || !thinking && !thinkSuccess)) {
 			if (DEBUG_ALL) {
 				log.debug("Begin pre-think of next piece.");
@@ -162,7 +159,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 			thinkRequest.newRequest();
 		}
 		inARE = newInARE;
-		if (inARE && delay >= engine.aiMoveDelay) {
+		if (inARE && delay >= getMoveDelay()) {
 			int input = 0;
 			Piece nextPiece = engine.getNextObject(engine.nextPieceCount);
 			if (bestHold && thinkComplete) {
@@ -212,9 +209,9 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
+		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= getMoveDelay()
 				&& engine.statc_0() > 0
-				&& (!engine.aiUseThread || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
+				&& (!isUseThread() || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			inputARE = 0;
 			int input = 0; // Button input data
 			Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
@@ -554,7 +551,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 
 		thinkLastPieceNo++;
 
-		if (engine.aiShowHint) {
+		if (isShowHint()) {
 			Piece pieceTemp = bestHold ? pieceHold : pieceNow;
 			bestY = pieceTemp.getBottom(bestX, bestY, bestRt, fld);
 			bestXSub = bestX;
@@ -670,9 +667,10 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 				createTables(gEngine);
 			}
 
-			if (thinkDelay > 0) {
+			int delay = getThinkDelay();
+			if (delay > 0) {
 				try {
-					Thread.sleep(thinkDelay);
+					Thread.sleep(delay);
 				} catch (InterruptedException e) {
 					break;
 				}
@@ -899,7 +897,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 		r.drawScoreFont(engine, playerID, 27, 35, String.valueOf(bestY), !thinkSuccess, 0.5f);
 		r.drawScoreFont(engine, playerID, 30, 35, String.valueOf(bestRt), !thinkSuccess, 0.5f);
 		r.drawScoreFont(engine, playerID, 19, 36, "SUB:", Colors.FONT_BLUE, 0.5f);
-		if (engine.aiShowHint) {
+		if (isShowHint()) {
 			r.drawScoreFont(engine, playerID, 24, 36, String.valueOf(bestXSub), !thinkSuccess, 0.5f);
 			r.drawScoreFont(engine, playerID, 27, 36, String.valueOf(bestYSub), !thinkSuccess, 0.5f);
 		}

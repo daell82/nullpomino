@@ -1,7 +1,6 @@
 package net.tetrisconcept.poochy.nullpomino.ai;
 
-import org.apache.log4j.Logger;
-
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
@@ -19,9 +18,8 @@ import mu.nu.nullpo.util.GeneralUtil;
  *
  * @author Poochy.EXE Poochy.Spambucket@gmail.com
  */
+@Log4j
 public class PoochyBot extends DummyAI implements Runnable {
-	/** Log */
-	static Logger log = Logger.getLogger(PoochyBot.class);
 
 	/** After that I was groundedX-coordinate */
 	public int bestXSub;
@@ -118,11 +116,11 @@ public class PoochyBot extends DummyAI implements Runnable {
 		thinkSuccess = false;
 		inARE = false;
 
-		if ((thread == null || !thread.isAlive()) && engine.aiUseThread) {
+		if ((thread == null || !thread.isAlive()) && isUseThread()) {
 			thread = new Thread(this, "AI_" + playerID);
 			thread.setDaemon(true);
 			thread.start();
-			thinkDelay = engine.aiThinkDelay;
+			// XXX thinkDelay = engine.aiThinkDelay
 			thinkCurrentPieceNo = 0;
 			thinkLastPieceNo = 0;
 		}
@@ -145,9 +143,9 @@ public class PoochyBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void newPiece(GameEngine engine, int playerID) {
-		if (!engine.aiUseThread) {
+		if (!isUseThread()) {
 			thinkBestPosition(engine, playerID);
-		} else if (!thinking && !thinkComplete || !engine.aiPrethink || engine.aiShowHint || engine.getARE() <= 0
+		} else if (!thinking && !thinkComplete || !isPrethink() || isShowHint() || engine.getARE() <= 0
 				|| engine.getARELine() <= 0) {
 			thinkComplete = false;
 			// thinkCurrentPieceNo++;
@@ -162,7 +160,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 	public void onFirst(GameEngine engine, int playerID) {
 		inputARE = 0;
 		boolean newInARE = engine.stat == GameEngine.Status.ARE;
-		if (engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0
+		if (isPrethink() && engine.getARE() > 0 && engine.getARELine() > 0
 				&& (newInARE && !inARE || !thinking && !thinkSuccess)) {
 			if (DEBUG_ALL) {
 				log.debug("Begin pre-think of next piece.");
@@ -171,7 +169,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			thinkRequest.newRequest();
 		}
 		inARE = newInARE;
-		if (inARE && delay >= engine.aiMoveDelay) {
+		if (inARE && delay >= getMoveDelay()) {
 			int input = 0;
 			Piece nextPiece = engine.getNextObject(engine.nextPieceCount);
 			if (bestHold && thinkComplete) {
@@ -223,8 +221,8 @@ public class PoochyBot extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
-				&& engine.statc_0() > 0 && (!engine.aiUseThread || threadRunning && !thinking && thinkComplete)) {
+		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= getMoveDelay()
+				&& engine.statc_0() > 0 && (!isUseThread() || threadRunning && !thinking && thinkComplete)) {
 			inputARE = 0;
 			int input = 0; // Button input data
 			Piece pieceNow = checkOffset(engine.nowPieceObject, engine);
@@ -265,8 +263,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			 */
 			if (rt == Piece.DIRECTION_DOWN
 					&& (nowType == Piece.PIECE_L && bestX > nowX || nowType == Piece.PIECE_J && bestX < nowX)
-					&& !fld.getBlockEmpty(pieceNow.getMaximumBlockX() + nowX - 1,
-							pieceNow.getMaximumBlockY() + nowY)) {
+					&& !fld.getBlockEmpty(pieceNow.getMaximumBlockX() + nowX - 1, pieceNow.getMaximumBlockY() + nowY)) {
 				thinkComplete = false;
 				if (DEBUG_ALL) {
 					log.debug("Needs rethink - L or J piece is stuck!");
@@ -424,8 +421,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 					}
 				}
 				// Try to keep flat side down on L, J, or T piece.
-				else if (rt != Piece.DIRECTION_UP && xDiff > 1
-						&& engine.ruleopt.rotateButtonAllowReverse
+				else if (rt != Piece.DIRECTION_UP && xDiff > 1 && engine.ruleopt.rotateButtonAllowReverse
 						&& (nowType == Piece.PIECE_L || nowType == Piece.PIECE_J || nowType == Piece.PIECE_T)) {
 					// if (DEBUG_ALL) log.debug("Case 2 rotation");
 
@@ -1310,7 +1306,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			}
 		}
 
-		if (engine.aiShowHint) {
+		if (isShowHint()) {
 			bestX = bestXSub;
 			bestY = bestYSub;
 			if (bestRtSub != -1) {
@@ -1487,8 +1483,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 			log.debug("I piece xMax = " + xMax + ", valley depth = " + valley + ", valley bonus = " + valleyBonus);
 		}
 		pts += valleyBonus;
-		if (lines == 1 && !danger && depth == 0 && heightAfter >= 16 && holeBefore < 3 && !tspin
-				&& xMax == width - 1) {
+		if (lines == 1 && !danger && depth == 0 && heightAfter >= 16 && holeBefore < 3 && !tspin && xMax == width - 1) {
 			if (DEBUG_ALL) {
 				log.debug("End of thinkMain(" + x + ", " + y + ", " + rt + ", " + rtOld + ", fld, piece "
 						+ Piece.PIECE_NAMES[piece.id] + ", " + depth + "). pts = 0 (Special Condition 3)");

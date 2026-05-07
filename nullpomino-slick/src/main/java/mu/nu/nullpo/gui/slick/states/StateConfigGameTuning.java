@@ -39,7 +39,6 @@ import org.newdawn.slick.state.StateBasedGame;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.mode.PreviewMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.gui.GameKeyDummy;
@@ -242,18 +241,7 @@ public class StateConfigGameTuning extends BaseGameState {
 				gameManager.engines[i].wallkick = wallkickObject;
 			}
 
-			// AI
-			String aiName = NullpoMinoSlick.propGlobal.getProperty(i + ".ai", "");
-			if(!aiName.isEmpty()) {
-				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engines[i].ai = aiObj;
-				gameManager.engines[i].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiMoveDelay", 0);
-				gameManager.engines[i].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(i + ".aiThinkDelay", 0);
-				gameManager.engines[i].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(i + ".aiUseThread", true);
-				gameManager.engines[i].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowHint", false);
-				gameManager.engines[i].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(i + ".aiPrethink", false);
-				gameManager.engines[i].aiShowState = NullpoMinoSlick.propGlobal.getProperty(i + ".aiShowState", false);
-			}
+			gameManager.engines[i].ai = GeneralUtil.loadAI(i, NullpoMinoSlick.propGlobal);
 			gameManager.showInput = NullpoMinoSlick.propConfig.getProperty("option.showInput", false);
 
 			// Init

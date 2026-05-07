@@ -28,14 +28,58 @@
 */
 package mu.nu.nullpo.game.subsystem.ai;
 
+import lombok.Getter;
+import lombok.Setter;
 import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
 
 /**
  * DummyAI - Base class for AI players
  */
 public class DummyAI implements AIPlayer {
-	/** ホールド使用予定 */
+
+	/** AI move delay */
+	@Getter
+	@Setter
+	private int moveDelay;
+
+	/** AI think delay (Only when using thread) */
+	@Getter
+	@Setter
+	private int thinkDelay;
+
+	/** Use thread for AI */
+	@Getter
+	@Setter
+	private boolean useThread;
+
+	/** Show Hint with AI */
+	@Getter
+	@Setter
+	private boolean showHint;
+
+	/** Prethink with AI */
+	@Getter
+	@Setter
+	private boolean prethink;
+
+	/** Show internal state of AI */
+	@Getter
+	@Setter
+	private boolean showState;
+
+	/** AI Hint piece (copy of current or hold) */
+	@Getter
+	@Setter
+	private Piece hintPiece;
+
+	/** True if AI Hint is ready */
+	@Getter
+	@Setter
+	private boolean hintReady;
+
+	/** Hold will be used */
 	public boolean bestHold;
 
 	/** Plan to putX-coordinate */
@@ -59,31 +103,40 @@ public class DummyAI implements AIPlayer {
 	/** Did the thinking thread finish successfully? */
 	public boolean thinkComplete;
 
+	@Override
 	public String getName() {
 		return "DummyAI";
 	}
 
+	@Override
 	public void init(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void newPiece(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void onFirst(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void onLast(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void renderState(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
 	}
 
+	@Override
 	public void shutdown(GameEngine engine, int playerID) {
 	}
 
+	@Override
 	public void renderHint(GameEngine engine, int playerID) {
 	}
 }

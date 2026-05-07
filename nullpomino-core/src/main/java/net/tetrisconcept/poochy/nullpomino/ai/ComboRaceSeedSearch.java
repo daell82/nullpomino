@@ -256,7 +256,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						}
 
 						// Left rotation
-						int rot = pieces[p].getRotateDirection(-1, rt);
+						int rot = Piece.getRotateDirection(-1, rt);
 						int newX = x;
 						int newY = y;
 						fldTemp.copy(fldBackup);
@@ -284,7 +284,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						}
 
 						// Right rotation
-						rot = pieces[p].getRotateDirection(1, rt);
+						rot = Piece.getRotateDirection(1, rt);
 						newX = x;
 						newY = y;
 						fldTemp.copy(fldBackup);

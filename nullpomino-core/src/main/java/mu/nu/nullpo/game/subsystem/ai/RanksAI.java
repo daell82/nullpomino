@@ -205,11 +205,11 @@ public class RanksAI extends DummyAI implements Runnable {
 		initRanks();
 
 		// Starts the thread
-		if ((thread == null || !thread.isAlive()) && engine.aiUseThread) {
+		if ((thread == null || !thread.isAlive()) && isUseThread()) {
 			thread = new Thread(this, "AI_" + playerID);
 			thread.setDaemon(true);
 			thread.start();
-			thinkDelay = engine.aiThinkDelay;
+			// XXX thinkDelay = engine.aiThinkDelay
 			thinkCurrentPieceNo = 0;
 			thinkLastPieceNo = 0;
 		}
@@ -228,7 +228,7 @@ public class RanksAI extends DummyAI implements Runnable {
 
 	@Override
 	public void newPiece(GameEngine engine, int playerID) {
-		if (!engine.aiUseThread) {
+		if (!isUseThread()) {
 			thinkBestPosition(engine, playerID);
 		} else {
 			thinkRequest = true;
@@ -247,9 +247,9 @@ public class RanksAI extends DummyAI implements Runnable {
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
 
-		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
+		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= getMoveDelay()
 				&& engine.statc_0() > 0
-				&& (!engine.aiUseThread || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
+				&& (!isUseThread() || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			int totalPieceLocked = engine.statistics.totalPieceLocked + 1;
 			int tpm = (int) (totalPieceLocked * 3600f) / engine.statistics.time;
 			if (tpm <= speedLimit || speedLimit <= 0) {
@@ -311,12 +311,12 @@ public class RanksAI extends DummyAI implements Runnable {
 
 							if (nowX > bestX) {
 
-								if (!ctrl.isPress(Controller.BUTTON_LEFT) || engine.aiMoveDelay >= 0) {
+								if (!ctrl.isPress(Controller.BUTTON_LEFT) || getMoveDelay() >= 0) {
 									input |= Controller.BUTTON_BIT_LEFT;
 								}
 							} else if (nowX < bestX) {
 
-								if (!ctrl.isPress(Controller.BUTTON_RIGHT) || engine.aiMoveDelay >= 0) {
+								if (!ctrl.isPress(Controller.BUTTON_RIGHT) || getMoveDelay() >= 0) {
 									input |= Controller.BUTTON_BIT_RIGHT;
 								}
 							} else if (nowX == bestX && rt == bestRt) {

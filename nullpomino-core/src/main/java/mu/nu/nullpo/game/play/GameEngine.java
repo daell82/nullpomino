@@ -166,30 +166,6 @@ public class GameEngine {
 	/** AIPlayer: AI for auto playing */
 	public DummyAI ai;
 
-	/** AI move delay */
-	public int aiMoveDelay;
-
-	/** AI think delay (Only when using thread) */
-	public int aiThinkDelay;
-
-	/** Use thread for AI */
-	public boolean aiUseThread;
-
-	/** Show Hint with AI */
-	public boolean aiShowHint;
-
-	/** Prethink with AI */
-	public boolean aiPrethink;
-
-	/** Show internal state of AI */
-	public boolean aiShowState;
-
-	/** AI Hint piece (copy of current or hold) */
-	public Piece aiHintPiece;
-
-	/** True if AI Hint is ready */
-	public boolean aiHintReady;
-
 	/** Current main game status */
 	public Status stat;
 
@@ -1868,26 +1844,27 @@ public class GameEngine {
 			if (!owner.replayMode || owner.replayRerecord) {
 				// AIOf buttonProcessing
 				if (ai != null) {
-					if (!aiShowHint) {
+					if (!ai.isShowHint()) {
 						ai.setControl(this, playerID, ctrl);
 					} else {
-						aiHintReady = ai.thinkComplete
-								|| ai.thinkCurrentPieceNo > 0 && ai.thinkCurrentPieceNo <= ai.thinkLastPieceNo;
-						if (aiHintReady) {
-							aiHintPiece = null;
+						ai.setHintReady(ai.thinkComplete
+								|| ai.thinkCurrentPieceNo > 0 && ai.thinkCurrentPieceNo <= ai.thinkLastPieceNo);
+						if (ai.isHintReady()) {
+							Piece hint = null;
 							if (ai.bestHold) {
 								if (holdPieceObject != null) {
-									aiHintPiece = new Piece(holdPieceObject);
+									hint = new Piece(holdPieceObject);
 								} else {
-									aiHintPiece = getNextObjectCopy(nextPieceCount);
-									if (!aiHintPiece.offsetApplied) {
-										aiHintPiece.applyOffsetArray(ruleopt.pieceOffsetX[aiHintPiece.id],
-												ruleopt.pieceOffsetY[aiHintPiece.id]);
+									hint = getNextObjectCopy(nextPieceCount);
+									if (!hint.offsetApplied) {
+										hint.applyOffsetArray(ruleopt.pieceOffsetX[hint.id],
+												ruleopt.pieceOffsetY[hint.id]);
 									}
 								}
 							} else if (nowPieceObject != null) {
-								aiHintPiece = new Piece(nowPieceObject);
+								hint = new Piece(nowPieceObject);
 							}
+							ai.setHintPiece(hint);
 						}
 					}
 				}
@@ -2069,10 +2046,10 @@ public class GameEngine {
 			owner.renderer.renderInput(this, playerID);
 		}
 		if (ai != null) {
-			if (aiShowState) {
+			if (ai.isShowState()) {
 				ai.renderState(this, playerID);
 			}
-			if (aiShowHint) {
+			if (ai.isShowHint()) {
 				ai.renderHint(this, playerID);
 			}
 		}
@@ -2948,7 +2925,8 @@ public class GameEngine {
 				dasRepeat = false;
 				dasInstant = false;
 
-				// Next decide on a treatment (Mode If you're playing with your stats, do nothing)
+				// Next decide on a treatment (Mode If you're playing with your stats, do
+				// nothing)
 				if (stat == Status.MOVE || version.isLower(6, 4, 0)) {
 					resetStatc();
 

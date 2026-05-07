@@ -319,21 +319,33 @@ public class GeneralUtil {
 	/**
 	 * Load Wallkick
 	 *
-	 * @param filename Classpath of the wallkick
+	 * @param className of the wallkick
 	 * @return Wallkick (null if something fails)
 	 */
-	public static Wallkick loadWallkick(String filename) {
-		return loadClass(filename);
+	public static Wallkick loadWallkick(String className) {
+		return loadClass(className);
 	}
 
 	/**
-	 * Load AI
+	 * Loads an AI Bot for the game
 	 *
-	 * @param filename Classpath of the AI
-	 * @return The instance of AI (null if something fails)
+	 * @param playerID   to load the AI for
+	 * @param properties of the AI agent
+	 * @return an AI agent if defined in the properties or {@code null} if none
 	 */
-	public static DummyAI loadAIPlayer(String filename) {
-		return loadClass(filename);
+	public static DummyAI loadAI(int playerID, CustomProperties properties) {
+		DummyAI aiAgent = null;
+		String aiClass = properties.getProperty(playerID + ".ai");
+		if (aiClass != null && !aiClass.isBlank()) {
+			aiAgent = GeneralUtil.loadClass(aiClass);
+			aiAgent.setMoveDelay(properties.getProperty(playerID + ".aiMoveDelay", 0));
+			aiAgent.setThinkDelay(properties.getProperty(playerID + ".aiThinkDelay", 0));
+			aiAgent.setUseThread(properties.getProperty(playerID + ".aiUseThread", true));
+			aiAgent.setShowHint(properties.getProperty(playerID + ".aiShowHint", false));
+			aiAgent.setPrethink(properties.getProperty(playerID + ".aiPrethink", false));
+			aiAgent.setShowState(properties.getProperty(playerID + ".aiShowState", false));
+		}
+		return aiAgent;
 	}
 
 	/**

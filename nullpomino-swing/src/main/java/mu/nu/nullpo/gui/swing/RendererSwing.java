@@ -699,7 +699,7 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 	}
 
 	protected void drawHintPiece(int x, int y, GameEngine engine, float scale) {
-		Piece piece = engine.aiHintPiece;
+		Piece piece = engine.ai != null ? engine.ai.getHintPiece() : null;
 		if (piece == null) {
 			return;
 		}
@@ -1417,7 +1417,7 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		if (engine.ghost && engine.ruleopt.ghost) {
 			drawGhostPiece(offsetX, offsetY, engine, scale);
 		}
-		if (engine.ai != null && engine.aiShowHint && engine.aiHintReady) {
+		if (engine.ai != null && engine.ai.isShowHint() && engine.ai.isHintReady()) {
 			drawHintPiece(offsetX, offsetY, engine, scale);
 		}
 		drawCurrentPiece(offsetX, offsetY, engine, scale);

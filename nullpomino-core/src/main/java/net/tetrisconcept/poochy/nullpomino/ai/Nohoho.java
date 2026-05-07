@@ -109,11 +109,11 @@ public class Nohoho extends DummyAI implements Runnable {
 		thinkSuccess = false;
 		inARE = false;
 
-		if ((thread == null || !thread.isAlive()) && engine.aiUseThread) {
+		if ((thread == null || !thread.isAlive()) && isUseThread()) {
 			thread = new Thread(this, "AI_" + playerID);
 			thread.setDaemon(true);
 			thread.start();
-			thinkDelay = engine.aiThinkDelay;
+			// XXX thinkDelay = engine.aiThinkDelay
 			thinkCurrentPieceNo = 0;
 			thinkLastPieceNo = 0;
 		}
@@ -136,9 +136,9 @@ public class Nohoho extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void newPiece(GameEngine engine, int playerID) {
-		if (!engine.aiUseThread) {
+		if (!isUseThread()) {
 			thinkBestPosition(engine, playerID);
-		} else if (!thinking && !thinkComplete || !engine.aiPrethink || engine.aiShowHint) {
+		} else if (!thinking && !thinkComplete || !isPrethink() || isShowHint()) {
 			thinkRequest.newRequest();
 			thinkCurrentPieceNo++;
 		}
@@ -149,7 +149,7 @@ public class Nohoho extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void onFirst(GameEngine engine, int playerID) {
-		if (engine.aiPrethink && engine.getARE() > 0 && engine.getARELine() > 0) {
+		if (isPrethink() && engine.getARE() > 0 && engine.getARELine() > 0) {
 			inputARE = 0;
 			boolean newInARE = engine.stat == GameEngine.Status.ARE || engine.stat == GameEngine.Status.READY;
 			if (newInARE && !inARE || !thinking && !thinkSuccess) {
@@ -175,9 +175,9 @@ public class Nohoho extends DummyAI implements Runnable {
 	 */
 	@Override
 	public void setControl(GameEngine engine, int playerID, Controller ctrl) {
-		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= engine.aiMoveDelay
+		if (engine.nowPieceObject != null && engine.stat == GameEngine.Status.MOVE && delay >= getMoveDelay()
 				&& engine.statc_0() > 0
-				&& (!engine.aiUseThread || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
+				&& (!isUseThread() || threadRunning && !thinking && thinkCurrentPieceNo <= thinkLastPieceNo)) {
 			inputARE = 0;
 			int input = 0; // Button input data
 			Piece pieceNow = checkOffset(engine.nowPieceObject, engine);

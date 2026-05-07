@@ -42,7 +42,6 @@ import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
@@ -380,18 +379,7 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 				gameManager.engines[0].wallkick = wallkickObject;
 			}
 
-			// AI
-			String aiName = NullpoMinoSlick.propGlobal.getProperty(0 + ".ai", "");
-			if(aiName.length() > 0) {
-				DummyAI aiObj = GeneralUtil.loadAIPlayer(aiName);
-				gameManager.engines[0].ai = aiObj;
-				gameManager.engines[0].aiMoveDelay = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiMoveDelay", 0);
-				gameManager.engines[0].aiThinkDelay = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiThinkDelay", 0);
-				gameManager.engines[0].aiUseThread = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiUseThread", true);
-				gameManager.engines[0].aiShowHint = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiShowHint", false);
-				gameManager.engines[0].aiPrethink = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiPrethink", false);
-				gameManager.engines[0].aiShowState = NullpoMinoSlick.propGlobal.getProperty(0 + ".aiShowState", false);
-			}
+			gameManager.engines[0].ai = GeneralUtil.loadAI(0, NullpoMinoSlick.propGlobal);
 			gameManager.showInput = NullpoMinoSlick.propConfig.getProperty("option.showInput", false);
 
 			// Initialization for each player

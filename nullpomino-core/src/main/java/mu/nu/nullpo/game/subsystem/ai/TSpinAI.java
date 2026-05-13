@@ -31,6 +31,7 @@ package mu.nu.nullpo.game.subsystem.ai;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.util.FieldUtil;
 
 /**
  * T-SpinHaveAI (WIP)
@@ -72,7 +73,7 @@ public class TSpinAI extends BasicAI {
 		int tslotBefore = 0;
 		// if( (nextpiece.id == Piece.PIECE_T) || ((holdpiece != null) && (holdpiece.id
 		// == Piece.PIECE_T)) ) {
-		tslotBefore = fld.getTSlotLineClearAll(false);
+		tslotBefore = FieldUtil.getTSlotLineClearAll(fld, false);
 		// }
 
 		// Place the piece
@@ -148,7 +149,7 @@ public class TSpinAI extends BasicAI {
 			int tslotAfter = 0;
 			// if( (nextpiece.id == Piece.PIECE_T) || ((holdpiece != null) && (holdpiece.id
 			// == Piece.PIECE_T)) ) {
-			tslotAfter = fld.getTSlotLineClearAll(false);
+			tslotAfter = FieldUtil.getTSlotLineClearAll(fld, false);
 			// }
 			boolean newtslot = false;
 

@@ -744,190 +744,6 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * T-SpinIf it was a hole I cantrue
-	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param big BigWhether
-	 * @return T-SpinIf it was a hole I cantrue
-	 */
-	private boolean isTSlot(int x, int y, boolean big) {
-		// I wonder if the central buried
-		if (big) {
-			if (getBlockEmpty(x + 2, y + 2)) {
-				return false;
-			}
-		} else {
-			// □ □ □ ※ ※ ※ □ □ □ □
-			// □ □ □ ★ ※ □ □ □ □ □
-			// □ □ □ ※ ※ ※ □ □ □ □
-			// □ □ □ ○ ※ ○ □ □ □ □
-
-			if (getBlockEmpty(x + 1, y + 0)) {
-				return false;
-			}
-			if (getBlockEmpty(x + 1, y + 1)) {
-				return false;
-			}
-			if (getBlockEmpty(x + 1, y + 2)) {
-				return false;
-			}
-
-			if (getBlockEmpty(x + 0, y + 1)) {
-				return false;
-			}
-			if (getBlockEmpty(x + 2, y + 1)) {
-				return false;
-			}
-
-			if (getBlockEmpty(x + 1, y - 1)) {
-				return false;
-			}
-		}
-
-		// Sets the coordinates for determining the relative
-		int[] tx;
-		int[] ty;
-		if (big) {
-			tx = new int[] { 1, 4, 1, 4 };
-			ty = new int[] { 1, 1, 4, 4 };
-		} else {
-			tx = new int[] { 0, 2, 0, 2 };
-			ty = new int[] { 0, 0, 2, 2 };
-		}
-
-		// Judgment
-		int count = 0;
-
-		for (int i = 0; i < tx.length; i++) {
-			if (getBlockColor(x + tx[i], y + ty[i]) != Colors.BLOCK_COLOR_NONE) {
-				count++;
-			}
-		}
-		return count == 3;
-	}
-
-	/**
-	 * T-SpinFind out what pieces I can have holes
-	 *
-	 * @param big BigIf it&#39;s the casetrue
-	 * @return T-SpinOf holes I cancount
-	 */
-	private int getHowManyTSlot(boolean big) {
-		int result = 0;
-
-		for (int x = 0; x < width; x++) {
-			for (int y = 0; y < getHeightWithoutHurryupFloor() - 2; y++) {
-				if (!getLineFlag(y) && isTSlot(x, y, big)) {
-					result++;
-				}
-			}
-		}
-		return result;
-	}
-
-	private int getHowManyBlocksCovered() {
-		int blocksCovered = 0;
-
-		for (int j = 0; j < width; j++) {
-
-			int highestBlockY = getHighestBlockY(j);
-			for (int i = highestBlockY; i < getHeightWithoutHurryupFloor(); i++) {
-				if (!getLineFlag(i) && getBlockEmpty(j, i)) {
-					blocksCovered++;
-				}
-			}
-		}
-
-		return blocksCovered;
-	}
-
-	/**
-	 * T-SpinI disappearLinescountReturns
-	 *
-	 * @param x   X-coordinate
-	 * @param y   Y-coordinate
-	 * @param big BigWhether(Not supported)
-	 * @return T-SpinI disappearLinescount(T-SpinFor example, if not the0)
-	 */
-	private int getTSlotLineClear(int x, int y, boolean big) {
-		if (!isTSlot(x, y, big)) {
-			return 0;
-		}
-
-		boolean[] lineflag = new boolean[2];
-		lineflag[0] = lineflag[1] = true;
-
-		for (int j = 0; j < width; j++) {
-			for (int i = 0; i < 2; i++) {
-				// ■ ■ ■ ★ ※ ■ ■ ■ ■ ■
-				// □ □ □ ※ ※ ※ □ □ □ □
-				// □ □ □ ○ ※ ○ □ □ □ □
-				if (j < x || j >= x + 3) {
-					if (!getBlockEmpty(j, y + 1 + i)) {
-						lineflag[i] = false;
-					}
-				}
-			}
-		}
-
-		int lines = 0;
-		for (boolean element : lineflag) {
-			if (element) {
-				lines++;
-			}
-		}
-
-		return lines;
-	}
-
-	/**
-	 * T-SpinI disappearLinescountReturns(fieldWhole)
-	 *
-	 * @param big BigWhether(Not supported)
-	 * @return T-SpinI disappearLinescount(T-SpinFor example, if not the0)
-	 */
-	public int getTSlotLineClearAll(boolean big) {
-		int result = 0;
-
-		for (int j = 0; j < width; j++) {
-			for (int i = 0; i < getHeightWithoutHurryupFloor() - 2; i++) {
-				if (!getLineFlag(i)) {
-					result += getTSlotLineClear(j, i, big);
-				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
-	 * T-SpinI disappearLinescountReturns(fieldWhole)
-	 *
-	 * @param big     BigWhether(Not supported)
-	 * @param minimum LowestLinescount(2When youT-Spin DoubleOnly sensitive to the)
-	 * @return T-SpinI disappearLinescount(T-SpinOr if it is notminimumI do not meet
-	 *         theLinesEtc.0)
-	 */
-	private int getTSlotLineClearAll(boolean big, int minimum) {
-		int result = 0;
-
-		for (int j = 0; j < width; j++) {
-			for (int i = 0; i < getHeightWithoutHurryupFloor() - 2; i++) {
-				if (!getLineFlag(i)) {
-					int temp = getTSlotLineClear(j, i, big);
-
-					if (temp >= minimum) {
-						result += temp;
-					}
-				}
-			}
-		}
-
-		return result;
-	}
-
-	/**
 	 * Examine What in the number ofBlockwhether there is
 	 *
 	 * @return fieldAre withinBlockOfcount
@@ -1253,18 +1069,18 @@ public class Field implements Serializable {
 	 * @param attribute garbage blockAttributes
 	 * @param lines     Addgarbage blockOfLinescount
 	 */
-	public void addSingleHoleGarbage(int hole, int color, int skin, int attribute, int lines) {
+	private void addSingleHoleGarbage(int hole, int color, int skin, int attribute, int lines) {
 		for (int k = 0; k < lines; k++) {
 			pushUp(1);
-
-			for (int j = 0; j < width; j++) {
-				if (j != hole) {
-					Block blk = new Block();
-					blk.color = color;
-					blk.skin = skin;
-					blk.attribute = attribute;
-					setBlock(j, getHeightWithoutHurryupFloor() - 1, blk);
+			for (int x = 0; x < width; x++) {
+				if (x == hole) {
+					continue;
 				}
+				Block blk = new Block();
+				blk.color = color;
+				blk.skin = skin;
+				blk.attribute = attribute;
+				setBlock(x, getHeightWithoutHurryupFloor() - 1, blk);
 			}
 		}
 	}
@@ -1766,69 +1582,22 @@ public class Field implements Serializable {
 		boolean result = false;
 
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
-
-		for (int i = getHeightWithoutHurryupFloor() - 1; i >= hiddenHeight * -1; i--) {
-			for (int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if (blk != null && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
-					boolean fall = true;
-					checkBlockLink(j, i);
-
-					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
-						for (int l = 0; l < width; l++) {
-							Block bTemp = getBlock(l, k);
-
-							if (bTemp != null && !bTemp.isEmpty() && bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
-									&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
-								Block bBelow = getBlock(l, k + 1);
-
-								if (getCoordAttribute(l, k + 1) == COORD_WALL || bBelow != null && !bBelow.isEmpty()
-										&& !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
-									fall = false;
-								}
-							}
-						}
-					}
-
-					if (fall) {
-						result = true;
-						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
-							for (int l = 0; l < width; l++) {
-								Block bTemp = getBlock(l, k);
-								Block bBelow = getBlock(l, k + 1);
-
-								if (getCoordAttribute(l, k + 1) != COORD_WALL && bTemp != null && !bTemp.isEmpty()
-										&& bBelow != null && bBelow.isEmpty()
-										&& bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
-										&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
-									if (bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-									}
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
-									setBlock(l, k + 1, bTemp);
-									setBlock(l, k, new Block());
-								}
-							}
-						}
-					}
+		for (int y = getHeightWithoutHurryupFloor() - 1; y >= hiddenHeight * -1; y--) {
+			for (int x = 0; x < width; x++) {
+				Block blk = getBlock(x, y);
+				if (blk == null || blk.isEmpty() || blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
+					continue;
+				}
+				checkBlockLink(x, y);
+				if (checkCascadeFall()) {
+					doCascadeFall();
+					result = true;
 				}
 			}
 		}
 
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
-
-		/*
-		 * for(int i = (hidden_height * -1); i < getHeightWithoutHurryupFloor(); i++) {
-		 * setLineFlag(i, false); }
-		 */
-
 		return result;
 	}
 
@@ -1844,56 +1613,16 @@ public class Field implements Serializable {
 
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
 
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			for (int j = 0; j < width; j++) {
-				Block blk = getBlock(j, i);
-
-				if (blk != null && !blk.isEmpty() && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
-					boolean fall = true;
-					checkBlockLink(j, i);
-
-					for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
-						for (int l = 0; l < width; l++) {
-							Block bTemp = getBlock(l, k);
-
-							if (bTemp != null && !bTemp.isEmpty() && bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
-									&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
-								Block bBelow = getBlock(l, k + 1);
-
-								if (getCoordAttribute(l, k + 1) == COORD_WALL || bBelow != null && !bBelow.isEmpty()
-										&& !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
-									fall = false;
-								}
-							}
-						}
-					}
-
-					if (fall) {
-						result = true;
-						for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
-							for (int l = 0; l < width; l++) {
-								Block bTemp = getBlock(l, k);
-								Block bBelow = getBlock(l, k + 1);
-
-								if (getCoordAttribute(l, k + 1) != COORD_WALL && bTemp != null && !bTemp.isEmpty()
-										&& bBelow != null && bBelow.isEmpty()
-										&& bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
-										&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
-									if (bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-										bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-									}
-									bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
-									setBlock(l, k + 1, bTemp);
-									setBlock(l, k, new Block());
-								}
-							}
-						}
-					}
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			for (int x = 0; x < width; x++) {
+				Block blk = getBlock(x, y);
+				if (blk == null || blk.isEmpty() || blk.getAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY)) {
+					continue;
+				}
+				checkBlockLink(x, y);
+				if (checkCascadeFall()) {
+					doCascadeFall();
+					result = true;
 				}
 			}
 		}
@@ -1902,6 +1631,50 @@ public class Field implements Serializable {
 		setAllAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, false);
 
 		return result;
+	}
+
+	private boolean checkCascadeFall() {
+		for (int k = getHeightWithoutHurryupFloor() - 1; k >= hiddenHeight * -1; k--) {
+			for (int l = 0; l < width; l++) {
+				Block bTemp = getBlock(l, k);
+
+				if (bTemp != null && !bTemp.isEmpty() && bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
+						&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
+					Block bBelow = getBlock(l, k + 1);
+
+					if (getCoordAttribute(l, k + 1) == COORD_WALL || bBelow != null && !bBelow.isEmpty()
+							&& !bBelow.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	private void doCascadeFall() {
+		for (int y = getHeightWithoutHurryupFloor() - 1; y >= hiddenHeight * -1; y--) {
+			for (int x = 0; x < width; x++) {
+				Block bTemp = getBlock(x, y);
+				Block bBelow = getBlock(x, y + 1);
+
+				if (getCoordAttribute(x, y + 1) != COORD_WALL && bTemp != null && !bTemp.isEmpty() && bBelow != null
+						&& bBelow.isEmpty() && bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK)
+						&& !bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL)) {
+					bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_TEMP_MARK, false);
+					bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CASCADE_FALL, true);
+					if (bTemp.getAttribute(Block.BLOCK_ATTRIBUTE_IGNORE_BLOCKLINK)) {
+						bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+						bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+						bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+						bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+					}
+					bTemp.setAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT, true);
+					setBlock(x, y + 1, bTemp);
+					setBlock(x, y, new Block());
+				}
+			}
+		}
 	}
 
 	/**

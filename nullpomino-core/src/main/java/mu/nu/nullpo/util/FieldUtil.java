@@ -307,4 +307,177 @@ public class FieldUtil {
 		return true;
 	}
 
+	/**
+	 * T-SpinFind out what pieces I can have holes
+	 *
+	 * @param big BigIf it&#39;s the casetrue
+	 * @return T-SpinOf holes I cancount
+	 */
+	public static int getHowManyTSlot(Field field, boolean big) {
+		int result = 0;
+
+		for (int x = 0; x < field.getWidth(); x++) {
+			for (int y = 0; y < field.getHeightWithoutHurryupFloor() - 2; y++) {
+				if (!field.getLineFlag(y) && isTSlot(field, x, y, big)) {
+					result++;
+				}
+			}
+		}
+		return result;
+	}
+
+	public static int getHowManyBlocksCovered(Field field) {
+		int blocksCovered = 0;
+
+		for (int x = 0; x < field.getWidth(); x++) {
+			int highestBlockY = field.getHighestBlockY(x);
+			for (int y = highestBlockY; y < field.getHeightWithoutHurryupFloor(); y++) {
+				if (!field.getLineFlag(y) && field.getBlockEmpty(x, y)) {
+					blocksCovered++;
+				}
+			}
+		}
+		return blocksCovered;
+	}
+
+	/**
+	 * T-SpinI disappearLinescountReturns(fieldWhole)
+	 *
+	 * @param big     BigWhether(Not supported)
+	 * @param minimum LowestLinescount(2When youT-Spin DoubleOnly sensitive to the)
+	 * @return T-SpinI disappearLinescount(T-SpinOr if it is notminimumI do not meet
+	 *         theLinesEtc.0)
+	 */
+	public static int getTSlotLineClearAll(Field field, boolean big, int minimum) {
+		int result = 0;
+		for (int x = 0; x < field.getWidth(); x++) {
+			for (int y = 0; y < field.getHeightWithoutHurryupFloor() - 2; y++) {
+				if (!field.getLineFlag(y)) {
+					int temp = getTSlotLineClear(field, x, y, big);
+					if (temp >= minimum) {
+						result += temp;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * T-SpinI disappearLinescountReturns(fieldWhole)
+	 *
+	 * @param big BigWhether(Not supported)
+	 * @return T-SpinI disappearLinescount(T-SpinFor example, if not the0)
+	 */
+	public static int getTSlotLineClearAll(Field field, boolean big) {
+		int result = 0;
+		for (int x = 0; x < field.getWidth(); x++) {
+			for (int y = 0; y < field.getHeightWithoutHurryupFloor() - 2; y++) {
+				if (!field.getLineFlag(y)) {
+					result += getTSlotLineClear(field, x, y, big);
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * T-SpinIf it was a hole I cantrue
+	 *
+	 * @param x   X-coordinate
+	 * @param y   Y-coordinate
+	 * @param big BigWhether
+	 * @return T-SpinIf it was a hole I cantrue
+	 */
+	public static boolean isTSlot(Field field, int x, int y, boolean big) {
+		// I wonder if the central buried
+		if (big) {
+			if (field.getBlockEmpty(x + 2, y + 2)) {
+				return false;
+			}
+		} else {
+			// □ □ □ ※ ※ ※ □ □ □ □
+			// □ □ □ ★ ※ □ □ □ □ □
+			// □ □ □ ※ ※ ※ □ □ □ □
+			// □ □ □ ○ ※ ○ □ □ □ □
+
+			if (field.getBlockEmpty(x + 1, y + 0)) {
+				return false;
+			}
+			if (field.getBlockEmpty(x + 1, y + 1)) {
+				return false;
+			}
+			if (field.getBlockEmpty(x + 1, y + 2)) {
+				return false;
+			}
+
+			if (field.getBlockEmpty(x + 0, y + 1)) {
+				return false;
+			}
+			if (field.getBlockEmpty(x + 2, y + 1)) {
+				return false;
+			}
+
+			if (field.getBlockEmpty(x + 1, y - 1)) {
+				return false;
+			}
+		}
+
+		// Sets the coordinates for determining the relative
+		int[] tx;
+		int[] ty;
+		if (big) {
+			tx = new int[] { 1, 4, 1, 4 };
+			ty = new int[] { 1, 1, 4, 4 };
+		} else {
+			tx = new int[] { 0, 2, 0, 2 };
+			ty = new int[] { 0, 0, 2, 2 };
+		}
+
+		// Judgment
+		int count = 0;
+
+		for (int i = 0; i < tx.length; i++) {
+			if (field.getBlockColor(x + tx[i], y + ty[i]) != Colors.BLOCK_COLOR_NONE) {
+				count++;
+			}
+		}
+		return count == 3;
+	}
+
+	/**
+	 * T-SpinI disappearLinescountReturns
+	 *
+	 * @param x   X-coordinate
+	 * @param y   Y-coordinate
+	 * @param big BigWhether(Not supported)
+	 * @return T-SpinI disappearLinescount(T-SpinFor example, if not the0)
+	 */
+	private int getTSlotLineClear(Field field, int x, int y, boolean big) {
+		if (!isTSlot(field, x, y, big)) {
+			return 0;
+		}
+
+		boolean[] lineflag = new boolean[2];
+		lineflag[0] = lineflag[1] = true;
+
+		for (int j = 0; j < field.getWidth(); j++) {
+			for (int i = 0; i < 2; i++) {
+				// ■ ■ ■ ★ ※ ■ ■ ■ ■ ■
+				// □ □ □ ※ ※ ※ □ □ □ □
+				// □ □ □ ○ ※ ○ □ □ □ □
+				if ((j < x || j >= x + 3) && !field.getBlockEmpty(j, y + 1 + i)) {
+					lineflag[i] = false;
+				}
+			}
+		}
+		int lines = 0;
+		for (boolean element : lineflag) {
+			if (element) {
+				lines++;
+			}
+		}
+		return lines;
+	}
+
 }

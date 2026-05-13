@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -14,7 +13,7 @@ public class GBCWallkick implements Wallkick {
 
 	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
-			Piece piece, Field field, Controller ctrl) {
+			Piece piece, Field field) {
 		if (piece.id != Piece.PIECE_I && piece.id != Piece.PIECE_I2 && piece.id != Piece.PIECE_I3) {
 			int[][] kicktable = KICKTABLE_L;
 			if (rtDir >= 0) {

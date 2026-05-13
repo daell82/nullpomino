@@ -46,6 +46,7 @@ import mu.nu.nullpo.game.component.WallkickResult;
 import mu.nu.nullpo.game.subsystem.ai.DummyAI;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.game.types.DisplaySize;
+import mu.nu.nullpo.game.types.MoveDirection;
 import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -266,7 +267,7 @@ public class GameEngine {
 	public int dasCount;
 
 	/** DAS direction (-1:Left 0:None 1:Right) */
-	private int dasDirection;
+	private MoveDirection dasDirection;
 
 	/** DAS delay counter */
 	private int dasSpeedCount;
@@ -780,7 +781,7 @@ public class GameEngine {
 		lockDelayNow = 0;
 
 		dasCount = 0;
-		dasDirection = 0;
+		dasDirection = MoveDirection.NONE;
 		dasSpeedCount = getDASDelay();
 		dasRepeat = false;
 		dasInstant = false;
@@ -1267,33 +1268,33 @@ public class GameEngine {
 	 *
 	 * @return -1:Left 0:No 1:Right
 	 */
-	protected int getMoveDirection() {
+	protected MoveDirection getMoveDirection() {
 		if (ctrl.isPress(Controller.BUTTON_LEFT) && ctrl.isPress(Controller.BUTTON_RIGHT)) {
 			if (!ruleopt.moveLeftAndRightAllow) {
-				return 0;
+				return MoveDirection.NONE;
 			}
 			if (ctrl.buttonTime(Controller.BUTTON_LEFT) > ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
-				return ruleopt.moveLeftAndRightUsePreviousInput ? -1 : 1;
+				return ruleopt.moveLeftAndRightUsePreviousInput ? MoveDirection.LEFT : MoveDirection.RIGHT;
 			}
 			if (ctrl.buttonTime(Controller.BUTTON_LEFT) < ctrl.buttonTime(Controller.BUTTON_RIGHT)) {
-				return ruleopt.moveLeftAndRightUsePreviousInput ? 1 : -1;
+				return ruleopt.moveLeftAndRightUsePreviousInput ? MoveDirection.RIGHT : MoveDirection.LEFT;
 			}
 		}
 		if (ctrl.isPress(Controller.BUTTON_LEFT)) {
-			return -1;
+			return MoveDirection.LEFT;
 		}
 		if (ctrl.isPress(Controller.BUTTON_RIGHT)) {
-			return 1;
+			return MoveDirection.RIGHT;
 		}
-		return 0;
+		return MoveDirection.NONE;
 	}
 
 	/**
 	 * Processing horizontal reservoir
 	 */
 	protected void padRepeat() {
-		int moveDirection = getMoveDirection();
-		if (moveDirection != 0) {
+		var moveDirection = getMoveDirection();
+		if (moveDirection != MoveDirection.NONE) {
 			dasCount++;
 		} else if (!ruleopt.dasStoreChargeOnNeutral) {
 			dasCount = 0;
@@ -1879,7 +1880,7 @@ public class GameEngine {
 		// button input timeUpdates
 		ctrl.updateButtonTime();
 
-		// 最初の処理
+		// Initial Processing
 		if (owner.mode != null) {
 			owner.mode.onFirst(this, playerID);
 		}
@@ -2228,11 +2229,11 @@ public class GameEngine {
 		owner.receiver.onMove(this, playerID);
 
 		// Horizontal reservoir Initialization
-		int moveDirection = getMoveDirection();
+		var moveDirection = getMoveDirection();
 
 		if ((statc0 > 0 || ruleopt.dasInMoveFirstFrame) && dasDirection != moveDirection) {
 			dasDirection = moveDirection;
-			if (!(dasDirection == 0 && ruleopt.dasStoreChargeOnNeutral)) {
+			if (!(dasDirection == MoveDirection.NONE && ruleopt.dasStoreChargeOnNeutral)) {
 				dasCount = 0;
 			}
 		}
@@ -2406,7 +2407,7 @@ public class GameEngine {
 					statc0 = 0;
 					statc1 = 1;
 					if (!initialHoldFlag) {
-						playSE("hold");
+						playSE(Sounds.HOLD);
 					}
 					initialHoldContinuousUse = true;
 					initialHoldFlag = false;
@@ -2415,7 +2416,7 @@ public class GameEngine {
 					statMove();
 					return;
 				} else if (statc0 > 0 && !initialHoldFlag) {
-					playSE("holdfail");
+					playSE(Sounds.HOLD_FAIL);
 				}
 			}
 
@@ -2428,7 +2429,7 @@ public class GameEngine {
 				move = initialRotateDirection;
 				initialRotateLastDirection = initialRotateDirection;
 				initialRotateContinuousUse = true;
-				playSE("initialrotate");
+				playSE(Sounds.INITIAL_ROTATE);
 			} else if (statc0 > 0 || ruleopt.moveFirstFrame) {
 				if (itemRollRollEnable && replayTimer % itemRollRollInterval == 0) {
 					move = 1; // Roll Roll
@@ -2478,7 +2479,7 @@ public class GameEngine {
 					boolean allowUpward = ruleopt.rotateMaxUpwardWallkick < 0
 							|| nowUpwardWallkickCount < ruleopt.rotateMaxUpwardWallkick;
 					WallkickResult kick = wallkick.executeWallkick(nowPieceX, nowPieceY, move, nowPieceObject.direction,
-							rt, allowUpward, nowPieceObject, field, ctrl);
+							rt, allowUpward, nowPieceObject, field);
 
 					if (kick != null) {
 						rotated = true;
@@ -2532,7 +2533,7 @@ public class GameEngine {
 					}
 
 					if (initialRotateDirection == 0) {
-						playSE("rotate");
+						playSE(Sounds.ROTATE);
 					}
 
 					nowPieceRotateCount++;
@@ -2541,7 +2542,7 @@ public class GameEngine {
 					}
 				} else {
 					// rotationFailure
-					playSE("rotfail");
+					playSE(Sounds.ROTATE_FAIL);
 					nowPieceRotateFailCount++;
 				}
 			}
@@ -2578,44 +2579,44 @@ public class GameEngine {
 
 		}
 
-		int move = 0;
+		int direction;
 		boolean sidemoveflag = false; // This frame I moved next totrue
 
 		if (statc0 > 0 || ruleopt.moveFirstFrame) {
 			// Lateral motion
 			boolean onGroundBeforeMove = nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field);
 
-			move = moveDirection;
+			direction = moveDirection.value();
 
 			if (statc0 == 0 && delayCancel) {
 				if (delayCancelMoveLeft) {
-					move = -1;
+					direction = MoveDirection.LEFT.value();
 				}
 				if (delayCancelMoveRight) {
-					move = 1;
+					direction = MoveDirection.RIGHT.value();
 				}
 				dasCount = 0;
 				// delayCancel = false;
 				delayCancelMoveLeft = false;
 				delayCancelMoveRight = false;
 			} else if (statc0 == 1 && delayCancel && dasCount < getDAS()) {
-				move = 0;
+				direction = MoveDirection.NONE.value();
 				delayCancel = false;
 			}
 
-			if (move != 0) {
+			if (direction != MoveDirection.NONE.value()) {
 				sidemoveflag = true;
 			}
 
 			if (big && bigmove) {
-				move *= 2;
+				direction *= 2;
 			}
 
-			if (move != 0 && dasCount == 0) {
+			if (direction != 0 && dasCount == 0) {
 				shiftLock = 0;
 			}
 
-			if (move != 0 && (dasCount == 0 || dasCount >= getDAS())) {
+			if (direction != 0 && (dasCount == 0 || dasCount >= getDAS())) {
 				shiftLock &= ctrl.getButtonBit();
 
 				if (shiftLock == 0) {
@@ -2624,23 +2625,20 @@ public class GameEngine {
 							dasSpeedCount = 1;
 						}
 
-						if (!nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field)) {
-							nowPieceX += move;
+						if (!nowPieceObject.checkCollision(nowPieceX + direction, nowPieceY, field)) {
+							nowPieceX += direction;
 
 							if (getDASDelay() == 0 && dasCount > 0
-									&& !nowPieceObject.checkCollision(nowPieceX + move, nowPieceY, field)) {
+									&& !nowPieceObject.checkCollision(nowPieceX + direction, nowPieceY, field)) {
 								dasRepeat = true;
 								dasInstant = true;
 							}
-
-							// log.debug("Successful movement: move="+move);
 
 							if (ruleopt.lockresetMove && !isMoveCountExceed()) {
 								lockDelayNow = 0;
 								nowPieceObject.setDarkness(0f);
 							}
 
-							nowPieceMoveCount++;
 							if (ending == 0 || staffrollEnableStatistics) {
 								statistics.totalPieceMove++;
 							}
@@ -2649,13 +2647,13 @@ public class GameEngine {
 							if (onGroundBeforeMove) {
 								extendedMoveCount++;
 								lastmove = LastMove.SLIDE_GROUND;
-								playSE("slide");
+								playSE(Sounds.SLIDE);
 							} else {
 								lastmove = LastMove.SLIDE_AIR;
 							}
 
 							if (!dasInstant) {
-								playSE("move");
+								playSE(Sounds.MOVE);
 							}
 
 						} else if (ruleopt.dasChargeOnBlockedMove) {
@@ -2677,7 +2675,7 @@ public class GameEngine {
 
 					if (nowPieceY != nowPieceBottomY) {
 						nowPieceY = nowPieceBottomY;
-						playSE("harddrop");
+						playSE(Sounds.HARDDROP);
 					}
 
 					if (owner.mode != null) {
@@ -2758,7 +2756,7 @@ public class GameEngine {
 					lastmove = LastMove.FALL_SELF;
 					softdropFall++;
 					softdropFallNow++;
-					playSE("softdrop");
+					playSE(Sounds.SOFTDROP);
 				} else {
 					lastmove = LastMove.FALL_AUTO;
 				}
@@ -2777,7 +2775,7 @@ public class GameEngine {
 		// And fixed ground
 		if (nowPieceObject.checkCollision(nowPieceX, nowPieceY + 1, field) && (statc0 > 0 || ruleopt.moveFirstFrame)) {
 			if (lockDelayNow == 0 && getLockDelay() > 0) {
-				playSE("step");
+				playSE(Sounds.STEP);
 			}
 
 			if (lockDelayNow < getLockDelay()) {
@@ -2865,7 +2863,7 @@ public class GameEngine {
 				boolean partialLockOut = nowPieceObject.isPartialLockOut(nowPieceX, nowPieceY, field);
 				boolean put = nowPieceObject.placeToField(nowPieceX, nowPieceY, field);
 
-				playSE("lock");
+				playSE(Sounds.LOCK);
 
 				holdDisable = false;
 
@@ -2898,7 +2896,7 @@ public class GameEngine {
 					combo = 0;
 
 					if (tspin) {
-						playSE("tspin0");
+						playSE(Sounds.TSPIN0);
 
 						if (ending == 0 || staffrollEnableStatistics) {
 							if (tspinmini) {
@@ -2973,7 +2971,8 @@ public class GameEngine {
 		}
 
 		// Horizontal reservoir
-		if ((statc0 > 0 || ruleopt.dasInMoveFirstFrame) && moveDirection != 0 && moveDirection == dasDirection
+		if ((statc0 > 0 || ruleopt.dasInMoveFirstFrame) && moveDirection != MoveDirection.NONE
+				&& moveDirection == dasDirection
 				&& (dasCount < getDAS() || getDAS() <= 0)) {
 			dasCount++;
 		}
@@ -3150,7 +3149,7 @@ public class GameEngine {
 					if (cmbse > 20) {
 						cmbse = 20;
 					}
-					playSE("combo" + cmbse);
+					playSE(Sounds.combo(cmbse));
 				}
 
 				if ((ending == 0 || staffrollEnableStatistics) && combo > statistics.maxCombo) {
@@ -3174,18 +3173,18 @@ public class GameEngine {
 			}
 			owner.receiver.calcScore(this, playerID, linesCleared);
 
-			// Blockを消す演出を出す (まだ実際には消えていない）
+			// Block (It hasn't actually disappeared yet)
 			if (clearMode == ClearType.LINE) {
-				for (int i = 0; i < field.getHeight(); i++) {
-					if (field.getLineFlag(i)) {
-						for (int j = 0; j < field.getWidth(); j++) {
-							Block blk = field.getBlock(j, i);
+				for (int y = 0; y < field.getHeight(); y++) {
+					if (field.getLineFlag(y)) {
+						for (int x = 0; x < field.getWidth(); x++) {
+							Block blk = field.getBlock(x, y);
 
 							if (blk != null) {
 								if (owner.mode != null) {
-									owner.mode.blockBreak(this, playerID, j, i, blk);
+									owner.mode.blockBreak(this, playerID, x, y, blk);
 								}
-								owner.renderer.blockBreak(this, playerID, j, i, blk);
+								owner.renderer.blockBreak(this, playerID, x, y, blk);
 							}
 						}
 					}
@@ -3308,7 +3307,7 @@ public class GameEngine {
 				}
 				playSE(Sounds.LINE_FALL);
 
-				field.lineColorsCleared = null;
+				field.lineColorsCleared.clear();
 
 				if (stat == Status.LINECLEAR || version.isLower(6, 4, 0)) {
 					resetStatc();
@@ -3633,7 +3632,7 @@ public class GameEngine {
 
 		// Confirm
 		if (ctrl.isPush(Controller.BUTTON_A)) {
-			playSE("decide");
+			playSE(Sounds.DECIDE);
 
 			if (statc0 == 0) {
 				owner.reset();

@@ -215,9 +215,6 @@ public class SPFMode extends AbstractMode {
 	/** UseBGM */
 	private int bgmno;
 
-	/** Big */
-	// private boolean[] big;
-
 	/** Sound effectsON/OFF */
 	private boolean[] enableSE;
 
@@ -282,7 +279,8 @@ public class SPFMode extends AbstractMode {
 	private int[] dropMap;
 
 	/** Drop multipliers */
-	private double[] attackMultiplier, defendMultiplier;
+	private double[] attackMultiplier;
+	private double[] defendMultiplier;
 
 	/** Rainbow power settings for each player */
 	private int[] diamondPower;
@@ -335,7 +333,7 @@ public class SPFMode extends AbstractMode {
 
 		scgettime = new int[MAX_PLAYERS];
 		bgmno = 0;
-		// big = new boolean[MAX_PLAYERS];
+
 		enableSE = new boolean[MAX_PLAYERS];
 		hurryupSeconds = new int[MAX_PLAYERS];
 		useMap = new boolean[MAX_PLAYERS];
@@ -409,7 +407,6 @@ public class SPFMode extends AbstractMode {
 	private void loadOtherSetting(GameEngine engine, CustomProperties prop) {
 		int playerID = engine.playerID;
 		bgmno = prop.getProperty("spfvs.bgmno", 0);
-		// big[playerID] = prop.getProperty("spfvs.big.p" + playerID, false);
 		enableSE[playerID] = prop.getProperty("spfvs.enableSE.p" + playerID, true);
 		hurryupSeconds[playerID] = prop.getProperty("vsbattle.hurryupSeconds.p" + playerID, 0);
 		useMap[playerID] = prop.getProperty("spfvs.useMap.p" + playerID, false);
@@ -432,7 +429,6 @@ public class SPFMode extends AbstractMode {
 	private void saveOtherSetting(GameEngine engine, CustomProperties prop) {
 		int playerID = engine.playerID;
 		prop.setProperty("spfvs.bgmno", bgmno);
-		// prop.setProperty("spfvs.big.p" + playerID, big[playerID]);
 		prop.setProperty("spfvs.enableSE.p" + playerID, enableSE[playerID]);
 		prop.setProperty("vsbattle.hurryupSeconds.p" + playerID, hurryupSeconds[playerID]);
 		prop.setProperty("spfvs.useMap.p" + playerID, useMap[playerID]);
@@ -455,7 +451,6 @@ public class SPFMode extends AbstractMode {
 	 */
 	private void loadMap(Field field, CustomProperties prop, int id) {
 		field.reset();
-		// field.readProperty(prop, id);
 		field.stringToField(prop.getProperty("map." + id, ""));
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -470,7 +465,6 @@ public class SPFMode extends AbstractMode {
 	 * @param id    AnyID
 	 */
 	private void saveMap(Field field, CustomProperties prop, int id) {
-		// field.writeProperty(prop, id);
 		prop.setProperty("map." + id, field.fieldToString());
 	}
 
@@ -553,7 +547,7 @@ public class SPFMode extends AbstractMode {
 		lastSquareCheck[playerID] = -1;
 		countdownDecremented[playerID] = true;
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			loadOtherSetting(engine, engine.owner.modeConfig);
 			loadPreset(engine, engine.owner.modeConfig, -1 - playerID);
 			version = CURRENT_VERSION;
@@ -794,9 +788,6 @@ public class SPFMode extends AbstractMode {
 					}
 					loadDropMapPreview(engine, playerID, DROP_PATTERNS[dropSet[playerID]][dropMap[playerID]]);
 					break;
-				/*
-				 * case 20: big[playerID] = !big[playerID]; break;
-				 */
 				}
 			}
 
@@ -1009,12 +1000,10 @@ public class SPFMode extends AbstractMode {
 	public void startGame(GameEngine engine, int playerID) {
 		engine.b2bEnable = false;
 		engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
-		// engine.big = big[playerID];
 		engine.enableSE = enableSE[playerID];
 		if (playerID == 1) {
 			owner.bgmStatus.bgm = bgmno;
 		}
-		// engine.colorClearSize = big[playerID] ? 8 : 2;
 		engine.colorClearSize = 2;
 		engine.ignoreHidden = false;
 
@@ -1039,7 +1028,6 @@ public class SPFMode extends AbstractMode {
 		}
 
 		// Ojama Counter
-		fontColor = Colors.FONT_WHITE;
 		if (ojama[playerID] >= 1) {
 			fontColor = Colors.FONT_YELLOW;
 		}
@@ -1063,12 +1051,11 @@ public class SPFMode extends AbstractMode {
 			renderer.drawDirectFont(engine, playerID, fldPosX - 28, fldPosY + 264,
 					String.format("%8d", score[playerID]), playerColor);
 		}
-		// renderer.drawDirectFont(engine, playerID, fldPosX + 209, fldPosY + 456,
-		// String.valueOf(score[playerID]), playerColor);
 
 		// Countdown Blocks
 		Block b;
-		int blockColor, textColor;
+		int blockColor;
+		int textColor;
 		if (engine.field != null && engine.gameActive) {
 			for (int x = 0; x < engine.field.getWidth(); x++) {
 				for (int y = 0; y < engine.field.getHeight(); y++) {
@@ -1218,18 +1205,13 @@ public class SPFMode extends AbstractMode {
 		} else if (diamondPower[playerID] == 2) {
 			pts *= 0.8;
 		}
-		// TODO: Add diamond glitch
+		// XXX: Add diamond glitch
 		// Clear blocks
-		// engine.field.gemColorCheck(engine.colorClearSize, true,
-		// engine.garbageColorClear, engine.ignoreHidden);
 		for (int y = -1 * hiddenHeight; y < height; y++) {
 			multiplier = getRowValue(y);
 			for (int x = 0; x < width; x++) {
 				b = engine.field.getBlock(x, y);
-				if (b == null) {
-					continue;
-				}
-				if (!b.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE) || b.isEmpty()) {
+				if (b == null || !b.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE) || b.isEmpty()) {
 					continue;
 				}
 				add = multiplier * 7;
@@ -1257,13 +1239,13 @@ public class SPFMode extends AbstractMode {
 		}
 
 		if (engine.chain >= 1) {
-			engine.playSE("combo" + Math.min(engine.chain, 20));
+			engine.playSE(Sounds.combo(Math.min(engine.chain, 20)));
 		}
 
 		double ojamaNew = (int) (pts * attackMultiplier[playerID] / 7.0);
 
 		if (engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 			zenKeshiDisplay[playerID] = 120;
 			ojamaNew += 12;
 			engine.statistics.score += 1000;
@@ -1334,8 +1316,6 @@ public class SPFMode extends AbstractMode {
 			return;
 		}
 		lastSquareCheck[playerID] = engine.statistics.time;
-
-		// log.debug("Checking squares.");
 
 		int width = engine.field.getWidth();
 		int height = engine.field.getHeight();
@@ -1579,8 +1559,6 @@ public class SPFMode extends AbstractMode {
 			}
 			int drop = Math.min(ojama[playerID], width * dropRows);
 			ojama[playerID] -= drop;
-			// engine.field.garbageDrop(engine, drop, big[playerID], ojamaHard[playerID],
-			// 3);
 			engine.field.garbageDrop(engine, drop, false, 0, ojamaCountdown[playerID], 3);
 			engine.field.setAllSkin(engine.getSkin());
 			int patternCol = 0;

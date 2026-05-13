@@ -1,6 +1,7 @@
 package mu.nu.nullpo.game.net;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -69,63 +70,77 @@ public class NetSPRecord implements Serializable {
 		case RANKINGTYPE_GENERIC_SCORE:
 			if (s1.score > s2.score) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines > s2.lines) {
+			}
+			if (s1.score == s2.score && s1.lines > s2.lines) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines == s2.lines && s1.time < s2.time) {
+			}
+			if (s1.score == s2.score && s1.lines == s2.lines && s1.time < s2.time) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_GENERIC_TIME:
 			if (s1.time < s2.time) {
 				return true;
-			} else if (s1.time == s2.time && s1.totalPieceLocked < s2.totalPieceLocked) {
+			}
+			if (s1.time == s2.time && s1.totalPieceLocked < s2.totalPieceLocked) {
 				return true;
-			} else if (s1.time == s2.time && s1.totalPieceLocked == s2.totalPieceLocked && s1.pps > s2.pps) {
+			}
+			if (s1.time == s2.time && s1.totalPieceLocked == s2.totalPieceLocked && s1.pps > s2.pps) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_SCORERACE:
 			if (s1.time < s2.time) {
 				return true;
-			} else if (s1.time == s2.time && s1.lines < s2.lines) {
+			}
+			if (s1.time == s2.time && s1.lines < s2.lines) {
 				return true;
-			} else if (s1.time == s2.time && s1.lines == s2.lines && s1.spl > s2.spl) {
+			}
+			if (s1.time == s2.time && s1.lines == s2.lines && s1.spl > s2.spl) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_DIGRACE:
 			if (s1.time < s2.time) {
 				return true;
-			} else if (s1.time == s2.time && s1.lines < s2.lines) {
+			}
+			if (s1.time == s2.time && s1.lines < s2.lines) {
 				return true;
-			} else if (s1.time == s2.time && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
+			}
+			if (s1.time == s2.time && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_ULTRA:
 			if (s1.score > s2.score) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines > s2.lines) {
+			}
+			if (s1.score == s2.score && s1.lines > s2.lines) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
+			}
+			if (s1.score == s2.score && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_COMBORACE:
 			if (s1.maxCombo > s2.maxCombo) {
 				return true;
-			} else if (s1.maxCombo == s2.maxCombo && s1.time < s2.time) {
+			}
+			if (s1.maxCombo == s2.maxCombo && s1.time < s2.time) {
 				return true;
-			} else if (s1.maxCombo == s2.maxCombo && s1.time == s2.time && s1.pps > s2.pps) {
+			}
+			if (s1.maxCombo == s2.maxCombo && s1.time == s2.time && s1.pps > s2.pps) {
 				return true;
 			}
 			break;
 		case RANKINGTYPE_DIGCHALLENGE:
 			if (s1.score > s2.score) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines > s2.lines) {
+			}
+			if (s1.score == s2.score && s1.lines > s2.lines) {
 				return true;
-			} else if (s1.score == s2.score && s1.lines == s2.lines && s1.time > s2.time) {
+			}
+			if (s1.score == s2.score && s1.lines == s2.lines && s1.time > s2.time) {
 				return true;
 			}
 			break;
@@ -136,11 +151,14 @@ public class NetSPRecord implements Serializable {
 			int l2 = Math.min(s2.lines, maxLines);
 			if (s1.rollclear > s2.rollclear) {
 				return true;
-			} else if (s1.rollclear == s2.rollclear && l1 > l2) {
+			}
+			if (s1.rollclear == s2.rollclear && l1 > l2) {
 				return true;
-			} else if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time < s2.time) {
+			}
+			if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time < s2.time) {
 				return true;
-			} else if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time == s2.time && s1.pps > s2.pps) {
+			}
+			if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time == s2.time && s1.pps > s2.pps) {
 				return true;
 			}
 			break;
@@ -232,8 +250,7 @@ public class NetSPRecord implements Serializable {
 	 * @return String (Split by ,)
 	 */
 	public String exportCustomStats() {
-		return customStats.entrySet().stream()
-				.map(e -> e.getKey() + ";" + e.getValue())
+		return customStats.entrySet().stream().map(e -> e.getKey() + ";" + e.getValue())
 				.collect(Collectors.joining(","));
 	}
 
@@ -248,9 +265,9 @@ public class NetSPRecord implements Serializable {
 			return;
 		}
 		String[] array = s.split(",");
-		for(String entry : array) {
+		for (String entry : array) {
 			String[] data = entry.split(";");
-			if(data.length != 2) {
+			if (data.length != 2) {
 				continue;
 			}
 			customStats.put(data[0], data[1]);
@@ -284,13 +301,13 @@ public class NetSPRecord implements Serializable {
 	 *
 	 * @return String Array (String[9])
 	 */
-	public String[] exportStringArray() {
+	private String[] exportStringArray() {
 		String[] s = new String[9];
 		s[0] = NetUtil.urlEncode(strPlayerName);
 		s[1] = NetUtil.urlEncode(strModeName);
 		s[2] = NetUtil.urlEncode(strRuleName);
 		s[3] = stats == null ? "" : NetUtil.compressString(stats.exportString());
-		s[4] = customStats == null || customStats.size() <= 0 ? "" : NetUtil.compressString(exportCustomStats());
+		s[4] = customStats.isEmpty() ? "" : NetUtil.compressString(exportCustomStats());
 		s[5] = strReplayProp;
 		s[6] = Integer.toString(gameType);
 		s[7] = Integer.toString(style.ordinal());
@@ -305,16 +322,7 @@ public class NetSPRecord implements Serializable {
 	 */
 	public String exportString() {
 		String[] array = exportStringArray();
-		String result = "";
-
-		for (int i = 0; i < array.length; i++) {
-			if (i > 0) {
-				result += ";";
-			}
-			result += array[i];
-		}
-
-		return result;
+		return Arrays.stream(array).collect(Collectors.joining(";"));
 	}
 
 	/**
@@ -326,12 +334,12 @@ public class NetSPRecord implements Serializable {
 		strPlayerName = NetUtil.urlDecode(s[0]);
 		strModeName = NetUtil.urlDecode(s[1]);
 		strRuleName = NetUtil.urlDecode(s[2]);
-		if (s[3].length() <= 0) {
+		if (s[3].isEmpty()) {
 			stats = null;
 		} else {
 			stats = new Statistics(NetUtil.decompressString(s[3]));
 		}
-		if (s[4].length() <= 0) {
+		if (s[4].isEmpty()) {
 			customStats.clear();
 		} else {
 			importCustomStats(NetUtil.decompressString(s[4]));
@@ -369,7 +377,7 @@ public class NetSPRecord implements Serializable {
 	 * @param value Value
 	 */
 	public void setCustomStat(String name, String value) {
-		customStats.put(name , value);
+		customStats.put(name, value);
 	}
 
 	/**
@@ -401,54 +409,16 @@ public class NetSPRecord implements Serializable {
 	 * @return Short String of stats of the record
 	 */
 	public String getStatRow(int type) {
-		String strRow = "";
-
-		switch (type) {
-		case RANKINGTYPE_GENERIC_SCORE:
-			strRow += stats.score + ",";
-			strRow += stats.lines + ",";
-			strRow += stats.time;
-			break;
-		case RANKINGTYPE_GENERIC_TIME:
-			strRow += stats.time + ",";
-			strRow += stats.totalPieceLocked + ",";
-			strRow += stats.pps;
-			break;
-		case RANKINGTYPE_SCORERACE:
-			strRow += stats.time + ",";
-			strRow += stats.lines + ",";
-			strRow += stats.spl;
-			break;
-		case RANKINGTYPE_DIGRACE:
-			strRow += stats.time + ",";
-			strRow += stats.lines + ",";
-			strRow += stats.totalPieceLocked;
-			break;
-		case RANKINGTYPE_ULTRA:
-			strRow += stats.score + ",";
-			strRow += stats.lines + ",";
-			strRow += stats.totalPieceLocked;
-			break;
-		case RANKINGTYPE_COMBORACE:
-			strRow += stats.maxCombo + ",";
-			strRow += stats.time + ",";
-			strRow += stats.pps;
-			break;
-		case RANKINGTYPE_DIGCHALLENGE:
-			strRow += stats.score + ",";
-			strRow += stats.lines + ",";
-			strRow += stats.time;
-			break;
-		case RANKINGTYPE_TIMEATTACK:
-			strRow += stats.lines + ",";
-			strRow += stats.time + ",";
-			strRow += stats.pps + ",";
-			strRow += stats.rollclear;
-			break;
-		default:
-			break;
-		}
-
-		return strRow;
+		return switch (type) {
+		case RANKINGTYPE_GENERIC_SCORE -> stats.score + "," + stats.lines + "," + stats.time;
+		case RANKINGTYPE_GENERIC_TIME -> stats.time + "," + stats.totalPieceLocked + "," + stats.pps;
+		case RANKINGTYPE_SCORERACE -> stats.time + "," + stats.lines + "," + stats.spl;
+		case RANKINGTYPE_DIGRACE -> stats.time + "," + stats.lines + "," + stats.totalPieceLocked;
+		case RANKINGTYPE_ULTRA -> stats.score + "," + stats.lines + "," + stats.totalPieceLocked;
+		case RANKINGTYPE_COMBORACE -> stats.maxCombo + "," + stats.time + "," + stats.pps;
+		case RANKINGTYPE_DIGCHALLENGE -> stats.score + "," + stats.lines + "," + stats.time;
+		case RANKINGTYPE_TIMEATTACK -> +stats.lines + "," + stats.time + "," + stats.pps + "," + stats.rollclear;
+		default -> "";
+		};
 	}
 }

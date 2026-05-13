@@ -11,6 +11,7 @@ import mu.nu.nullpo.util.GeneralUtil;
  * NET-VS-DIG RACE mode
  */
 public class NetVSDigRaceMode extends NetDummyVSMode {
+
 	/** Number of garbage lines to clear */
 	private int goalLines; // TODO: Add option to change this
 
@@ -124,7 +125,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 	 * @return Number of garbage lines left
 	 */
 	private int getRemainGarbageLines(GameEngine engine, int playerID) {
-		if (engine == null || engine.field == null) {
+		if (engine.field == null) {
 			return -1;
 		}
 
@@ -330,118 +331,86 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 
 		int x = owner.renderer.getFieldDisplayPositionX(engine, playerID);
 		int y = owner.renderer.getFieldDisplayPositionY(engine, playerID);
-		int fontColor = Colors.FONT_WHITE;
 
-		if (netvsPlayerExist[playerID] && engine.isVisible) {
-			if ((netvsIsGameActive || netvsIsPractice && playerID == 0)
-					&& engine.stat != GameEngine.Status.RESULT) {
-				// Lines left
-				int remainLines = Math.max(0, playerRemainLines[playerID]);
-				fontColor = Colors.FONT_WHITE;
-				if (remainLines <= 14 && remainLines > 0) {
-					fontColor = Colors.FONT_YELLOW;
-				}
-				if (remainLines <= 8 && remainLines > 0) {
-					fontColor = Colors.FONT_ORANGE;
-				}
-				if (remainLines <= 4 && remainLines > 0) {
-					fontColor = Colors.FONT_RED;
-				}
+		if (!netvsPlayerExist[playerID] || !engine.isVisible) {
+			return;
+		}
+		if ((netvsIsGameActive || netvsIsPractice && playerID == 0) && engine.stat != GameEngine.Status.RESULT) {
+			int fontColor = Colors.FONT_WHITE;
+			// Lines left
+			int remainLines = Math.max(0, playerRemainLines[playerID]);
+			if (remainLines <= 14 && remainLines > 0) {
+				fontColor = Colors.FONT_YELLOW;
+			}
+			if (remainLines <= 8 && remainLines > 0) {
+				fontColor = Colors.FONT_ORANGE;
+			}
+			if (remainLines <= 4 && remainLines > 0) {
+				fontColor = Colors.FONT_RED;
+			}
 
-				String strLines = String.valueOf(remainLines);
+			String strLines = String.valueOf(remainLines);
 
-				if (engine.displaySize != DisplaySize.SMALL) {
-					if (strLines.length() == 1) {
-						owner.renderer.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
-					} else if (strLines.length() == 2) {
-						owner.renderer.drawMenuFont(engine, playerID, 3, 21, strLines, fontColor, 2.0f);
-					} else if (strLines.length() == 3) {
-						owner.renderer.drawMenuFont(engine, playerID, 2, 21, strLines, fontColor, 2.0f);
-					}
-				} else if (strLines.length() == 1) {
-					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 32, y + 168, strLines, fontColor, 1.0f);
+			if (engine.displaySize != DisplaySize.SMALL) {
+				if (strLines.length() == 1) {
+					owner.renderer.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
 				} else if (strLines.length() == 2) {
-					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, strLines, fontColor, 1.0f);
+					owner.renderer.drawMenuFont(engine, playerID, 3, 21, strLines, fontColor, 2.0f);
 				} else if (strLines.length() == 3) {
-					owner.renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, strLines, fontColor, 1.0f);
+					owner.renderer.drawMenuFont(engine, playerID, 2, 21, strLines, fontColor, 2.0f);
 				}
+			} else if (strLines.length() == 1) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 32, y + 168, strLines, fontColor, 1.0f);
+			} else if (strLines.length() == 2) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, strLines, fontColor, 1.0f);
+			} else if (strLines.length() == 3) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, strLines, fontColor, 1.0f);
+			}
+		}
+
+		if (netvsIsGameActive && engine.stat != GameEngine.Status.RESULT) {
+			// Place
+			int place = getNowPlayerPlace(engine, playerID);
+			if (netvsPlayerDead[playerID]) {
+				place = netvsPlayerPlace[playerID];
 			}
 
-			if (netvsIsGameActive && engine.stat != GameEngine.Status.RESULT) {
-				// Place
-				int place = getNowPlayerPlace(engine, playerID);
-				if (netvsPlayerDead[playerID]) {
-					place = netvsPlayerPlace[playerID];
+			if (engine.displaySize != DisplaySize.SMALL) {
+				switch (place) {
+				case 0 -> renderer.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
+				case 1 -> renderer.drawMenuFont(engine, playerID, -2, 22, "2ND", Colors.FONT_WHITE);
+				case 2 -> renderer.drawMenuFont(engine, playerID, -2, 22, "3RD", Colors.FONT_RED);
+				case 3 -> renderer.drawMenuFont(engine, playerID, -2, 22, "4TH", Colors.FONT_GREEN);
+				case 4 -> renderer.drawMenuFont(engine, playerID, -2, 22, "5TH", Colors.FONT_BLUE);
+				case 5 -> renderer.drawMenuFont(engine, playerID, -2, 22, "6TH", Colors.FONT_PURPLE);
+				default -> { // nothing
 				}
-
-				if (engine.displaySize != DisplaySize.SMALL) {
-					switch (place) {
-					case 0:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
-						break;
-					case 1:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "2ND", Colors.FONT_WHITE);
-						break;
-					case 2:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "3RD", Colors.FONT_RED);
-						break;
-					case 3:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "4TH", Colors.FONT_GREEN);
-						break;
-					case 4:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "5TH", Colors.FONT_BLUE);
-						break;
-					case 5:
-						owner.renderer.drawMenuFont(engine, playerID, -2, 22, "6TH", Colors.FONT_PURPLE);
-						break;
-					default:
-						break;
-					}
-				} else {
-					switch (place) {
-					case 0:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "1ST", Colors.FONT_ORANGE,
-								0.5f);
-						break;
-					case 1:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "2ND", Colors.FONT_WHITE,
-								0.5f);
-						break;
-					case 2:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "3RD", Colors.FONT_RED,
-								0.5f);
-						break;
-					case 3:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "4TH", Colors.FONT_GREEN,
-								0.5f);
-						break;
-					case 4:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "5TH", Colors.FONT_BLUE,
-								0.5f);
-						break;
-					case 5:
-						owner.renderer.drawDirectFont(engine, playerID, x, y + 168, "6TH", Colors.FONT_PURPLE,
-								0.5f);
-						break;
-					default:
-						break;
-					}
+				}
+			} else {
+				switch (place) {
+				case 0 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "1ST", Colors.FONT_ORANGE, 0.5f);
+				case 1 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "2ND", Colors.FONT_WHITE, 0.5f);
+				case 2 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "3RD", Colors.FONT_RED, 0.5f);
+				case 3 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "4TH", Colors.FONT_GREEN, 0.5f);
+				case 4 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "5TH", Colors.FONT_BLUE, 0.5f);
+				case 5 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "6TH", Colors.FONT_PURPLE, 0.5f);
+				default -> { // nothing
+				}
 				}
 			}
-			// Games count
-			else if (!netvsIsPractice || playerID != 0) {
-				String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
+		}
+		// Games count
+		else if (!netvsIsPractice || playerID != 0) {
+			String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
 
-				if (engine.displaySize != DisplaySize.SMALL) {
-					int y2 = 21;
-					if (engine.stat == GameEngine.Status.RESULT) {
-						y2 = 22;
-					}
-					owner.renderer.drawMenuFont(engine, playerID, 0, y2, strTemp, Colors.FONT_WHITE);
-				} else {
-					owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, Colors.FONT_WHITE,
-							0.5f);
+			if (engine.displaySize != DisplaySize.SMALL) {
+				int y2 = 21;
+				if (engine.stat == GameEngine.Status.RESULT) {
+					y2 = 22;
 				}
+				owner.renderer.drawMenuFont(engine, playerID, 0, y2, strTemp, Colors.FONT_WHITE);
+			} else {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, Colors.FONT_WHITE, 0.5f);
 			}
 		}
 	}
@@ -458,10 +427,11 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 			scale = 0.5f;
 		}
 
-		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, "LINE",
-				String.format("%10d", engine.statistics.lines), "PIECE",
-				String.format("%10d", engine.statistics.totalPieceLocked), "LINE/MIN",
-				String.format("%10g", engine.statistics.lpm), "PIECE/SEC", String.format("%10g", engine.statistics.pps),
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, //
+				"LINE", String.format("%10d", engine.statistics.lines), //
+				"PIECE", String.format("%10d", engine.statistics.totalPieceLocked), //
+				"LINE/MIN", String.format("%10g", engine.statistics.lpm), //
+				"PIECE/SEC", String.format("%10g", engine.statistics.pps), //
 				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
 	}
 

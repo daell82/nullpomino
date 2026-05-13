@@ -26,50 +26,33 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.gui.slick;
-
-import org.newdawn.slick.util.LogSystem;
-
-import lombok.extern.log4j.Log4j;
+package mu.nu.nullpo.game.event;
 
 /**
- * SlickThe system loglog4jPassed on to the
+ * Common interface for handling sound clips
  */
-@Log4j(topic = "slick")
-public class LogSystemLog4j implements LogSystem {
+public interface SoundManager {
 
-	@Override
-	public void debug(String message) {
-		log.debug(message);
-	}
+	/**
+	 * Load a sound file for a specific name. The name can later be used for playing the clip
+	 *
+	 * @param name for access.playing the clip
+	 * @param filename of the sound clip
+	 */
+	void load(String name, String filename);
 
-	@Override
-	public void error(Throwable e) {
-		log.error("", e);
-	}
+	/**
+	 * Play a sound clip
+	 *
+	 * @param name of the clip to play
+	 */
+	void play(String name);
 
-	@Override
-	public void error(String message) {
-		log.error(message);
-	}
+	/**
+	 * Changes the volume level to the specified value
+	 *
+	 * @param volume level to change (range between 0 to 1)
+	 */
+	void setVolume(float volume);
 
-	@Override
-	public void error(String message, Throwable e) {
-		log.error(message, e);
-	}
-
-	@Override
-	public void info(String message) {
-		log.info(message);
-	}
-
-	@Override
-	public void warn(String message) {
-		log.warn(message);
-	}
-
-	@Override
-	public void warn(String message, Throwable e) {
-		log.warn(message, e);
-	}
 }

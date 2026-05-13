@@ -534,7 +534,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 				if (pieceTemp.checkCollision(bestX, bestY, newRt, fld) && engine.wallkick != null
 						&& engine.ruleopt.rotateWallkick) {
 					WallkickResult kick = engine.wallkick.executeWallkick(bestX, bestY, -1, bestRt, newRt,
-							engine.ruleopt.rotateMaxUpwardWallkick != 0, pieceTemp, fld, null);
+							engine.ruleopt.rotateMaxUpwardWallkick != 0, pieceTemp, fld);
 
 					if (kick != null) {
 						bestX += kick.offsetX();
@@ -724,7 +724,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 							if (pieces[p].checkCollision(x, y, rot, fldTemp) && engine.wallkick != null
 									&& engine.ruleopt.rotateWallkick) {
 								WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-										engine.ruleopt.rotateMaxUpwardWallkick != 0, pieces[p], fldTemp, null);
+										engine.ruleopt.rotateMaxUpwardWallkick != 0, pieces[p], fldTemp);
 
 								if (kick != null) {
 									newX = x + kick.offsetX();
@@ -756,7 +756,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 							if (pieces[p].checkCollision(x, y, rot, fldTemp) && engine.wallkick != null
 									&& engine.ruleopt.rotateWallkick) {
 								WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot,
-										engine.ruleopt.rotateMaxUpwardWallkick != 0, pieces[p], fldTemp, null);
+										engine.ruleopt.rotateMaxUpwardWallkick != 0, pieces[p], fldTemp);
 
 								if (kick != null) {
 									newX = x + kick.offsetX();

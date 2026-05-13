@@ -67,9 +67,6 @@ public class GarbageManiaMode extends AbstractMode {
 	/** LV999 roll time */
 	private static final int ROLLTIMELIMIT = 2024;
 
-	/** Number of entries in rankings */
-	private static final int RANKING_MAX = 10;
-
 	/** Number of sections */
 	private static final int SECTION_MAX = 10;
 
@@ -114,10 +111,13 @@ public class GarbageManiaMode extends AbstractMode {
 	private int comboValue;
 
 	/** Most recent increase in score */
-	private int lastscore;
+	protected int lastscore;
 
-	/** AcquisitionRender scoreIs remaining to be time */
-	private int scgettime;
+	/**
+	 * Elapsed time from last line clear (lastscore is displayed to screen until
+	 * this reaches to 120)
+	 */
+	protected int scgettime;
 
 	/** Roll Course time */
 	private int rolltime;

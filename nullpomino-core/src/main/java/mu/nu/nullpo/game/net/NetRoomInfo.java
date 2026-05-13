@@ -454,16 +454,7 @@ public class NetRoomInfo implements Serializable {
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
-		String strResult = "";
-
-		for (int i = 0; i < data.length; i++) {
-			strResult += data[i];
-			if (i < data.length - 1) {
-				strResult += ";";
-			}
-		}
-
-		return strResult;
+		return String.join(";", data);
 	}
 
 	/**

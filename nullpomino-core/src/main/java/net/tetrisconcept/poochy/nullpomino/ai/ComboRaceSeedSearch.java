@@ -262,8 +262,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						fldTemp.copy(fldBackup);
 
 						if (pieces[p].checkCollision(x, y, rot, fldTemp)) {
-							WallkickResult kick = wallkick.executeWallkick(x, y, -1, rt, rot, true, pieces[p], fldTemp,
-									null);
+							WallkickResult kick = wallkick.executeWallkick(x, y, -1, rt, rot, true, pieces[p], fldTemp);
 
 							if (kick != null) {
 								newX = x + kick.offsetX();
@@ -290,8 +289,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						fldTemp.copy(fldBackup);
 
 						if (pieces[p].checkCollision(x, y, rot, fldTemp)) {
-							WallkickResult kick = wallkick.executeWallkick(x, y, 1, rt, rot, true, pieces[p], fldTemp,
-									null);
+							WallkickResult kick = wallkick.executeWallkick(x, y, 1, rt, rot, true, pieces[p], fldTemp);
 
 							if (kick != null) {
 								newX = x + kick.offsetX();

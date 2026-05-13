@@ -28,6 +28,7 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -72,7 +73,7 @@ public class PhysicianVSMode extends AbstractMode {
 	private static final int MAX_PLAYERS = 2;
 
 	/** Each player's frame color */
-	private final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
+	private static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** Time to display the most recent increase in score */
 	private int[] scgettime;
@@ -737,35 +738,6 @@ public class PhysicianVSMode extends AbstractMode {
 			renderer.drawDirectFont(engine, playerID, fldPosX + 152, fldPosY + 296, SPEED_NAME[speed[playerID]],
 					SPEED_COLOR[speed[playerID]]);
 		}
-
-		/*
-		 * if(playerID == 0) { renderer.drawScoreFont(engine, playerID, -1, 0,
-		 * "PHYSICIAN VS", Colors.COLOR_GREEN);
-		 *
-		 * renderer.drawScoreFont(engine, playerID, -1, 2, "REST", Colors.COLOR_PURPLE);
-		 * renderer.drawScoreFont(engine, playerID, -1, 3, "1P:", Colors.COLOR_RED);
-		 * renderer.drawScoreFont(engine, playerID, 3, 3, String.valueOf(rest[0]),
-		 * (rest[0] <= (flash[playerID] ? 1 : 3))); renderer.drawScoreFont(engine,
-		 * playerID, -1, 4, "2P:", Colors.COLOR_BLUE); renderer.drawScoreFont(engine,
-		 * playerID, 3, 4, String.valueOf(rest[1]), (rest[1] <= (flash[playerID] ? 1 :
-		 * 3)));
-		 *
-		 * renderer.drawScoreFont(engine, playerID, -1, 6, "SPEED", Colors.COLOR_GREEN);
-		 * renderer.drawScoreFont(engine, playerID, -1, 7, "1P:", Colors.COLOR_RED);
-		 * renderer.drawScoreFont(engine, playerID, 3, 7, SPEED_NAME[speed[0]],
-		 * SPEED_COLOR[speed[0]]); renderer.drawScoreFont(engine, playerID, -1, 8,
-		 * "2P:", Colors.COLOR_BLUE); renderer.drawScoreFont(engine, playerID, 3, 8,
-		 * SPEED_NAME[speed[1]], SPEED_COLOR[speed[1]]);
-		 *
-		 * renderer.drawScoreFont(engine, playerID, -1, 10, "SCORE",
-		 * Colors.COLOR_PURPLE); renderer.drawScoreFont(engine, playerID, -1, 11, "1P: "
-		 * + String.valueOf(score[0]), Colors.COLOR_RED); renderer.drawScoreFont(engine,
-		 * playerID, -1, 12, "2P: " + String.valueOf(score[1]), Colors.COLOR_BLUE);
-		 *
-		 * renderer.drawScoreFont(engine, playerID, -1, 14, "TIME", Colors.COLOR_GREEN);
-		 * renderer.drawScoreFont(engine, playerID, -1, 15,
-		 * GeneralUtil.getTime(engine.statistics.time)); }
-		 */
 	}
 
 	/*
@@ -828,14 +800,12 @@ public class PhysicianVSMode extends AbstractMode {
 			enemyID = 1;
 		}
 
-		List<Integer> cleared = engine.field.lineColorsCleared;
-		engine.field.lineColorsCleared = null;
-		if (cleared != null && cleared.size() > 1) {
-			if (garbageColors[enemyID] == null) {
-				garbageColors[enemyID] = cleared;
-			} else {
-				garbageColors[enemyID].addAll(cleared);
-			}
+		List<Integer> cleared = new ArrayList<>(engine.field.lineColorsCleared);
+		engine.field.lineColorsCleared.clear();
+		if (garbageColors[enemyID] == null) {
+			garbageColors[enemyID] = cleared;
+		} else {
+			garbageColors[enemyID].addAll(cleared);
 		}
 		return garbageCheck(engine, playerID);
 	}
@@ -974,12 +944,6 @@ public class PhysicianVSMode extends AbstractMode {
 
 		drawResultStats(engine, playerID, 3, Colors.FONT_ORANGE, Statistic.LINES, Statistic.PIECE, Statistic.LPM,
 				Statistic.PPS, Statistic.TIME);
-		/*
-		 * float apm = (float)(garbageSent[playerID] * 3600) /
-		 * (float)(engine.statistics.time); drawResult(engine, playerID, renderer, 3,
-		 * Colors.COLOR_ORANGE, "ATTACK", String.format("%10d", garbageSent[playerID]),
-		 * "ATTACK/MIN", String.format("%10g", apm));
-		 */
 	}
 
 	/*

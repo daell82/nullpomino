@@ -26,33 +26,28 @@
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
     POSSIBILITY OF SUCH DAMAGE.
 */
-package mu.nu.nullpo.game.play;
+package mu.nu.nullpo.game.types;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
- * Common interface for handling sound clips
+ * Enumeration for possible movements of a piece (left, right, none)
+ *
+ * @author daell
  */
-public interface SoundManager {
+@Getter
+@Accessors(fluent = true)
+@RequiredArgsConstructor
+public enum MoveDirection {
 
-	/**
-	 * Load a sound file for a specific name. The name can later be used for playing the clip
-	 *
-	 * @param name for access.playing the clip
-	 * @param filename of the sound clip
-	 */
-	void load(String name, String filename);
+	NONE(0),
 
-	/**
-	 * Play a sound clip
-	 *
-	 * @param name of the clip to play
-	 */
-	void play(String name);
+	LEFT(-1),
 
-	/**
-	 * Changes the volume level to the specified value
-	 *
-	 * @param volume level to change (range between 0 to 1)
-	 */
-	void setVolume(float volume);
+	RIGHT(1);
+
+	private final int value;
 
 }

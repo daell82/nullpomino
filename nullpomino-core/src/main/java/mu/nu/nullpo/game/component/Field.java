@@ -35,6 +35,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.play.GameEngine;
@@ -75,12 +76,15 @@ public class Field implements Serializable {
 	public static final int COORD_WALL = 3;
 
 	/** fieldThe width of the */
+	@Getter
 	protected int width;
 
 	/** Field height */
+	@Getter
 	protected int height;
 
 	/** The height of the invisible part of the field above */
+	@Getter
 	protected int hiddenHeight;
 
 	/*
@@ -123,10 +127,10 @@ public class Field implements Serializable {
 	public int garbageCleared;
 
 	/** List of colors of lines cleared in most recent line color clear */
-	public List<Integer> lineColorsCleared;
+	public final List<Integer> lineColorsCleared = new ArrayList<>();
 
 	/** List of last rows cleared in most recent horizontal line clear. */
-	private List<Block[]> lastLinesCleared;
+	private final List<Block[]> lastLinesCleared = new ArrayList<>();
 
 	/** Used for TGM garbage, can later be extended to all types */
 	// public List<Block[]> pendingGarbage;
@@ -187,8 +191,8 @@ public class Field implements Serializable {
 		colorClearExtraCount = 0;
 		colorsCleared = 0;
 		gemsCleared = 0;
-		lineColorsCleared = null;
-		lastLinesCleared = null;
+		lineColorsCleared.clear();
+		lastLinesCleared.clear();
 		garbageCleared = 0;
 
 		for (int x = 0; x < width; x++) {
@@ -221,8 +225,10 @@ public class Field implements Serializable {
 		colorClearExtraCount = f.colorClearExtraCount;
 		colorsCleared = f.colorsCleared;
 		gemsCleared = f.gemsCleared = 0;
-		lineColorsCleared = f.lineColorsCleared;
-		lastLinesCleared = f.lastLinesCleared;
+		lineColorsCleared.clear();
+		lineColorsCleared.addAll(f.lineColorsCleared);
+		lastLinesCleared.clear();
+		lastLinesCleared.addAll(f.lastLinesCleared);
 		garbageCleared = f.garbageCleared;
 
 		for (int x = 0; x < width; x++) {
@@ -277,33 +283,6 @@ public class Field implements Serializable {
 				block.elapsedFrames = -1;
 			}
 		}
-	}
-
-	/**
-	 * Gets the width of the field
-	 *
-	 * @return The width of the field
-	 */
-	public int getWidth() {
-		return width;
-	}
-
-	/**
-	 * Get the Field height
-	 *
-	 * @return Field height
-	 */
-	public int getHeight() {
-		return height;
-	}
-
-	/**
-	 * Gets the height of the invisible part of above the field
-	 *
-	 * @return The height of the invisible part above the field
-	 */
-	public int getHiddenHeight() {
-		return hiddenHeight;
 	}
 
 	/**
@@ -498,10 +477,6 @@ public class Field implements Serializable {
 	 */
 	public int checkLine() {
 		int lines = 0;
-
-		if (lastLinesCleared == null) {
-			lastLinesCleared = new ArrayList<>();
-		}
 		lastLinesCleared.clear();
 
 		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
@@ -765,12 +740,7 @@ public class Field implements Serializable {
 				count++;
 			}
 		}
-
-		if (count >= 3) {
-			return true;
-		}
-
-		return false;
+		return count >= 3;
 	}
 
 	/**
@@ -816,27 +786,14 @@ public class Field implements Serializable {
 		}
 
 		// Sets the coordinates for determining the relative
-		int[] tx = new int[4];
-		int[] ty = new int[4];
-
+		int[] tx;
+		int[] ty;
 		if (big) {
-			tx[0] = 1;
-			ty[0] = 1;
-			tx[1] = 4;
-			ty[1] = 1;
-			tx[2] = 1;
-			ty[2] = 4;
-			tx[3] = 4;
-			ty[3] = 4;
+			tx = new int[] { 1, 4, 1, 4 };
+			ty = new int[] { 1, 1, 4, 4 };
 		} else {
-			tx[0] = 0;
-			ty[0] = 0;
-			tx[1] = 2;
-			ty[1] = 0;
-			tx[2] = 0;
-			ty[2] = 2;
-			tx[3] = 2;
-			ty[3] = 2;
+			tx = new int[] { 0, 2, 0, 2 };
+			ty = new int[] { 0, 0, 2, 2 };
 		}
 
 		// Judgment
@@ -856,7 +813,7 @@ public class Field implements Serializable {
 	 * @param big BigIf it&#39;s the casetrue
 	 * @return T-SpinOf holes I cancount
 	 */
-	public int getHowManyTSlot(boolean big) {
+	private int getHowManyTSlot(boolean big) {
 		int result = 0;
 
 		for (int x = 0; x < width; x++) {
@@ -869,7 +826,7 @@ public class Field implements Serializable {
 		return result;
 	}
 
-	public int getHowManyBlocksCovered() {
+	private int getHowManyBlocksCovered() {
 		int blocksCovered = 0;
 
 		for (int j = 0; j < width; j++) {
@@ -935,7 +892,7 @@ public class Field implements Serializable {
 
 		for (int j = 0; j < width; j++) {
 			for (int i = 0; i < getHeightWithoutHurryupFloor() - 2; i++) {
-				if (getLineFlag(i) == false) {
+				if (!getLineFlag(i)) {
 					result += getTSlotLineClear(j, i, big);
 				}
 			}
@@ -952,12 +909,12 @@ public class Field implements Serializable {
 	 * @return T-SpinI disappearLinescount(T-SpinOr if it is notminimumI do not meet
 	 *         theLinesEtc.0)
 	 */
-	public int getTSlotLineClearAll(boolean big, int minimum) {
+	private int getTSlotLineClearAll(boolean big, int minimum) {
 		int result = 0;
 
 		for (int j = 0; j < width; j++) {
 			for (int i = 0; i < getHeightWithoutHurryupFloor() - 2; i++) {
-				if (getLineFlag(i) == false) {
+				if (!getLineFlag(i)) {
 					int temp = getTSlotLineClear(j, i, big);
 
 					if (temp >= minimum) {
@@ -1017,9 +974,9 @@ public class Field implements Serializable {
 	 * @return At the topBlockOfY-coordinate
 	 */
 	public int getHighestBlockY(int x) {
-		for (int i = hiddenHeight * -1; i < getHeightWithoutHurryupFloor(); i++) {
-			if (!getLineFlag(i) && !getBlockEmpty(x, i)) {
-				return i;
+		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
+			if (!getLineFlag(y) && !getBlockEmpty(x, y)) {
+				return y;
 			}
 		}
 		return height;
@@ -1326,8 +1283,8 @@ public class Field implements Serializable {
 
 			int y = getHeightWithoutHurryupFloor() - 1;
 
-			for (int j = 0; j < width; j++) {
-				if (j == hole) {
+			for (int x = 0; x < width; x++) {
+				if (x == hole) {
 					continue;
 				}
 				Block blk = new Block();
@@ -1335,19 +1292,19 @@ public class Field implements Serializable {
 				blk.skin = skin;
 				blk.attribute = Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_OUTLINE
 						| Block.BLOCK_ATTRIBUTE_GARBAGE;
-				setBlock(j, y, blk);
+				setBlock(x, y, blk);
 			}
 
 			// Set connections
-			for (int j = 0; j < width; j++) {
-				if (j == hole) {
+			for (int x = 0; x < width; x++) {
+				if (x == hole) {
 					continue;
 				}
-				Block blk = getBlock(j, y);
-				if (j > 0 && !getBlockEmpty(j - 1, y)) {
+				Block blk = getBlock(x, y);
+				if (x > 0 && !getBlockEmpty(x - 1, y)) {
 					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
 				}
-				if (j < width - 1 && !getBlockEmpty(j + 1, y)) {
+				if (x < width - 1 && !getBlockEmpty(x + 1, y)) {
 					blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
 				}
 			}
@@ -1499,41 +1456,39 @@ public class Field implements Serializable {
 		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
 			for (int x = 0; x < width; x++) {
 				block = getBlock(x, y);
-				if (block == null) {
+				if (block == null || !block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
 					continue;
 				}
-				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_ERASE)) {
-					total++;
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
-						bAdj = getBlock(x, y + 1);
-						if (bAdj != null) {
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-						}
+				total++;
+				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+					bAdj = getBlock(x, y + 1);
+					if (bAdj != null) {
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
 					}
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
-						bAdj = getBlock(x, y - 1);
-						if (bAdj != null) {
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-						}
-					}
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
-						bAdj = getBlock(x - 1, y);
-						if (bAdj != null) {
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-						}
-					}
-					if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
-						bAdj = getBlock(x + 1, y);
-						if (bAdj != null) {
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
-							bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
-						}
-					}
-					block.color = Colors.BLOCK_COLOR_NONE;
 				}
+				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)) {
+					bAdj = getBlock(x, y - 1);
+					if (bAdj != null) {
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+					}
+				}
+				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)) {
+					bAdj = getBlock(x - 1, y);
+					if (bAdj != null) {
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+					}
+				}
+				if (block.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)) {
+					bAdj = getBlock(x + 1, y);
+					if (bAdj != null) {
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+						bAdj.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+					}
+				}
+				block.color = Colors.BLOCK_COLOR_NONE;
 			}
 		}
 		return total;
@@ -1556,9 +1511,6 @@ public class Field implements Serializable {
 		}
 		if (flag) {
 			setAllAttribute(Block.BLOCK_ATTRIBUTE_ERASE, false);
-			if (lineColorsCleared == null) {
-				lineColorsCleared = new ArrayList<>();
-			}
 			gemsCleared = 0;
 		}
 		int total = 0;
@@ -2508,8 +2460,8 @@ public class Field implements Serializable {
 			garbageDropPlace(x, y + 1, false, hard);
 			garbageDropPlace(x + 1, y + 1, false, hard);
 		}
-		if (!getBlockEmpty(x, y)) {
-			setBlockColor(x, y, color);
+		if (!block.isEmpty()) {
+			block.color = color;
 			block.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
 			block.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
 			block.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);

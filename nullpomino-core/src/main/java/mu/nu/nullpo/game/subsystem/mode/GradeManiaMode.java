@@ -281,7 +281,7 @@ public class GradeManiaMode extends AbstractMode {
 		engine.speed.lockDelay = 30;
 		engine.speed.das = 15;
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -299,7 +299,7 @@ public class GradeManiaMode extends AbstractMode {
 	 * @param engine GameEngine
 	 */
 	private void setSpeed(GameEngine engine) {
-		if (always20g.value) {
+		if (always20g.getValue()) {
 			engine.speed.gravity = -1;
 		} else {
 			while (engine.statistics.level >= tableGravityChangeLevel[gravityindex]) {
@@ -419,7 +419,7 @@ public class GradeManiaMode extends AbstractMode {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "GRADE MANIA", Colors.FONT_CYAN);
 
 		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
-			if (owner.replayMode == false && startlevel.value == 0 && !big.value && !always20g.value
+			if (!owner.replayMode && startlevel.value == 0 && !big.getValue() && !always20g.getValue()
 					&& engine.ai == null) {
 				if (!isShowBestSectionTime) {
 					// Rankings
@@ -479,7 +479,7 @@ public class GradeManiaMode extends AbstractMode {
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 6, strScore);
 			if (grade < 17) {
@@ -515,7 +515,7 @@ public class GradeManiaMode extends AbstractMode {
 			}
 
 			// Section Time
-			if (showsectiontime.value && sectiontime != null) {
+			if (showsectiontime.getValue() && sectiontime != null) {
 				int x = renderer.getNextDisplayType() == 2 ? 8 : 12;
 				int x2 = renderer.getNextDisplayType() == 2 ? 9 : 12;
 				renderer.drawScoreFont(engine, playerID, x, 2, "SECTION TIME", Colors.FONT_BLUE);
@@ -558,7 +558,7 @@ public class GradeManiaMode extends AbstractMode {
 		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
+				if (engine.statistics.level == nextseclv - 1 && lvstopse.getValue()) {
 					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
@@ -580,7 +580,7 @@ public class GradeManiaMode extends AbstractMode {
 		if (engine.ending == 0 && engine.statc_0() >= engine.statc_1() - 1 && !lvupflag) {
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
-				if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
+				if (engine.statistics.level == nextseclv - 1 && lvstopse.getValue()) {
 					engine.playSE(Sounds.LEVEL_STOP);
 				}
 			}
@@ -611,7 +611,7 @@ public class GradeManiaMode extends AbstractMode {
 		setSpeed(engine);
 
 		// LV100In reachingghost Disappear
-		if (engine.statistics.level >= 100 && !alwaysghost.value) {
+		if (engine.statistics.level >= 100 && !alwaysghost.getValue()) {
 			engine.ghost = false;
 		}
 
@@ -737,7 +737,7 @@ public class GradeManiaMode extends AbstractMode {
 				if (nextseclv > 999) {
 					nextseclv = 999;
 				}
-			} else if (engine.statistics.level == nextseclv - 1 && lvstopse.value) {
+			} else if (engine.statistics.level == nextseclv - 1 && lvstopse.getValue()) {
 				engine.playSE(Sounds.LEVEL_STOP);
 			}
 		}
@@ -815,8 +815,7 @@ public class GradeManiaMode extends AbstractMode {
 
 		switch (status1) {
 		case 0:
-			drawResult(engine, playerID, 2, Colors.FONT_BLUE, "GRADE",
-					String.format("%10s", tableGradeName[grade]));
+			drawResult(engine, playerID, 2, Colors.FONT_BLUE, "GRADE", String.format("%10s", tableGradeName[grade]));
 			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
 					Statistic.LEVEL_MANIA, Statistic.TIME);
 			drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
@@ -839,8 +838,8 @@ public class GradeManiaMode extends AbstractMode {
 			}
 			break;
 		case 2:
-			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM,
-					Statistic.PIECE, Statistic.PPS);
+			drawResultStats(engine, playerID, 2, Colors.FONT_BLUE, Statistic.LPM, Statistic.SPM, Statistic.PIECE,
+					Statistic.PPS);
 			if (grade == 18) {
 				int pierRank = 0;
 				for (int i = 1; i < tablePier21GradeTime.length; i++) {
@@ -900,7 +899,8 @@ public class GradeManiaMode extends AbstractMode {
 		owner.replayProp.setProperty("grademania.version", version);
 
 		// Update rankings
-		if (!owner.replayMode && startlevel.value == 0 && !always20g.value && !big.value && engine.ai == null) {
+		if (!owner.replayMode && startlevel.value == 0 && !always20g.getValue() && !big.getValue()
+				&& engine.ai == null) {
 			updateRanking(grade, engine.statistics.level, lastGradeTime);
 			if (sectionAnyNewRecord) {
 				updateBestSectionTime();
@@ -985,13 +985,14 @@ public class GradeManiaMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (gr > rankingGrade[i]) {
 				return i;
-			} else if (gr == rankingGrade[i] && lv > rankingLevel[i]) {
+			}
+			if (gr == rankingGrade[i] && lv > rankingLevel[i]) {
 				return i;
-			} else if (gr == rankingGrade[i] && lv == rankingLevel[i] && time < rankingTime[i]) {
+			}
+			if (gr == rankingGrade[i] && lv == rankingLevel[i] && time < rankingTime[i]) {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 

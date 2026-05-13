@@ -44,9 +44,6 @@ import mu.nu.nullpo.util.GeneralUtil;
 public class LineRaceMode extends NetDummyMode {
 	/* ----- Main variables ----- */
 
-	/** Number of entries in rankings */
-	private static final int RANKING_MAX = 10;
-
 	/** Target line count type */
 	private static final int GOALTYPE_MAX = 3;
 

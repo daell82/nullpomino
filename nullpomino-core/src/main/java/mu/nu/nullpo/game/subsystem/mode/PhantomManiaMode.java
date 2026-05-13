@@ -101,13 +101,6 @@ public class PhantomManiaMode extends AbstractMode {
 	/** Default section time */
 	private static final int DEFAULT_SECTION_TIME = 3600;
 
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
-
 	/** Next section level */
 	private int nextseclv;
 

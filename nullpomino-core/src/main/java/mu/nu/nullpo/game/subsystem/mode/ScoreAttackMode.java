@@ -591,10 +591,6 @@ public class ScoreAttackMode extends AbstractMode {
 			nextseclv += 100;
 			renderer.playSE(Sounds.LEVEL_UP);
 
-			// owner.backgroundStatus.fadesw = true;
-			// owner.backgroundStatus.fadecount = 0;
-			// owner.backgroundStatus.fadebg = nextseclv / 100;
-
 			sectionscomp++;
 			setAverageSectionTime();
 			stNewRecordCheck(sectionscomp - 1);
@@ -637,9 +633,6 @@ public class ScoreAttackMode extends AbstractMode {
 
 			if (engine.statistics.level >= 300) {
 				if (engine.timerActive) {
-					// sectionscomp++;
-					// setAverageSectionTime();
-					// stNewRecordCheck(sectionscomp - 1);
 					engine.statistics.score += 1253 * Math.ceil(Math.max(18000 - engine.statistics.time, 0) / 60D);
 				}
 
@@ -650,9 +643,6 @@ public class ScoreAttackMode extends AbstractMode {
 				engine.statistics.level = 300;
 				engine.timerActive = false;
 				engine.ending = 2;
-			} else if (engine.statistics.level >= nextseclv) {
-				// renderer.playSE("levelup");
-				// nextseclv += 100;
 			}
 
 			if (owner.backgroundStatus.bg < (nextseclv - 100) / 100) {

@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 
@@ -90,7 +89,7 @@ public class StandardMild180Wallkick extends BaseStandardWallkick {
 	 */
 	@Override
 	protected int[][][] getKickTable(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward, Piece piece,
-			Field field, Controller ctrl) {
+			Field field) {
 		int[][][] kicktable = null;
 
 		switch (rtDir) {

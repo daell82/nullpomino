@@ -105,7 +105,7 @@ public class NetServer {
 	public static final float DEFAULT_MIN_GAMERATE = 80f;
 
 	/** Default time of timeout */
-	public static final long DEFAULT_TIMEOUT_TIME = 1000 * 60 * 1;
+	public static final long DEFAULT_TIMEOUT_TIME = 1000L * 60L;
 
 	/** Default number of lobby chat histories */
 	public static final int DEFAULT_MAX_LOBBYCHAT_HISTORY = 10;
@@ -1084,6 +1084,7 @@ public class NetServer {
 
 		// Bind the server socket to the specified address and port
 		InetSocketAddress isa = new InetSocketAddress(port);
+		log.info("Try binding to: " + isa);
 		serverChannel.socket().bind(isa);
 
 		// Register the server socket channel, indicating an interest in

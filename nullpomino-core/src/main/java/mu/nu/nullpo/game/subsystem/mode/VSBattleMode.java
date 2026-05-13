@@ -55,19 +55,6 @@ public class VSBattleMode extends AbstractMode {
 	/** Number of players */
 	private static final int MAX_PLAYERS = 2;
 
-	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0;
-	private static final int EVENT_SINGLE = 1;
-	private static final int EVENT_DOUBLE = 2;
-	private static final int EVENT_TRIPLE = 3;
-	private static final int EVENT_FOUR = 4;
-	private static final int EVENT_TSPIN_SINGLE_MINI = 5;
-	private static final int EVENT_TSPIN_SINGLE = 6;
-	private static final int EVENT_TSPIN_DOUBLE = 7;
-	private static final int EVENT_TSPIN_TRIPLE = 8;
-	private static final int EVENT_TSPIN_DOUBLE_MINI = 9;
-	private static final int EVENT_TSPIN_EZ = 10;
-
 	/** Combo attack table */
 	private static final int[] COMBO_ATTACK_TABLE = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 };
 
@@ -120,7 +107,7 @@ public class VSBattleMode extends AbstractMode {
 	private int[] scgettime;
 
 	/** Most recent scoring event type */
-	private int[] lastevent;
+	private LineClearEvent[] lastevent;
 
 	/** Most recent scoring eventInB2BIf it&#39;s the casetrue */
 	private boolean[] lastb2b;
@@ -246,7 +233,7 @@ public class VSBattleMode extends AbstractMode {
 		garbageSent = new int[MAX_PLAYERS];
 		lastHole = new int[MAX_PLAYERS];
 		scgettime = new int[MAX_PLAYERS];
-		lastevent = new int[MAX_PLAYERS];
+		lastevent = new LineClearEvent[MAX_PLAYERS];
 		lastb2b = new boolean[MAX_PLAYERS];
 		lastcombo = new int[MAX_PLAYERS];
 		lastpiece = new int[MAX_PLAYERS];
@@ -462,7 +449,7 @@ public class VSBattleMode extends AbstractMode {
 		garbageSent[playerID] = 0;
 		lastHole[playerID] = -1;
 		scgettime[playerID] = 0;
-		lastevent[playerID] = EVENT_NONE;
+		lastevent[playerID] = LineClearEvent.NONE;
 		lastb2b[playerID] = false;
 		lastcombo[playerID] = 0;
 
@@ -605,7 +592,6 @@ public class VSBattleMode extends AbstractMode {
 					garbageBlocking[playerID] = !garbageBlocking[playerID];
 					break;
 				case 13:
-					// enableTSpin[playerID] = !enableTSpin[playerID];
 					tspinEnableType[playerID] += change;
 					if (tspinEnableType[playerID] < 0) {
 						tspinEnableType[playerID] = 2;
@@ -630,7 +616,6 @@ public class VSBattleMode extends AbstractMode {
 					tspinEnableEZ[playerID] = !tspinEnableEZ[playerID];
 					break;
 				case 17:
-					// enableB2B[playerID] = !enableB2B[playerID];
 					b2bType[playerID] += change;
 					if (b2bType[playerID] < 0) {
 						b2bType[playerID] = 2;
@@ -1003,67 +988,69 @@ public class VSBattleMode extends AbstractMode {
 		}
 
 		// Line clear event Display
-		if (lastevent[playerID] != EVENT_NONE && scgettime[playerID] < 120) {
+		if (lastevent[playerID] != LineClearEvent.NONE && scgettime[playerID] < 120) {
 			String strPieceName = Piece.getPieceName(lastpiece[playerID]);
 
 			switch (lastevent[playerID]) {
-			case EVENT_SINGLE:
+			case LineClearEvent.SINGLE:
 				renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 				break;
-			case EVENT_DOUBLE:
+			case LineClearEvent.DOUBLE:
 				renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 				break;
-			case EVENT_TRIPLE:
+			case LineClearEvent.TRIPLE:
 				renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 				break;
-			case EVENT_FOUR:
+			case LineClearEvent.FOUR:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_SINGLE_MINI:
+			case LineClearEvent.TSPIN_SINGLE_MINI:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_SINGLE:
+			case LineClearEvent.TSPIN_SINGLE:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_DOUBLE_MINI:
+			case LineClearEvent.TSPIN_DOUBLE_MINI:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_DOUBLE:
+			case LineClearEvent.TSPIN_DOUBLE:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_TRIPLE:
+			case LineClearEvent.TSPIN_TRIPLE:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 				}
 				break;
-			case EVENT_TSPIN_EZ:
+			case LineClearEvent.TSPIN_EZ:
 				if (lastb2b[playerID]) {
 					renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 				} else {
 					renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 				}
+				break;
+			default:
 				break;
 			}
 
@@ -1092,60 +1079,52 @@ public class VSBattleMode extends AbstractMode {
 			if (engine.tspin) {
 				// Immobile EZ Spin
 				if (engine.tspinez) {
-					if (engine.useAllSpinBonus) {
-						// pts += 0;
-					} else {
-						pts += 1;
-					}
-					lastevent[playerID] = EVENT_TSPIN_EZ;
+					pts += 1;
+					lastevent[playerID] = LineClearEvent.TSPIN_EZ;
 				}
 				// T-Spin 1 line
 				else if (lines == 1) {
 					if (engine.tspinmini) {
-						if (engine.useAllSpinBonus) {
-							// pts += 0;
-						} else {
-							pts += 1;
-						}
-						lastevent[playerID] = EVENT_TSPIN_SINGLE_MINI;
+						pts += 1;
+						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE_MINI;
 					} else {
 						pts += 2;
-						lastevent[playerID] = EVENT_TSPIN_SINGLE;
+						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE;
 					}
 				}
 				// T-Spin 2 lines
 				else if (lines == 2) {
 					if (engine.tspinmini && engine.useAllSpinBonus) {
 						pts += 3;
-						lastevent[playerID] = EVENT_TSPIN_DOUBLE_MINI;
+						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE_MINI;
 					} else {
 						pts += 4;
-						lastevent[playerID] = EVENT_TSPIN_DOUBLE;
+						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE;
 					}
 				}
 				// T-Spin 3 lines
 				else if (lines >= 3) {
 					pts += 6;
-					lastevent[playerID] = EVENT_TSPIN_TRIPLE;
+					lastevent[playerID] = LineClearEvent.TSPIN_TRIPLE;
 				}
 			} else {
 				switch (lines) {
 				case 1:
 					// 1Column
-					lastevent[playerID] = EVENT_SINGLE;
+					lastevent[playerID] = LineClearEvent.SINGLE;
 					break;
 				case 2:
 					pts += 1; // 2Column
-					lastevent[playerID] = EVENT_DOUBLE;
+					lastevent[playerID] = LineClearEvent.DOUBLE;
 					break;
 				case 3:
 					pts += 2; // 3Column
-					lastevent[playerID] = EVENT_TRIPLE;
+					lastevent[playerID] = LineClearEvent.TRIPLE;
 					break;
 				default:
 					if (lines >= 4) {
 						pts += 4; // 4 lines
-						lastevent[playerID] = EVENT_FOUR;
+						lastevent[playerID] = LineClearEvent.FOUR;
 					}
 					break;
 				}
@@ -1156,7 +1135,7 @@ public class VSBattleMode extends AbstractMode {
 				lastb2b[playerID] = true;
 
 				if (pts > 0) {
-					if (version >= 1 && lastevent[playerID] == EVENT_TSPIN_TRIPLE && !engine.useAllSpinBonus) {
+					if (version >= 1 && lastevent[playerID] == LineClearEvent.TSPIN_TRIPLE && !engine.useAllSpinBonus) {
 						ptsB2B += 2;
 					} else {
 						ptsB2B += 1;
@@ -1193,15 +1172,6 @@ public class VSBattleMode extends AbstractMode {
 			pts += engine.field.getHowManyGemClears();
 
 			lastpiece[playerID] = engine.nowPieceObject.id;
-
-			/*
-			 * if(pts > 0) { garbageSent[playerID] += pts;
-			 *
-			 * if(garbage[playerID] > 0) { // Offset garbage[playerID] -= pts;
-			 * if(garbage[playerID] < 0) { // Ojama return garbage[enemyID] +=
-			 * Math.abs(garbage[playerID]); garbage[playerID] = 0; } } else { // Attack
-			 * garbage[enemyID] += pts; } }
-			 */
 
 			// Attack lines count
 			garbageSent[playerID] += pts;

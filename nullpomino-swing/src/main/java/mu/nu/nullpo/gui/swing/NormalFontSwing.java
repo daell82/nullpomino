@@ -39,7 +39,6 @@ import mu.nu.nullpo.util.Colors;
 @UtilityClass
 public class NormalFontSwing {
 
-
 	/** To draw */
 	public static Graphics2D graphics = null;
 
@@ -63,7 +62,7 @@ public class NormalFontSwing {
 		for (int i = 0; i < str.length(); i++) {
 			char stringChar = str.charAt(i);
 
-			if (stringChar =='\n') {
+			if (stringChar == '\n') {
 				// New line (\n)
 				dy = (int) (dy + 16 * scale);
 				dx = x;
@@ -71,8 +70,8 @@ public class NormalFontSwing {
 			if (scale == 0.5f) {
 				int sx = (stringChar - 32) % 32 * 8;
 				int sy = (stringChar - 32) / 32 * 8 + color * 24;
-				graphics.drawImage(ResourceHolderSwing.getInstance().getImgFontSmall(), dx, dy, dx + 8, dy + 8, sx, sy, sx + 8, sy + 8,
-						null);
+				graphics.drawImage(ResourceHolderSwing.getInstance().getImgFontSmall(), dx, dy, dx + 8, dy + 8, sx, sy,
+						sx + 8, sy + 8, null);
 				dx = dx + 8;
 			} else {
 				int sx = (stringChar - 32) % 32 * 16;
@@ -93,108 +92,20 @@ public class NormalFontSwing {
 	 * @param fontColor Letter color
 	 */
 	public static void printFont(int fontX, int fontY, String fontStr, int fontColor) {
-		printFont(fontX, fontY, fontStr, fontColor, 1.0f);
+		printFont(fontX, fontY, fontStr, fontColor, 1.0F);
 	}
 
 	/**
-	 * Draws the string (Character color is white)
+	 * Draws the given text at the specified coordinates. If the condition evaluates
+	 * to {@code true} the font color will be set to red, white color ill be used
+	 * otherwise
 	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
+	 * @param x         X-coordinate
+	 * @param y         Y-coordinate
+	 * @param text      message to write
+	 * @param condition Conditional expression (red color if true, with otherwise)
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr) {
-		printFont(fontX, fontY, fontStr, Colors.FONT_WHITE);
-	}
-
-	/**
-	 * flagThefalseIf it&#39;s the casefontColorTrue color, trueIf it&#39;s the
-	 * casefontColorTrue colorDraws the string in
-	 *
-	 * @param fontX          X-coordinate
-	 * @param fontY          Y-coordinate
-	 * @param fontStr        String
-	 * @param flag           Conditional expression
-	 * @param fontColorFalse flagThefalseText color in the case of
-	 * @param fontColorTrue  flagThetrueText color in the case of
-	 */
-	private static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
-			int fontColorTrue) {
-		if (!flag) {
-			printFont(fontX, fontY, fontStr, fontColorFalse);
-		} else {
-			printFont(fontX, fontY, fontStr, fontColorTrue);
-		}
-	}
-
-	/**
-	 * flagThefalseIf I were white, trueDraws the string in red if I was
-	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 * @param flag    Conditional expression
-	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag) {
-		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED);
-	}
-
-	/**
-	 * flagThefalseIf it&#39;s the casefontColorTrue color, trueIf it&#39;s the
-	 * casefontColorTrue colorDraws the string in (You can specify the
-	 * magnification)
-	 *
-	 * @param fontX          X-coordinate
-	 * @param fontY          Y-coordinate
-	 * @param fontStr        String
-	 * @param flag           Conditional expression
-	 * @param fontColorFalse flagThefalseText color in the case of
-	 * @param fontColorTrue  flagThetrueText color in the case of
-	 * @param scale          Enlargement factor
-	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
-			int fontColorTrue, float scale) {
-		if (!flag) {
-			printFont(fontX, fontY, fontStr, fontColorFalse, scale);
-		} else {
-			printFont(fontX, fontY, fontStr, fontColorTrue, scale);
-		}
-	}
-
-	/**
-	 * flagThefalseIf I were white, trueDraws the string in red if I was (You can
-	 * specify the magnification)
-	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 * @param flag    Conditional expression
-	 * @param scale   Enlargement factor
-	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag, float scale) {
-		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED, scale);
-	}
-
-	/**
-	 * Draws the string (16x16Grid units)
-	 *
-	 * @param fontX     X-coordinate
-	 * @param fontY     Y-coordinate
-	 * @param fontStr   String
-	 * @param fontColor Letter color
-	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr, int fontColor) {
-		printFont(fontX * 16, fontY * 16, fontStr, fontColor);
-	}
-
-	/**
-	 * Draws the string (16x16Color and character of the white grid units)
-	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr) {
-		printFont(fontX * 16, fontY * 16, fontStr, Colors.FONT_WHITE);
+	public static void printFont(int x, int y, String text, boolean condition) {
+		printFont(x, y, text, condition ? Colors.FONT_RED : Colors.FONT_WHITE, 1.0F);
 	}
 }

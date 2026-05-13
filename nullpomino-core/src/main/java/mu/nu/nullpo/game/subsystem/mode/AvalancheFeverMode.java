@@ -52,9 +52,6 @@ public class AvalancheFeverMode extends Avalanche1PDummyMode {
 	/** Names of chain display settings */
 	private static final String[] CHAIN_DISPLAY_NAMES = { "OFF", "YELLOW", "SIZE" };
 
-	/** Number of ranking records */
-	private static final int RANKING_MAX = 10;
-
 	/** Time limit */
 	private static final int TIME_LIMIT = 3600;
 

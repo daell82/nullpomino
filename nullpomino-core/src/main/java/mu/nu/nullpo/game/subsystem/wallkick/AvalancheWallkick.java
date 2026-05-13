@@ -28,7 +28,6 @@
 */
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -37,23 +36,28 @@ import mu.nu.nullpo.game.component.WallkickResult;
  * AvalancheWallkick
  */
 public class AvalancheWallkick implements Wallkick {
+
 	/*
 	 * Wallkick
 	 */
+	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
-			Piece piece, Field field, Controller ctrl) {
+			Piece piece, Field field) {
 		int check = 1;
-		if (piece.big)
+		if (piece.big) {
 			check = 2;
+		}
 
-		if (rtNew == Piece.DIRECTION_LEFT || !piece.checkCollision(x, y, rtNew, field))
+		if (rtNew == Piece.DIRECTION_LEFT || !piece.checkCollision(x, y, rtNew, field)) {
 			return null;
-		if (!piece.checkCollision(x, y - check, rtNew, field))
+		}
+		if (!piece.checkCollision(x, y - check, rtNew, field)) {
 			return new WallkickResult(0, -1 * check, rtNew);
-		else if (rtNew == Piece.DIRECTION_UP && !piece.checkCollision(x - check, y, rtNew, field))
+		} else if (rtNew == Piece.DIRECTION_UP && !piece.checkCollision(x - check, y, rtNew, field)) {
 			return new WallkickResult(-1 * check, 0, rtNew);
-		else if (rtNew == Piece.DIRECTION_DOWN && !piece.checkCollision(x + check, y, rtNew, field))
+		} else if (rtNew == Piece.DIRECTION_DOWN && !piece.checkCollision(x + check, y, rtNew, field)) {
 			return new WallkickResult(check, 0, rtNew);
+		}
 		return null;
 	}
 }

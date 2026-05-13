@@ -65,13 +65,10 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	@Deprecated
 	static final Logger log = Logger.getLogger(LegacyNetVSBattleMode.class);
 
+	// net.omegaboshi.nullpomino.game.subsystem.randomizer
+
 	/** Maximum number of players */
 	private static final int MAX_PLAYERS = 6;
-
-	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0, EVENT_SINGLE = 1, EVENT_DOUBLE = 2, EVENT_TRIPLE = 3, EVENT_FOUR = 4,
-			EVENT_TSPIN_SINGLE_MINI = 5, EVENT_TSPIN_SINGLE = 6, EVENT_TSPIN_DOUBLE = 7, EVENT_TSPIN_TRIPLE = 8,
-			EVENT_TSPIN_DOUBLE_MINI = 9, EVENT_TSPIN_EZ = 10;
 
 	/** Type of attack performed */
 	private static final int ATTACK_CATEGORY_NORMAL = 0, ATTACK_CATEGORY_B2B = 1, ATTACK_CATEGORY_SPIN = 2,
@@ -294,7 +291,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	private int[] scgettime;
 
 	/** Most recent scoring event type */
-	private int[] lastevent;
+	private LineClearEvent[] lastevent;
 
 	/** true if most recent scoring event was B2B */
 	private boolean[] lastb2b;
@@ -564,7 +561,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		playerWinCount = new int[MAX_PLAYERS];
 //		playerTeamsIsTank = new boolean[MAX_PLAYERS];
 		scgettime = new int[MAX_PLAYERS];
-		lastevent = new int[MAX_PLAYERS];
+		lastevent = new LineClearEvent[MAX_PLAYERS];
 		lastb2b = new boolean[MAX_PLAYERS];
 		lastcombo = new int[MAX_PLAYERS];
 		lastpiece = new int[MAX_PLAYERS];
@@ -1302,55 +1299,55 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				mainAttackCategory = ATTACK_CATEGORY_SPIN;
 				if (engine.tspinez) {
 					attackLineIndex = LINE_ATTACK_INDEX_EZ_T;
-					lastevent[playerID] = EVENT_TSPIN_EZ;
+					lastevent[playerID] = LineClearEvent.TSPIN_EZ;
 				}
 				// T-Spin 1 line
 				else if (lines == 1) {
 					if (engine.tspinmini) {
 						attackLineIndex = LINE_ATTACK_INDEX_TMINI;
-						lastevent[playerID] = EVENT_TSPIN_SINGLE_MINI;
+						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE_MINI;
 					} else {
 						attackLineIndex = LINE_ATTACK_INDEX_TSINGLE;
-						lastevent[playerID] = EVENT_TSPIN_SINGLE;
+						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE;
 					}
 				}
 				// T-Spin 2 lines
 				else if (lines == 2) {
 					if (engine.tspinmini && engine.useAllSpinBonus) {
 						attackLineIndex = LINE_ATTACK_INDEX_TMINI_D;
-						lastevent[playerID] = EVENT_TSPIN_DOUBLE_MINI;
+						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE_MINI;
 					} else {
 						attackLineIndex = LINE_ATTACK_INDEX_TDOUBLE;
-						lastevent[playerID] = EVENT_TSPIN_DOUBLE;
+						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE;
 					}
 				}
 				// T-Spin 3 lines
 				else if (lines >= 3) {
 					attackLineIndex = LINE_ATTACK_INDEX_TTRIPLE;
-					lastevent[playerID] = EVENT_TSPIN_TRIPLE;
+					lastevent[playerID] = LineClearEvent.TSPIN_TRIPLE;
 				}
 			} else {
 				switch (lines) {
 				case 1:
 					// 1Column
 					attackLineIndex = LINE_ATTACK_INDEX_SINGLE;
-					lastevent[playerID] = EVENT_SINGLE;
+					lastevent[playerID] = LineClearEvent.SINGLE;
 					break;
 				case 2:
 					// 2Column
 					attackLineIndex = LINE_ATTACK_INDEX_DOUBLE;
-					lastevent[playerID] = EVENT_DOUBLE;
+					lastevent[playerID] = LineClearEvent.DOUBLE;
 					break;
 				case 3:
 					// 3Column
 					attackLineIndex = LINE_ATTACK_INDEX_TRIPLE;
-					lastevent[playerID] = EVENT_TRIPLE;
+					lastevent[playerID] = LineClearEvent.TRIPLE;
 					break;
 				default:
 					if (lines >= 4) {
 						// 4 lines
 						attackLineIndex = LINE_ATTACK_INDEX_FOUR;
-						lastevent[playerID] = EVENT_FOUR;
+						lastevent[playerID] = LineClearEvent.FOUR;
 					}
 					break;
 				}
@@ -1710,8 +1707,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		// Number of players
 		if (playerID == getPlayers() - 1 && netLobby != null && netLobby.netPlayerClient != null
-				&& netLobby.netPlayerClient.isConnected()
-				&& (!owner.engines[1].isVisible || owner.engines[1].displaySize == DisplaySize.SMALL || !isNetGameActive)) {
+				&& netLobby.netPlayerClient.isConnected() && (!owner.engines[1].isVisible
+						|| owner.engines[1].displaySize == DisplaySize.SMALL || !isNetGameActive)) {
 			int x = owner.renderer.getNextDisplayType() == 2 ? 544 : 503;
 			if (owner.renderer.getNextDisplayType() == 2 && numMaxPlayers == 2) {
 				x = 321;
@@ -1808,7 +1805,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 		// Practice mode
 		if (playerID == 0 && (isPractice || numNowPlayers == 1) && isPracticeExitAllowed) {
-			if (lastevent[playerID] == EVENT_NONE || scgettime[playerID] >= 120) {
+			if (lastevent[playerID] == LineClearEvent.NONE || scgettime[playerID] >= 120) {
 				renderer.drawMenuFont(engine, 0, 0, 21,
 						"F(" + renderer.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
 						Colors.FONT_PURPLE);
@@ -1844,68 +1841,42 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		}
 
 		// Line clear event
-		if (lastevent[playerID] != EVENT_NONE && scgettime[playerID] < 120) {
-			String strPieceName = Piece.getPieceName(lastpiece[playerID]);
-
+		if (lastevent[playerID] != LineClearEvent.NONE && scgettime[playerID] < 120) {
+			String piece = Piece.getPieceName(lastpiece[playerID]);
+			var color = lastb2b[playerID] ? Colors.FONT_RED : Colors.FONT_ORANGE;
 			if (engine.displaySize != DisplaySize.SMALL) {
 				switch (lastevent[playerID]) {
-				case EVENT_SINGLE:
+				case LineClearEvent.SINGLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
-				case EVENT_DOUBLE:
+				case LineClearEvent.DOUBLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
-				case EVENT_TRIPLE:
+				case LineClearEvent.TRIPLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
-				case EVENT_FOUR:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.FOUR:
+					renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", color);
 					break;
-				case EVENT_TSPIN_SINGLE_MINI:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_SINGLE_MINI:
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-S", color);
 					break;
-				case EVENT_TSPIN_SINGLE:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_SINGLE:
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-SINGLE", color);
 					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_DOUBLE_MINI:
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-D", color);
 					break;
-				case EVENT_TSPIN_DOUBLE:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_DOUBLE:
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-DOUBLE", color);
 					break;
-				case EVENT_TSPIN_TRIPLE:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_TRIPLE:
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-TRIPLE", color);
 					break;
-				case EVENT_TSPIN_EZ:
-					if (lastb2b[playerID]) {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
-					}
+				case LineClearEvent.TSPIN_EZ:
+					renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + piece, color);
+					break;
+				default:
 					break;
 				}
 
@@ -1919,19 +1890,18 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				if (useFractionalGarbage && garbage[playerID] > 0) {
 					x2 = 0;
 				}
-
 				switch (lastevent[playerID]) {
-				case EVENT_SINGLE:
+				case LineClearEvent.SINGLE:
 					renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", Colors.FONT_DARKBLUE,
 							0.5f);
 					break;
-				case EVENT_DOUBLE:
+				case LineClearEvent.DOUBLE:
 					renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "DOUBLE", Colors.FONT_BLUE, 0.5f);
 					break;
-				case EVENT_TRIPLE:
+				case LineClearEvent.TRIPLE:
 					renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "TRIPLE", Colors.FONT_GREEN, 0.5f);
 					break;
-				case EVENT_FOUR:
+				case LineClearEvent.FOUR:
 					if (lastb2b[playerID]) {
 						renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "FOUR", Colors.FONT_RED, 0.5f);
 					} else {
@@ -1939,59 +1909,25 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 								0.5f);
 					}
 					break;
-				case EVENT_TSPIN_SINGLE_MINI:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S",
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-S",
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_SINGLE_MINI:
+					renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, piece + "-MINI-S", color, 0.5f);
 					break;
-				case EVENT_TSPIN_SINGLE:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE",
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-SINGLE",
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_SINGLE:
+					renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, piece + "-SINGLE", color, 0.5f);
 					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D",
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-MINI-D",
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_DOUBLE_MINI:
+					renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, piece + "-MINI-D", color, 0.5f);
 					break;
-				case EVENT_TSPIN_DOUBLE:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE",
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-DOUBLE",
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_DOUBLE:
+					renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, piece + "-DOUBLE", color, 0.5f);
 					break;
-				case EVENT_TSPIN_TRIPLE:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE",
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, strPieceName + "-TRIPLE",
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_TRIPLE:
+					renderer.drawDirectFont(engine, playerID, x + 4 + x2, y + 168, piece + "-TRIPLE", color, 0.5f);
 					break;
-				case EVENT_TSPIN_EZ:
-					if (lastb2b[playerID]) {
-						renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName,
-								Colors.FONT_RED, 0.5f);
-					} else {
-						renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + strPieceName,
-								Colors.FONT_ORANGE, 0.5f);
-					}
+				case LineClearEvent.TSPIN_EZ:
+					renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, "EZ-" + piece, color, 0.5f);
+					break;
+				default:
 					break;
 				}
 
@@ -2190,8 +2126,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			status0 = engine.field.getHeight() + 1 + 180;
 		}
 
-		if (status0 >= engine.field.getHeight() + 1 + 180 && !isNetGameActive
-				&& isPlayerResultReceived[playerID]) {
+		if (status0 >= engine.field.getHeight() + 1 + 180 && !isNetGameActive && isPlayerResultReceived[playerID]) {
 			if (engine.field != null) {
 				engine.field.reset();
 			}
@@ -2717,7 +2652,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					// int pieceBottomY = Integer.parseInt(message[8]);
 					int pieceColor = Integer.parseInt(message[9]);
 					int pieceSkin = Integer.parseInt(message[10]);
-					boolean pieceBig = message.length > 11 ? Boolean.parseBoolean(message[11]) : false;
+					boolean pieceBig = message.length > 11 && Boolean.parseBoolean(message[11]);
 
 					owner.engines[playerID].nowPieceObject = new Piece(id);
 					owner.engines[playerID].nowPieceObject.direction = pieceDir;
@@ -2777,7 +2712,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					sumPts += pts[i];
 				}
 
-				lastevent[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 5]);
+				lastevent[playerID] = LineClearEvent.values()[Integer.parseInt(message[ATTACK_CATEGORIES + 5])];
 				lastb2b[playerID] = Boolean.parseBoolean(message[ATTACK_CATEGORIES + 6]);
 				lastcombo[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 7]);
 				garbage[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 8]);

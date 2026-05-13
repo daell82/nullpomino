@@ -36,6 +36,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * MARATHON Mode
@@ -67,19 +68,11 @@ public class MarathonMode extends NetDummyMode {
 	/** Number of game types */
 	private static final int GAMETYPE_MAX = 3;
 
-	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0, EVENT_SINGLE = 1, EVENT_DOUBLE = 2, EVENT_TRIPLE = 3, EVENT_FOUR = 4,
-			EVENT_TSPIN_ZERO_MINI = 5, EVENT_TSPIN_ZERO = 6, EVENT_TSPIN_SINGLE_MINI = 7, EVENT_TSPIN_SINGLE = 8,
-			EVENT_TSPIN_DOUBLE_MINI = 9, EVENT_TSPIN_DOUBLE = 10, EVENT_TSPIN_TRIPLE = 11, EVENT_TSPIN_EZ = 12;
-
 	/** Most recent increase in score */
 	private int lastscore;
 
 	/** Time to display the most recent increase in score */
 	private int scgettime;
-
-	/** Most recent scoring event type */
-	private int lastevent;
 
 	/** True if most recent scoring event is a B2B */
 	private boolean lastb2b;
@@ -155,7 +148,7 @@ public class MarathonMode extends NetDummyMode {
 		renderer = engine.owner.renderer;
 		lastscore = 0;
 		scgettime = 0;
-		lastevent = EVENT_NONE;
+		lastevent = LineClearEvent.NONE;
 		lastb2b = false;
 		lastcombo = 0;
 		lastpiece = 0;
@@ -168,7 +161,7 @@ public class MarathonMode extends NetDummyMode {
 
 		netPlayerInit(engine, playerID);
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -215,12 +208,12 @@ public class MarathonMode extends NetDummyMode {
 			netOnUpdateNetPlayRanking(engine, goaltype);
 		}
 		// Menu
-		else if (engine.owner.replayMode == false) {
+		else if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 8, playerID);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
@@ -243,7 +236,6 @@ public class MarathonMode extends NetDummyMode {
 					engine.owner.backgroundStatus.bg = startlevel;
 					break;
 				case 1:
-					// enableTSpin = !enableTSpin;
 					tspinEnableType += change;
 					if (tspinEnableType < 0) {
 						tspinEnableType = 2;
@@ -282,8 +274,7 @@ public class MarathonMode extends NetDummyMode {
 						goaltype = 0;
 					}
 
-					if (startlevel > (tableGameClearLines[goaltype] - 1) / 10
-							&& tableGameClearLines[goaltype] >= 0) {
+					if (startlevel > (tableGameClearLines[goaltype] - 1) / 10 && tableGameClearLines[goaltype] >= 0) {
 						startlevel = (tableGameClearLines[goaltype] - 1) / 10;
 						engine.owner.backgroundStatus.bg = startlevel;
 					}
@@ -301,7 +292,7 @@ public class MarathonMode extends NetDummyMode {
 
 			// Confirm
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 
@@ -362,11 +353,10 @@ public class MarathonMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL",
-					String.valueOf(startlevel + 1), "SPIN BONUS", strTSpinEnable, "EZ SPIN",
-					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
-					"EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ), "B2B", GeneralUtil.getONorOFF(enableB2B),
-					"COMBO", GeneralUtil.getONorOFF(enableCombo), "GOAL",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1), "SPIN BONUS",
+					strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
+					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
+					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo), "GOAL",
 					goaltype == 2 ? "ENDLESS" : tableGameClearLines[goaltype] + " LINES", "BIG",
 					GeneralUtil.getONorOFF(big));
 		}
@@ -429,13 +419,11 @@ public class MarathonMode extends NetDummyMode {
 					Colors.FONT_GREEN);
 		}
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && !big && engine.ai == null) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
-				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE,
-						scale);
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE, scale);
 
 				for (int i = 0; i < RANKING_MAX; i++) {
 					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
@@ -454,7 +442,7 @@ public class MarathonMode extends NetDummyMode {
 			if (lastscore == 0 || scgettime >= 120) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -472,88 +460,80 @@ public class MarathonMode extends NetDummyMode {
 			renderer.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
 			renderer.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
 
-			if (lastevent != EVENT_NONE && scgettime < 120) {
+			if (lastevent != LineClearEvent.NONE && scgettime < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece);
 
 				switch (lastevent) {
-				case EVENT_SINGLE:
+				case LineClearEvent.SINGLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
-				case EVENT_DOUBLE:
+				case LineClearEvent.DOUBLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
-				case EVENT_TRIPLE:
+				case LineClearEvent.TRIPLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
-				case EVENT_FOUR:
+				case LineClearEvent.FOUR:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_ZERO_MINI:
+				case LineClearEvent.TSPIN_ZERO_MINI:
 					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PURPLE);
 					break;
-				case EVENT_TSPIN_ZERO:
+				case LineClearEvent.TSPIN_ZERO:
 					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PINK);
 					break;
-				case EVENT_TSPIN_SINGLE_MINI:
+				case LineClearEvent.TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_SINGLE:
+				case LineClearEvent.TSPIN_SINGLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
+				case LineClearEvent.TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_DOUBLE:
+				case LineClearEvent.TSPIN_DOUBLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_TRIPLE:
+				case LineClearEvent.TSPIN_TRIPLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_EZ:
+				case LineClearEvent.TSPIN_EZ:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
+					break;
+				default:
 					break;
 				}
 
-				if (lastcombo >= 2 && lastevent != EVENT_TSPIN_ZERO_MINI && lastevent != EVENT_TSPIN_ZERO) {
+				if (lastcombo >= 2 && lastevent != LineClearEvent.TSPIN_ZERO_MINI
+						&& lastevent != LineClearEvent.TSPIN_ZERO) {
 					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			}
@@ -591,10 +571,10 @@ public class MarathonMode extends NetDummyMode {
 			if (lines == 0 && !engine.tspinez) {
 				if (engine.tspinmini) {
 					pts += 100 * (engine.statistics.level + 1);
-					lastevent = EVENT_TSPIN_ZERO_MINI;
+					lastevent = LineClearEvent.TSPIN_ZERO_MINI;
 				} else {
 					pts += 400 * (engine.statistics.level + 1);
-					lastevent = EVENT_TSPIN_ZERO;
+					lastevent = LineClearEvent.TSPIN_ZERO;
 				}
 			}
 			// Immobile EZ Spin
@@ -604,7 +584,7 @@ public class MarathonMode extends NetDummyMode {
 				} else {
 					pts += 120 * (engine.statistics.level + 1);
 				}
-				lastevent = EVENT_TSPIN_EZ;
+				lastevent = LineClearEvent.TSPIN_EZ;
 			}
 			// T-Spin 1 line
 			else if (lines == 1) {
@@ -614,14 +594,14 @@ public class MarathonMode extends NetDummyMode {
 					} else {
 						pts += 200 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_SINGLE_MINI;
+					lastevent = LineClearEvent.TSPIN_SINGLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1200 * (engine.statistics.level + 1);
 					} else {
 						pts += 800 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_SINGLE;
+					lastevent = LineClearEvent.TSPIN_SINGLE;
 				}
 			}
 			// T-Spin 2 lines
@@ -632,14 +612,14 @@ public class MarathonMode extends NetDummyMode {
 					} else {
 						pts += 400 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE_MINI;
+					lastevent = LineClearEvent.TSPIN_DOUBLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1800 * (engine.statistics.level + 1);
 					} else {
 						pts += 1200 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE;
+					lastevent = LineClearEvent.TSPIN_DOUBLE;
 				}
 			}
 			// T-Spin 3 lines
@@ -649,21 +629,21 @@ public class MarathonMode extends NetDummyMode {
 				} else {
 					pts += 1600 * (engine.statistics.level + 1);
 				}
-				lastevent = EVENT_TSPIN_TRIPLE;
+				lastevent = LineClearEvent.TSPIN_TRIPLE;
 			}
 		} else {
 			switch (lines) {
 			case 1:
 				pts += 100 * (engine.statistics.level + 1); // 1Column
-				lastevent = EVENT_SINGLE;
+				lastevent = LineClearEvent.SINGLE;
 				break;
 			case 2:
 				pts += 300 * (engine.statistics.level + 1); // 2Column
-				lastevent = EVENT_DOUBLE;
+				lastevent = LineClearEvent.DOUBLE;
 				break;
 			case 3:
 				pts += 500 * (engine.statistics.level + 1); // 3Column
-				lastevent = EVENT_TRIPLE;
+				lastevent = LineClearEvent.TRIPLE;
 				break;
 			default:
 				if (lines >= 4) {
@@ -673,7 +653,7 @@ public class MarathonMode extends NetDummyMode {
 					} else {
 						pts += 800 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_FOUR;
+					lastevent = LineClearEvent.FOUR;
 				}
 				break;
 			}
@@ -689,7 +669,7 @@ public class MarathonMode extends NetDummyMode {
 
 		// All clear
 		if (lines >= 1 && engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 			pts += 1800 * (engine.statistics.level + 1);
 		}
 
@@ -713,8 +693,7 @@ public class MarathonMode extends NetDummyMode {
 			}
 
 			if (engine.statistics.lines >= tableBGMChange[bgmlv]
-					&& (engine.statistics.lines < tableGameClearLines[goaltype]
-							|| tableGameClearLines[goaltype] < 0)) {
+					&& (engine.statistics.lines < tableGameClearLines[goaltype] || tableGameClearLines[goaltype] < 0)) {
 				bgmlv++;
 				owner.bgmStatus.bgm = bgmlv;
 				owner.bgmStatus.fadesw = false;
@@ -747,7 +726,7 @@ public class MarathonMode extends NetDummyMode {
 			owner.backgroundStatus.fadebg = engine.statistics.level;
 
 			setSpeed(engine);
-			engine.playSE("levelup");
+			engine.playSE(Sounds.LEVEL_UP);
 		}
 	}
 
@@ -774,8 +753,8 @@ public class MarathonMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
-				Statistic.LEVEL, Statistic.TIME, Statistic.SPL, Statistic.LPM);
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES, Statistic.LEVEL,
+				Statistic.TIME, Statistic.SPL, Statistic.LPM);
 		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
 		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
@@ -799,12 +778,12 @@ public class MarathonMode extends NetDummyMode {
 		saveSetting(prop);
 
 		// NET: Save name
-		if (netPlayerName != null && netPlayerName.length() > 0) {
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
 			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
 		}
 
 		// Update rankings
-		if (owner.replayMode == false && big == false && engine.ai == null) {
+		if (!owner.replayMode && !big && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, goaltype);
 
 			if (rankingRank != -1) {
@@ -924,14 +903,14 @@ public class MarathonMode extends NetDummyMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (sc > rankingScore[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
 				return i;
-			} else if (sc == rankingScore[type][i] && li == rankingLines[type][i]
-					&& time < rankingTime[type][i]) {
+			}
+			if (sc == rankingScore[type][i] && li == rankingLines[type][i] && time < rankingTime[type][i]) {
 				return i;
 			}
 		}
-
 		return -1;
 	}
 
@@ -950,7 +929,8 @@ public class MarathonMode extends NetDummyMode {
 		msg += engine.statistics.time + "\t" + engine.statistics.level + "\t";
 		msg += engine.statistics.lpm + "\t" + engine.statistics.spl + "\t" + goaltype + "\t";
 		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece
+		msg += lastscore + "\t" + scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t"
+				+ lastpiece
 				+ "\t";
 		msg += bg + "\n";
 		netLobby.netPlayerClient.send(msg);
@@ -973,7 +953,7 @@ public class MarathonMode extends NetDummyMode {
 		engine.timerActive = Boolean.parseBoolean(message[13]);
 		lastscore = Integer.parseInt(message[14]);
 		scgettime = Integer.parseInt(message[15]);
-		lastevent = Integer.parseInt(message[16]);
+		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
 		lastb2b = Boolean.parseBoolean(message[17]);
 		lastcombo = Integer.parseInt(message[18]);
 		lastpiece = Integer.parseInt(message[19]);

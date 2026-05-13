@@ -37,6 +37,7 @@ import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * AVALANCHE VS BOMB BATTLE mode (Release Candidate 1)
@@ -127,7 +128,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 			int change = updateCursor(engine, 33);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -431,7 +432,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 32) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID], "bombbattle");
@@ -503,55 +504,66 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY", String.valueOf(engine.speed.gravity),
-						"G-MAX", String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are),
-						"ARE LINE", String.valueOf(engine.speed.areLine), "LINE DELAY",
-						String.valueOf(engine.speed.lineDelay), "LOCK DELAY", String.valueOf(engine.speed.lockDelay),
-						"DAS", String.valueOf(engine.speed.das), "FALL DELAY", String.valueOf(engine.cascadeDelay),
+				// @formatter:off
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0,
+						"GRAVITY", String.valueOf(engine.speed.gravity),
+						"G-MAX", String.valueOf(engine.speed.denominator),
+						"ARE", String.valueOf(engine.speed.are),
+						"ARE LINE", String.valueOf(engine.speed.areLine),
+						"LINE DELAY", String.valueOf(engine.speed.lineDelay),
+						"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+						"DAS", String.valueOf(engine.speed.das),
+						"FALL DELAY", String.valueOf(engine.cascadeDelay),
 						"CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
-
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 17) {
-				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "COUNTER",
-						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
-						String.valueOf(maxAttack[playerID]), "COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
-						String.valueOf(rensaShibari[playerID]), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
-						"OJAMA RATE", String.valueOf(ojamaRate[playerID]), "HURRYUP",
-						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "HARD OJAMA",
-						String.valueOf(ojamaHard[playerID]));
-
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9,
+						"COUNTER", OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]],
+						"MAX ATTACK", String.valueOf(maxAttack[playerID]),
+						"COLORS", String.valueOf(numColors[playerID]),
+						"MIN CHAIN", String.valueOf(rensaShibari[playerID]),
+						"CLEAR SIZE", String.valueOf(engine.colorClearSize),
+						"OJAMA RATE", String.valueOf(ojamaRate[playerID]),
+						"HURRYUP", hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC",
+						"HARD OJAMA", String.valueOf(ojamaHard[playerID]));
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/4", Colors.FONT_YELLOW);
 			} else if (menuCursor < 26) {
 				initMenu(Colors.FONT_CYAN, 17);
-				drawMenu(engine, playerID, "X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY", "X SHOW",
-						GeneralUtil.getONorOFF(dangerColumnShowX[playerID]), "COUNTDOWN",
-						String.valueOf(ojamaCountdown[playerID]), "ZENKESHI",
-						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
+				drawMenu(engine, playerID,
+						"X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
+						"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]),
+						"COUNTDOWN", String.valueOf(ojamaCountdown[playerID]),
+						"ZENKESHI", ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
 				menuColor = zenKeshiType[playerID] == ZENKESHI_MODE_FEVER ? Colors.FONT_PURPLE : Colors.FONT_WHITE;
-				drawMenu(engine, playerID, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
+				drawMenu(engine, playerID,
+						"F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
-						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
-						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
+				drawMenu(engine, playerID,
+						"OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]],
+						"SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
+						"FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
 				drawMenu(engine, playerID, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/4", Colors.FONT_YELLOW);
 			} else {
 				initMenu(Colors.FONT_PINK, 26);
-				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
-						String.valueOf(mapSet[playerID]), "MAP NO.",
-						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
+				drawMenu(engine, playerID,
+						"USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
+						"MAP SET", String.valueOf(mapSet[playerID]),
+						"MAP NO.", mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1),
 						"BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno), "SE",
-						GeneralUtil.getONorOFF(enableSE[playerID]));
+				drawMenu(engine, playerID,
+						"BGM", String.valueOf(bgmno),
+						"SE", GeneralUtil.getONorOFF(enableSE[playerID]));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
-						String.valueOf(presetNumber[playerID]));
-
+				drawMenu(engine, playerID,
+						"LOAD", String.valueOf(presetNumber[playerID]),
+						"SAVE",	String.valueOf(presetNumber[playerID]));
 				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 4/4", Colors.FONT_YELLOW);
 			}
+			// @formatter:on
 		} else {
 			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}

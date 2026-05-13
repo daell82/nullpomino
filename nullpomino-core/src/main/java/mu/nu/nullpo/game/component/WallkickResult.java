@@ -28,24 +28,19 @@
 */
 package mu.nu.nullpo.game.component;
 
-import java.io.Serializable;
-
 /**
- * WallkickThe resulting class
+ * The resulting Wallkick
  *
  * @param offsetX   X-coordinateCorrection amount
  * @param offsetY   Y-coordinateCorrection amount
  * @param direction rotationOf Tetoramino afterDirection
  */
-public record WallkickResult(int offsetX, int offsetY, int direction) implements Serializable {
-
-	/** Serial version ID */
-	private static final long serialVersionUID = -7985029240622355609L;
+public record WallkickResult(int offsetX, int offsetY, int direction) {
 
 	/**
-	 * TopDirectionToWallkickDetermine whether
+	 * Determine whether piece moves upwards after wallkick
 	 *
-	 * @return TopDirectionToWallkickWhen (offsetY < 0To), in which case thetrue
+	 * @return whether piece moves upwards after wallkick (offsetY < 0)
 	 */
 	public boolean isUpward() {
 		return offsetY < 0;

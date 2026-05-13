@@ -47,46 +47,53 @@ import mu.nu.nullpo.util.GeneralUtil;
  */
 public abstract class AvalancheVSDummyMode extends AbstractMode {
 	/** Enabled piece types */
-	public static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
+	protected static final int[] PIECE_ENABLE = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 };
 
 	/** Block colors */
-	public static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
+	protected static final int[] BLOCK_COLORS = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN,
 			Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_PURPLE };
 
 	/** Fever map files list */
-	public static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Compendium" };
+	protected static final String[] FEVER_MAPS = { "Fever", "15th", "15thDS", "7", "Compendium" };
 
 	/** Chain multipliers */
-	public static final int[] CHAIN_POWERS = { 4, 12, 24, 33, 50, 101, 169, 254, 341, 428, 538, 648, 763, 876, 990, 999 // Arle
+	protected static final int[] CHAIN_POWERS = { 4, 12, 24, 33, 50, 101, 169, 254, 341, 428, 538, 648, 763, 876, 990,
+			999 // Arle
 	};
 
 	/** Number of players */
-	public static final int MAX_PLAYERS = 2;
+	protected static final int MAX_PLAYERS = 2;
 
 	/** Ojama counter setting constants */
-	public static final int OJAMA_COUNTER_OFF = 0, OJAMA_COUNTER_ON = 1, OJAMA_COUNTER_FEVER = 2;
+	protected static final int OJAMA_COUNTER_OFF = 0;
+	protected static final int OJAMA_COUNTER_ON = 1;
+	protected static final int OJAMA_COUNTER_FEVER = 2;
 
 	/** Names of ojama counter settings */
-	public static final String[] OJAMA_COUNTER_STRING = { "OFF", "ON", "FEVER" };
+	protected static final String[] OJAMA_COUNTER_STRING = { "OFF", "ON", "FEVER" };
 
 	/** Zenkeshi setting constants */
-	public static final int ZENKESHI_MODE_OFF = 0, ZENKESHI_MODE_ON = 1, ZENKESHI_MODE_FEVER = 2;
+	protected static final int ZENKESHI_MODE_OFF = 0;
+	protected static final int ZENKESHI_MODE_ON = 1;
+	protected static final int ZENKESHI_MODE_FEVER = 2;
 
 	/** Names of zenkeshi settings */
-	public static final String[] ZENKESHI_TYPE_NAMES = { "OFF", "ON", "FEVER" };
+	protected static final String[] ZENKESHI_TYPE_NAMES = { "OFF", "ON", "FEVER" };
 
 	/** Names of outline settings */
-	public static final String[] OUTLINE_TYPE_NAMES = { "NORMAL", "COLOR", "NONE" };
+	protected static final String[] OUTLINE_TYPE_NAMES = { "NORMAL", "COLOR", "NONE" };
 
 	/** Names of chain display settings */
-	public static final String[] CHAIN_DISPLAY_NAMES = { "OFF", "YELLOW", "PLAYER", "SIZE" };
+	protected static final String[] CHAIN_DISPLAY_NAMES = { "OFF", "YELLOW", "PLAYER", "SIZE" };
 
 	/** Constants for chain display settings */
-	public static final int CHAIN_DISPLAY_NONE = 0, CHAIN_DISPLAY_YELLOW = 1, CHAIN_DISPLAY_PLAYER = 2,
-			CHAIN_DISPLAY_SIZE = 3;
+	protected static final int CHAIN_DISPLAY_NONE = 0;
+	protected static final int CHAIN_DISPLAY_YELLOW = 1;
+	protected static final int CHAIN_DISPLAY_PLAYER = 2;
+	protected static final int CHAIN_DISPLAY_SIZE = 3;
 
 	/** Each player's frame color */
-	public static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
+	protected static final int[] PLAYER_COLOR_FRAME = { Colors.FRAME_COLOR_RED, Colors.FRAME_COLOR_BLUE };
 
 	/** Rule settings for countering ojama not yet dropped */
 	protected int[] ojamaCounterMode;

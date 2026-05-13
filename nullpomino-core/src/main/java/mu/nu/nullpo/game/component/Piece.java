@@ -802,16 +802,12 @@ public class Piece implements Serializable {
 			int x2 = x + dataX[rotation][i];
 			int y2 = y + dataY[rotation][i];
 
-			if (x2 >= field.getWidth()) {
+			if (x2 >= field.getWidth() || y2 >= field.getHeight()) {
 				return true;
 			}
-			if (y2 >= field.getHeight()) {
-				return true;
-			}
-			if (field.getCoordAttribute(x2, y2) == Field.COORD_WALL) {
-				return true;
-			}
-			if (field.getCoordAttribute(x2, y2) != Field.COORD_VANISH
+			var coord = field.getCoordAttribute(x2, y2);
+			if (coord == Field.COORD_WALL
+					|| coord != Field.COORD_VANISH
 					&& field.getBlockColor(x2, y2) != Colors.BLOCK_COLOR_NONE) {
 				return true;
 			}

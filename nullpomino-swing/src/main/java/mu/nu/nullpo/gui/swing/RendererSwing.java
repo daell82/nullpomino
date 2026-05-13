@@ -174,6 +174,10 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		int x2 = getScoreDisplayPositionX(engine, playerID) + x * 16;
 		int y2 = getScoreDisplayPositionY(engine, playerID) + y * 16;
 		graphics.setColor(SwingColors.getFontColor(color));
+		var font = resourceManager.getTtfFont();
+		if (font != null) {
+			graphics.setFont(font);
+		}
 		graphics.drawString(str, x2, y2);
 		graphics.setColor(Color.white);
 	}

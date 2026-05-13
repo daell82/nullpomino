@@ -354,7 +354,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		// ** Password textbox
 		passfldPassword = new JPasswordField(30);
 		String strPassword = propConfig.getProperty("login.password", "");
-		if (strPassword.length() > 0) {
+		if (!strPassword.isEmpty()) {
 			passfldPassword.setText(NetUtil.decompressString(strPassword));
 		}
 		passfldPassword.setComponentPopupMenu(new TextComponentPopupMenu(passfldPassword));
@@ -452,6 +452,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		tableUsers.getTableHeader().setReorderingAllowed(false);
 		tableUsers.setComponentPopupMenu(new UserPopupMenu(tableUsers));
 		tableUsers.addMouseListener(new MouseAdapter() {
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() >= 2) {
@@ -701,7 +702,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	 * @param fullCommandLine Command line (raw String)
 	 */
 	private void executeConsoleCommand(String[] commands, String fullCommandLine) {
-		if (commands.length == 0 || fullCommandLine.length() == 0) {
+		if (commands.length == 0 || fullCommandLine.isEmpty()) {
 			return;
 		}
 
@@ -764,7 +765,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		// announce
 		else if (commands[0].equalsIgnoreCase("announce")) {
 			String strTemp = GeneralUtil.stringCombine(commands, " ", 1);
-			if (strTemp.length() > 0) {
+			if (!strTemp.isEmpty()) {
 				sendCommand("announce\t" + NetUtil.urlEncode(strTemp));
 				addConsoleLog(getUIText("Console_Announce") + strTemp);
 			}
@@ -838,7 +839,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		// playerdelete/pdel
 		else if (commands[0].equalsIgnoreCase("playerdelete") || commands[0].equalsIgnoreCase("pdel")) {
 			String strTemp = GeneralUtil.stringCombine(commands, " ", 1);
-			if (strTemp.length() > 0) {
+			if (!strTemp.isEmpty()) {
 				sendCommand("playerdelete\t" + strTemp);
 			} else {
 				addConsoleLog(getUIText("Console_PlayerDelete_NoParams"));
@@ -885,11 +886,11 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 
 			for (int column = 0; column < table.getColumnCount(); column++) {
 				Object selectedObject = table.getValueAt(row, column);
-				if (selectedObject instanceof String) {
+				if (selectedObject instanceof String value) {
 					if (column == 0) {
-						strCopy += (String) selectedObject;
+						strCopy += value;
 					} else {
-						strCopy += "," + (String) selectedObject;
+						strCopy += "," + value;
 					}
 				}
 			}
@@ -918,7 +919,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	 * @param showMessage true if display a confirm dialog
 	 */
 	private void requestBanFromGUI(String strIP, int banLength, boolean showMessage) {
-		if (strIP == null || strIP.length() == 0) {
+		if (strIP == null || strIP.isEmpty()) {
 			return;
 		}
 
@@ -1022,7 +1023,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	public void actionPerformed(ActionEvent e) {
 		// Login
 		if (e.getActionCommand() == "Login_Login") {
-			if (txtfldUsername.getText().length() > 0 && passfldPassword.getPassword().length > 0) {
+			if (!txtfldUsername.getText().isEmpty() && passfldPassword.getPassword().length > 0) {
 				setLoginUIEnabled(false);
 				labelLoginMessage.setForeground(Color.black);
 				labelLoginMessage.setText(getUIText("Login_Message_Connecting"));
@@ -1093,8 +1094,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 
 			if (!clientVersion.isCompatible(serverVersion.major(), serverVersion.minor())) {
 				labelLoginMessage.setForeground(Color.red);
-				labelLoginMessage.setText(
-						String.format(getUIText("Login_Message_VersionError"), clientVersion, serverVersion));
+				labelLoginMessage
+						.setText(String.format(getUIText("Login_Message_VersionError"), clientVersion, serverVersion));
 				isWantedDisconnect = true;
 				logout();
 				return;
@@ -1125,8 +1126,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(strUsername));
 			String b64Password = Base64.getEncoder().encodeToString(ePassword);
 
-			String strLogin = "adminlogin\t" + clientVersion.majorMinor() + "\t" + strUsername + "\t" + b64Password + "\t"
-					+ clientVersion.isDevBuild() + "\n";
+			String strLogin = "adminlogin\t" + clientVersion.majorMinor() + "\t" + strUsername + "\t" + b64Password
+					+ "\t" + clientVersion.isDevBuild() + "\n";
 			log.debug("Send login message:" + strLogin);
 			client.send(strLogin);
 		}
@@ -1151,7 +1152,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			labelLoginMessage.setForeground(Color.red);
 
 			Calendar cStart = GeneralUtil.importCalendarString(message[1]);
-			Calendar cExpire = message.length > 2 && message[2].length() > 0
+			Calendar cExpire = message.length > 2 && !message[2].isEmpty()
 					? GeneralUtil.importCalendarString(message[2])
 					: null;
 
@@ -1266,12 +1267,10 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 		}
 		// Admin command result
-		if (message[0].equals("adminresult")) {
-			if (message.length > 1) {
-				String strAdminResultTemp = NetUtil.decompressString(message[1]);
-				String[] strAdminResultArray = strAdminResultTemp.split("\t");
-				onAdminResultMessage(client, strAdminResultArray);
-			}
+		if (message[0].equals("adminresult") && message.length > 1) {
+			String strAdminResultTemp = NetUtil.decompressString(message[1]);
+			String[] strAdminResultArray = strAdminResultTemp.split("\t");
+			onAdminResultMessage(client, strAdminResultArray);
 		}
 	}
 
@@ -1375,13 +1374,12 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 		}
 		// Ban
-		if (message[0].equals("ban")) {
-			if (message.length > 3) {
-				String strBanLength = getUIText("BanType" + message[2]);
-				addConsoleLog(String.format(getUIText("Console_Ban_Result"), message[1], strBanLength, message[3]),
-						new Color(0, 64, 64));
-			}
+		if (message[0].equals("ban") && message.length > 3) {
+			String strBanLength = getUIText("BanType" + message[2]);
+			addConsoleLog(String.format(getUIText("Console_Ban_Result"), message[1], strBanLength, message[3]),
+					new Color(0, 64, 64));
 		}
+
 		// Ban List
 		if (message[0].equals("banlist")) {
 			if (message.length < 2) {
@@ -1403,38 +1401,32 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 		}
 		// Un-Ban
-		if (message[0].equals("unban")) {
-			if (message.length > 2) {
-				addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message[1], message[2]),
-						new Color(0, 64, 64));
-			}
+		if (message[0].equals("unban") && message.length > 2) {
+			addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message[1], message[2]),
+					new Color(0, 64, 64));
 		}
+
 		// Player Delete
-		if (message[0].equals("playerdelete")) {
-			if (message.length > 1) {
-				addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message[1]),
-						new Color(0, 64, 64));
-			}
+		if (message[0].equals("playerdelete") && message.length > 1) {
+			addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message[1]), new Color(0, 64, 64));
 		}
+
 		// Room Delete (OK)
-		if (message[0].equals("roomdeletesuccess")) {
-			if (message.length > 2) {
-				addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message[1], message[2]),
-						new Color(0, 64, 64));
-			}
+		if (message[0].equals("roomdeletesuccess") && message.length > 2) {
+			addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message[1], message[2]),
+					new Color(0, 64, 64));
 		}
+
 		// Room Delete (NG)
-		if (message[0].equals("roomdeletefail")) {
-			if (message.length > 1) {
-				addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message[1]), new Color(0, 64, 64));
-			}
+		if (message[0].equals("roomdeletefail") && message.length > 1) {
+			addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message[1]), new Color(0, 64, 64));
 		}
+
 		// Diagnostics
-		if (message[0].equals("diag")) {
-			if (message.length > 1) {
-				addConsoleLog(message[1], new Color(0, 64, 64));
-			}
+		if (message[0].equals("diag") && message.length > 1) {
+			addConsoleLog(message[1], new Color(0, 64, 64));
 		}
+
 	}
 
 	/*

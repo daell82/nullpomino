@@ -28,6 +28,7 @@
 */
 package mu.nu.nullpo.gui.swing;
 
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -39,7 +40,7 @@ import javax.imageio.ImageIO;
 
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.play.SoundManager;
+import mu.nu.nullpo.game.event.SoundManager;
 import mu.nu.nullpo.util.Sounds;
 
 /**
@@ -95,6 +96,8 @@ public class ResourceHolderSwing {
 
 	/** In playBackground */
 	private Image[] imgPlayBG;
+
+	private Font ttfFont;
 
 	/** Audio file management */
 	private final SoundManager soundManager = new WaveEngine();
@@ -152,6 +155,14 @@ public class ResourceHolderSwing {
 		imgFieldbg2Small = loadImage(skinDir + "/graphics/fieldbg2_small.png");
 		imgFieldbg2Big = loadImage(skinDir + "/graphics/fieldbg2_big.png");
 
+		try {
+			var loadedFont = Font.createFont(Font.TRUETYPE_FONT, new File(skinDir + "/font/font.ttf"));
+			ttfFont = loadedFont.deriveFont(Font.BOLD, 16f);
+
+		} catch (Exception ioe) {
+			log.error("failed to load TTF font", ioe);
+			ttfFont = null;
+		}
 		if (NullpoMinoSwing.propConfig.getProperty("option.showlineeffect", false)) {
 			loadLineClearEffectImages();
 		}

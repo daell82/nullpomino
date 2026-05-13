@@ -86,33 +86,6 @@ public interface Renderer<T> {
 
 	/**
 	 * [You don't have to override this] Draw String inside the field. If flag is
-	 * false, it will use colorF as font color. If flag is true, it will use colorT
-	 * instead.
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param str      String to draw
-	 * @param flag     Any boolean variable
-	 * @param colorF   Font color when flag is false
-	 * @param colorT   Font color when flag is true
-	 * @deprecated resolve the color in the calling method and use
-	 *             {@link #drawMenuFont(GameEngine, int, int, int, String, int)}
-	 *             instead
-	 */
-	@Deprecated(forRemoval = true)
-	default void drawMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
-			int colorT) {
-		if (!flag) {
-			drawMenuFont(engine, playerID, x, y, str, colorF, 1.0f);
-		} else {
-			drawMenuFont(engine, playerID, x, y, str, colorT, 1.0f);
-		}
-	}
-
-	/**
-	 * [You don't have to override this] Draw String inside the field. If flag is
 	 * false, it will use white font color. If flag is true, it will use red
 	 * instead.
 	 *
@@ -173,30 +146,6 @@ public interface Renderer<T> {
 	 */
 	default void drawTTFMenuFont(GameEngine engine, int playerID, int x, int y, String str) {
 		drawTTFMenuFont(engine, playerID, x, y, str, Colors.FONT_WHITE);
-	}
-
-	/**
-	 * [You don't have to override this] Draw String inside the field by using a TTF
-	 * font. If flag is false, it will use colorF as font color. If flag is true, it
-	 * will use colorT instead.
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param str      String to draw
-	 * @param flag     Any boolean variable
-	 * @param colorF   Font color when flag is false
-	 * @param colorT   Font color when flag is true
-	 */
-	@Deprecated(forRemoval = true)
-	default void drawTTFMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
-			int colorT) {
-		if (!flag) {
-			drawTTFMenuFont(engine, playerID, x, y, str, colorF);
-		} else {
-			drawTTFMenuFont(engine, playerID, x, y, str, colorT);
-		}
 	}
 
 	/**
@@ -274,29 +223,6 @@ public interface Renderer<T> {
 	 */
 	default void drawScoreFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
 		drawScoreFont(engine, playerID, x, y, str, color, 1.0f);
-	}
-
-	/**
-	 * [You don't have to override this] Draw String to score display area. If flag
-	 * is false, it will use colorF as font color. If flag is true, it will use
-	 * colorT instead.
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param str      String to draw
-	 * @param flag     Any boolean variable
-	 * @param colorF   Font color when flag is false
-	 * @param colorT   Font color when flag is true
-	 */
-	default void drawScoreFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
-			int colorT) {
-		if (!flag) {
-			drawScoreFont(engine, playerID, x, y, str, colorF, 1.0f);
-		} else {
-			drawScoreFont(engine, playerID, x, y, str, colorT, 1.0f);
-		}
 	}
 
 	/**

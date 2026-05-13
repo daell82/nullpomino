@@ -39,6 +39,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * PRACTICE Mode
@@ -251,7 +252,7 @@ public class PracticeMode extends AbstractMode {
 		timelimitTimer = 0;
 		engine.framecolor = Colors.FRAME_COLOR_YELLOW;
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			version = CURRENT_VERSION;
 			presetNumber = engine.owner.modeConfig.getProperty("practice.presetNumber", 0);
 			mapNumber = engine.owner.modeConfig.getProperty("practice.mapNumber", 0);
@@ -385,14 +386,14 @@ public class PracticeMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			owner.menuOnly = true;
 
 			// Configuration changes
 			int change = updateCursor(engine, 45);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -488,7 +489,6 @@ public class PracticeMode extends AbstractMode {
 					}
 					break;
 				case 10:
-					// enableTSpin = !enableTSpin;
 					tspinEnableType += change;
 					if (tspinEnableType < 0) {
 						tspinEnableType = 2;
@@ -661,7 +661,7 @@ public class PracticeMode extends AbstractMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				switch (menuCursor) {
 				case 41:
@@ -748,14 +748,14 @@ public class PracticeMode extends AbstractMode {
 	public void renderSetting(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 1, 1, "PRACTICE MODE SETTINGS", Colors.FONT_ORANGE);
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			renderer.drawMenuFont(engine, playerID, 1, 27, "A:START B:EXIT C+<>:FAST CHANGE", Colors.FONT_CYAN);
 		} else {
 			renderer.drawMenuFont(engine, playerID, 1, 27, "F:SKIP", Colors.FONT_RED);
 		}
 
 		if (menuCursor < 23) {
-			if (owner.replayMode == false) {
+			if (!owner.replayMode) {
 				renderer.drawMenuFont(engine, playerID, 1, menuCursor + 3, "b", Colors.FONT_RED);
 			}
 
@@ -787,8 +787,8 @@ public class PracticeMode extends AbstractMode {
 			renderer.drawMenuFont(engine, playerID, 2, 13, "SPIN BONUS:" + strTSpinEnable, menuCursor == 10);
 			renderer.drawMenuFont(engine, playerID, 2, 14, "EZ SPIN:" + GeneralUtil.getONorOFF(enableTSpinKick),
 					menuCursor == 11);
-			renderer.drawMenuFont(engine, playerID, 2, 15,
-					"SPIN TYPE:" + (spinCheckType == 0 ? "4POINT" : "IMMOBILE"), menuCursor == 12);
+			renderer.drawMenuFont(engine, playerID, 2, 15, "SPIN TYPE:" + (spinCheckType == 0 ? "4POINT" : "IMMOBILE"),
+					menuCursor == 12);
 			renderer.drawMenuFont(engine, playerID, 2, 16, "EZ IMMOBILE:" + GeneralUtil.getONorOFF(tspinEnableEZ),
 					menuCursor == 13);
 			renderer.drawMenuFont(engine, playerID, 2, 17, "B2B:" + GeneralUtil.getONorOFF(enableB2B),
@@ -803,11 +803,11 @@ public class PracticeMode extends AbstractMode {
 			String strGoalLv = "ENDLESS";
 			if (goallv >= 0) {
 				if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
-					strGoalLv = "LV" + String.valueOf((goallv + 1) * 100);
+					strGoalLv = "LV" + (goallv + 1) * 100;
 				} else if (leveltype == LEVELTYPE_NONE) {
 					strGoalLv = String.valueOf(goallv + 1) + " LINES";
 				} else {
-					strGoalLv = "LV" + String.valueOf(goallv + 1);
+					strGoalLv = "LV" + (goallv + 1);
 				}
 			}
 			renderer.drawMenuFont(engine, playerID, 2, 22, "GOAL LEVEL:" + strGoalLv, menuCursor == 19);
@@ -820,7 +820,7 @@ public class PracticeMode extends AbstractMode {
 					"TIME LIMIT RESET EVERY LEVEL:" + GeneralUtil.getONorOFF(timelimitResetEveryLevel),
 					menuCursor == 22);
 		} else if (menuCursor < 46) {
-			if (owner.replayMode == false) {
+			if (!owner.replayMode) {
 				renderer.drawMenuFont(engine, playerID, 1, menuCursor - 23 + 3, "b", Colors.FONT_RED);
 			}
 
@@ -1039,15 +1039,6 @@ public class PracticeMode extends AbstractMode {
 			renderer.drawScoreFont(engine, playerID, 0, 4, "Y POS", Colors.FONT_BLUE);
 			renderer.drawScoreFont(engine, playerID, 0, 5, "" + engine.fldeditY);
 
-			// Put your field-checking algorithm test codes here
-			/*
-			 * if(engine.field != null) { renderer.drawScoreFont(engine, playerID, 0, 7,
-			 * "T-SLOT+LINECLEAR", Colors.COLOR_BLUE); renderer.drawScoreFont(engine,
-			 * playerID, 0, 8, "" + engine.field.getTSlotLineClearAll(false));
-			 * renderer.drawScoreFont(engine, playerID, 0, 9, "HOLE", Colors.COLOR_BLUE);
-			 * renderer.drawScoreFont(engine, playerID, 0, 10, "" +
-			 * engine.field.getHowManyHoles()); }
-			 */
 		} else if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
 			// levelTypesMANIAWhen
 
@@ -1212,55 +1203,44 @@ public class PracticeMode extends AbstractMode {
 					break;
 				case EVENT_TSPIN_SINGLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_SINGLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_DOUBLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_TRIPLE:
 					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_RED);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE",
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
 				case EVENT_TSPIN_EZ:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName,
-								Colors.FONT_ORANGE);
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
 					break;
 				}
@@ -1312,14 +1292,12 @@ public class PracticeMode extends AbstractMode {
 			}
 
 			// 10Seconds before the countdown
-			if (timelimit > 0 && timelimitTimer <= 10 * 60 && timelimitTimer % 60 == 0
-					&& engine.timerActive) {
-				engine.playSE("countdown");
+			if (timelimit > 0 && timelimitTimer <= 10 * 60 && timelimitTimer % 60 == 0 && engine.timerActive) {
+				engine.playSE(Sounds.COUNTDOWN);
 			}
 
 			// 5Of seconds beforeBGM fadeout
-			if (timelimit > 0 && timelimitTimer <= 5 * 60 && timelimitResetEveryLevel == false
-					&& engine.timerActive) {
+			if (timelimit > 0 && timelimitTimer <= 5 * 60 && !timelimitResetEveryLevel && engine.timerActive) {
 				owner.bgmStatus.fadesw = true;
 			}
 		}
@@ -1346,12 +1324,12 @@ public class PracticeMode extends AbstractMode {
 	public boolean onMove(GameEngine engine, int playerID) {
 		// Occurrence new piece
 		if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
-			if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !lvupflag) {
+			if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && !lvupflag) {
 				// Level up
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
 					if (engine.statistics.level == nextseclv - 1 && lvstopse) {
-						engine.playSE("levelstop");
+						engine.playSE(Sounds.LEVEL_STOP);
 					}
 					setMeter(engine, playerID);
 				}
@@ -1359,13 +1337,13 @@ public class PracticeMode extends AbstractMode {
 				// Hard drop bonusInitialization
 				harddropBonus = 0;
 			}
-			if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || engine.holdDisable == false)) {
+			if (engine.ending == 0 && engine.statc_0() > 0 && (version >= 1 || !engine.holdDisable)) {
 				lvupflag = false;
 			}
 		}
 
 		// EndingStart
-		if (engine.ending == 2 && rollstarted == false) {
+		if (engine.ending == 2 && !rollstarted) {
 			rollstarted = true;
 
 			if (leveltype == LEVELTYPE_MANIA || leveltype == LEVELTYPE_MANIAPLUS) {
@@ -1394,7 +1372,7 @@ public class PracticeMode extends AbstractMode {
 				if (engine.statistics.level < nextseclv - 1) {
 					engine.statistics.level++;
 					if (engine.statistics.level == nextseclv - 1 && lvstopse) {
-						engine.playSE("levelstop");
+						engine.playSE(Sounds.LEVEL_STOP);
 					}
 					setMeter(engine, playerID);
 				}
@@ -1472,7 +1450,7 @@ public class PracticeMode extends AbstractMode {
 				}
 			} else if (engine.statistics.level >= nextseclv) {
 				// Next Section
-				engine.playSE("levelup");
+				engine.playSE(Sounds.LEVEL_UP);
 
 				// BackgroundSwitching
 				if (owner.backgroundStatus.bg < 19) {
@@ -1489,7 +1467,7 @@ public class PracticeMode extends AbstractMode {
 					timelimitTimer = timelimit;
 				}
 			} else if (engine.statistics.level == nextseclv - 1 && lvstopse) {
-				engine.playSE("levelstop");
+				engine.playSE(Sounds.LEVEL_STOP);
 			}
 
 			// Calculate score
@@ -1502,7 +1480,7 @@ public class PracticeMode extends AbstractMode {
 				int bravo = 1;
 				if (engine.field.isEmpty()) {
 					bravo = 4;
-					engine.playSE("bravo");
+					engine.playSE(Sounds.BRAVO);
 				}
 
 				int speedBonus = engine.getLockDelay() - engine.statc_0();
@@ -1525,7 +1503,7 @@ public class PracticeMode extends AbstractMode {
 				int bravo = 1;
 				if (engine.field.isEmpty()) {
 					bravo = 2;
-					engine.playSE("bravo");
+					engine.playSE(Sounds.BRAVO);
 				}
 
 				int speedBonus = engine.getLockDelay() - engine.statc_0();
@@ -1656,7 +1634,7 @@ public class PracticeMode extends AbstractMode {
 
 		// All clear
 		if (lines >= 1 && engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 			pts += 1800 * (engine.statistics.level + 1);
 		}
 
@@ -1710,7 +1688,7 @@ public class PracticeMode extends AbstractMode {
 					timelimitTimer = timelimit;
 				}
 
-				engine.playSE("levelup");
+				engine.playSE(Sounds.LEVEL_UP);
 			}
 		}
 

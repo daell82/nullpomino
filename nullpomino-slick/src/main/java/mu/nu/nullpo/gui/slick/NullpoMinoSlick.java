@@ -564,7 +564,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 			int screenHeight = container.getHeight();
 
 			Image screenImage = new Image(screenWidth, screenHeight);
-			g.copyArea(screenImage, 0, 0);
+			g.copyArea(screenImage, 0, 1);
 
 			// Upside down and the following way
 			ImageOut.write(screenImage, filename + ".png");

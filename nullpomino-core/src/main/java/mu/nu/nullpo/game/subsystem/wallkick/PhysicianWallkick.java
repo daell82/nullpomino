@@ -28,7 +28,6 @@
 */
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -37,27 +36,33 @@ import mu.nu.nullpo.game.component.WallkickResult;
  * PhysicianWallkick
  */
 public class PhysicianWallkick implements Wallkick {
+
 	/*
 	 * Wallkick
 	 */
+	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
-			Piece piece, Field field, Controller ctrl) {
+			Piece piece, Field field) {
 		int check = 1;
-		if (piece.big)
+		if (piece.big) {
 			check = 2;
+		}
 
-		if (!piece.checkCollision(x, y, rtNew, field))
+		if (!piece.checkCollision(x, y, rtNew, field)) {
 			return null;
+		}
 		switch (rtNew) {
-		case Piece.DIRECTION_UP:
-		case Piece.DIRECTION_DOWN:
-			if (!piece.checkCollision(x - check, y, rtNew, field))
+		case Piece.DIRECTION_UP, Piece.DIRECTION_DOWN:
+			if (!piece.checkCollision(x - check, y, rtNew, field)) {
 				return new WallkickResult(-1 * check, 0, rtNew);
+			}
 			break;
-		case Piece.DIRECTION_LEFT:
-		case Piece.DIRECTION_RIGHT:
-			if (!piece.checkCollision(x + check, y, rtNew, field))
+		case Piece.DIRECTION_LEFT, Piece.DIRECTION_RIGHT:
+			if (!piece.checkCollision(x + check, y, rtNew, field)) {
 				return new WallkickResult(check, 0, rtNew);
+			}
+			break;
+		default:
 			break;
 		}
 		return null;

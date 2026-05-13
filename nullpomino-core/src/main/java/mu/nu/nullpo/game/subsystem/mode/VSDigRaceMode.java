@@ -510,7 +510,7 @@ public class VSDigRaceMode extends AbstractMode {
 		int fontColor = Colors.FONT_WHITE;
 
 		int remainLines = Math.max(0, getRemainGarbageLines(engine, playerID));
-		fontColor = Colors.FONT_WHITE;
+
 		if (remainLines <= 14 && remainLines > 0) {
 			fontColor = Colors.FONT_YELLOW;
 		}

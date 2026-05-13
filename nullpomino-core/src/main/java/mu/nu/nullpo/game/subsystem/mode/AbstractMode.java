@@ -48,6 +48,41 @@ import mu.nu.nullpo.util.Sounds;
  */
 public abstract class AbstractMode implements GameMode {
 
+	/** events which can occur after line clears */
+	protected enum LineClearEvent {
+		/** no line clear */
+		NONE,
+		/** single line clear */
+		SINGLE,
+		/** double line clear */
+		DOUBLE,
+		/** triple line clear */
+		TRIPLE,
+		/** tetris line clear */
+		FOUR,
+		/** T-Spin zero (with wallkick) line clear */
+		TSPIN_ZERO_MINI,
+		/** T-Spin zero line clear */
+		TSPIN_ZERO,
+		/** T-Spin single (with wallkick) line clear */
+		TSPIN_SINGLE_MINI,
+		/** T-Spin single line clear */
+		TSPIN_SINGLE,
+		/** T-Spin double (with wallkick) line clear */
+		TSPIN_DOUBLE_MINI,
+		/** T-Spin double line clear */
+		TSPIN_DOUBLE,
+		/** T-Spin triple line clear */
+		TSPIN_TRIPLE,
+		/** T-Spin EZ line clear */
+		TSPIN_EZ;
+	}
+
+	protected LineClearEvent lastevent;
+
+	/** Number of entries in rankings */
+	protected static final int RANKING_MAX = 10;
+
 	/** Total score */
 	protected enum Statistic {
 		SCORE, LINES, TIME, LEVEL, LEVEL_MANIA, PIECE, MAXCOMBO, SPL, SPM, SPS, LPM, LPS, PPM, PPS, MAXCHAIN,

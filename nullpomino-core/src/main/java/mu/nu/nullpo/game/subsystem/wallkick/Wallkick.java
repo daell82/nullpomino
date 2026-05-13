@@ -28,7 +28,6 @@
 */
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -39,7 +38,7 @@ import mu.nu.nullpo.game.component.WallkickResult;
 public interface Wallkick {
 	/**
 	 * Execute a wallkick
-	 * 
+	 *
 	 * @param x           X-coordinate
 	 * @param y           Y-coordinate
 	 * @param rtDir       Rotation button used (-1: left rotation, 1: right
@@ -49,10 +48,8 @@ public interface Wallkick {
 	 * @param allowUpward If true, upward wallkicks are allowed.
 	 * @param piece       Current piece
 	 * @param field       Current field
-	 * @param ctrl        Button input status (it may be null, when controlled by an
-	 *                    AI)
 	 * @return WallkickResult object, or null if you don't want a kick
 	 */
 	WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward, Piece piece,
-			Field field, Controller ctrl);
+			Field field);
 }

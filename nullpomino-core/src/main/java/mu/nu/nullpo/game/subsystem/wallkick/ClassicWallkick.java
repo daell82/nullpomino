@@ -28,7 +28,6 @@
 */
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -43,7 +42,7 @@ public class ClassicWallkick implements Wallkick {
 	 */
 	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
-			Piece piece, Field field, Controller ctrl) {
+			Piece piece, Field field) {
 		int check = 0;
 		if (piece.big) {
 			check = 1;

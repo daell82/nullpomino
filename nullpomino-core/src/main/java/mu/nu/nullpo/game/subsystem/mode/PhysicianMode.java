@@ -36,6 +36,7 @@ import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.FieldUtil;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * PHYSICIAN mode (beta)
@@ -64,13 +65,6 @@ public class PhysicianMode extends AbstractMode {
 	/** Colors for speed settings */
 	private static final int[] SPEED_COLOR = { Colors.FONT_BLUE, Colors.FONT_YELLOW,
 			Colors.FONT_RED };
-
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * EventReceiver object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
 
 	/** Amount of points you just get from line clears */
 	private int lastscore;
@@ -133,7 +127,7 @@ public class PhysicianMode extends AbstractMode {
 		rankingScore = new int[RANKING_MAX];
 		rankingTime = new int[RANKING_MAX];
 
-		if (owner.replayMode == false) {
+		if (!owner.replayMode) {
 			loadSetting(owner.modeConfig);
 			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
 			version = CURRENT_VERSION;
@@ -172,7 +166,7 @@ public class PhysicianMode extends AbstractMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			// Configuration changes
 			int change = updateCursor(engine, 1);
 
@@ -185,7 +179,7 @@ public class PhysicianMode extends AbstractMode {
 			}
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 
@@ -215,7 +209,7 @@ public class PhysicianMode extends AbstractMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
@@ -268,8 +262,8 @@ public class PhysicianMode extends AbstractMode {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "PHYSICIAN", Colors.FONT_DARKBLUE);
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && engine.ai == null) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && engine.ai == null) {
 				renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE  TIME", Colors.FONT_BLUE);
 				for (int i = 0; i < RANKING_MAX; i++) {
 					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1),
@@ -286,7 +280,7 @@ public class PhysicianMode extends AbstractMode {
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -404,7 +398,7 @@ public class PhysicianMode extends AbstractMode {
 			scgettime = 120;
 			engine.statistics.scoreFromLineClear += pts;
 			engine.statistics.score += pts;
-			engine.playSE("gem");
+			engine.playSE(Sounds.GEM);
 			setSpeed(engine);
 		}
 	}
@@ -437,7 +431,7 @@ public class PhysicianMode extends AbstractMode {
 		saveSetting(prop);
 
 		// Update rankings
-		if (owner.replayMode == false && engine.ai == null) {
+		if (!owner.replayMode && engine.ai == null) {
 			updateRanking(engine.statistics.score, engine.statistics.time);
 
 			if (rankingRank != -1) {
@@ -531,7 +525,8 @@ public class PhysicianMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (sc > rankingScore[i]) {
 				return i;
-			} else if (sc == rankingScore[i] && time < rankingTime[i]) {
+			}
+			if (sc == rankingScore[i] && time < rankingTime[i]) {
 				return i;
 			}
 		}

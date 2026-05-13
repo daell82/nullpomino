@@ -40,6 +40,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * TOOL-VS MAP EDIT
@@ -147,15 +148,15 @@ public class ToolVSMapEditMode extends AbstractMode {
 	private void grayToRandomColor(Field field) {
 		Random rand = new Random();
 
-		for (int i = field.getHiddenHeight() * -1; i < field.getHeight(); i++) {
-			for (int j = 0; j < field.getWidth(); j++) {
-				if (field.getBlockColor(j, i) == Colors.BLOCK_COLOR_GRAY) {
+		for (int y = field.getHiddenHeight() * -1; y < field.getHeight(); y++) {
+			for (int x = 0; x < field.getWidth(); x++) {
+				if (field.getBlockColor(x, y) == Colors.BLOCK_COLOR_GRAY) {
 					int color = -1;
 					do {
 						color = rand.nextInt(Colors.BLOCK_COLOR_COUNT - 2) + 2;
-					} while (color == field.getBlockColor(j - 1, i) || color == field.getBlockColor(j + 1, i)
-							|| color == field.getBlockColor(j, i - 1) || color == field.getBlockColor(j, i - 1));
-					field.setBlockColor(j, i, color);
+					} while (color == field.getBlockColor(x - 1, y) || color == field.getBlockColor(x + 1, y)
+							|| color == field.getBlockColor(x, y - 1) || color == field.getBlockColor(x, y - 1));
+					field.setBlockColor(x, y, color);
 				}
 			}
 		}
@@ -180,7 +181,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 		int change = updateCursor(engine, 7);
 
 		if (change != 0) {
-			engine.playSE("change");
+			engine.playSE(Sounds.CHANGE);
 
 			switch (menuCursor) {
 			case 3, 4, 5:
@@ -208,7 +209,7 @@ public class ToolVSMapEditMode extends AbstractMode {
 
 		// 決定
 		if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-			engine.playSE("decide");
+			engine.playSE(Sounds.DECIDE);
 
 			switch (menuCursor) {
 			case 0:

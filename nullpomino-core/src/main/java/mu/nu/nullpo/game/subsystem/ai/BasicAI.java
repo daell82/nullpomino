@@ -348,7 +348,7 @@ public class BasicAI extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-											allowUpward, pieceNow, fld, null);
+											allowUpward, pieceNow, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();
@@ -384,7 +384,7 @@ public class BasicAI extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot, allowUpward,
-											pieceNow, fld, null);
+											pieceNow, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();
@@ -420,7 +420,7 @@ public class BasicAI extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, 2, rt, rot, allowUpward,
-											pieceNow, fld, null);
+											pieceNow, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();
@@ -565,8 +565,7 @@ public class BasicAI extends DummyAI implements Runnable {
 		}
 
 		// LinescountAdditional points in
-		if (lines == 1 && !danger && depth == 0 && heightAfter >= 16 && holeBefore < 3 && !tspin
-				&& engine.combo < 1) {
+		if (lines == 1 && !danger && depth == 0 && heightAfter >= 16 && holeBefore < 3 && !tspin && engine.combo < 1) {
 			return 0;
 		}
 		if (!danger && depth == 0) {

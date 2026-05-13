@@ -68,7 +68,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 	/** MaximumCompromise level */
 	protected static final int MAX_THINK_DEPTH = 2;
 	/** Set to true to print debug information */
-	protected static final boolean DEBUG_ALL = false;
+	protected static boolean DEBUG_ALL = false;
 	/** Wait extra frames at low speeds? */
 	// protected static final boolean DELAY_DROP_ON = false;
 	/** # of extra frames to wait */
@@ -947,7 +947,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 								boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 										|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 								WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot, allowUpward,
-										pieceNow, fld, null);
+										pieceNow, fld);
 
 								if (kick != null) {
 									newX = x + kick.offsetX();
@@ -986,7 +986,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 								boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 										|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 								WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot, allowUpward,
-										pieceNow, fld, null);
+										pieceNow, fld);
 
 								if (kick != null) {
 									newX = x + kick.offsetX();
@@ -1025,7 +1025,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 								boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 										|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 								WallkickResult kick = engine.wallkick.executeWallkick(x, y, 2, rt, rot, allowUpward,
-										pieceNow, fld, null);
+										pieceNow, fld);
 
 								if (kick != null) {
 									newX = x + kick.offsetX();
@@ -1183,7 +1183,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, -1, rt, rot,
-											allowUpward, pieceHold, fld, null);
+											allowUpward, pieceHold, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();
@@ -1224,7 +1224,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, 1, rt, rot, allowUpward,
-											pieceHold, fld, null);
+											pieceHold, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();
@@ -1265,7 +1265,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 									boolean allowUpward = engine.ruleopt.rotateMaxUpwardWallkick < 0
 											|| engine.nowUpwardWallkickCount < engine.ruleopt.rotateMaxUpwardWallkick;
 									WallkickResult kick = engine.wallkick.executeWallkick(x, y, 2, rt, rot, allowUpward,
-											pieceHold, fld, null);
+											pieceHold, fld);
 
 									if (kick != null) {
 										newX = x + kick.offsetX();

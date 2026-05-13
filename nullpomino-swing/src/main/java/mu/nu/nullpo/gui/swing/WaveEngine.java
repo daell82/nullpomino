@@ -45,7 +45,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.play.SoundManager;
+import mu.nu.nullpo.game.event.SoundManager;
 
 /**
  * Sound engine <a href=

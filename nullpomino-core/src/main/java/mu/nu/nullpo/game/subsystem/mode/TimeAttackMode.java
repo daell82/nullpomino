@@ -447,13 +447,6 @@ public class TimeAttackMode extends NetDummyMode {
 			}
 			engine.blockHidden = tableHellXFade[fadelv];
 		}
-
-		// for test
-		/*
-		 * engine.speed.are = 25; engine.speed.areLine = 25; engine.speed.lineDelay =
-		 * 10; engine.speed.lockDelay = 30; engine.speed.das = 12; levelTimerMax =
-		 * levelTimer = 3600 * 3;
-		 */
 	}
 
 	/**
@@ -461,7 +454,7 @@ public class TimeAttackMode extends NetDummyMode {
 	 *
 	 * @param engine GameEngine
 	 */
-	private void setStartBgmlv(GameEngine engine) {
+	private void setStartBgmlv() {
 		bgmlv = 0;
 		while (bgmlv < tableBGMChange[goaltype].length && norm >= tableBGMChange[goaltype][bgmlv]) {
 			bgmlv++;
@@ -601,7 +594,7 @@ public class TimeAttackMode extends NetDummyMode {
 			engine.big = big;
 			norm = startlevel * 10;
 			setSpeed(engine);
-			setStartBgmlv(engine);
+			setStartBgmlv();
 		}
 
 		return false;

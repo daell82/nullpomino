@@ -78,13 +78,6 @@ public class FinalMode extends AbstractMode {
 	/** Default section time */
 	private static final int DEFAULT_SECTION_TIME = 1800;
 
-	/** GameManager object (Manages entire game status) */
-
-	/**
-	 * Eventrenderer object (This receives many game events, can also be used for
-	 * drawing the fonts.)
-	 */
-
 	/** Next section level */
 	private int nextseclv;
 
@@ -448,9 +441,9 @@ public class FinalMode extends AbstractMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100),
-				"LVSTOPSE", GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime),
-				"BIG", GeneralUtil.getONorOFF(big));
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel * 100), "LVSTOPSE",
+				GeneralUtil.getONorOFF(lvstopse), "SHOW STIME", GeneralUtil.getONorOFF(showsectiontime), "BIG",
+				GeneralUtil.getONorOFF(big));
 	}
 
 	/**
@@ -496,8 +489,7 @@ public class FinalMode extends AbstractMode {
 	public void renderLast(GameEngine engine, int playerID) {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "FINAL", Colors.FONT_WHITE);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && startlevel == 0 && !big && engine.ai == null) {
 				if (!isShowBestSectionTime) {
 					// Leaderboard
@@ -658,7 +650,7 @@ public class FinalMode extends AbstractMode {
 	public boolean onMove(GameEngine engine, int playerID) {
 		int status = engine.statc_0();
 		// New piece is active
-		if (engine.ending == 0 &&  status == 0 && !engine.holdDisable && !lvupflag) {
+		if (engine.ending == 0 && status == 0 && !engine.holdDisable && !lvupflag) {
 			// Level up
 			if (engine.statistics.level < nextseclv - 1) {
 				engine.statistics.level++;
@@ -995,8 +987,8 @@ public class FinalMode extends AbstractMode {
 			if (medalCO >= 1) {
 				renderer.drawMenuFont(engine, playerID, 8, 4, "CO", getMedalFontColor(medalCO));
 			}
-			drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LPS, Statistic.SPS,
-					Statistic.PIECE, Statistic.PPS);
+			drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.LPS, Statistic.SPS, Statistic.PIECE,
+					Statistic.PPS);
 			break;
 		default:
 			break;
@@ -1130,11 +1122,14 @@ public class FinalMode extends AbstractMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (clear > rankingRollclear[i]) {
 				return i;
-			} else if (clear == rankingRollclear[i] && gr > rankingGrade[i]) {
+			}
+			if (clear == rankingRollclear[i] && gr > rankingGrade[i]) {
 				return i;
-			} else if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv > rankingLevel[i]) {
+			}
+			if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv > rankingLevel[i]) {
 				return i;
-			} else if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv == rankingLevel[i]
+			}
+			if (clear == rankingRollclear[i] && gr == rankingGrade[i] && lv == rankingLevel[i]
 					&& time < rankingTime[i]) {
 				return i;
 			}

@@ -194,7 +194,7 @@ public class Statistics implements Serializable {
 	/**
 	 * Reset to defaults
 	 */
-	public void reset() {
+	private void reset() {
 		score = 0;
 		scoreFromLineClear = 0;
 		scoreFromSoftDrop = 0;
@@ -240,7 +240,7 @@ public class Statistics implements Serializable {
 	 *
 	 * @param s Copy source
 	 */
-	public void copy(Statistics s) {
+	private void copy(Statistics s) {
 		score = s.score;
 		scoreFromLineClear = s.scoreFromLineClear;
 		scoreFromSoftDrop = s.scoreFromSoftDrop;

@@ -34,6 +34,7 @@ import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * CLASSIC MARATHON mode (Original from NullpoUE build 010210 by Zircean)
@@ -43,7 +44,7 @@ public class RetroMarathonMode extends AbstractMode {
 	private static final int CURRENT_VERSION = 2;
 
 	/** Denominator table (Normal) */
-	private static final int tableDenominator[] = {
+	private static final int[] tableDenominator = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			48, 43, 38, 33, 28, 23, 18, 13, 8, 6, // 00
 			5, 5, 5, 4, 4, 4, 3, 3, 3, 2, // 10
@@ -51,7 +52,7 @@ public class RetroMarathonMode extends AbstractMode {
 	};
 
 	/** Gravity table (Arrange) */
-	private static final int tableGravityArrange[] = {
+	private static final int[] tableGravityArrange = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 00
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, // 10
@@ -60,7 +61,7 @@ public class RetroMarathonMode extends AbstractMode {
 	};
 
 	/** Denominator table (Arrange) */
-	private static final int tableDenominatorArrange[] = {
+	private static final int[] tableDenominatorArrange = {
 			// 0 1 2 3 4 5 6 7 8 9 +xx
 			48, 43, 38, 33, 28, 23, 18, 13, 8, 6, // 00
 			5, 5, 4, 4, 4, 3, 3, 3, 2, 2, // 10
@@ -69,10 +70,12 @@ public class RetroMarathonMode extends AbstractMode {
 	};
 
 	/** Garbage height table */
-	private static final int tableGarbageHeight[] = { 0, 3, 5, 8, 10, 12 };
+	private static final int[] tableGarbageHeight = { 0, 3, 5, 8, 10, 12 };
 
 	/** Game types */
-	private static final int GAMETYPE_TYPE_A = 0, GAMETYPE_TYPE_B = 1, GAMETYPE_ARRANGE = 2;
+	private static final int GAMETYPE_TYPE_A = 0;
+	private static final int GAMETYPE_TYPE_B = 1;
+	private static final int GAMETYPE_ARRANGE = 2;
 
 	/** Number of game types */
 	private static final int GAMETYPE_MAX = 3;
@@ -258,7 +261,7 @@ public class RetroMarathonMode extends AbstractMode {
 			int change = updateCursor(engine, 3);
 
 			if (change != 0) {
-				renderer.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
@@ -298,7 +301,7 @@ public class RetroMarathonMode extends AbstractMode {
 
 			// Check for A button, when pressed this will begin the game
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				renderer.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
@@ -515,7 +518,7 @@ public class RetroMarathonMode extends AbstractMode {
 			owner.backgroundStatus.fadebg = lv;
 
 			setSpeed(engine);
-			renderer.playSE("levelup");
+			engine.playSE(Sounds.LEVEL_UP);
 		}
 	}
 

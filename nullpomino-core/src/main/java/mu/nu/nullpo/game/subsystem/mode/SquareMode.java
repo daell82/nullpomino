@@ -190,7 +190,7 @@ public class SquareMode extends AbstractMode {
 			int change = updateCursor(engine, 4);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 				case 0:
@@ -237,7 +237,7 @@ public class SquareMode extends AbstractMode {
 
 			// A button (confirm)
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
@@ -408,7 +408,7 @@ public class SquareMode extends AbstractMode {
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -469,7 +469,7 @@ public class SquareMode extends AbstractMode {
 
 			// Countdown
 			if (remainTime > 0 && remainTime <= 10 * 60 && engine.statistics.time % 60 == 0 && engine.timerActive) {
-				engine.playSE("countdown");
+				engine.playSE(Sounds.COUNTDOWN);
 			}
 
 			// BGM fadeout
@@ -910,9 +910,9 @@ public class SquareMode extends AbstractMode {
 		int[] sq = checkForSquares(engine.field);
 		squares += sq[0] + sq[1];
 		if (sq[0] == 0 && sq[1] > 0) {
-			engine.playSE("square_s");
+			engine.playSE(Sounds.SQUARE_SILVER);
 		} else if (sq[0] > 0) {
-			engine.playSE("square_g");
+			engine.playSE(Sounds.SQUARE_GOLD);
 		}
 	}
 

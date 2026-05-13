@@ -60,17 +60,17 @@ public abstract class Avalanche1PDummyMode extends AbstractMode {
 
 	protected static final int DAS = 10;
 
-	/** Amount of points earned from most recent clear */
+	/** Most recent increase in score */
 	protected int lastscore;
-
-	/** score multiplier from recent clear */
-	protected int lastmultiplier;
 
 	/**
 	 * Elapsed time from last line clear (lastscore is displayed to screen until
 	 * this reaches to 120)
 	 */
 	protected int scgettime;
+
+	/** score multiplier from recent clear */
+	protected int lastmultiplier;
 
 	/** Outline type */
 	protected int outlinetype;

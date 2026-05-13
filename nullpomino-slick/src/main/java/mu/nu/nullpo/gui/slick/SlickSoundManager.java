@@ -36,7 +36,7 @@ import org.newdawn.slick.Sound;
 import org.newdawn.slick.openal.SoundStore;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.play.SoundManager;
+import mu.nu.nullpo.game.event.SoundManager;
 
 /**
  * Sound effectsManager

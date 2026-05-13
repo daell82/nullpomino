@@ -27,6 +27,7 @@ import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 
 /**
@@ -37,9 +38,6 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 
 	/** NET: Lobby (Declared in NetDummyMode) */
 	protected NetLobbyFrame netLobby;
-
-	/** NET: GameManager (Declared in NetDummyMode; Don't override it!) */
-	protected GameManager owner;
 
 	/** NET: true if netplay (Declared in NetDummyMode) */
 	protected boolean netIsNetPlay;
@@ -57,7 +55,10 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	protected boolean netForceSendMovements;
 
 	/** NET: Previous piece informations (Declared in NetDummyMode) */
-	protected int netPrevPieceID, netPrevPieceX, netPrevPieceY, netPrevPieceDir;
+	protected int netPrevPieceID;
+	protected int netPrevPieceX;
+	protected int netPrevPieceY;
+	protected int netPrevPieceDir;
 
 	/** NET: The skin player using (Declared in NetDummyMode) */
 	protected int netPlayerSkin;
@@ -263,7 +264,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	@Override
 	public boolean onMove(GameEngine engine, int playerID) {
 		// NET: Send field, next, and stats
-		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && netIsNetPlay && !netIsWatch
+		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && netIsNetPlay && !netIsWatch
 				&& (netNumSpectators > 0 || netForceSendMovements)) {
 			netSendField(engine);
 			netSendStats(engine);
@@ -276,11 +277,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			}
 		}
 		// NET: Stop game in watch mode
-		if (netIsWatch) {
-			return true;
-		}
-
-		return false;
+		return netIsWatch;
 	}
 
 	/**
@@ -411,7 +408,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 
 			// Retry
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && !netIsWatch && netReplaySendStatus == 2) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				if (netNumSpectators > 0 || netForceSendMovements) {
 					netLobby.netPlayerClient.send("game\tretry\n");
 					netSendOptions(engine);
@@ -580,7 +577,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				if (message[3].equals("cursor")) {
 					if (engine.stat == GameEngine.Status.SETTING) {
 						menuCursor = Integer.parseInt(message[4]);
-						engine.playSE("cursor");
+						engine.playSE(Sounds.CURSOR);
 					}
 				}
 				// Change game options
@@ -623,7 +620,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					engine.gameEnded();
 					engine.stat = GameEngine.Status.SETTING;
 					engine.resetStatc();
-					engine.playSE("decide");
+					engine.playSE(Sounds.DECIDE);
 				}
 				// Display results screen
 				if (message[3].equals("resultsscreen")) {
@@ -854,10 +851,10 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			int pieceX = Integer.parseInt(message[5]);
 			int pieceY = Integer.parseInt(message[6]);
 			int pieceDir = Integer.parseInt(message[7]);
-			// int pieceBottomY = Integer.parseInt(message[8]);
+			// int pieceBottomY = Integer.parseInt(message[8])
 			int pieceColor = Integer.parseInt(message[9]);
 			int pieceSkin = Integer.parseInt(message[10]);
-			boolean pieceBig = message.length > 11 ? Boolean.parseBoolean(message[11]) : false;
+			boolean pieceBig = message.length > 11 && Boolean.parseBoolean(message[11]);
 
 			engine.nowPieceObject = new Piece(id);
 			engine.nowPieceObject.direction = pieceDir;
@@ -866,7 +863,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			engine.nowPieceObject.setSkin(pieceSkin);
 			engine.nowPieceX = pieceX;
 			engine.nowPieceY = pieceY;
-			// engine.nowPieceBottomY = pieceBottomY;
+			// engine.nowPieceBottomY = pieceBottomY
 			engine.nowPieceObject.big = pieceBig;
 			engine.nowPieceObject.updateConnectData();
 			engine.nowPieceBottomY = engine.nowPieceObject.getBottom(pieceX, pieceY, engine.field);
@@ -1006,7 +1003,6 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				Piece nextObj = engine.getNextObject(engine.nextPieceCount + i);
 				msg += nextObj.id + ";" + nextObj.direction + ";" + engine.ruleopt.pieceColor[nextObj.id];
 			}
-
 			if (i < engine.ruleopt.nextDisplay - 1) {
 				msg += "\t";
 			}
@@ -1080,7 +1076,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					if (netRankingCursor[d] < 0) {
 						netRankingCursor[d] = netRankingPlace[d].size() - 1;
 					}
-					engine.playSE("cursor");
+					engine.playSE(Sounds.CURSOR);
 				}
 				// Down
 				if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -1088,11 +1084,11 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					if (netRankingCursor[d] > netRankingPlace[d].size() - 1) {
 						netRankingCursor[d] = 0;
 					}
-					engine.playSE("cursor");
+					engine.playSE(Sounds.CURSOR);
 				}
 				// Download
 				if (engine.ctrl.isPush(Controller.BUTTON_A)) {
-					engine.playSE("decide");
+					engine.playSE(Sounds.DECIDE);
 					String strMsg = "spdownload\t" + NetUtil.urlEncode(netCurrentRoomInfo.ruleName) + "\t"
 							+ NetUtil.urlEncode(getName()) + "\t" + goaltype + "\t" + (netRankingView != 0) + "\t"
 							+ NetUtil.urlEncode(netRankingName[d].get(netRankingCursor[d])) + "\n";
@@ -1109,7 +1105,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				} else {
 					netRankingView = 0;
 				}
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 			}
 
 			// Exit
@@ -1129,168 +1125,154 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param renderer Eventrenderer
 	 */
 	protected void netOnRenderNetPlayRanking(GameEngine engine, int playerID, Renderer<?> renderer) {
-		if (netIsNetRankingDisplayMode) {
-			String strBtnA = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_A);
-			String strBtnB = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_B);
+		if (!netIsNetRankingDisplayMode) {
+			return;
+		}
+		String strBtnA = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_A);
+		String strBtnB = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_B);
 
-			int d = netRankingView;
+		int d = netRankingView;
 
-			if (!netRankingNoDataFlag[d] && netRankingReady[d] && netRankingPlace != null
-					&& netRankingPlace[d] != null) {
-				renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING ("
-						+ (netRankingCursor[d] + 1) + "/" + netRankingPlace[d].size() + ")", Colors.FONT_GREEN);
+		if (!netRankingNoDataFlag[d] && netRankingReady[d] && netRankingPlace != null && netRankingPlace[d] != null) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING ("
+					+ (netRankingCursor[d] + 1) + "/" + netRankingPlace[d].size() + ")", Colors.FONT_GREEN);
 
-				int startIndex = netRankingCursor[d] / 20 * 20;
-				int endIndex = startIndex + 20;
-				if (endIndex > netRankingPlace[d].size()) {
-					endIndex = netRankingPlace[d].size();
-				}
-
-				String headers = switch (netRankingType) {
-				case NetSPRecord.RANKINGTYPE_GENERIC_SCORE -> "    SCORE   LINE TIME     NAME";
-				case NetSPRecord.RANKINGTYPE_GENERIC_TIME -> "    TIME     PIECE PPS    NAME";
-				case NetSPRecord.RANKINGTYPE_SCORERACE -> "    TIME     LINE SPL    NAME";
-				case NetSPRecord.RANKINGTYPE_DIGRACE -> "    TIME     LINE PIECE  NAME";
-				case NetSPRecord.RANKINGTYPE_ULTRA -> "    SCORE   LINE PIECE    NAME";
-				case NetSPRecord.RANKINGTYPE_COMBORACE -> "    COMBO TIME     PPS    NAME";
-				case NetSPRecord.RANKINGTYPE_DIGCHALLENGE -> "    SCORE   LINE TIME     NAME";
-				case NetSPRecord.RANKINGTYPE_TIMEATTACK -> "    LINE  TIME     PPS    NAME";
-				default -> null;
-				};
-				if (headers != null) {
-					renderer.drawMenuFont(engine, playerID, 1, 3, headers, Colors.FONT_BLUE);
-				}
-
-				int c = 0;
-				for (int i = startIndex; i < endIndex; i++) {
-					boolean cursor = i == netRankingCursor[d];
-					if (cursor) {
-						renderer.drawMenuFont(engine, playerID, 0, 4 + c, "b", Colors.FONT_RED);
-					}
-
-					int rankColor = i == netRankingMyRank[d] ? Colors.FONT_PINK : Colors.FONT_YELLOW;
-					if (netRankingPlace[d].get(i) == -1) {
-						renderer.drawMenuFont(engine, playerID, 1, 4 + c, "N/A", rankColor);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 4 + c,
-								String.format("%3d", netRankingPlace[d].get(i) + 1), rankColor);
-					}
-
-					switch (netRankingType) {
-					case NetSPRecord.RANKINGTYPE_GENERIC_SCORE:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 18, 4 + c,
-								GeneralUtil.getTime(netRankingTime[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_GENERIC_TIME:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
-								cursor);
-						renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingPiece[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 20, 4 + c,
-								String.format("%.5g", netRankingPPS[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_SCORERACE:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
-								cursor);
-						renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 19, 4 + c,
-								String.format("%.5g", netRankingSPL[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_DIGRACE:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
-								cursor);
-						renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 19, 4 + c, "" + netRankingPiece[d].get(i), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_ULTRA:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 18, 4 + c, "" + netRankingPiece[d].get(i), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_COMBORACE:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + (netRankingScore[d].get(i) - 1), cursor);
-						renderer.drawMenuFont(engine, playerID, 11, 4 + c,
-								GeneralUtil.getTime(netRankingTime[d].get(i)), cursor);
-						renderer.drawMenuFont(engine, playerID, 20, 4 + c,
-								String.format("%.4g", netRankingPPS[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_DIGCHALLENGE:
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
-						renderer.drawMenuFont(engine, playerID, 18, 4 + c,
-								GeneralUtil.getTime(netRankingTime[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					case NetSPRecord.RANKINGTYPE_TIMEATTACK: {
-						int fontcolor = Colors.FONT_WHITE;
-						if (netRankingRollclear[d].get(i) == 1) {
-							fontcolor = Colors.FONT_GREEN;
-						}
-						if (netRankingRollclear[d].get(i) == 2) {
-							fontcolor = Colors.FONT_ORANGE;
-						}
-						renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingLines[d].get(i), fontcolor);
-						renderer.drawMenuFont(engine, playerID, 11, 4 + c,
-								GeneralUtil.getTime(netRankingTime[d].get(i)), cursor);
-						renderer.drawMenuFont(engine, playerID, 20, 4 + c,
-								String.format("%.4g", netRankingPPS[d].get(i)), cursor);
-						renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
-						break;
-					}
-					default:
-						break;
-					}
-
-					c++;
-				}
-
-				if (netRankingCursor[d] >= 0 && netRankingCursor[d] < netRankingDate[d].size()) {
-					String strDate = "----/--/-- --:--:--";
-					Calendar calendar = netRankingDate[d].get(netRankingCursor[d]);
-					if (calendar != null) {
-						strDate = GeneralUtil.getCalendarString(calendar, TimeZone.getDefault());
-					}
-					renderer.drawMenuFont(engine, playerID, 1, 25, "DATE:" + strDate, Colors.FONT_CYAN);
-
-					float gamerate = netRankingGamerate[d].get(netRankingCursor[d]);
-					renderer.drawMenuFont(engine, playerID, 1, 26,
-							"GAMERATE:" + (gamerate == 0f ? "UNKNOWN" : 100 * gamerate + "%"), Colors.FONT_CYAN);
-				}
-
-				renderer.drawMenuFont(engine, playerID, 1, 27, "A(" + strBtnA + " KEY):DOWNLOAD\nB(" + strBtnB
-						+ " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
-			} else if (netRankingNoDataFlag[d]) {
-				renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
-						Colors.FONT_GREEN);
-
-				renderer.drawMenuFont(engine, playerID, 1, 3, "NO DATA", Colors.FONT_DARKBLUE);
-
-				renderer.drawMenuFont(engine, playerID, 1, 28,
-						"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"),
-						Colors.FONT_ORANGE);
-			} else if (!netRankingReady[d] && netRankingPlace == null || netRankingPlace[d] == null) {
-				renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
-				renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
-						Colors.FONT_GREEN);
-
-				renderer.drawMenuFont(engine, playerID, 1, 3, "LOADING...", Colors.FONT_CYAN);
-
-				renderer.drawMenuFont(engine, playerID, 1, 28,
-						"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"),
-						Colors.FONT_ORANGE);
+			int startIndex = netRankingCursor[d] / 20 * 20;
+			int endIndex = startIndex + 20;
+			if (endIndex > netRankingPlace[d].size()) {
+				endIndex = netRankingPlace[d].size();
 			}
+
+			String headers = switch (netRankingType) {
+			case NetSPRecord.RANKINGTYPE_GENERIC_SCORE -> "    SCORE   LINE TIME     NAME";
+			case NetSPRecord.RANKINGTYPE_GENERIC_TIME -> "    TIME     PIECE PPS    NAME";
+			case NetSPRecord.RANKINGTYPE_SCORERACE -> "    TIME     LINE SPL    NAME";
+			case NetSPRecord.RANKINGTYPE_DIGRACE -> "    TIME     LINE PIECE  NAME";
+			case NetSPRecord.RANKINGTYPE_ULTRA -> "    SCORE   LINE PIECE    NAME";
+			case NetSPRecord.RANKINGTYPE_COMBORACE -> "    COMBO TIME     PPS    NAME";
+			case NetSPRecord.RANKINGTYPE_DIGCHALLENGE -> "    SCORE   LINE TIME     NAME";
+			case NetSPRecord.RANKINGTYPE_TIMEATTACK -> "    LINE  TIME     PPS    NAME";
+			default -> null;
+			};
+			if (headers != null) {
+				renderer.drawMenuFont(engine, playerID, 1, 3, headers, Colors.FONT_BLUE);
+			}
+
+			int c = 0;
+			for (int i = startIndex; i < endIndex; i++) {
+				boolean cursor = i == netRankingCursor[d];
+				if (cursor) {
+					renderer.drawMenuFont(engine, playerID, 0, 4 + c, "b", Colors.FONT_RED);
+				}
+
+				int rankColor = i == netRankingMyRank[d] ? Colors.FONT_PINK : Colors.FONT_YELLOW;
+				if (netRankingPlace[d].get(i) == -1) {
+					renderer.drawMenuFont(engine, playerID, 1, 4 + c, "N/A", rankColor);
+				} else {
+					renderer.drawMenuFont(engine, playerID, 1, 4 + c,
+							String.format("%3d", netRankingPlace[d].get(i) + 1), rankColor);
+				}
+
+				switch (netRankingType) {
+				case NetSPRecord.RANKINGTYPE_GENERIC_SCORE, NetSPRecord.RANKINGTYPE_DIGCHALLENGE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 18, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_GENERIC_TIME:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.5g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_SCORERACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 19, 4 + c, String.format("%.5g", netRankingSPL[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_DIGRACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 19, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_ULTRA:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 18, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_COMBORACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + (netRankingScore[d].get(i) - 1), cursor);
+					renderer.drawMenuFont(engine, playerID, 11, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.4g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case NetSPRecord.RANKINGTYPE_TIMEATTACK: {
+					int fontcolor = Colors.FONT_WHITE;
+					if (netRankingRollclear[d].get(i) == 1) {
+						fontcolor = Colors.FONT_GREEN;
+					}
+					if (netRankingRollclear[d].get(i) == 2) {
+						fontcolor = Colors.FONT_ORANGE;
+					}
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingLines[d].get(i), fontcolor);
+					renderer.drawMenuFont(engine, playerID, 11, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.4g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				}
+				default:
+					break;
+				}
+
+				c++;
+			}
+
+			if (netRankingCursor[d] >= 0 && netRankingCursor[d] < netRankingDate[d].size()) {
+				String strDate = "----/--/-- --:--:--";
+				Calendar calendar = netRankingDate[d].get(netRankingCursor[d]);
+				if (calendar != null) {
+					strDate = GeneralUtil.getCalendarString(calendar, TimeZone.getDefault());
+				}
+				renderer.drawMenuFont(engine, playerID, 1, 25, "DATE:" + strDate, Colors.FONT_CYAN);
+
+				float gamerate = netRankingGamerate[d].get(netRankingCursor[d]);
+				renderer.drawMenuFont(engine, playerID, 1, 26,
+						"GAMERATE:" + (gamerate == 0f ? "UNKNOWN" : 100 * gamerate + "%"), Colors.FONT_CYAN);
+			}
+			renderer.drawMenuFont(engine, playerID, 1, 27, "A(" + strBtnA + " KEY):DOWNLOAD\nB(" + strBtnB
+					+ " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
+		} else if (netRankingNoDataFlag[d]) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
+					Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 3, "NO DATA", Colors.FONT_DARKBLUE);
+			renderer.drawMenuFont(engine, playerID, 1, 28,
+					"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
+		} else if (!netRankingReady[d] && netRankingPlace == null || netRankingPlace[d] == null) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
+					Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 3, "LOADING...", Colors.FONT_CYAN);
+			renderer.drawMenuFont(engine, playerID, 1, 28,
+					"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
 		}
 	}
 

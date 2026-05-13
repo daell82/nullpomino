@@ -44,7 +44,7 @@ import org.newdawn.slick.font.effects.ShadowEffect;
 import lombok.experimental.UtilityClass;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
-import mu.nu.nullpo.game.play.SoundManager;
+import mu.nu.nullpo.game.event.SoundManager;
 import mu.nu.nullpo.util.Sounds;
 
 /**
@@ -173,7 +173,7 @@ public class ResourceHolderSlick {
 			ttfFont = new UnicodeFont(skindir + "/font/font.ttf", 16, false, false);
 			ttfFont.getEffects().add(new ShadowEffect(Color.black, 1, 1, 1));
 			ttfFont.getEffects().add(new ColorEffect(Color.white));
-		} catch (Throwable e) {
+		} catch (SlickException e) {
 			log.error("TTF Font load failed", e);
 			ttfFont = null;
 		}
@@ -373,7 +373,7 @@ public class ResourceHolderSlick {
 
 			try {
 				String filename = NullpoMinoSlick.propMusic.getProperty("music.filename." + no, null);
-				if (filename == null || filename.length() < 1) {
+				if (filename == null || filename.isEmpty()) {
 					if (showerr) {
 						log.info("BGM" + no + " not available");
 					}

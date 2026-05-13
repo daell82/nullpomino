@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.subsystem.wallkick;
 
-import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
@@ -27,7 +26,7 @@ public class BaseStandardWallkick implements Wallkick {
 	 *         kick.
 	 */
 	protected int[][][] getKickTable(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward, Piece piece,
-			Field field, Controller ctrl) {
+			Field field) {
 		return null;
 	}
 
@@ -36,8 +35,8 @@ public class BaseStandardWallkick implements Wallkick {
 	 */
 	@Override
 	public WallkickResult executeWallkick(int x, int y, int rtDir, int rtOld, int rtNew, boolean allowUpward,
-			Piece piece, Field field, Controller ctrl) {
-		int[][][] kicktable = getKickTable(x, y, rtDir, rtOld, rtNew, allowUpward, piece, field, ctrl);
+			Piece piece, Field field) {
+		int[][][] kicktable = getKickTable(x, y, rtDir, rtOld, rtNew, allowUpward, piece, field);
 
 		if (kicktable != null) {
 			for (int i = 0; i < kicktable[rtOld].length; i++) {

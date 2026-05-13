@@ -43,6 +43,18 @@ import mu.nu.nullpo.util.Sounds;
  */
 public class GradeMania2Mode extends AbstractMode {
 
+	private static final String TIME2 = "TIME";
+
+	public static final String LEVEL = "LEVEL";
+
+	public static final String SCORE = "SCORE";
+
+	public static final String GRADE2 = "GRADE";
+
+	public static final String AVERAGE = "AVERAGE";
+
+	public static final String TOTAL = "TOTAL";
+
 	/** Current version */
 	private static final int CURRENT_VERSION = 2;
 
@@ -276,7 +288,7 @@ public class GradeMania2Mode extends AbstractMode {
 
 	public GradeMania2Mode() {
 		propName = "grademania2";
-		startlevel = new IntegerMenuItem("startlevel", "LEVEL", Colors.FONT_BLUE, 0, 0, 9) {
+		startlevel = new IntegerMenuItem("startlevel", LEVEL, Colors.FONT_BLUE, 0, 0, 9) {
 			@Override
 			public String getValueString() {
 				if (value == 10) {
@@ -676,6 +688,8 @@ public class GradeMania2Mode extends AbstractMode {
 					}
 
 					renderer.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
+					renderer.drawTTFScoreFont(engine, playerID, 0, 20, "The quick brown fox jumps over the lazy dog.",
+							Colors.FONT_WHITE);
 				} else {
 					// Section Time
 					renderer.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);
@@ -694,9 +708,9 @@ public class GradeMania2Mode extends AbstractMode {
 						totalTime += bestSectionTime[i];
 					}
 
-					renderer.drawScoreFont(engine, playerID, 0, 14, "TOTAL", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 0, 14, TOTAL, Colors.FONT_BLUE);
 					renderer.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(totalTime));
-					renderer.drawScoreFont(engine, playerID, 9, 14, "AVERAGE", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, 9, 14, AVERAGE, Colors.FONT_BLUE);
 					renderer.drawScoreFont(engine, playerID, 9, 15, GeneralUtil.getTime(totalTime / SECTION_MAX));
 
 					renderer.drawScoreFont(engine, playerID, 0, 17, "F:VIEW RANKING", Colors.FONT_GREEN);
@@ -704,14 +718,14 @@ public class GradeMania2Mode extends AbstractMode {
 			}
 		} else {
 			// 段位
-			renderer.drawScoreFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 2, GRADE2, Colors.FONT_BLUE);
 			if (grade >= 0 && grade < tableGradeName.length) {
 				renderer.drawScoreFont(engine, playerID, 0, 3, tableGradeName[grade],
 						gradeflash > 0 && gradeflash % 4 == 0);
 			}
 
 			// Score
-			renderer.drawScoreFont(engine, playerID, 0, 5, "SCORE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 5, SCORE, Colors.FONT_BLUE);
 			String strScore;
 			if (lastscore == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
@@ -721,7 +735,7 @@ public class GradeMania2Mode extends AbstractMode {
 			renderer.drawScoreFont(engine, playerID, 0, 6, strScore);
 
 			// level
-			renderer.drawScoreFont(engine, playerID, 0, 9, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 9, LEVEL, Colors.FONT_BLUE);
 			int tempLevel = engine.statistics.level;
 			if (tempLevel < 0) {
 				tempLevel = 0;
@@ -738,7 +752,7 @@ public class GradeMania2Mode extends AbstractMode {
 			renderer.drawScoreFont(engine, playerID, 0, 12, String.format("%3d", nextseclv));
 
 			// Time
-			renderer.drawScoreFont(engine, playerID, 0, 14, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 14, TIME2, Colors.FONT_BLUE);
 			renderer.drawScoreFont(engine, playerID, 0, 15, GeneralUtil.getTime(engine.statistics.time));
 
 			// Roll Rest time
@@ -799,7 +813,7 @@ public class GradeMania2Mode extends AbstractMode {
 				}
 
 				if (sectionavgtime > 0) {
-					renderer.drawScoreFont(engine, playerID, x2, 14, "AVERAGE", Colors.FONT_BLUE);
+					renderer.drawScoreFont(engine, playerID, x2, 14, AVERAGE, Colors.FONT_BLUE);
 					renderer.drawScoreFont(engine, playerID, x2, 15, GeneralUtil.getTime(sectionavgtime));
 				}
 			}
@@ -1282,7 +1296,7 @@ public class GradeMania2Mode extends AbstractMode {
 			if (rollclear == 2 || rollclear == 4) {
 				gcolor = Colors.FONT_ORANGE;
 			}
-			renderer.drawMenuFont(engine, playerID, 0, 2, "GRADE", Colors.FONT_BLUE);
+			renderer.drawMenuFont(engine, playerID, 0, 2, GRADE2, Colors.FONT_BLUE);
 			String strGrade = String.format("%10s", tableGradeName[grade]);
 			renderer.drawMenuFont(engine, playerID, 0, 3, strGrade, gcolor);
 			drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
@@ -1303,7 +1317,7 @@ public class GradeMania2Mode extends AbstractMode {
 				}
 			}
 			if (sectionavgtime > 0) {
-				renderer.drawMenuFont(engine, playerID, 0, 14, "AVERAGE", Colors.FONT_BLUE);
+				renderer.drawMenuFont(engine, playerID, 0, 14, AVERAGE, Colors.FONT_BLUE);
 				renderer.drawMenuFont(engine, playerID, 2, 15, GeneralUtil.getTime(sectionavgtime));
 			}
 			break;

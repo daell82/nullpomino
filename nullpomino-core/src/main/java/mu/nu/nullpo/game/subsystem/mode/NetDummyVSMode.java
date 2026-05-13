@@ -18,6 +18,7 @@ import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 
 /**
@@ -328,7 +329,7 @@ public class NetDummyVSMode extends NetDummyMode {
 					}
 
 					// Set team color
-					if (netvsPlayerTeam[playerID].length() > 0) {
+					if (!netvsPlayerTeam[playerID].isEmpty()) {
 						if (!teamList.contains(netvsPlayerTeam[playerID])) {
 							teamList.add(netvsPlayerTeam[playerID]);
 							netvsPlayerTeamColor[playerID] = teamList.size();
@@ -386,7 +387,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		int x = owner.renderer.getFieldDisplayPositionX(engine, playerID);
 		int y = owner.renderer.getFieldDisplayPositionY(engine, playerID);
 
-		if (netvsPlayerName != null && netvsPlayerName[playerID] != null && netvsPlayerName[playerID].length() > 0) {
+		if (netvsPlayerName != null && netvsPlayerName[playerID] != null && !netvsPlayerName[playerID].isEmpty()) {
 			String name = netvsPlayerName[playerID];
 			int fontcolorNum = netvsPlayerTeamColor[playerID];
 			if (fontcolorNum < 0) {
@@ -597,7 +598,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		netvsSetGameScreenLayout();
 
 		// Map
-		if (netCurrentRoomInfo.useMap && netLobby.mapList.size() > 0) {
+		if (netCurrentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
 			if (netvsRandMap == null) {
 				netvsRandMap = new Random();
 			}
@@ -646,7 +647,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 		for (int i = 0; i < getPlayers(); i++) {
 			if (netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engines[i].gameActive) {
-				if (netvsPlayerTeam[i].length() > 0) {
+				if (!netvsPlayerTeam[i].isEmpty()) {
 					if (!listTeamName.contains(netvsPlayerTeam[i])) {
 						listTeamName.add(netvsPlayerTeam[i]);
 					}
@@ -687,7 +688,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		// Is teammate?
 		String myTeam = netvsPlayerTeam[0];
 		String thisTeam = netvsPlayerTeam[playerID];
-		if (myTeam.length() > 0 && thisTeam.length() > 0 && myTeam.equals(thisTeam)) {
+		if (!myTeam.isEmpty() && !thisTeam.isEmpty() && myTeam.equals(thisTeam)) {
 			return false;
 		}
 
@@ -738,13 +739,13 @@ public class NetDummyVSMode extends NetDummyMode {
 			if (!netvsIsReadyChangePending && netvsNumPlayers >= 2 && !netvsIsNewcomer && menuTime >= 5) {
 				// Ready ON
 				if (engine.ctrl.isPush(Controller.BUTTON_A) && !netvsPlayerReady[0]) {
-					engine.playSE("decide");
+					engine.playSE(Sounds.DECIDE);
 					netvsIsReadyChangePending = true;
 					netLobby.netPlayerClient.send("ready\ttrue\n");
 				}
 				// Ready OFF
 				if (engine.ctrl.isPush(Controller.BUTTON_B) && netvsPlayerReady[0]) {
-					engine.playSE("decide");
+					engine.playSE(Sounds.DECIDE);
 					netvsIsReadyChangePending = true;
 					netLobby.netPlayerClient.send("ready\tfalse\n");
 				}
@@ -752,7 +753,7 @@ public class NetDummyVSMode extends NetDummyMode {
 
 			// Practice Mode
 			if (engine.ctrl.isPush(Controller.BUTTON_F) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				netvsStartPractice(engine);
 				return true;
 			}
@@ -898,7 +899,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		}
 
 		// Timer start
-		if (engine.ending == 0 && engine.statc_0() == 0 && engine.holdDisable == false && !netvsIsPractice) {
+		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && !netvsIsPractice) {
 			netvsPlayTimerActive = true;
 		}
 
@@ -1148,7 +1149,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			engine.gameEnded();
 			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
 			engine.resetFieldVisible();
-			engine.playSE("excellent");
+			engine.playSE(Sounds.EXCELLENT);
 		}
 
 		if (status0 >= 120 && engine.ctrl.isPush(Controller.BUTTON_A)) {
@@ -1213,7 +1214,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (playerID == 0 && !netvsIsWatch()) {
 			// To the settings screen
 			if (engine.ctrl.isPush(Controller.BUTTON_A)) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				netvsIsPractice = false;
 				engine.stat = GameEngine.Status.SETTING;
 				engine.resetStatc();
@@ -1221,7 +1222,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 			// Start Practice
 			if (engine.ctrl.isPush(Controller.BUTTON_F)) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				netvsStartPractice(engine);
 				return true;
 			}
@@ -1336,9 +1337,9 @@ public class NetDummyVSMode extends NetDummyMode {
 					if (playerID == 0 && !netvsIsWatch()) {
 						netvsIsReadyChangePending = false;
 					} else if (pInfo.ready) {
-						owner.renderer.playSE("decide");
+						owner.renderer.playSE(Sounds.DECIDE);
 					} else if (!pInfo.playing) {
-						owner.renderer.playSE("change");
+						owner.renderer.playSE(Sounds.CHANGE);
 					}
 				}
 			}
@@ -1385,7 +1386,7 @@ public class NetDummyVSMode extends NetDummyMode {
 		if (message[0].equals("playerenter")) {
 			int seatID = Integer.parseInt(message[3]);
 			if (seatID != -1 && netvsNumPlayers < 2) {
-				owner.renderer.playSE("levelstop");
+				owner.renderer.playSE(Sounds.LEVEL_STOP);
 			}
 		}
 		// Someone leave here
@@ -1567,14 +1568,14 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 
 			if (netvsIsWatch() || netvsPlayerPlace[0] >= 3) {
-				owner.renderer.playSE("matchend");
+				owner.renderer.playSE(Sounds.MATCH_END);
 			}
 
 			netUpdatePlayerExist();
 		}
 		// Game messages
 		if (message[0].equals("game")) {
-			// int uid = Integer.parseInt(message[1]);
+			// int uid = Integer.parseInt(message[1])
 			int seatID = Integer.parseInt(message[2]);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
 			GameEngine engine = owner.engines[playerID];

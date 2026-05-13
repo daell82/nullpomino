@@ -182,4 +182,18 @@ public class Sounds {
 	/** Sound effect for t-spin 3 */
 	public static final String TSPIN3 = "tspin3";
 
+	/**
+	 * Get the sound effect for a specific combo chain
+	 *
+	 * @param which type of combo (must be between 1 and 20 inclusive)
+	 * @return the combo sound constant
+	 * @throws IllegalArgumentException if argument is out of range
+	 */
+	public static String combo(int which) {
+		if (which < 1 || which > 20) {
+			throw new IllegalArgumentException("inavlid combo sound: " + which);
+		}
+		return "combo" + which;
+	}
+
 }

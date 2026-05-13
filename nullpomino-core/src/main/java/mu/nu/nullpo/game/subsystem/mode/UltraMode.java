@@ -345,7 +345,6 @@ public class UltraMode extends NetDummyMode {
 					}
 					break;
 				case 10:
-					// enableTSpin = !enableTSpin;
 					tspinEnableType += change;
 					if (tspinEnableType < 0) {
 						tspinEnableType = 2;

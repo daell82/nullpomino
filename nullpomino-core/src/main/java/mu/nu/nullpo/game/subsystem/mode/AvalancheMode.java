@@ -46,9 +46,6 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 	private static final int[] CHAIN_POWERS_FEVERTYPE = { 4, 12, 24, 32, 48, 96, 160, 240, 320, 400, 500, 600, 700, 800,
 			900, 999 };
 
-	/** Number of ranking records */
-	private static final int RANKING_MAX = 10;
-
 	/** Number of ranking types */
 	private static final int RANKING_TYPE = 7;
 
@@ -69,6 +66,15 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 
 	/** Max score in Sprint */
 	private static final int[] SPRINT_MAX_SCORE = { 15000, 20000, 100000, 175000, 350000 };
+
+	/** Most recent increase in score */
+	protected int lastscore;
+
+	/**
+	 * Elapsed time from last line clear (lastscore is displayed to screen until
+	 * this reaches to 120)
+	 */
+	protected int scgettime;
 
 	/** Selected game type */
 	private int gametype;

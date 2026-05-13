@@ -324,7 +324,6 @@ public class TechnicianMode extends NetDummyMode {
 					}
 					break;
 				case 2:
-					// enableTSpin = !enableTSpin;
 					tspinEnableType += change;
 					if (tspinEnableType < 0) {
 						tspinEnableType = 2;

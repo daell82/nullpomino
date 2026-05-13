@@ -895,11 +895,11 @@ public class RendererSlick extends AbstractRenderer<Graphics> {
 					}
 
 					if (blk.getAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE) && !blk.isBone()) {
-						Color filter = new Color(Color.white);
+						Color filter = new Color(Color.lightGray.brighter(0.3f));
 						filter.a = blk.alpha;
 						graphics.setColor(filter);
-						graphics.setLineWidth(2f);
-						int ls = blksize - 1;
+						graphics.setLineWidth(2.5f);
+						float ls = blksize - 1f;
 						switch (outlineType) {
 						case GameEngine.BLOCK_OUTLINE_NORMAL:
 							if (field.getBlockColor(j, i - 1) == Colors.BLOCK_COLOR_NONE) {

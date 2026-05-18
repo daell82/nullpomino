@@ -43,7 +43,7 @@ public interface Renderer<T> {
 
 	/**
 	 * [You don't have to override this] Draw String inside the field. (Font color
-	 * is white)
+	 * is {@link Colors#FONT_WHITE})
 	 *
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
@@ -57,7 +57,7 @@ public interface Renderer<T> {
 
 	/**
 	 * [You don't have to override this] Draw String inside the field. (Font color
-	 * is white)
+	 * is {@link Colors#FONT_WHITE})
 	 *
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
@@ -102,8 +102,8 @@ public interface Renderer<T> {
 
 	/**
 	 * [You don't have to override this] Draw String inside the field. If flag is
-	 * false, it will use white font color. If flag is true, it will use red
-	 * instead.
+	 * false, it will use {@link Colors#FONT_WHITE} as font color. If flag is true,
+	 * it will use red instead.
 	 *
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
@@ -113,7 +113,7 @@ public interface Renderer<T> {
 	 * @param flag     Any boolean variable
 	 * @param scale    Font size
 	 */
-	default void drawMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, float scale) {
+	private void drawMenuFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, float scale) {
 		if (!flag) {
 			drawMenuFont(engine, playerID, x, y, str, Colors.FONT_WHITE, scale);
 		} else {
@@ -454,29 +454,6 @@ public interface Renderer<T> {
 
 	/**
 	 * [You don't have to override this] Draw String to any location by using a TTF
-	 * font. If flag is false, it will use colorF as font color. If flag is true, it
-	 * will use colorT instead.
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param str      String to draw
-	 * @param flag     Any boolean variable
-	 * @param colorF   Font color when flag is false
-	 * @param colorT   Font color when flag is true
-	 */
-	default void drawTTFDirectFont(GameEngine engine, int playerID, int x, int y, String str, boolean flag, int colorF,
-			int colorT) {
-		if (!flag) {
-			drawTTFDirectFont(engine, playerID, x, y, str, colorF);
-		} else {
-			drawTTFDirectFont(engine, playerID, x, y, str, colorT);
-		}
-	}
-
-	/**
-	 * [You don't have to override this] Draw String to any location by using a TTF
 	 * font. If flag is false, it will use white font color. If flag is true, it
 	 * will use red instead.
 	 *
@@ -506,23 +483,6 @@ public interface Renderer<T> {
 	 * @param s        Speed
 	 */
 	void drawSpeedMeter(GameEngine engine, int playerID, int x, int y, int s);
-
-	/**
-	 * Draw a block
-	 *
-	 * @param engine   GameEngine
-	 * @param playerID Player ID
-	 * @param x        X-coordinate
-	 * @param y        Y-coordinate
-	 * @param color    Block color
-	 * @param skin     Block skin
-	 * @param bone     When true, it will use [] (bone) blocks
-	 * @param darkness Brightness
-	 * @param alpha    Alpha-blending
-	 * @param scale    Size (0.5f, 1.0f, 2.0f)
-	 */
-	void drawSingleBlock(GameEngine engine, int playerID, int x, int y, int color, int skin, boolean bone,
-			float darkness, float alpha, float scale);
 
 	/**
 	 * Get width of block image.

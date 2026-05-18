@@ -147,7 +147,8 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	protected boolean[] zenKeshi;
 
 	/** Amount of points earned from most recent clear */
-	protected int[] lastscore, lastmultiplier;
+	protected int[] lastscore;
+	protected int[] lastmultiplier;
 
 	/** Amount of ojama added in current chain */
 	protected int[] ojamaAdd;
@@ -195,7 +196,10 @@ public abstract class AvalancheVSDummyMode extends AbstractMode {
 	protected CustomProperties[] propFeverMap;
 
 	/** Chain level boundaries for Fever Mode */
-	protected int[] feverChainMin, feverChainMax;
+	protected int[] feverChainMin;
+
+	/** Chain level boundaries for Fever Mode */
+	protected int[] feverChainMax;
 
 	/** Selected outline type */
 	protected int[] outlineType;

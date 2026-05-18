@@ -428,52 +428,64 @@ public class AvalancheVSDigRaceMode extends AvalancheVSDummyMode {
 	 */
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
-		if (engine.statc_4() == 0) {
-			if (menuCursor < 9) {
-				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
-						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
-						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
-						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das), "FALL DELAY",
-						String.valueOf(engine.cascadeDelay), "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
-
-				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", Colors.FONT_YELLOW);
-			} else if (menuCursor < 18) {
-				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "COUNTER",
-						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
-						String.valueOf(maxAttack[playerID]), "COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
-						String.valueOf(rensaShibari[playerID]), "OJAMA RATE", String.valueOf(ojamaRate[playerID]),
-						"HURRYUP", hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC",
-						"HARD OJAMA", String.valueOf(ojamaHard[playerID]), "X COLUMN",
-						dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY", "X SHOW",
-						GeneralUtil.getONorOFF(dangerColumnShowX[playerID]));
-
-				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", Colors.FONT_YELLOW);
-			} else {
-				initMenu(Colors.FONT_PURPLE, 18);
-				drawMenu(engine, playerID, "ROWS", String.valueOf(handicapRows[playerID]));
-				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, "CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC",
-						"CLEAR SIZE", String.valueOf(engine.colorClearSize));
-				menuColor = Colors.FONT_DARKBLUE;
-				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
-						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
-						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
-				menuColor = Colors.FONT_PINK;
-				drawMenuCompact(engine, playerID, "BGM", String.valueOf(bgmno));
-				menuColor = Colors.FONT_YELLOW;
-				drawMenuCompact(engine, playerID, "SE", GeneralUtil.getONorOFF(enableSE[playerID]));
-				menuColor = Colors.FONT_PINK;
-				drawMenu(engine, playerID, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
-				menuColor = Colors.FONT_GREEN;
-				drawMenuCompact(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
-						String.valueOf(presetNumber[playerID]));
-
-				renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/3", Colors.FONT_YELLOW);
-			}
-		} else {
+		if (engine.statc_4() != 0) {
 			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
+			return;
 		}
+		// @formatter:off
+		if (menuCursor < 9) {
+			drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0,
+					"GRAVITY", String.valueOf(engine.speed.gravity),
+					"G-MAX", String.valueOf(engine.speed.denominator),
+					"ARE", String.valueOf(engine.speed.are),
+					"ARE LINE", String.valueOf(engine.speed.areLine),
+					"LINE DELAY", String.valueOf(engine.speed.lineDelay),
+					"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+					"DAS", String.valueOf(engine.speed.das),
+					"FALL DELAY", String.valueOf(engine.cascadeDelay),
+					"CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
+			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/3", Colors.FONT_YELLOW);
+		} else if (menuCursor < 18) {
+			drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9,
+					"COUNTER", OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]],
+					"MAX ATTACK", String.valueOf(maxAttack[playerID]),
+					"COLORS", String.valueOf(numColors[playerID]),
+					"MIN CHAIN", String.valueOf(rensaShibari[playerID]),
+					"OJAMA RATE", String.valueOf(ojamaRate[playerID]),
+					"HURRYUP", hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC",
+					"HARD OJAMA", String.valueOf(ojamaHard[playerID]),
+					"X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
+					"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]));
+			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 2/3", Colors.FONT_YELLOW);
+		} else {
+			initMenu(Colors.FONT_PURPLE, 18);
+			drawMenu(engine, playerID,
+					"ROWS", String.valueOf(handicapRows[playerID]));
+			menuColor = Colors.FONT_CYAN;
+			drawMenu(engine, playerID,
+					"CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC",
+					"CLEAR SIZE", String.valueOf(engine.colorClearSize));
+			menuColor = Colors.FONT_DARKBLUE;
+			drawMenu(engine, playerID,
+					"OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]],
+					"SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
+					"FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
+			menuColor = Colors.FONT_PINK;
+			drawMenuCompact(engine, playerID,
+					"BGM", String.valueOf(bgmno));
+			menuColor = Colors.FONT_YELLOW;
+			drawMenuCompact(engine, playerID,
+					"SE", GeneralUtil.getONorOFF(enableSE[playerID]));
+			menuColor = Colors.FONT_PINK;
+			drawMenu(engine, playerID,
+					"BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
+			menuColor = Colors.FONT_GREEN;
+			drawMenuCompact(engine, playerID,
+					"LOAD", String.valueOf(presetNumber[playerID]),
+					"SAVE",	String.valueOf(presetNumber[playerID]));
+			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 3/3", Colors.FONT_YELLOW);
+		}
+		// @formatter:on
 	}
 
 	/*

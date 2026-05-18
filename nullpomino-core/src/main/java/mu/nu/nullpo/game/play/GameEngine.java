@@ -3387,11 +3387,11 @@ public class GameEngine {
 			resetStatc();
 
 			if (interruptItemNumber != INTERRUPTITEM_NONE) {
-				// 中断効果のあるアイテム処理
+				// Item handling with interruption effect
 				interruptItemPreviousStat = Status.MOVE;
 				stat = Status.INTERRUPTITEM;
 			} else {
-				// BlockPeace movement process
+				// Block Piece movement process
 				initialRotate();
 				stat = Status.MOVE;
 			}

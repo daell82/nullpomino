@@ -34,6 +34,7 @@ import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * AVALANCHE mode (Release Candidate 2)
@@ -66,15 +67,6 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 
 	/** Max score in Sprint */
 	private static final int[] SPRINT_MAX_SCORE = { 15000, 20000, 100000, 175000, 350000 };
-
-	/** Most recent increase in score */
-	protected int lastscore;
-
-	/**
-	 * Elapsed time from last line clear (lastscore is displayed to screen until
-	 * this reaches to 120)
-	 */
-	protected int scgettime;
 
 	/** Selected game type */
 	private int gametype;
@@ -169,7 +161,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 				} else if (menuCursor == 1 && gametype != 2) {
 					menuCursor--;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 			// Down
 			if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
@@ -179,7 +171,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 				} else if (menuCursor == 1 && gametype != 2) {
 					menuCursor++;
 				}
-				engine.playSE("cursor");
+				engine.playSE(Sounds.CURSOR);
 			}
 
 			// Configuration changes
@@ -192,7 +184,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			}
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				switch (menuCursor) {
 
@@ -270,7 +262,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 				return false;
@@ -311,7 +303,6 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 					String.valueOf(numColors), "X COLUMN", dangerColumnDouble ? "3 AND 4" : "3 ONLY", "X SHOW",
 					GeneralUtil.getONorOFF(dangerColumnShowX), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
 					"FALL ANIM", cascadeSlow ? "FEVER" : "CLASSIC", "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
-
 			renderer.drawMenuFont(engine, playerID, 0, 19, "PAGE 1/2", Colors.FONT_YELLOW);
 		} else {
 			String strOutline = "";
@@ -354,9 +345,8 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + SCORETYPE_NAME[scoreType] + " " + numColors + " COLORS)",
 				Colors.FONT_DARKBLUE);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
-			if (owner.replayMode == false && engine.ai == null && engine.colorClearSize == 4) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && engine.ai == null && engine.colorClearSize == 4) {
 				float scale = renderer.getNextDisplayType() == 2 && gametype == 0 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 && gametype == 0 ? 6 : 4;
 
@@ -406,8 +396,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			if (lastscore == 0 || lastmultiplier == 0 || scgettime <= 0) {
 				strScore = String.valueOf(engine.statistics.score);
 			} else {
-				strScore = String.valueOf(engine.statistics.score) + "(+" + String.valueOf(lastscore) + "X"
-						+ String.valueOf(lastmultiplier) + ")";
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + "X" + lastmultiplier + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
 
@@ -417,7 +406,7 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			renderer.drawScoreFont(engine, playerID, 0, 9, "OJAMA SENT", Colors.FONT_BLUE);
 			String strSent = String.valueOf(garbageSent);
 			if (garbageAdd > 0) {
-				strSent = strSent + "(+" + String.valueOf(garbageAdd) + ")";
+				strSent = strSent + "(+" + garbageAdd + ")";
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 10, strSent);
 
@@ -744,17 +733,16 @@ public class AvalancheMode extends Avalanche1PDummyMode {
 			return -1;
 		}
 		for (int i = 0; i < RANKING_MAX; i++) {
+			int rankScore = rankingScore[sctype][colors - 3][type][i];
+			int rankTime = rankingTime[sctype][colors - 3][type][i];
 			switch (type) {
 			case 0:
-				if (sc > rankingScore[sctype][colors - 3][type][i]) {
-					return i;
-				} else if (sc == rankingScore[sctype][colors - 3][type][i]
-						&& time < rankingTime[sctype][colors - 3][type][i]) {
+				if (sc > rankScore || sc == rankScore && time < rankTime) {
 					return i;
 				}
 				break;
 			case 1:
-				if (sc > rankingScore[sctype][colors - 3][type][i]) {
+				if (sc > rankScore) {
 					return i;
 				}
 				break;

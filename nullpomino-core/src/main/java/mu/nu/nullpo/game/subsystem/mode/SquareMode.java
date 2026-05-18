@@ -922,10 +922,13 @@ public class SquareMode extends AbstractMode {
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
 		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
-
-		drawResult(engine, playerID, 3, Colors.FONT_BLUE, "SCORE", String.format("%10d", engine.statistics.score),
-				"LINE", String.format("%10d", engine.statistics.lines), "SQUARE", String.format("%10d", squares),
+		// @formatter:off
+		drawResult(engine, playerID, 3, Colors.FONT_BLUE,
+				"SCORE", String.format("%10d", engine.statistics.score),
+				"LINE", String.format("%10d", engine.statistics.lines),
+				"SQUARE", String.format("%10d", squares),
 				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+		// @formatter:on
 		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
 	}
 

@@ -419,7 +419,7 @@ public class SpeedManiaMode extends AbstractMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 				saveSetting(owner.modeConfig);
 				GeneralUtil.saveModeConfig(owner.modeConfig);
 				isShowBestSectionTime = false;
@@ -810,7 +810,7 @@ public class SpeedManiaMode extends AbstractMode {
 
 			if (engine.statistics.level >= 999) {
 				// Ending
-				engine.playSE("endingstart");
+				engine.playSE(Sounds.ENDING_START);
 				engine.statistics.level = 999;
 				engine.timerActive = false;
 				engine.ending = 2;
@@ -831,7 +831,7 @@ public class SpeedManiaMode extends AbstractMode {
 			} else if (nextseclv == 500 && engine.statistics.level >= 500 && lv500torikan.value > 0
 					&& engine.statistics.time > lv500torikan.value) {
 				// level500とりカン
-				engine.playSE("endingstart");
+				engine.playSE(Sounds.ENDING_START);
 				engine.statistics.level = 500;
 				engine.timerActive = false;
 				engine.ending = 2;
@@ -852,7 +852,7 @@ public class SpeedManiaMode extends AbstractMode {
 				stMedalCheck(engine, levelb / 100);
 			} else if (engine.statistics.level >= nextseclv) {
 				// Next Section
-				engine.playSE("levelup");
+				engine.playSE(Sounds.LEVEL_UP);
 
 				// BackgroundSwitching
 				owner.backgroundStatus.fadesw = true;

@@ -1002,8 +1002,8 @@ public class NetDummyVSMode extends NetDummyMode {
 
 		// Automatic start timer
 		if (playerID == 0 && netCurrentRoomInfo != null && netvsAutoStartTimerActive && !netvsIsGameActive) {
-			owner.renderer.drawDirectFont(engine, 0, 496, 16, GeneralUtil.getTime(netvsAutoStartTimer),
-					netCurrentRoomInfo.autoStartTNET2, Colors.FONT_RED, Colors.FONT_YELLOW);
+			int color = netCurrentRoomInfo.autoStartTNET2 ? Colors.FONT_YELLOW : Colors.FONT_RED;
+			owner.renderer.drawDirectFont(engine, 0, 496, 16, GeneralUtil.getTime(netvsAutoStartTimer), color);
 		}
 
 		// Name

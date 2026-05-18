@@ -309,15 +309,6 @@ public class RendererSlick extends AbstractRenderer<Graphics> {
 		owner.saveReplay(prop, NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay"));
 	}
 
-	/*
-	 * 1MassBlockDraw a
-	 */
-	@Override
-	public void drawSingleBlock(GameEngine engine, int playerID, int x, int y, int color, int skin, boolean bone,
-			float darkness, float alpha, float scale) {
-		drawBlock(x, y, color, skin, bone, darkness, alpha, scale);
-	}
-
 	/**
 	 * Draw a block
 	 *

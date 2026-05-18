@@ -574,63 +574,63 @@ public class DigChallengeMode extends NetDummyMode {
 	public void onLast(GameEngine engine, int playerID) {
 		scgettime++;
 
-		if (engine.gameActive && engine.timerActive) {
-			garbageTimer++;
+		if (!engine.gameActive || !engine.timerActive) {
+			return;
+		}
+		garbageTimer++;
 
-			// Update meter
-			updateMeter(engine);
+		// Update meter
+		updateMeter(engine);
 
-			// Add pending garbage (Normal)
-			if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_NORMAL
-					&& !netIsWatch) {
-				if (version >= 1) {
-					garbagePending++;
-					garbageTimer = 0;
-
-					// NET: Send stats
-					if (netIsNetPlay && netNumSpectators > 0) {
-						netSendStats(engine);
-					}
-				} else {
-					garbagePending = 1;
-				}
-			}
-
-			// Add Garbage (Realtime)
-			if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_REALTIME
-					&& engine.stat != GameEngine.Status.LINECLEAR && !netIsWatch) {
-				addGarbage(engine);
+		// Add pending garbage (Normal)
+		if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_NORMAL && !netIsWatch) {
+			if (version >= 1) {
+				garbagePending++;
 				garbageTimer = 0;
 
-				// NET: Send field and stats
-				if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
-					netSendField(engine);
+				// NET: Send stats
+				if (netIsNetPlay && netNumSpectators > 0) {
 					netSendStats(engine);
 				}
+			} else {
+				garbagePending = 1;
+			}
+		}
 
-				if (engine.stat == GameEngine.Status.MOVE && engine.nowPieceObject != null) {
-					if (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
-						// Push up the current piece
-						while (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
-							engine.nowPieceY--;
-						}
+		// Add Garbage (Realtime)
+		if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_REALTIME
+				&& engine.stat != GameEngine.Status.LINECLEAR && !netIsWatch) {
+			addGarbage(engine);
+			garbageTimer = 0;
 
-						// Pushed out from the visible part of the field
-						if (engine.nowPieceObject.isPartialLockOut(engine.nowPieceX, engine.nowPieceY, engine.field)) {
-							engine.stat = GameEngine.Status.GAMEOVER;
-							engine.resetStatc();
-							engine.gameEnded();
-						}
+			// NET: Send field and stats
+			if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
+				netSendField(engine);
+				netSendStats(engine);
+			}
+
+			if (engine.stat == GameEngine.Status.MOVE && engine.nowPieceObject != null) {
+				if (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+					// Push up the current piece
+					while (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+						engine.nowPieceY--;
 					}
 
-					// Update ghost position
-					engine.nowPieceBottomY = engine.nowPieceObject.getBottom(engine.nowPieceX, engine.nowPieceY,
-							engine.field);
-
-					// NET: Send piece movement
-					if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
-						netSendPieceMovement(engine, true);
+					// Pushed out from the visible part of the field
+					if (engine.nowPieceObject.isPartialLockOut(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+						engine.stat = GameEngine.Status.GAMEOVER;
+						engine.resetStatc();
+						engine.gameEnded();
 					}
+				}
+
+				// Update ghost position
+				engine.nowPieceBottomY = engine.nowPieceObject.getBottom(engine.nowPieceX, engine.nowPieceY,
+						engine.field);
+
+				// NET: Send piece movement
+				if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
+					netSendPieceMovement(engine, true);
 				}
 			}
 		}
@@ -805,7 +805,7 @@ public class DigChallengeMode extends NetDummyMode {
 	 * Get garbage time limit
 	 *
 	 * @param lv Level
-	 * @return Garbage time limi
+	 * @return Garbage time limit
 	 */
 	private int getGarbageMaxTime(int lv) {
 		int t = 1;

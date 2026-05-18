@@ -688,8 +688,6 @@ public class GradeMania2Mode extends AbstractMode {
 					}
 
 					renderer.drawScoreFont(engine, playerID, 0, 17, "F:VIEW SECTION TIME", Colors.FONT_GREEN);
-					renderer.drawTTFScoreFont(engine, playerID, 0, 20, "The quick brown fox jumps over the lazy dog.",
-							Colors.FONT_WHITE);
 				} else {
 					// Section Time
 					renderer.drawScoreFont(engine, playerID, 0, 2, "SECTION TIME", Colors.FONT_BLUE);

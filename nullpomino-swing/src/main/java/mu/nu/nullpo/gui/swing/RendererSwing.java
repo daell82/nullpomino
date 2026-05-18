@@ -43,12 +43,10 @@ import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.EffectObject;
 import mu.nu.nullpo.gui.common.AbstractRenderer;
 import mu.nu.nullpo.util.Colors;
-import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Game event Processing and rendering process (SwingVersion)
@@ -232,7 +230,7 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 	 */
 	@Override
 	public boolean isTTFSupport() {
-		return true;
+		return resourceManager.getTtfFont() != null;
 	}
 
 	/*
@@ -258,25 +256,6 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 			return resourceManager.getBlockStickyFlags().get(skin);
 		}
 		return false;
-	}
-
-	/*
-	 * Save the replay
-	 */
-	public void saveReplay(GameManager owner, CustomProperties prop) {
-		if (owner.mode.isNetplayMode()) {
-			return;
-		}
-		owner.saveReplay(prop, NullpoMinoSwing.propGlobal.getProperty("custom.replay.directory", "replay"));
-	}
-
-	/*
-	 * 1MassBlockDraw a
-	 */
-	@Override
-	public void drawSingleBlock(GameEngine engine, int playerID, int x, int y, int color, int skin, boolean bone,
-			float darkness, float alpha, float scale) {
-		drawBlock(x, y, color, skin, bone, darkness, alpha, scale);
 	}
 
 	/**
@@ -948,11 +927,11 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 	}
 
 	/**
-	 * Field frameDraw a
+	 * Draw the Field frame
 	 *
 	 * @param x      X-coordinate
 	 * @param y      Y-coordinate
-	 * @param engine GameEngineInstance of
+	 * @param engine Instance of GameEngine
 	 */
 	protected void drawFrame(int x, int y, GameEngine engine) {
 		if (graphics == null) {
@@ -1024,12 +1003,12 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX, 8, offsetX + 4, 8 + 4, null);
 
 		if (showMeter) {
-			// MeterONWhen the upper right corner of the
+			// ON When the upper right corner of the Meter
 			tmpX = x + width * size + 12;
 			tmpY = y;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 0, offsetX + 8 + 4, 4, null);
 
-			// MeterONWhen the lower-right corner of
+			// ON When the lower-right corner of Meter
 			tmpX = x + width * size + 12;
 			tmpY = y + height * size + 4;
 			graphics.drawImage(frame, tmpX, tmpY, tmpX + 4, tmpY + 4, offsetX + 8, 8, offsetX + 8 + 4, 8 + 4, null);
@@ -1359,18 +1338,19 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		}
 
 		// NEXTなど
-		if (!engine.owner.menuOnly && engine.isVisible) {
-			int offsetX = getFieldDisplayPositionX(engine, playerID);
-			int offsetY = getFieldDisplayPositionY(engine, playerID);
+		if (engine.owner.menuOnly || !engine.isVisible) {
+			return;
+		}
+		int offsetX = getFieldDisplayPositionX(engine, playerID);
+		int offsetY = getFieldDisplayPositionY(engine, playerID);
 
-			if (engine.displaySize != DisplaySize.SMALL) {
-				drawNext(offsetX, offsetY, engine);
-				drawFrame(offsetX, offsetY + 48, engine);
-				drawField(offsetX + 4, offsetY + 52, engine);
-			} else {
-				drawFrame(offsetX, offsetY, engine);
-				drawField(offsetX + 4, offsetY + 4, engine);
-			}
+		if (engine.displaySize != DisplaySize.SMALL) {
+			drawNext(offsetX, offsetY, engine);
+			drawFrame(offsetX, offsetY + 48, engine);
+			drawField(offsetX + 4, offsetY + 52, engine);
+		} else {
+			drawFrame(offsetX, offsetY, engine);
+			drawField(offsetX + 4, offsetY + 4, engine);
 		}
 	}
 

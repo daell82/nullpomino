@@ -864,21 +864,19 @@ public class Piece implements Serializable {
 	 */
 	public int getBottom(int x, int y, int rt, Field fld) {
 		int y2 = y;
-
 		while (!checkCollision(x, y2, rt, fld)) {
 			y2++;
 		}
-
 		return y2 - 1;
 	}
 
 	/**
-	 * When I dropped the piece as it isY-coordinateGet the
+	 * Get the Y-coordinate when the piece is dropped as it is
 	 *
 	 * @param x   X-coordinate
 	 * @param y   Y-coordinate
 	 * @param fld field
-	 * @return When I dropped the piece as it isY-coordinate
+	 * @return Y-coordinate when the piece is dropped as it is
 	 */
 	public int getBottom(int x, int y, Field fld) {
 		return getBottom(x, y, direction, fld);

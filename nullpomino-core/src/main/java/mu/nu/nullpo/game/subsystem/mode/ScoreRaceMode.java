@@ -59,21 +59,6 @@ public class ScoreRaceMode extends NetDummyMode {
 	/** Goal score constants */
 	private static final int[] GOAL_TABLE = { 10000, 25000, 30000 };
 
-	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0;
-	private static final int EVENT_SINGLE = 1;
-	private static final int EVENT_DOUBLE = 2;
-	private static final int EVENT_TRIPLE = 3;
-	private static final int EVENT_FOUR = 4;
-	private static final int EVENT_TSPIN_ZERO_MINI = 5;
-	private static final int EVENT_TSPIN_ZERO = 6;
-	private static final int EVENT_TSPIN_SINGLE_MINI = 7;
-	private static final int EVENT_TSPIN_SINGLE = 8;
-	private static final int EVENT_TSPIN_DOUBLE_MINI = 9;
-	private static final int EVENT_TSPIN_DOUBLE = 10;
-	private static final int EVENT_TSPIN_TRIPLE = 11;
-	private static final int EVENT_TSPIN_EZ = 12;
-
 	/* ----- Main variables ----- */
 
 	/** Most recent increase in score */
@@ -81,9 +66,6 @@ public class ScoreRaceMode extends NetDummyMode {
 
 	/** Time to display the most recent increase in score */
 	private int scgettime;
-
-	/** Most recent scoring event type */
-	private int lastevent;
 
 	/** Most recent scoring event b2b */
 	private boolean lastb2b;
@@ -159,7 +141,7 @@ public class ScoreRaceMode extends NetDummyMode {
 		renderer = engine.owner.renderer;
 		lastscore = 0;
 		scgettime = 0;
-		lastevent = EVENT_NONE;
+		lastevent = LineClearEvent.NONE;
 		lastb2b = false;
 		lastcombo = 0;
 		lastpiece = 0;
@@ -468,33 +450,41 @@ public class ScoreRaceMode extends NetDummyMode {
 			// NET: Netplay Ranking
 			netOnRenderNetPlayRanking(engine, playerID, renderer);
 		} else if (menuCursor < 10) {
-			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GRAVITY", String.valueOf(engine.speed.gravity), "G-MAX",
-					String.valueOf(engine.speed.denominator), "ARE", String.valueOf(engine.speed.are), "ARE LINE",
-					String.valueOf(engine.speed.areLine), "LINE DELAY", String.valueOf(engine.speed.lineDelay),
-					"LOCK DELAY", String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das),
-					"BGM", String.valueOf(bgmno), "BIG", GeneralUtil.getONorOFF(big), "GOAL",
-					String.valueOf(GOAL_TABLE[goaltype]));
+			// @formatter:off
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0,
+					"GRAVITY", String.valueOf(engine.speed.gravity),
+					"G-MAX", String.valueOf(engine.speed.denominator),
+					"ARE", String.valueOf(engine.speed.are),
+					"ARE LINE", String.valueOf(engine.speed.areLine),
+					"LINE DELAY", String.valueOf(engine.speed.lineDelay),
+					"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+					"DAS", String.valueOf(engine.speed.das),
+					"BGM", String.valueOf(bgmno),
+					"BIG", GeneralUtil.getONorOFF(big),
+					"GOAL",	String.valueOf(GOAL_TABLE[goaltype]));
 		} else {
 			String strTSpinEnable = "";
 			if (version >= 1) {
-				if (tspinEnableType == 0) {
-					strTSpinEnable = "OFF";
-				}
-				if (tspinEnableType == 1) {
-					strTSpinEnable = "T-ONLY";
-				}
-				if (tspinEnableType == 2) {
-					strTSpinEnable = "ALL";
-				}
+				strTSpinEnable = switch(tspinEnableType) {
+				case 0 -> "OFF";
+				case 1 -> "T-ONLY";
+				case 2 -> "ALL";
+				default -> "";
+				};
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 10, "SPIN BONUS", strTSpinEnable, "EZ SPIN",
-					GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
-					"EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ), "B2B", GeneralUtil.getONorOFF(enableB2B),
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 10,
+					"SPIN BONUS", strTSpinEnable,
+					"EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick),
+					"SPIN TYPE", spinCheckType == 0 ? "4POINT" : "IMMOBILE",
+					"EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
+					"B2B", GeneralUtil.getONorOFF(enableB2B),
 					"COMBO", GeneralUtil.getONorOFF(enableCombo));
-			drawMenu(engine, playerID, 12, Colors.FONT_GREEN, 16, "LOAD", String.valueOf(presetNumber), "SAVE",
-					String.valueOf(presetNumber));
+			drawMenu(engine, playerID, 12, Colors.FONT_GREEN, 16,
+					"LOAD", String.valueOf(presetNumber),
+					"SAVE",	String.valueOf(presetNumber));
+			// @formatter:on
 		}
 	}
 
@@ -548,8 +538,7 @@ public class ScoreRaceMode extends NetDummyMode {
 		renderer.drawScoreFont(engine, playerID, 0, 0, "SCORE RACE", Colors.FONT_RED);
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " PTS GAME)", Colors.FONT_RED);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && !big && engine.ai == null && !netIsWatch) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
@@ -605,77 +594,29 @@ public class ScoreRaceMode extends NetDummyMode {
 			renderer.drawScoreFont(engine, playerID, 0, 18, "TIME", Colors.FONT_BLUE);
 			renderer.drawScoreFont(engine, playerID, 0, 19, GeneralUtil.getTime(engine.statistics.time));
 
-			if (lastevent != EVENT_NONE && scgettime < 120) {
-				String strPieceName = Piece.getPieceName(lastpiece);
-
+			if (lastevent != LineClearEvent.NONE && scgettime < 120) {
+				String piece = Piece.getPieceName(lastpiece);
+				int color = lastb2b ? Colors.FONT_RED : Colors.FONT_ORANGE;
 				switch (lastevent) {
-				case EVENT_SINGLE:
-					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
-					break;
-				case EVENT_DOUBLE:
-					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
-					break;
-				case EVENT_TRIPLE:
-					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
-					break;
-				case EVENT_FOUR:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_ZERO_MINI:
-					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PURPLE);
-					break;
-				case EVENT_TSPIN_ZERO:
-					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PINK);
-					break;
-				case EVENT_TSPIN_SINGLE_MINI:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_SINGLE:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_DOUBLE:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_TRIPLE:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
-					}
-					break;
-				case EVENT_TSPIN_EZ:
-					if (lastb2b) {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
-					} else {
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
-					}
-					break;
+				case SINGLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+				case DOUBLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+				case TRIPLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+				case FOUR -> renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", color);
+				case TSPIN_ZERO_MINI ->
+					renderer.drawMenuFont(engine, playerID, 2, 21, piece + "-SPIN", Colors.FONT_PURPLE);
+				case TSPIN_ZERO -> renderer.drawMenuFont(engine, playerID, 2, 21, piece + "-SPIN", Colors.FONT_PINK);
+				case TSPIN_SINGLE_MINI -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-S", color);
+				case TSPIN_SINGLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-SINGLE", color);
+				case TSPIN_DOUBLE_MINI -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-D", color);
+				case TSPIN_DOUBLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-DOUBLE", color);
+				case TSPIN_TRIPLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-TRIPLE", color);
+				case TSPIN_EZ -> renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + piece, color);
+				default -> { // nothing
+				}
 				}
 
-				if (lastcombo >= 2 && lastevent != EVENT_TSPIN_ZERO_MINI && lastevent != EVENT_TSPIN_ZERO) {
+				if (lastcombo >= 2 && lastevent != LineClearEvent.TSPIN_ZERO_MINI
+						&& lastevent != LineClearEvent.TSPIN_ZERO) {
 					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			}
@@ -705,10 +646,10 @@ public class ScoreRaceMode extends NetDummyMode {
 			if (lines == 0 && !engine.tspinez) {
 				if (engine.tspinmini) {
 					pts += 100;
-					lastevent = EVENT_TSPIN_ZERO_MINI;
+					lastevent = LineClearEvent.TSPIN_ZERO_MINI;
 				} else {
 					pts += 400;
-					lastevent = EVENT_TSPIN_ZERO;
+					lastevent = LineClearEvent.TSPIN_ZERO;
 				}
 			}
 			// Immobile EZ Spin
@@ -718,7 +659,7 @@ public class ScoreRaceMode extends NetDummyMode {
 				} else {
 					pts += 120 * (engine.statistics.level + 1);
 				}
-				lastevent = EVENT_TSPIN_EZ;
+				lastevent = LineClearEvent.TSPIN_EZ;
 			}
 			// T-Spin 1 line
 			else if (lines == 1) {
@@ -728,14 +669,14 @@ public class ScoreRaceMode extends NetDummyMode {
 					} else {
 						pts += 200;
 					}
-					lastevent = EVENT_TSPIN_SINGLE_MINI;
+					lastevent = LineClearEvent.TSPIN_SINGLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1200;
 					} else {
 						pts += 800;
 					}
-					lastevent = EVENT_TSPIN_SINGLE;
+					lastevent = LineClearEvent.TSPIN_SINGLE;
 				}
 			}
 			// T-Spin 2 lines
@@ -746,14 +687,14 @@ public class ScoreRaceMode extends NetDummyMode {
 					} else {
 						pts += 400 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE_MINI;
+					lastevent = LineClearEvent.TSPIN_DOUBLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1800 * (engine.statistics.level + 1);
 					} else {
 						pts += 1200 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE;
+					lastevent = LineClearEvent.TSPIN_DOUBLE;
 				}
 			}
 			// T-Spin 3 lines
@@ -763,21 +704,21 @@ public class ScoreRaceMode extends NetDummyMode {
 				} else {
 					pts += 1600;
 				}
-				lastevent = EVENT_TSPIN_TRIPLE;
+				lastevent = LineClearEvent.TSPIN_TRIPLE;
 			}
 		} else {
 			switch (lines) {
 			case 1:
 				pts += 100; // 1Column
-				lastevent = EVENT_SINGLE;
+				lastevent = LineClearEvent.SINGLE;
 				break;
 			case 2:
 				pts += 300; // 2Column
-				lastevent = EVENT_DOUBLE;
+				lastevent = LineClearEvent.DOUBLE;
 				break;
 			case 3:
 				pts += 500; // 3Column
-				lastevent = EVENT_TRIPLE;
+				lastevent = LineClearEvent.TRIPLE;
 				break;
 			default:
 				if (lines >= 4) {
@@ -787,7 +728,7 @@ public class ScoreRaceMode extends NetDummyMode {
 					} else {
 						pts += 800;
 					}
-					lastevent = EVENT_FOUR;
+					lastevent = LineClearEvent.FOUR;
 				}
 				break;
 			}
@@ -1055,13 +996,22 @@ public class ScoreRaceMode extends NetDummyMode {
 	@Override
 	protected void netSendStats(GameEngine engine) {
 		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.spm + "\t";
-		msg += engine.statistics.lpm + "\t" + engine.statistics.spl + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece;
-		msg += "\n";
+		msg += engine.statistics.score + "\t";
+		msg += engine.statistics.lines + "\t";
+		msg += engine.statistics.totalPieceLocked + "\t";
+		msg += engine.statistics.time + "\t";
+		msg += engine.statistics.spm + "\t";
+		msg += engine.statistics.lpm + "\t";
+		msg += engine.statistics.spl + "\t";
+		msg += goaltype + "\t";
+		msg += engine.gameActive + "\t";
+		msg += engine.timerActive + "\t";
+		msg += lastscore + "\t";
+		msg += scgettime + "\t";
+		msg += lastevent.ordinal() + "\t";
+		msg += lastb2b + "\t";
+		msg += lastcombo + "\t";
+		msg += lastpiece + "\n";
 		netLobby.netPlayerClient.send(msg);
 	}
 
@@ -1082,7 +1032,7 @@ public class ScoreRaceMode extends NetDummyMode {
 		engine.timerActive = Boolean.parseBoolean(message[13]);
 		lastscore = Integer.parseInt(message[14]);
 		scgettime = Integer.parseInt(message[15]);
-		lastevent = Integer.parseInt(message[16]);
+		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
 		lastb2b = Boolean.parseBoolean(message[17]);
 		lastcombo = Integer.parseInt(message[18]);
 		lastpiece = Integer.parseInt(message[19]);
@@ -1117,11 +1067,23 @@ public class ScoreRaceMode extends NetDummyMode {
 	@Override
 	protected void netSendOptions(GameEngine engine) {
 		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t" + bgmno + "\t" + big + "\t" + goaltype + "\t" + tspinEnableType + "\t";
-		msg += enableTSpinKick + "\t" + enableB2B + "\t" + enableCombo + "\t" + presetNumber + "\t";
-		msg += spinCheckType + "\t" + tspinEnableEZ + "\n";
+		msg += engine.speed.gravity + "\t";
+		msg += engine.speed.denominator + "\t";
+		msg += engine.speed.are + "\t";
+		msg += engine.speed.areLine + "\t";
+		msg += engine.speed.lineDelay + "\t";
+		msg += engine.speed.lockDelay + "\t";
+		msg += engine.speed.das + "\t";
+		msg += bgmno + "\t";
+		msg += big + "\t";
+		msg += goaltype + "\t";
+		msg += tspinEnableType + "\t";
+		msg += enableTSpinKick + "\t";
+		msg += enableB2B + "\t";
+		msg += enableCombo + "\t";
+		msg += presetNumber + "\t";
+		msg += spinCheckType + "\t";
+		msg += tspinEnableEZ + "\n";
 		netLobby.netPlayerClient.send(msg);
 	}
 

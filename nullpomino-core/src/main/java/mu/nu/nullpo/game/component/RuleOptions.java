@@ -172,7 +172,7 @@ public class RuleOptions implements Serializable {
 	/** Use new soft drop codes */
 	public boolean softdropGravitySpeedLimit;
 
-	/** Precedingrotation */
+	/** Preceding rotation */
 	public boolean rotateInitial;
 
 	/** PrecedingrotationNot continuous use */

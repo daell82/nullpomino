@@ -39,6 +39,7 @@ import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * AVALANCHE VS-BATTLE mode (Release Candidate 1)
@@ -243,7 +244,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 		inFever[playerID] = false;
 		feverBackupField[playerID] = null;
 
-		if (engine.owner.replayMode == false) {
+		if (!engine.owner.replayMode) {
 			loadOtherSetting(engine, engine.owner.modeConfig);
 			loadPreset(engine, engine.owner.modeConfig, -1 - playerID, "");
 			version = CURRENT_VERSION;
@@ -260,7 +261,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 	@Override
 	public boolean onSetting(GameEngine engine, int playerID) {
 		// Menu
-		if (engine.owner.replayMode == false && engine.statc_4() == 0) {
+		if (!engine.owner.replayMode && engine.statc_4() == 0) {
 			// Configuration changes
 			int change = updateCursor(engine, xyzzy == 573 ? 46 : 43);
 
@@ -519,8 +520,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 						feverThreshold[playerID] = 0;
 					}
 					break;
-				case 27:
-				case 44:
+				case 27, 44:
 					feverMapSet[playerID] += change;
 					if (feverMapSet[playerID] < 0) {
 						feverMapSet[playerID] = FEVER_MAPS.length - 1;
@@ -671,8 +671,7 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 				case 41:
 					bigDisplay = !bigDisplay;
 					break;
-				case 42:
-				case 43:
+				case 42, 43:
 					presetNumber[playerID] += change;
 					if (presetNumber[playerID] < 0) {
 						presetNumber[playerID] = 99;
@@ -735,12 +734,12 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 
 			// 決定
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (xyzzy == 573 && menuCursor > 43) {
 					loadFeverMap(engine, playerID, new Random(), previewChain[playerID], previewSubset[playerID]);
 				} else if (xyzzy == 9 && playerID == 0) {
-					engine.playSE("levelup");
+					engine.playSE(Sounds.LEVEL_UP);
 					xyzzy = 573;
 				} else if (menuCursor == 42) {
 					loadPreset(engine, owner.modeConfig, presetNumber[playerID], "");
@@ -818,69 +817,83 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 	@Override
 	public void renderSetting(GameEngine engine, int playerID) {
 		if (engine.statc_4() == 0) {
+			// @formatter:off
 			if (menuCursor < 9) {
-				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0, "GRAVITY",
-						String.valueOf(engine.speed.gravity), "G-MAX", String.valueOf(engine.speed.denominator), "ARE",
-						String.valueOf(engine.speed.are), "ARE LINE", String.valueOf(engine.speed.areLine),
-						"LINE DELAY", String.valueOf(engine.speed.lineDelay), "LOCK DELAY",
-						String.valueOf(engine.speed.lockDelay), "DAS", String.valueOf(engine.speed.das), "FALL DELAY",
-						String.valueOf(engine.cascadeDelay), "CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
+				drawMenu(engine, playerID, 0, Colors.FONT_ORANGE, 0,
+						"GRAVITY", String.valueOf(engine.speed.gravity),
+						"G-MAX", String.valueOf(engine.speed.denominator),
+						"ARE", String.valueOf(engine.speed.are),
+						"ARE LINE", String.valueOf(engine.speed.areLine),
+						"LINE DELAY", String.valueOf(engine.speed.lineDelay),
+						"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+						"DAS", String.valueOf(engine.speed.das),
+						"FALL DELAY", String.valueOf(engine.cascadeDelay),
+						"CLEAR DELAY", String.valueOf(engine.cascadeClearDelay));
 
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 1/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 17) {
-				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9, "COUNTER",
-						OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]], "MAX ATTACK",
-						String.valueOf(maxAttack[playerID]), "COLORS", String.valueOf(numColors[playerID]), "MIN CHAIN",
-						String.valueOf(rensaShibari[playerID]), "CLEAR SIZE", String.valueOf(engine.colorClearSize),
-						"OJAMA RATE", String.valueOf(ojamaRate[playerID]), "HURRYUP",
-						hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC", "CHAINPOWER",
-						newChainPower[playerID] ? "FEVER" : "CLASSIC");
-
+				drawMenu(engine, playerID, 0, Colors.FONT_CYAN, 9,
+						"COUNTER", OJAMA_COUNTER_STRING[ojamaCounterMode[playerID]],
+						"MAX ATTACK", String.valueOf(maxAttack[playerID]),
+						"COLORS", String.valueOf(numColors[playerID]),
+						"MIN CHAIN", String.valueOf(rensaShibari[playerID]),
+						"CLEAR SIZE", String.valueOf(engine.colorClearSize),
+						"OJAMA RATE", String.valueOf(ojamaRate[playerID]),
+						"HURRYUP", hurryupSeconds[playerID] == 0 ? "NONE" : hurryupSeconds[playerID] + "SEC",
+						"CHAINPOWER", newChainPower[playerID] ? "FEVER" : "CLASSIC");
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 2/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 26) {
 				initMenu(Colors.FONT_DARKBLUE, 17);
-				drawMenu(engine, playerID, "OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]], "SHOW CHAIN",
-						CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]], "FALL ANIM",
-						cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
+				drawMenu(engine, playerID,
+						"OUTLINE", OUTLINE_TYPE_NAMES[outlineType[playerID]],
+						"SHOW CHAIN", CHAIN_DISPLAY_NAMES[chainDisplayType[playerID]],
+						"FALL ANIM", cascadeSlow[playerID] ? "FEVER" : "CLASSIC");
 				menuColor = Colors.FONT_CYAN;
-				drawMenu(engine, playerID, "BIG", GeneralUtil.getONorOFF(big[playerID]));
+				drawMenu(engine, playerID,
+						"BIG", GeneralUtil.getONorOFF(big[playerID]));
 				if (big[playerID]) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, "HARD OJAMA", String.valueOf(ojamaHard[playerID]), "X COLUMN",
-						dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY", "X SHOW",
-						GeneralUtil.getONorOFF(dangerColumnShowX[playerID]), "ZENKESHI",
-						ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
+				drawMenu(engine, playerID,
+						"HARD OJAMA", String.valueOf(ojamaHard[playerID]),
+						"X COLUMN", dangerColumnDouble[playerID] ? "3 AND 4" : "3 ONLY",
+						"X SHOW", GeneralUtil.getONorOFF(dangerColumnShowX[playerID]),
+						"ZENKESHI",	ZENKESHI_TYPE_NAMES[zenKeshiType[playerID]]);
 				if (zenKeshiType[playerID] == ZENKESHI_MODE_OFF) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, "ZK-BONUS",
-						zenKeshiType[playerID] == ZENKESHI_MODE_FEVER ? zenKeshiChain[playerID] + " CHAIN"
+				drawMenu(engine, playerID,
+						"ZK-BONUS",	zenKeshiType[playerID] == ZENKESHI_MODE_FEVER
+								? zenKeshiChain[playerID] + " CHAIN"
 								: zenKeshiOjama[playerID] + " OJAMA");
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 3/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 36) {
 				initMenu(big[playerID] ? Colors.FONT_WHITE : Colors.FONT_PURPLE, 26);
-				drawMenu(engine, playerID, "FEVER",
-						feverThreshold[playerID] == 0 ? "NONE" : feverThreshold[playerID] + " PTS");
+				drawMenu(engine, playerID,
+						"FEVER", feverThreshold[playerID] == 0 ? "NONE" : feverThreshold[playerID] + " PTS");
 				if (feverThreshold[playerID] == 0 && zenKeshiType[playerID] != ZENKESHI_MODE_FEVER) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, "F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
+				drawMenu(engine, playerID,
+						"F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase());
 				if (feverThreshold[playerID] == 0) {
 					menuColor = Colors.FONT_WHITE;
 				}
-				drawMenu(engine, playerID, "F-MIN TIME", feverTimeMin[playerID] + "SEC", "F-MAX TIME",
-						feverTimeMax[playerID] + "SEC", "F-DISPLAY", feverShowMeter[playerID] ? "METER" : "COUNT",
-						"F-ADDPOINT", FEVER_POINT_CRITERIA_NAMES[feverPointCriteria[playerID]], "F-ADDTIME",
-						FEVER_TIME_CRITERIA_NAMES[feverTimeCriteria[playerID]], "F-POWER",
-						feverPower[playerID] * 10 + "%", "F-1STCHAIN", String.valueOf(feverChainStart[playerID]),
+				drawMenu(engine, playerID,
+						"F-MIN TIME", feverTimeMin[playerID] + "SEC",
+						"F-MAX TIME", feverTimeMax[playerID] + "SEC",
+						"F-DISPLAY", feverShowMeter[playerID] ? "METER" : "COUNT",
+						"F-ADDPOINT", FEVER_POINT_CRITERIA_NAMES[feverPointCriteria[playerID]],
+						"F-ADDTIME", FEVER_TIME_CRITERIA_NAMES[feverTimeCriteria[playerID]],
+						"F-POWER", feverPower[playerID] * 10 + "%",
+						"F-1STCHAIN", String.valueOf(feverChainStart[playerID]),
 						"SIDE METER", ojamaMeter[playerID] || feverThreshold[playerID] == 0 ? "OJAMA" : "FEVER");
-
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 4/5", Colors.FONT_YELLOW);
 			} else if (menuCursor < 44) {
 				initMenu(Colors.FONT_PINK, 36);
-				drawMenu(engine, playerID, "USE MAP", GeneralUtil.getONorOFF(useMap[playerID]), "MAP SET",
-						String.valueOf(mapSet[playerID]), "MAP NO.",
+				drawMenu(engine, playerID,
+						"USE MAP", GeneralUtil.getONorOFF(useMap[playerID]),
+						"MAP SET", String.valueOf(mapSet[playerID]), "MAP NO.",
 						mapNumber[playerID] < 0 ? "RANDOM" : mapNumber[playerID] + "/" + (mapMaxNo[playerID] - 1));
 				menuColor = Colors.FONT_DARKBLUE;
 				drawMenu(engine, playerID, "BGM", String.valueOf(bgmno));
@@ -889,18 +902,19 @@ public class AvalancheVSMode extends AvalancheVSDummyMode {
 				menuColor = Colors.FONT_DARKBLUE;
 				drawMenu(engine, playerID, "BIG DISP", GeneralUtil.getONorOFF(bigDisplay));
 				menuColor = Colors.FONT_GREEN;
-				drawMenu(engine, playerID, "LOAD", String.valueOf(presetNumber[playerID]), "SAVE",
-						String.valueOf(presetNumber[playerID]));
-
+				drawMenu(engine, playerID,
+						"LOAD", String.valueOf(presetNumber[playerID]),
+						"SAVE",	String.valueOf(presetNumber[playerID]));
 				renderer.drawMenuFont(engine, playerID, 0, 21, "PAGE 5/5", Colors.FONT_YELLOW);
 			} else {
 				renderer.drawMenuFont(engine, playerID, 0, 13, "MAP PREVIEW", Colors.FONT_YELLOW);
 				renderer.drawMenuFont(engine, playerID, 0, 14, "A:DISPLAY", Colors.FONT_GREEN);
-				drawMenu(engine, playerID, 15, Colors.FONT_BLUE, 44, "F-MAP SET",
-						FEVER_MAPS[feverMapSet[playerID]].toUpperCase(), "SUBSET",
-						feverMapSubsets[playerID][previewSubset[playerID]].toUpperCase(), "CHAIN",
-						String.valueOf(previewChain[playerID]));
+				drawMenu(engine, playerID, 15, Colors.FONT_BLUE, 44,
+						"F-MAP SET", FEVER_MAPS[feverMapSet[playerID]].toUpperCase(),
+						"SUBSET", feverMapSubsets[playerID][previewSubset[playerID]].toUpperCase(),
+						"CHAIN", String.valueOf(previewChain[playerID]));
 			}
+			// @formatter:on
 		} else {
 			renderer.drawMenuFont(engine, playerID, 3, 10, "WAIT", Colors.FONT_YELLOW);
 		}

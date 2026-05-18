@@ -111,7 +111,7 @@ public class SpeedMania2Mode extends AbstractMode {
 	/** The actual gear position display, such as the final result */
 	private int grade;
 
-	/** Illuminate the display remaining dan frame count */
+	/** Illuminate the display remaining grade frame count */
 	private int gradeflash;
 
 	/** Combo bonus */

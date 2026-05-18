@@ -492,47 +492,42 @@ public abstract class AbstractMode implements GameMode {
 		drawResultRankScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultRankScale(GameEngine engine, int playerID, int y, int color,
-			float scale, int rank) {
+	protected void drawResultRankScale(GameEngine engine, int playerID, int y, int color, float scale, int rank) {
 		if (rank != -1) {
 			renderer.drawMenuFont(engine, playerID, 0, y, "RANK", color, scale);
 			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultNetRank(GameEngine engine, int playerID, int y, int color,
-			int rank) {
+	protected void drawResultNetRank(GameEngine engine, int playerID, int y, int color, int rank) {
 		drawResultNetRankScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankScale(GameEngine engine, int playerID, int y, int color,
-			float scale, int rank) {
+	protected void drawResultNetRankScale(GameEngine engine, int playerID, int y, int color, float scale, int rank) {
 		if (rank != -1) {
 			renderer.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, scale);
 			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultNetRankDaily(GameEngine engine, int playerID, int y, int color,
-			int rank) {
+	protected void drawResultNetRankDaily(GameEngine engine, int playerID, int y, int color, int rank) {
 		drawResultNetRankDailyScale(engine, playerID, y, color, 1.0f, rank);
 	}
 
-	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, int y, int color,
-			float scale, int rank) {
+	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, int y, int color, float scale,
+			int rank) {
 		if (rank != -1) {
 			renderer.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, scale);
 			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
 		}
 	}
 
-	protected void drawResultStats(GameEngine engine, int playerID, int y, int color,
-			Statistic... stats) {
+	protected void drawResultStats(GameEngine engine, int playerID, int y, int color, Statistic... stats) {
 		drawResultStatsScale(engine, playerID, y, color, 1.0f, stats);
 	}
 
-	protected void drawResultStatsScale(GameEngine engine, int playerID, int y, int color,
-			float scale, Statistic... statistics) {
+	protected void drawResultStatsScale(GameEngine engine, int playerID, int y, int color, float scale,
+			Statistic... statistics) {
 		var stats = engine.statistics;
 		for (Statistic stat : statistics) {
 			switch (stat) {

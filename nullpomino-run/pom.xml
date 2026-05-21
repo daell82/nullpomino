@@ -68,23 +68,6 @@
 							</resources>
 						</configuration>
 					</execution>
-					<!-- 
-					<execution>
-						<id>workingdir-lib</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-resources</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/install/lib</outputDirectory>
-							<resources>
-								<resource>
-									<directory>lib</directory>
-								</resource>
-							</resources>
-						</configuration>
-					</execution>
-					-->
 					<execution>
 						<id>workingdir-res</id>
 						<phase>package</phase>
@@ -123,33 +106,13 @@
 				<version>2.10</version>
 				<executions>
 					<execution>
-						<id>primary-jar</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>mu.nu.nullpo</groupId>
-									<artifactId>nullpomino-core</artifactId>
-									<version>${project.version}</version>
-									<type>jar</type>
-									<overWrite>true</overWrite>
-									<outputDirectory>${project.build.directory}/install</outputDirectory>
-									<destFileName>NullpoMino.jar</destFileName>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-					<execution>
 						<id>lib-jars</id>
 						<phase>package</phase>
 						<goals>
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<excludeArtifactIds>nullpomino-core</excludeArtifactIds>
+							<!-- excludeArtifactIds>nullpomino-core</excludeArtifactIds-->
 							<outputDirectory>${project.build.directory}/install/lib</outputDirectory>
 							<overWriteIfNewer>true</overWriteIfNewer>
 							<overWriteReleases>true</overWriteReleases>
@@ -159,77 +122,23 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>com.teamtter.mavennatives</groupId>
-				<artifactId>nativedependencies-maven-plugin</artifactId>
-				<version>1.0.6</version>
+			<plugin> 
+				<groupId>com.googlecode.mavennatives</groupId>
+				<artifactId>maven-nativedependencies-plugin</artifactId>
+				<version>0.0.7</version>
+				<configuration>
+					<nativesTargetDir>${project.build.directory}/install/lib</nativesTargetDir>
+					<separateDirs>false</separateDirs>
+				</configuration>
 				<executions>
 					<execution>
 						<id>unpacknatives</id>
-						<phase>package</phase>
 						<goals>
 							<goal>copy</goal>
 						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<skip>false</skip>
-					<!-- autoDetectDirUpInFilesystem is documented below-->
-					<autoDetectDirUpInFilesystem>false</autoDetectDirUpInFilesystem>
-					<!-- if autoDetectOSNatives is 'true' then you don't need the 'osFilters' list -->
-					<!-- we advise you set 'autoDetectOSNatives' to true and forget about osFilters -->
-					<autoDetectOSNatives>true</autoDetectOSNatives>
-
-					<!-- byTypeFilter>so,dll,jnilib,dylib</byTypeFilter -->
-
-					<nativesTargetDir>${project.build.directory}/install/lib</nativesTargetDir>
-					<!-- <separateDirs>true</separateDirs> -->
-					<!-- osFilters>
-						<osFilter>
-							<osName>linux</osName>
-							<suffix>linux</suffix>
-						</osFilter>
-						<osFilter>
-							<osName>windows</osName>
-							<suffix>win</suffix>
-						</osFilter>
-						<osFilter>
-							<osName>macos</osName>
-							<suffix>osx</suffix>
-						</osFilter>
-					</osFilters -->
-				</configuration>
+					</execution> 
+				</executions> 
 			</plugin>
 		</plugins>
-
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>org.apache.maven.plugins</groupId>
-										<artifactId>maven-dependency-plugin</artifactId>
-										<versionRange>[2.10,)</versionRange>
-										<goals>
-											<goal>copy</goal>
-											<goal>copy-dependencies</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<ignore/>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
 	</build>
 </project>

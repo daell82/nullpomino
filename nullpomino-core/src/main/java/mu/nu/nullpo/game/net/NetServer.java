@@ -207,7 +207,7 @@ public class NetServer {
 	private Calendar spDailyLastUpdate;
 
 	/** Ban list */
-	private List<NetServerBan> banList;
+	private List<NetServerBan> serverBans;
 
 	/** Lobby chat message history */
 	private List<NetChatMessage> lobbyChats = new LinkedList<>();
@@ -371,7 +371,7 @@ public class NetServer {
 			GameStyle style = GameStyle.TETROMINO;
 
 			while ((str = in.readLine()) != null) {
-				if (str.length() <= 0 || str.startsWith("#")) {
+				if (str.isEmpty() || str.startsWith("#")) {
 					// Empty line or comment line. Ignore it.
 				} else if (str.startsWith(":")) {
 					// Game style tag
@@ -742,7 +742,7 @@ public class NetServer {
 				pInfo.playCount[i] = propPlayerData.getProperty("p.playCount." + i + "." + pInfo.strName, 0);
 				pInfo.winCount[i] = propPlayerData.getProperty("p.winCount." + i + "." + pInfo.strName, 0);
 			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+			pInfo.spPersonalBest.playerName = pInfo.strName;
 			pInfo.spPersonalBest.readProperty(propPlayerData);
 		} else {
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
@@ -750,7 +750,7 @@ public class NetServer {
 				pInfo.playCount[i] = 0;
 				pInfo.winCount[i] = 0;
 			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+			pInfo.spPersonalBest.playerName = pInfo.strName;
 		}
 	}
 
@@ -766,7 +766,7 @@ public class NetServer {
 				propPlayerData.setProperty("p.playCount." + i + "." + pInfo.strName, pInfo.playCount[i]);
 				propPlayerData.setProperty("p.winCount." + i + "." + pInfo.strName, pInfo.winCount[i]);
 			}
-			pInfo.spPersonalBest.strPlayerName = pInfo.strName;
+			pInfo.spPersonalBest.playerName = pInfo.strName;
 			pInfo.spPersonalBest.writeProperty(propPlayerData);
 		}
 	}
@@ -788,7 +788,7 @@ public class NetServer {
 	 * Load ban list from a file
 	 */
 	private void loadBanList() {
-		banList = new LinkedList<>();
+		serverBans = new LinkedList<>();
 		try {
 			List<String> lines = Files.readAllLines(new File("config/setting/netserver_banlist.cfg").toPath());
 			for (String line : lines) {
@@ -798,7 +798,7 @@ public class NetServer {
 				NetServerBan ban = new NetServerBan();
 				ban.importString(line);
 				if (!ban.isExpired()) {
-					banList.add(ban);
+					serverBans.add(ban);
 				}
 			}
 		} catch (IOException e) {
@@ -813,7 +813,7 @@ public class NetServer {
 	 */
 	private void saveBanList() {
 		try (var out = new PrintWriter(new FileWriter("config/setting/netserver_banlist.cfg"))) {
-			for (NetServerBan ban : banList) {
+			for (NetServerBan ban : serverBans) {
 				out.println(ban.exportString());
 			}
 			out.flush();
@@ -2832,27 +2832,25 @@ public class NetServer {
 				}
 			}
 
-			if (isDaily) {
-				if (updateSPDailyRanking()) {
-					writeSPRankingToFile();
-				}
+			if (isDaily && updateSPDailyRanking()) {
+				writeSPRankingToFile();
 			}
 
 			NetSPRanking ranking = getSPRanking(strRule, strMode, gameType, isDaily);
 			if (ranking != null) {
 				// Get from leaderboard...
-				NetSPRecord record = ranking.getRecord(strName);
+				NetSPRecord netRecord = ranking.getRecord(strName);
 				// or from Personal Best when not found in the leaderboard.
-				if (record == null && !isDaily) {
-					record = pInfo.spPersonalBest.getRecord(strRule, strMode, gameType);
+				if (netRecord == null && !isDaily) {
+					netRecord = pInfo.spPersonalBest.getRecord(strRule, strMode, gameType);
 				}
 
-				if (record != null) {
+				if (netRecord != null) {
 					Adler32 checksumObj = new Adler32();
-					checksumObj.update(NetUtil.stringToBytes(record.strReplayProp));
+					checksumObj.update(NetUtil.stringToBytes(netRecord.strReplayProp));
 					long sChecksum = checksumObj.getValue();
 
-					String strMsg = "spdownload\t" + sChecksum + "\t" + record.strReplayProp + "\n";
+					String strMsg = "spdownload\t" + sChecksum + "\t" + netRecord.strReplayProp + "\n";
 					send(client, strMsg);
 				} else {
 					log.warn("Record not found (Mode:" + strMode + ", Rule:" + strRule + ", Type:" + gameType + " Name:"
@@ -3024,15 +3022,12 @@ public class NetServer {
 			int count = 0;
 
 			if (message[1].equalsIgnoreCase("ALL")) {
-				count = banList.size();
-				banList.clear();
+				count = serverBans.size();
+				serverBans.clear();
 			} else {
-				LinkedList<NetServerBan> tempList = new LinkedList<>();
-				tempList.addAll(banList);
-
-				for (NetServerBan ban : tempList) {
+				for (NetServerBan ban : List.copyOf(serverBans)) {
 					if (ban.addr.equals(message[1])) {
-						banList.remove(ban);
+						serverBans.remove(ban);
 						count++;
 					}
 				}
@@ -3044,18 +3039,18 @@ public class NetServer {
 		// Ban List
 		if (message[0].equals("banlist")) {
 			// Cleanup expired bans
-			LinkedList<NetServerBan> tempList = new LinkedList<>();
-			tempList.addAll(banList);
+			List<NetServerBan> tempList = new LinkedList<>();
+			tempList.addAll(serverBans);
 
 			for (NetServerBan ban : tempList) {
 				if (ban.isExpired()) {
-					banList.remove(ban);
+					serverBans.remove(ban);
 				}
 			}
 
 			// Create list
 			String strResult = "";
-			for (NetServerBan ban : banList) {
+			for (NetServerBan ban : serverBans) {
 				strResult += "\t" + ban.exportString();
 			}
 
@@ -3072,7 +3067,8 @@ public class NetServer {
 			boolean mpRankingDataChange = false;
 			boolean spRankingDataChange = false;
 
-			for (int i = 0; i < GameStyle.numStyles(); i++) {
+			for (GameStyle style : GameStyle.values()) {
+				int i = style.ordinal();
 				if (propPlayerData.getProperty("p.rating." + i + "." + name) != null) {
 					propPlayerData.setProperty("p.rating." + i + "." + name, ratingDefault);
 					propPlayerData.setProperty("p.playCount." + i + "." + name, 0);
@@ -3090,7 +3086,6 @@ public class NetServer {
 					pInfo.winCount[i] = 0;
 					pInfo.spPersonalBest.records.clear();
 				}
-				GameStyle style = GameStyle.values()[i];
 
 				int playerRank = getMPRanking(style, pInfo);
 				if (playerRank != -1) {
@@ -3099,16 +3094,16 @@ public class NetServer {
 				}
 
 				for (NetSPRanking ranking : spRankingListAlltime) {
-					NetSPRecord record = ranking.getRecord(name);
-					if (record != null) {
-						ranking.records.remove(record);
+					NetSPRecord netRecord = ranking.getRecord(name);
+					if (netRecord != null) {
+						ranking.records.remove(netRecord);
 						spRankingDataChange = true;
 					}
 				}
 				for (NetSPRanking ranking : spRankingListDaily) {
-					NetSPRecord record = ranking.getRecord(name);
-					if (record != null) {
-						ranking.records.remove(record);
+					NetSPRecord netRecord = ranking.getRecord(name);
+					if (netRecord != null) {
+						ranking.records.remove(netRecord);
 						spRankingDataChange = true;
 					}
 				}
@@ -3721,7 +3716,7 @@ public class NetServer {
 		}
 		if (banChannels.isEmpty() && banLength >= 0) {
 			// Add ban entry manually
-			banList.add(new NetServerBan(strIP, banLength));
+			serverBans.add(new NetServerBan(strIP, banLength));
 		}
 
 		return banChannels.size();
@@ -3740,7 +3735,7 @@ public class NetServer {
 		if (banLength < 0) {
 			log.info("Kicked player: " + remoteAddr);
 		} else {
-			banList.add(new NetServerBan(remoteAddr, banLength));
+			serverBans.add(new NetServerBan(remoteAddr, banLength));
 			log.info("Banned player: " + remoteAddr);
 		}
 
@@ -3769,7 +3764,7 @@ public class NetServer {
 	private NetServerBan getBan(SocketChannel client) {
 		String remoteAddr = getHostAddress(client);
 
-		Iterator<NetServerBan> i = banList.iterator();
+		Iterator<NetServerBan> i = serverBans.iterator();
 		NetServerBan ban;
 
 		while (i.hasNext()) {
@@ -3823,23 +3818,6 @@ public class NetServer {
 
 		return null;
 	}
-
-	/**
-	 * Get rated-game rule index
-	 *
-	 * @param style Style ID
-	 * @param name  Rule Name
-	 * @return Index (-1 if not found)
-	 */
-	/*
-	 * private int getRatedRuleIndex(int style, String name) { for(int i = 0; i <
-	 * ruleList[style].size(); i++) { RuleOptions rule =
-	 * (RuleOptions)ruleList[style].get(i);
-	 *
-	 * if(name.equals(rule.strRuleName)) { return i; } }
-	 *
-	 * return -1; }
-	 */
 
 	/**
 	 * Get new rating

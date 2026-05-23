@@ -1,17 +1,17 @@
 package net.omegaboshi.nullpomino.game.subsystem.randomizer;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Piece;
 
+@Log4j
 public class FixedSequenceRandomizer extends Randomizer {
 
-	private int[] sequenceTranslated;
+	private int[] sequence;
 	private int id = -1;
 
 	public FixedSequenceRandomizer() {
@@ -25,41 +25,18 @@ public class FixedSequenceRandomizer extends Randomizer {
 
 	@Override
 	public void init() {
-
-		StringBuffer sequence;
-		File file = new File("sequence.txt");
-		sequence = new StringBuffer();
-		BufferedReader reader = null;
-
-		try {
-			reader = new BufferedReader(new FileReader(file));
-			String text = null;
-
-			// repeat until all lines is read
-			while ((text = reader.readLine()) != null) {
-				sequence.append(text);
-
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+		StringBuilder builder = new StringBuilder();
+		try (var lines = Files.lines(Paths.get("sequence.txt"))) {
+			lines.forEach(builder::append);
 		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (reader != null) {
-					reader.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			log.error("failed to load sequence data", e);
 		}
-
-		sequenceTranslated = new int[sequence.toString().length()];
-		for (int i = 0; i < sequenceTranslated.length; i++) {
-			sequenceTranslated[i] = pieceCharToId(sequence.toString().charAt(i));
+		String data = builder.toString();
+		sequence = new int[data.length()];
+		for (int i = 0; i < sequence.length; i++) {
+			sequence[i] = pieceCharToId(data.charAt(i));
 		}
-		System.out.println(Arrays.toString(sequenceTranslated));
-
+		log.debug("obtained sequence: " + Arrays.toString(sequence));
 	}
 
 	private int pieceCharToId(char c) {
@@ -75,7 +52,7 @@ public class FixedSequenceRandomizer extends Randomizer {
 	@Override
 	public int next() {
 		id = id + 1;
-		return sequenceTranslated[id % sequenceTranslated.length];
+		return sequence[id % sequence.length];
 	}
 
 }

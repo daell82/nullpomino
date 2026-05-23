@@ -118,6 +118,7 @@ public class GameManager implements Serializable {
 
 		int players = 1;
 		if (mode != null) {
+			mode.setOwner(this);
 			mode.modeInit(this);
 			players = mode.getPlayers();
 		}

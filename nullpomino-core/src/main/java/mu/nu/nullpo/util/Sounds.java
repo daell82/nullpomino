@@ -118,17 +118,9 @@ public class Sounds {
 
 	public static final String PIECE_I = "piece0";
 
-	public static final String PIECE_I1 = "piece7";
-
-	public static final String PIECE_I2 = "piece8";
-
-	public static final String PIECE_I3 = "piece9";
-
 	public static final String PIECE_J = "piece5";
 
 	public static final String PIECE_L = "piece1";
-
-	public static final String PIECE_L3 = "piece10";
 
 	public static final String PIECE_O = "piece2";
 
@@ -137,6 +129,14 @@ public class Sounds {
 	public static final String PIECE_T = "piece4";
 
 	public static final String PIECE_Z = "piece3";
+
+	public static final String PIECE_I1 = "piece7";
+
+	public static final String PIECE_I2 = "piece8";
+
+	public static final String PIECE_I3 = "piece9";
+
+	public static final String PIECE_L3 = "piece10";
 
 	/** sound effect for ready (on ready->go transition) */
 	public static final String READY = "ready";

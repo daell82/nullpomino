@@ -194,6 +194,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 */
 	@Override
 	public void modeInit(GameManager manager) {
+		super.modeInit(manager);
 		log.debug("modeInit() on NetDummyMode");
 		owner = manager;
 		netIsNetPlay = false;
@@ -1145,17 +1146,20 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				endIndex = netRankingPlace[d].size();
 			}
 
+			// @formatter:off
 			String headers = switch (netRankingType) {
 			case NetSPRecord.RANKINGTYPE_GENERIC_SCORE -> "    SCORE   LINE TIME     NAME";
-			case NetSPRecord.RANKINGTYPE_GENERIC_TIME -> "    TIME     PIECE PPS    NAME";
-			case NetSPRecord.RANKINGTYPE_SCORERACE -> "    TIME     LINE SPL    NAME";
-			case NetSPRecord.RANKINGTYPE_DIGRACE -> "    TIME     LINE PIECE  NAME";
-			case NetSPRecord.RANKINGTYPE_ULTRA -> "    SCORE   LINE PIECE    NAME";
-			case NetSPRecord.RANKINGTYPE_COMBORACE -> "    COMBO TIME     PPS    NAME";
-			case NetSPRecord.RANKINGTYPE_DIGCHALLENGE -> "    SCORE   LINE TIME     NAME";
-			case NetSPRecord.RANKINGTYPE_TIMEATTACK -> "    LINE  TIME     PPS    NAME";
+			case NetSPRecord.RANKINGTYPE_GENERIC_TIME ->  "    TIME     PIECE PPS    NAME";
+			case NetSPRecord.RANKINGTYPE_SCORERACE ->     "    TIME     LINE SPL     NAME";
+			case NetSPRecord.RANKINGTYPE_DIGRACE ->       "    TIME     LINE PIECE   NAME";
+			case NetSPRecord.RANKINGTYPE_ULTRA ->         "    SCORE   LINE PIECE    NAME";
+			case NetSPRecord.RANKINGTYPE_COMBORACE ->     "    COMBO TIME     PPS    NAME";
+			case NetSPRecord.RANKINGTYPE_DIGCHALLENGE ->  "    SCORE   LINE TIME     NAME";
+			case NetSPRecord.RANKINGTYPE_TIMEATTACK ->    "    LINE  TIME     PPS    NAME";
 			default -> null;
 			};
+			// @formatter:on
+
 			if (headers != null) {
 				renderer.drawMenuFont(engine, playerID, 1, 3, headers, Colors.FONT_BLUE);
 			}

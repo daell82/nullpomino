@@ -38,7 +38,7 @@ import lombok.NonNull;
 public record Version(int major, int minor, int micro, boolean isDevBuild, String version)
 		implements Comparable<Version> {
 
-	private static final Version CURRENT_VERSION = Version.of("8.0.0D");
+	private static final Version CURRENT_VERSION = Version.of("7.6.0D");
 
 	public static Version getCurrent() {
 		return CURRENT_VERSION;

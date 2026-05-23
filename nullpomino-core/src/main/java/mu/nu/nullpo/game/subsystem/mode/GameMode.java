@@ -38,6 +38,7 @@ import mu.nu.nullpo.util.CustomProperties;
  * Game mode interface
  */
 public interface GameMode {
+
 	/**
 	 * Get mode name.
 	 *
@@ -58,6 +59,13 @@ public interface GameMode {
 	 * @return Game style of this mode
 	 */
 	public GameStyle getGameStyle();
+
+	/**
+	 * Sets the game manager for this mode
+	 *
+	 * @param manager to use
+	 */
+	public void setOwner(GameManager manager);
 
 	/**
 	 * Initialization of game mode. Executed before the game screen appears.

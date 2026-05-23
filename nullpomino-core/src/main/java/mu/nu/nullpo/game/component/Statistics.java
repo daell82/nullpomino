@@ -30,10 +30,12 @@ package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
 
+import mu.nu.nullpo.game.subsystem.mode.AbstractMode;
 import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
 
 /**
- * ScoreInformation such as the
+ * Information such as the Score
  */
 public class Statistics implements Serializable {
 
@@ -171,15 +173,6 @@ public class Statistics implements Serializable {
 	 */
 	public Statistics(Statistics s) {
 		copy(s);
-	}
-
-	/**
-	 * Constructor that imports data from a String Array
-	 *
-	 * @param s String Array (String[37])
-	 */
-	public Statistics(String[] s) {
-		importStringArray(s);
 	}
 
 	/**
@@ -512,5 +505,27 @@ public class Statistics implements Serializable {
 	public String exportString() {
 		String[] array = exportStringArray();
 		return String.join(";", array);
+	}
+
+	public String get(AbstractMode.Statistic stat) {
+		Object value = switch (stat) {
+		case SCORE -> score;
+		case LINES -> lines;
+		case TIME -> GeneralUtil.getTime(time);
+		case LEVEL -> level + 1;
+		case LEVEL_MANIA -> level;
+		case LEVEL_ADD_DISP -> level + levelDispAdd;
+		case PIECE -> totalPieceLocked;
+		case MAXCOMBO -> maxCombo - 1;
+		case MAXCHAIN -> maxChain;
+		case SPL -> spl;
+		case SPM -> spm;
+		case SPS -> sps;
+		case LPM -> lpm;
+		case LPS -> lps;
+		case PPM -> ppm;
+		case PPS -> pps;
+		};
+		return stat.format(value);
 	}
 }

@@ -1706,18 +1706,44 @@ public class RuleEditor extends JFrame implements ActionListener {
 	 * @param filename Filename
 	 * @throws IOException When I failed to save
 	 */
-	public void save(String filename) throws IOException {
+	public void save(String filename) {
 		RuleOptions ruleopt = new RuleOptions();
 		writeRuleFromUI(ruleopt);
 
 		CustomProperties prop = new CustomProperties();
 		ruleopt.writeProperty(prop, 0);
 
-		FileOutputStream out = new FileOutputStream(filename);
-		prop.store(out, "NullpoMino RuleData");
-		out.close();
+		try (FileOutputStream out = new FileOutputStream(filename)) {
+			prop.store(out, "NullpoMino RuleData");
+			log.debug("Saved rule file to " + filename);
+		} catch (IOException e2) {
+			log.error("Failed to save rule data to " + strNowFile, e2);
+			JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
+					getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
+		}
+	}
 
-		log.debug("Saved rule file to " + filename);
+	protected void saveAs() {
+		// NameSave
+		JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
+		c.setFileFilter(new FileFilterRUL());
+
+		if (c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+			File file = c.getSelectedFile();
+			String filename = file.getPath();
+			if (!filename.endsWith(".rul")) {
+				filename = filename + ".rul";
+			}
+			try {
+				save(filename);
+				strNowFile = filename;
+				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
+			} catch (Exception e2) {
+				log.error("Failed to save rule data to " + filename, e2);
+				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
+						getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
+			}
+		}
 	}
 
 	/**
@@ -1804,12 +1830,14 @@ public class RuleEditor extends JFrame implements ActionListener {
 	 */
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand() == "New") {
+		switch(e.getActionCommand()) {
+		case "New" -> {
 			// New
 			strNowFile = null;
 			setTitle(getUIText("Title_RuleEditor"));
 			readRuleToUI(new RuleOptions());
-		} else if (e.getActionCommand() == "Open") {
+		}
+		case "Open" -> {
 			// Open
 			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
 			c.setFileFilter(new FileFilterRUL());
@@ -1832,45 +1860,17 @@ public class RuleEditor extends JFrame implements ActionListener {
 
 				readRuleToUI(ruleopt);
 			}
-		} else if (e.getActionCommand() == "Save" && strNowFile != null) {
-			// UpDisclaimer save
-			try {
+		}
+		case "Save" -> {
+			if (strNowFile != null) {
 				save(strNowFile);
-			} catch (IOException e2) {
-				log.error("Failed to save rule data to " + strNowFile, e2);
-				JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
-						getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
+			} else {
+				saveAs();
 			}
-		} else if (e.getActionCommand() == "Save" || e.getActionCommand() == "SaveAs") {
-			// NameSave
-			JFileChooser c = new JFileChooser(System.getProperty("user.dir") + "/config/rule");
-			c.setFileFilter(new FileFilterRUL());
-
-			if (c.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-				File file = c.getSelectedFile();
-				String filename = file.getPath();
-				if (!filename.endsWith(".rul")) {
-					filename = filename + ".rul";
-				}
-
-				try {
-					save(filename);
-				} catch (Exception e2) {
-					log.error("Failed to save rule data to " + filename, e2);
-					JOptionPane.showMessageDialog(this, getUIText("Message_FileSaveFailed") + "\n" + e2,
-							getUIText("Title_FileSaveFailed"), JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-
-				strNowFile = filename;
-				setTitle(getUIText("Title_RuleEditor") + ":" + strNowFile);
-			}
-		} else if (e.getActionCommand() == "ResetRandomizer") {
-			// NEXTReset selection of order generation algorithm
-			comboboxRandomizer.setSelectedItem(null);
-		} else if (e.getActionCommand() == "Exit") {
-			// End
-			dispose();
+		}
+		case "SaveAs" -> saveAs();
+		case "ResetRandomizer" -> comboboxRandomizer.setSelectedItem(null);
+		case "Exit" -> dispose();
 		}
 	}
 
@@ -1909,41 +1909,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 	 * Image displayComboItems in box<br>
 	 * <a href="http://www.javadrive.jp/tutorial/jcombobox/index20.html">Source</a>
 	 */
-	protected class ComboLabel {
-		private String text = "";
-		private Icon icon = null;
-
-		public ComboLabel() {
-		}
-
-		public ComboLabel(String text) {
-			this.text = text;
-		}
-
-		public ComboLabel(Icon icon) {
-			this.icon = icon;
-		}
-
-		public ComboLabel(String text, Icon icon) {
-			this.text = text;
-			this.icon = icon;
-		}
-
-		public void setText(String text) {
-			this.text = text;
-		}
-
-		public String getText() {
-			return text;
-		}
-
-		public void setIcon(Icon icon) {
-			this.icon = icon;
-		}
-
-		public Icon getIcon() {
-			return icon;
-		}
+	protected record ComboLabel(String text, Icon icon) {
 	}
 
 	/**
@@ -1960,9 +1926,9 @@ public class RuleEditor extends JFrame implements ActionListener {
 		@Override
 		public Component getListCellRendererComponent(JList<? extends ComboLabel> list, ComboLabel value, int index,
 				boolean isSelected, boolean cellHasFocus) {
-			ComboLabel data = value;
-			setText(data.getText());
-			setIcon(data.getIcon());
+			ComboLabel label = value;
+			setText(label.text());
+			setIcon(label.icon());
 
 			if (isSelected) {
 				setForeground(Color.white);

@@ -316,14 +316,6 @@ public class GameEngine {
 	/** Number of rotations while touching to the floor */
 	private int extendedRotateCount;
 
-	/**
-	 * Number of wallkicks used by current piece
-	 *
-	 * @deprecated unused field
-	 */
-	@Deprecated(forRemoval = true)
-	protected int nowWallkickCount;
-
 	/** Number of upward wallkicks used by current piece */
 	public int nowUpwardWallkickCount;
 
@@ -800,7 +792,6 @@ public class GameEngine {
 		extendedMoveCount = 0;
 		extendedRotateCount = 0;
 
-		nowWallkickCount = 0;
 		nowUpwardWallkickCount = 0;
 
 		softdropFall = 0;
@@ -1061,7 +1052,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * Current AREGets the value of the (Also consider setting rules)
+	 * Gets the Current ARE value (Also consider setting rules)
 	 *
 	 * @return Current ARE
 	 */
@@ -1375,29 +1366,18 @@ public class GameEngine {
 				tspinmini = kickused;
 			}
 
-			int[] tx = new int[4];
-			int[] ty = new int[4];
+			int[] tx;
+			int[] ty;
 
 			// Setup 4-point coordinates
 			if (piece.big) {
-				tx[0] = 1;
-				ty[0] = 1;
-				tx[1] = 4;
-				ty[1] = 1;
-				tx[2] = 1;
-				ty[2] = 4;
-				tx[3] = 4;
-				ty[3] = 4;
+				tx = new int[] { 1, 4, 1, 4 };
+				ty = new int[] { 1, 1, 4, 4 };
 			} else {
-				tx[0] = 0;
-				ty[0] = 0;
-				tx[1] = 2;
-				ty[1] = 0;
-				tx[2] = 0;
-				ty[2] = 2;
-				tx[3] = 2;
-				ty[3] = 2;
+				tx = new int[] { 0, 2, 0, 2 };
+				ty = new int[] { 0, 0, 2, 2 };
 			}
+
 			for (int i = 0; i < tx.length; i++) {
 				if (piece.big) {
 					tx[i] += ruleopt.pieceOffsetX[piece.id][piece.direction] * 2;
@@ -1426,7 +1406,7 @@ public class GameEngine {
 				tspin = true;
 				Field copyField = new Field(fld);
 				piece.placeToField(x, y, copyField);
-				if (copyField.checkLineNoFlag() == 1 && kickused) {
+				if (copyField.countLineClear() == 1 && kickused) {
 					tspinmini = true;
 				}
 			} else if (tspinEnableEZ && kickused) {
@@ -1444,7 +1424,7 @@ public class GameEngine {
 	 * @param piece Current BlockPeace
 	 * @param fld   field
 	 */
-	public void setAllSpin(int x, int y, Piece piece, Field fld) {
+	protected void setAllSpin(int x, int y, Piece piece, Field fld) {
 		tspin = false;
 		tspinmini = false;
 		tspinez = false;
@@ -1500,7 +1480,7 @@ public class GameEngine {
 				tspin = true;
 				Field copyField = new Field(fld);
 				piece.placeToField(x, y, copyField);
-				if (piece.getHeight() + 1 != copyField.checkLineNoFlag() && kickused) {
+				if (piece.getHeight() != copyField.countLineClear() && kickused) {
 					tspinmini = true;
 					// if((copyField.checkLineNoFlag() == 1) && (kickused)) tspinmini =
 					// true;
@@ -1513,17 +1493,15 @@ public class GameEngine {
 	}
 
 	/**
-	 * Determines whether the hold
+	 * Determines whether hold can be used
 	 *
-	 * @return If you can holdtrue
+	 * @return whether hold can be used
 	 */
 	public boolean isHoldOK() {
-		if (!ruleopt.holdEnable || holdDisable || holdUsedCount >= ruleopt.holdLimit && ruleopt.holdLimit >= 0
-				|| initialHoldContinuousUse) {
+		if (!ruleopt.holdEnable || holdDisable || initialHoldContinuousUse) {
 			return false;
 		}
-
-		return true;
+		return ruleopt.holdLimit < 0 || holdUsedCount < ruleopt.holdLimit;
 	}
 
 	/**
@@ -1534,7 +1512,7 @@ public class GameEngine {
 	 * @return Appearance position ofX-coordinate
 	 */
 	public int getSpawnPosX(Field fld, Piece piece) {
-		int x = -1 + (fld.getWidth() - piece.getWidth() + 1) / 2;
+		int x = -1 + (fld.getWidth() - piece.getWidth()) / 2;
 
 		if (big && bigmove && x % 2 != 0) {
 			x++;
@@ -1871,7 +1849,7 @@ public class GameEngine {
 				// input Replay recorded in the state
 				replayData.setInputData(ctrl.getButtonBit(), replayTimer);
 			} else {
-				// input Replay the state read from
+				// read the input state from Replay
 				ctrl.setButtonBit(replayData.getInputData(replayTimer));
 			}
 			replayTimer++;
@@ -2217,7 +2195,7 @@ public class GameEngine {
 	}
 
 	/**
-	 * BlockProcess of moving the pieces
+	 * Process of moving the block pieces
 	 */
 	public void statMove() {
 		dasRepeat = false;
@@ -2366,7 +2344,6 @@ public class GameEngine {
 			nowPieceMoveCount = 0;
 			nowPieceRotateCount = 0;
 			nowPieceRotateFailCount = 0;
-			nowWallkickCount = 0;
 			nowUpwardWallkickCount = 0;
 			lineClearing = 0;
 			lastmove = LastMove.NONE;
@@ -2484,7 +2461,6 @@ public class GameEngine {
 					if (kick != null) {
 						rotated = true;
 						kickused = true;
-						nowWallkickCount++;
 						if (kick.isUpward()) {
 							nowUpwardWallkickCount++;
 						}
@@ -2873,7 +2849,7 @@ public class GameEngine {
 
 				switch (clearMode) {
 				case LINE:
-					lineClearing = field.checkLineNoFlag();
+					lineClearing = field.countLineClear();
 					break;
 				case COLOR:
 					lineClearing = field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor,
@@ -3048,7 +3024,7 @@ public class GameEngine {
 			// Line clear flagを設定
 			switch (clearMode) {
 			case LINE:
-				lineClearing = field.checkLine();
+				lineClearing = field.checkLineClears();
 				break;
 			case COLOR:
 				lineClearing = field.checkColor(colorClearSize, true, garbageColorClear, gemSameColor, ignoreHidden);
@@ -3271,7 +3247,7 @@ public class GameEngine {
 					}
 					statc6++;
 					return;
-				} else if (clearMode == ClearType.LINE && field.checkLineNoFlag() > 0 || clearMode == ClearType.COLOR
+				} else if (clearMode == ClearType.LINE && field.countLineClear() > 0 || clearMode == ClearType.COLOR
 						&& field.checkColor(colorClearSize, false, garbageColorClear, gemSameColor, ignoreHidden) > 0
 						|| clearMode == ClearType.LINE_COLOR
 								&& field.checkLineColor(colorClearSize, false, lineColorDiagonals, gemSameColor) > 0

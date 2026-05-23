@@ -952,12 +952,12 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 
 		// Field Background
 		if (width <= 10 && height <= 20 && showfieldbggrid) {
-			Image img = switch (engine.displaySize) {
+			Image grid = switch (engine.displaySize) {
 			case SMALL -> resourceManager.getImgFieldbg2Small();
 			case NORMAL -> resourceManager.getImgFieldbg2();
 			case BIG -> resourceManager.getImgFieldbg2Big();
 			};
-			graphics.drawImage(img, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0, width * size,
+			graphics.drawImage(grid, x + 4, y + 4, x + 4 + width * size, y + 4 + height * size, 0, 0, width * size,
 					height * size, null);
 		}
 
@@ -1153,8 +1153,8 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 						Piece piece = engine.getNextObject(engine.nextPieceCount + i);
 
 						if (piece != null) {
-							int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
-							int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
+							int centerX = (64 - piece.getWidth() * 16) / 2 - piece.getMinimumBlockX() * 16;
+							int centerY = (64 - piece.getHeight() * 16) / 2 - piece.getMinimumBlockY() * 16;
 							drawPiece(x2 + centerX, y + 48 + i * 64 + centerY, piece, 1.0f);
 						}
 					}
@@ -1169,8 +1169,8 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 						Piece piece = engine.getNextObject(engine.nextPieceCount + i);
 
 						if (piece != null) {
-							int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
-							int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
+							int centerX = (32 - piece.getWidth() * 8) / 2 - piece.getMinimumBlockX() * 8;
+							int centerY = (32 - piece.getHeight() * 8) / 2 - piece.getMinimumBlockY() * 8;
 							drawPiece(x2 + centerX, y + 48 + i * 32 + centerY, piece, 0.5f);
 						}
 					}
@@ -1261,12 +1261,12 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 				piece.resetOffsetArray();
 
 				if (getNextDisplayType() == 2) {
-					int centerX = (64 - (piece.getWidth() + 1) * 16) / 2 - piece.getMinimumBlockX() * 16;
-					int centerY = (64 - (piece.getHeight() + 1) * 16) / 2 - piece.getMinimumBlockY() * 16;
+					int centerX = (64 - piece.getWidth() * 16) / 2 - piece.getMinimumBlockX() * 16;
+					int centerY = (64 - piece.getHeight() * 16) / 2 - piece.getMinimumBlockY() * 16;
 					drawPiece(x - 64 + centerX, y + 48 + centerY, piece, 1.0f, dark);
 				} else if (getNextDisplayType() == 1) {
-					int centerX = (32 - (piece.getWidth() + 1) * 8) / 2 - piece.getMinimumBlockX() * 8;
-					int centerY = (32 - (piece.getHeight() + 1) * 8) / 2 - piece.getMinimumBlockY() * 8;
+					int centerX = (32 - piece.getWidth() * 8) / 2 - piece.getMinimumBlockX() * 8;
+					int centerY = (32 - piece.getHeight() * 8) / 2 - piece.getMinimumBlockY() * 8;
 					drawPiece(x2 + centerX, y + 48 + centerY, piece, 0.5f, dark);
 				} else {
 					drawPiece(x2, y + 48 - (piece.getMaximumBlockY() + 1) * 8, piece, 0.5f, dark);
@@ -1298,9 +1298,8 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 			if (next == null) {
 				continue;
 			}
-			int size = piece.big || engine.displaySize == DisplaySize.BIG ? 2 : 1;
-			int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * (piece.getWidth() + size) / 2;
-			int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * (next.getWidth() + 1) / 2;
+			int shadowCenter = blksize * piece.getMinimumBlockX() + blksize * piece.getWidth() / 2;
+			int nextCenter = blksize / 2 * next.getMinimumBlockX() + blksize / 2 * next.getWidth() / 2;
 			int vPos = blksize * shadowY - (i + 1) * 24 - 8;
 
 			if (vPos >= -blksize / 2) {

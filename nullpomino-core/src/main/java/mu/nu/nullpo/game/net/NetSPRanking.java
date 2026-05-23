@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.net;
 
-import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,10 +8,7 @@ import mu.nu.nullpo.util.CustomProperties;
 /**
  * Single player mode ranking
  */
-public class NetSPRanking implements Serializable {
-
-	/** serialVersionUID for Serialize */
-	private static final long serialVersionUID = 1L;
+public class NetSPRanking {
 
 	/** Game Mode Name */
 	public String modeName;
@@ -33,13 +29,18 @@ public class NetSPRanking implements Serializable {
 	public int maxRecords;
 
 	/** Records */
-	public List<NetSPRecord> records;
+	public final List<NetSPRecord> records = new LinkedList<>();
 
 	/**
 	 * Default Constructor
 	 */
 	public NetSPRanking() {
-		reset();
+		modeName = "";
+		ruleName = "";
+		gameType = 0;
+		style = 0;
+		rankingType = 0;
+		maxRecords = 100;
 	}
 
 	/**
@@ -49,39 +50,6 @@ public class NetSPRanking implements Serializable {
 	 */
 	public NetSPRanking(NetSPRanking s) {
 		copy(s);
-	}
-
-	/**
-	 * Constructor
-	 *
-	 * @param modename Game Mode Name
-	 * @param rulename Rule Name
-	 * @param gtype    Game Type ID
-	 * @param style    Game Style ID
-	 * @param rtype    Ranking Type
-	 * @param max      Max number of records
-	 */
-	public NetSPRanking(String modename, String rulename, int gtype, int style, int rtype, int max) {
-		reset();
-		modeName = modename;
-		ruleName = rulename;
-		gameType = gtype;
-		this.style = style;
-		rankingType = rtype;
-		maxRecords = max;
-	}
-
-	/**
-	 * Initialization
-	 */
-	public void reset() {
-		modeName = "";
-		ruleName = "";
-		gameType = 0;
-		style = 0;
-		rankingType = 0;
-		maxRecords = 100;
-		records = new LinkedList<>();
 	}
 
 	/**
@@ -96,9 +64,9 @@ public class NetSPRanking implements Serializable {
 		style = s.style;
 		rankingType = s.rankingType;
 		maxRecords = s.maxRecords;
-		records = new LinkedList<>();
-		for (int i = 0; i < s.records.size(); i++) {
-			records.add(new NetSPRecord(s.records.get(i)));
+		records.clear();
+		for (NetSPRecord netRecord : s.records) {
+			records.add(new NetSPRecord(netRecord));
 		}
 	}
 

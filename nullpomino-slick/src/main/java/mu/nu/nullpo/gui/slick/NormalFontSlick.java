@@ -45,7 +45,7 @@ public class NormalFontSlick {
 	 * @param fontColor font Color
 	 * @return font ColorColor
 	 */
-	public static Color getFontColorAsColor(int fontColor) {
+	private static Color getFontColorAsColor(int fontColor) {
 		return switch (fontColor) {
 		case Colors.FONT_BLUE -> new Color(0, 0, 255);
 		case Colors.FONT_RED -> new Color(255, 0, 0);
@@ -61,67 +61,64 @@ public class NormalFontSlick {
 	}
 
 	/**
-	 * TTF font Drawing a string using the
+	 * Draws the text using the TTF font and the specified color
 	 *
-	 * @param fontX     X-coordinate
-	 * @param fontY     Y-coordinate
-	 * @param fontStr   String
-	 * @param fontColor Letter color
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param text  String
+	 * @param color Letter color
 	 */
-	public static void printTTFFont(int fontX, int fontY, String fontStr, int fontColor) {
+	public static void printTTFFont(int x, int y, String text, int color) {
 		if (ResourceHolderSlick.ttfFont == null) {
 			return;
 		}
-		ResourceHolderSlick.ttfFont.drawString(fontX, fontY, fontStr, getFontColorAsColor(fontColor));
+		ResourceHolderSlick.ttfFont.drawString(x, y, text, getFontColorAsColor(color));
 	}
 
 	/**
-	 * TTF font Drawing a string using the (Of each stateupdateThe
-	 * methodResourceHolder.ttfFont.loadGlyphs()I will not be drawing attention not
-	 * to call)
+	 * Draws the text using white color and the TTF font
 	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
+	 * @param x    X-coordinate
+	 * @param y    Y-coordinate
+	 * @param text String
 	 */
-	public static void printTTFFont(int fontX, int fontY, String fontStr) {
-		printTTFFont(fontX, fontY, fontStr, Colors.FONT_WHITE);
+	public static void printTTFFont(int x, int y, String text) {
+		printTTFFont(x, y, text, Colors.FONT_WHITE);
 	}
 
 	/**
 	 * Draws the string
 	 *
-	 * @param fontX     X-coordinate
-	 * @param fontY     Y-coordinate
-	 * @param fontStr   String
-	 * @param fontColor Letter color
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param text   String
+	 * @param color Letter color
 	 * @param scale     Enlargement factor
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, int fontColor, float scale) {
-		int dx = fontX;
-		int dy = fontY;
+	public static void printFont(int x, int y, String text, int color, float scale) {
+		int dx = x;
+		int dy = y;
 
-		for (int i = 0; i < fontStr.length(); i++) {
-			char stringChar = fontStr.charAt(i);
+		for (int i = 0; i < text.length(); i++) {
+			char stringChar = text.charAt(i);
 
 			if (stringChar == '\n') {
 				// New line (\n)
 				if (scale == 1.0f) {
-					dy = (int) (dy + 16 * scale);
-					dx = fontX;
+					dy += 16;
 				} else {
-					dy = dy + 8;
-					dx = fontX;
+					dy += 8;
 				}
+				dx = x;
 			} else // Character output
 			if (scale == 0.5f) {
 				int sx = (stringChar - 32) % 32 * 8;
-				int sy = (stringChar - 32) / 32 * 8 + fontColor * 24;
+				int sy = (stringChar - 32) / 32 * 8 + color * 24;
 				ResourceHolderSlick.imgFontSmall.draw(dx, dy, dx + 8f, dy + 8f, sx, sy, sx + 8f, sy + 8f);
 				dx = dx + 8;
 			} else {
 				int sx = (stringChar - 32) % 32 * 16;
-				int sy = (stringChar - 32) / 32 * 16 + fontColor * 48;
+				int sy = (stringChar - 32) / 32 * 16 + color * 48;
 				ResourceHolderSlick.imgFont.draw(dx, dy, dx + 16 * scale, dy + 16 * scale, sx, sy, sx + 16f, sy + 16f);
 				dx = (int) (dx + 16 * scale);
 			}
@@ -129,145 +126,75 @@ public class NormalFontSlick {
 	}
 
 	/**
-	 * Draws the string
+	 * Draws the string using default scale (1.0)
 	 *
-	 * @param fontX     X-coordinate
-	 * @param fontY     Y-coordinate
-	 * @param fontStr   String
-	 * @param fontColor Letter color
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param text  String
+	 * @param color Letter color
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, int fontColor) {
-		printFont(fontX, fontY, fontStr, fontColor, 1.0f);
+	public static void printFont(int x, int y, String text, int color) {
+		printFont(x, y, text, color, 1.0f);
 	}
 
 	/**
-	 * Draws the string (Character color is white)
+	 * Draws the text using white color
 	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
+	 * @param x    X-coordinate
+	 * @param y    Y-coordinate
+	 * @param text String
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr) {
-		printFont(fontX, fontY, fontStr, Colors.FONT_WHITE);
+	public static void printFont(int x, int y, String text) {
+		printFont(x, y, text, Colors.FONT_WHITE);
 	}
 
 	/**
-	 * flagThefalseIf it&#39;s the casefontColorTrue color, trueIf it&#39;s the
-	 * casefontColorTrue colorDraws the string in
+	 * Draws the string in red if flag is {@code true}, white otherwise.
 	 *
-	 * @param fontX          X-coordinate
-	 * @param fontY          Y-coordinate
-	 * @param fontStr        String
-	 * @param flag           Conditional expression
-	 * @param fontColorFalse flagThefalseText color in the case of
-	 * @param fontColorTrue  flagThetrueText color in the case of
+	 * @param x    X-coordinate
+	 * @param y    Y-coordinate
+	 * @param text String
+	 * @param flag Conditional expression (red font on true, white else)
 	 */
-	private static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
-			int fontColorTrue) {
-		if (!flag) {
-			printFont(fontX, fontY, fontStr, fontColorFalse);
-		} else {
-			printFont(fontX, fontY, fontStr, fontColorTrue);
-		}
+	public static void printFont(int x, int y, String text, boolean flag) {
+		printFont(x, y, text, flag ? Colors.FONT_RED : Colors.FONT_WHITE);
 	}
 
 	/**
-	 * flagThefalseIf I were white, trueDraws the string in red if I was
+	 * Draws the string in the specified color. The method uses 16x16 grid units,
+	 * meaning coordinates are multiplied
 	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 * @param flag    Conditional expression
+	 * @param x     X-coordinate
+	 * @param y     Y-coordinate
+	 * @param text  String
+	 * @param color Letter color
 	 */
-	public static void printFont(int fontX, int fontY, String fontStr, boolean flag) {
-		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED);
+	public static void printFontGrid(int x, int y, String text, int color) {
+		printFont(x * 16, y * 16, text, color);
 	}
 
 	/**
-	 * flagThefalseIf it&#39;s the casefontColorTrue color, trueIf it&#39;s the
-	 * casefontColorTrue colorDraws the string in (You can specify the
-	 * magnification)
+	 * Draws the string in white color. The method uses 16x16 grid units, meaning
+	 * coordinates are multiplied
 	 *
-	 * @param fontX          X-coordinate
-	 * @param fontY          Y-coordinate
-	 * @param fontStr        String
-	 * @param flag           Conditional expression
-	 * @param fontColorFalse flagThefalseText color in the case of
-	 * @param fontColorTrue  flagThetrueText color in the case of
-	 * @param scale          Enlargement factor
+	 * @param x    X-coordinate
+	 * @param y    Y-coordinate
+	 * @param text String
 	 */
-	private static void printFont(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
-			int fontColorTrue, float scale) {
-		if (!flag) {
-			printFont(fontX, fontY, fontStr, fontColorFalse, scale);
-		} else {
-			printFont(fontX, fontY, fontStr, fontColorTrue, scale);
-		}
+	public static void printFontGrid(int x, int y, String text) {
+		printFont(x * 16, y * 16, text, Colors.FONT_WHITE);
 	}
 
 	/**
-	 * flagThefalseIf I were white, trueDraws the string in red if I was (You can
-	 * specify the magnification)
+	 * Draws the string in red if flag is {@code true}, white otherwise. THe method
+	 * uses 16x16 grid units, meaning coordinates are multiplied
 	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 * @param flag    Conditional expression
-	 * @param scale   Enlargement factor
+	 * @param x    X-coordinate
+	 * @param y    Y-coordinate
+	 * @param text String
+	 * @param flag Conditional expression (red font on true, white else)
 	 */
-	protected static void printFont(int fontX, int fontY, String fontStr, boolean flag, float scale) {
-		printFont(fontX, fontY, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED, scale);
-	}
-
-	/**
-	 * Draws the string (16x16Grid units)
-	 *
-	 * @param fontX     X-coordinate
-	 * @param fontY     Y-coordinate
-	 * @param fontStr   String
-	 * @param fontColor Letter color
-	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr, int fontColor) {
-		printFont(fontX * 16, fontY * 16, fontStr, fontColor);
-	}
-
-	/**
-	 * Draws the string (16x16Color and character of the white grid units)
-	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr) {
-		printFont(fontX * 16, fontY * 16, fontStr, Colors.FONT_WHITE);
-	}
-
-	/**
-	 * flagThefalseIf it&#39;s the casefontColorTrue color, trueIf it&#39;s the
-	 * casefontColorTrue colorDraws the string in (16x16Grid units)
-	 *
-	 * @param fontX          X-coordinate
-	 * @param fontY          Y-coordinate
-	 * @param fontStr        String
-	 * @param flag           Conditional expression
-	 * @param fontColorFalse flagThefalseText color in the case of
-	 * @param fontColorTrue  flagThetrueText color in the case of
-	 */
-	protected static void printFontGrid(int fontX, int fontY, String fontStr, boolean flag, int fontColorFalse,
-			int fontColorTrue) {
-		printFont(fontX * 16, fontY * 16, fontStr, flag, fontColorFalse, fontColorTrue);
-	}
-
-	/**
-	 * flagThefalseIf I were white, trueDraws the string in red if I was (16x16Grid
-	 * units)
-	 *
-	 * @param fontX   X-coordinate
-	 * @param fontY   Y-coordinate
-	 * @param fontStr String
-	 * @param flag    Conditional expression
-	 */
-	public static void printFontGrid(int fontX, int fontY, String fontStr, boolean flag) {
-		printFont(fontX * 16, fontY * 16, fontStr, flag, Colors.FONT_WHITE, Colors.FONT_RED);
+	public static void printFontGrid(int x, int y, String text, boolean flag) {
+		printFont(x * 16, y * 16, text, flag ? Colors.FONT_RED : Colors.FONT_WHITE);
 	}
 }

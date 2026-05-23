@@ -153,7 +153,7 @@ public class Piece implements Serializable {
 	 * Constructor
 	 */
 	public Piece() {
-		initPiece(0);
+		initPiece(PIECE_I);
 	}
 
 	/**
@@ -272,30 +272,6 @@ public class Piece implements Serializable {
 		int length = Math.min(block.length, color.length);
 		for (int i = 0; i < length; i++) {
 			block[i].color = color[i];
-		}
-	}
-
-	/**
-	 * Sets all blocks' hard count
-	 *
-	 * @param hard Hard count
-	 */
-	public void setHard(int hard) {
-		for (int i = 0; i < block.length; i++) {
-			block[i].hard = hard;
-		}
-	}
-
-	/**
-	 * Sets the hard counts of the blocks individually; allows one piece to have
-	 * different hard count settings for each block
-	 *
-	 * @param hard Array with each element specifying a hard count of a block
-	 */
-	public void setHard(int[] hard) {
-		int length = Math.min(block.length, hard.length);
-		for (int i = 0; i < length; i++) {
-			block[i].hard = hard[i];
 		}
 	}
 
@@ -898,7 +874,7 @@ public class Piece implements Serializable {
 		}
 
 		int wide = big ? 2 : 1;
-		return (max - min) * wide;
+		return (1 + max - min) * wide;
 	}
 
 	/**
@@ -917,7 +893,7 @@ public class Piece implements Serializable {
 		}
 
 		int wide = big ? 2 : 1;
-		return (max - min) * wide;
+		return (1 + max - min) * wide;
 	}
 
 	/**
@@ -1019,17 +995,6 @@ public class Piece implements Serializable {
 			x++;
 		}
 		return x;
-	}
-
-	/**
-	 * rotation buttonPiece after pressing theDirectionGet the
-	 *
-	 * @param move rotationDirection (-1:Left 1:Right 2:180Degrees)
-	 * @return rotation buttonPiece after pressing theDirection
-	 */
-	@Deprecated(forRemoval = true)
-	protected int getRotateDirection(int move) {
-		return getRotateDirection(move, direction);
 	}
 
 	/**

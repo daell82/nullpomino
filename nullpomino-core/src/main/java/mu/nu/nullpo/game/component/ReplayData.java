@@ -29,8 +29,8 @@
 package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import mu.nu.nullpo.util.CustomProperties;
 
@@ -42,17 +42,14 @@ public class ReplayData implements Serializable {
 	/** Serial version ID */
 	private static final long serialVersionUID = 737226985994393117L;
 
-	/** Button input dataOf default The length of the */
-	public static final int DEFAULT_ARRAYLIST_SIZE = 60 * 60 * 10;
-
 	/** Button input data */
-	private List<Integer> inputData;
+	private final SortedMap<Integer, Integer> inputData = new TreeMap<>();
 
 	/**
 	 * Default constructor
 	 */
 	public ReplayData() {
-		reset();
+		// nothing to do here
 	}
 
 	/**
@@ -61,31 +58,7 @@ public class ReplayData implements Serializable {
 	 * @param r Copy source
 	 */
 	public ReplayData(ReplayData r) {
-		copy(r);
-	}
-
-	/**
-	 * Reset to defaults
-	 */
-	public void reset() {
-		if (inputData == null) {
-			inputData = new ArrayList<>(DEFAULT_ARRAYLIST_SIZE);
-		} else {
-			inputData.clear();
-		}
-	}
-
-	/**
-	 * OtherReplayDataCopied from the
-	 *
-	 * @param r Copy source
-	 */
-	public void copy(ReplayData r) {
-		reset();
-
-		for (int i = 0; i < r.inputData.size(); i++) {
-			inputData.add(i, r.inputData.get(i));
-		}
+		inputData.putAll(r.inputData);
 	}
 
 	/**
@@ -95,11 +68,7 @@ public class ReplayData implements Serializable {
 	 * @param frame frame (Course time)
 	 */
 	public void setInputData(int input, int frame) {
-		if (frame < 0 || frame >= inputData.size()) {
-			inputData.add(input);
-		} else {
-			inputData.set(frame, input);
-		}
+		inputData.put(frame, input);
 	}
 
 	/**
@@ -109,10 +78,7 @@ public class ReplayData implements Serializable {
 	 * @return button inputBit of status flag
 	 */
 	public int getInputData(int frame) {
-		if (frame < 0 || frame >= inputData.size()) {
-			return 0;
-		}
-		return inputData.get(frame);
+		return inputData.getOrDefault(frame, 0);
 	}
 
 	/**
@@ -124,13 +90,15 @@ public class ReplayData implements Serializable {
 	 */
 	public void writeProperty(CustomProperties p, int id, int maxFrame) {
 		int max = maxFrame;
-		if (maxFrame < 0 || maxFrame > inputData.size()) {
-			max = inputData.size();
+		if (!inputData.isEmpty()) {
+			int highestFrame = inputData.lastKey();
+			if (highestFrame < maxFrame) {
+				max = highestFrame;
+			}
 		}
-
 		for (int i = 0; i < max; i++) {
-			int input = getInputData(i);
-			int previous = getInputData(i - 1);
+			int input = inputData.getOrDefault(i, 0);
+			int previous = inputData.getOrDefault(i - 1, 0);
 			if (input != previous) {
 				p.setProperty(id + ".r." + i, input);
 			}
@@ -145,7 +113,7 @@ public class ReplayData implements Serializable {
 	 * @param id AnyID (Player IDEtc.)
 	 */
 	public void readProperty(CustomProperties p, int id) {
-		reset();
+		inputData.clear();
 		int max = p.getProperty(id + ".r.max", 0);
 		int input = 0;
 

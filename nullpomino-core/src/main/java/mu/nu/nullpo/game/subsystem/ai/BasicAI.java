@@ -539,7 +539,7 @@ public class BasicAI extends DummyAI implements Runnable {
 		}
 
 		// Line clear
-		int lines = fld.checkLine();
+		int lines = fld.checkLineClears();
 		if (lines > 0) {
 			fld.clearLine();
 			fld.downFloatingBlocks();

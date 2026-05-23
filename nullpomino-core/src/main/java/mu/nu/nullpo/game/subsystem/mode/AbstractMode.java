@@ -31,8 +31,12 @@ package mu.nu.nullpo.game.subsystem.mode;
 import java.util.ArrayList;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Statistics;
 import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
@@ -40,7 +44,6 @@ import mu.nu.nullpo.game.subsystem.mode.menu.AbstractMenuItem;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
-import mu.nu.nullpo.util.GeneralUtil;
 import mu.nu.nullpo.util.Sounds;
 
 /**
@@ -84,15 +87,43 @@ public abstract class AbstractMode implements GameMode {
 	protected static final int RANKING_MAX = 10;
 
 	/** Total score */
-	protected enum Statistic {
-		SCORE, LINES, TIME, LEVEL, LEVEL_MANIA, PIECE, MAXCOMBO, SPL, SPM, SPS, LPM, LPS, PPM, PPS, MAXCHAIN,
-		LEVEL_ADD_DISP
+	@Accessors(fluent = true)
+	@RequiredArgsConstructor
+	public enum Statistic {
+
+		// @formatter:off
+		SCORE("SCORE", "%10d"),
+		LINES("LINES", "%10d"),
+		TIME("TIME", "%10s"),
+		LEVEL("LEVEL", "%10d"), // NOSONAR
+		LEVEL_MANIA("LEVEL", "%10d"),
+		PIECE("PIECE", "%10d"),
+		MAXCOMBO("MAX COMBO", "%10d"),
+		SPL("SCORE/LINE", "%10g"),
+		SPM("SOCRE/MIN", "%10g"),
+		SPS("SCORE/SEC", "%10g"),
+		LPM("LINE/MIN", "%10g"),
+		LPS("LINE/SEC", "%10g"),
+		PPM("PIECE/MIN", "%10g"),
+		PPS("PIECE/SEC", "%10g"),
+		MAXCHAIN("MAX CHAIN", "%10d"),
+		LEVEL_ADD_DISP("LEVEL", "%10d");
+		// @formatter:on
+
+		@Getter
+		private final String label;
+
+		private final String format;
+
+		public String format(Object value) {
+			return String.format(format, value);
+		}
 	}
 
 	/** GameManager that owns this mode */
 	protected GameManager owner;
 
-	/** Drawing and event handling EventReceiver */
+	/** Renderer for drawing game contents */
 	protected Renderer<?> renderer;
 
 	/** Current state of menu for drawMenu */
@@ -119,6 +150,12 @@ public abstract class AbstractMode implements GameMode {
 		menuY = 0;
 		menu = new ArrayList<>();
 		propName = "dummy";
+	}
+
+	@Override
+	public void setOwner(GameManager manager) {
+		this.owner = manager;
+		renderer = manager.renderer;
 	}
 
 	protected void loadSetting(CustomProperties prop) {
@@ -163,11 +200,6 @@ public abstract class AbstractMode implements GameMode {
 	}
 
 	@Override
-	public String getName() {
-		return "DUMMY";
-	}
-
-	@Override
 	public int getPlayers() {
 		return 1;
 	}
@@ -183,6 +215,8 @@ public abstract class AbstractMode implements GameMode {
 
 	@Override
 	public void modeInit(GameManager manager) {
+		owner = manager;
+		renderer = manager.renderer;
 	}
 
 	@Override
@@ -255,8 +289,6 @@ public abstract class AbstractMode implements GameMode {
 
 	@Override
 	public void playerInit(GameEngine engine, int playerID) {
-		owner = engine.owner;
-		renderer = engine.owner.renderer;
 	}
 
 	@Override
@@ -484,7 +516,7 @@ public abstract class AbstractMode implements GameMode {
 
 	protected void drawResultScale(GameEngine engine, int playerID, int y, int color, float scale, String... str) {
 		for (int i = 0; i < str.length; i++) {
-			renderer.drawMenuFont(engine, playerID, 0, y + i, str[i], (i & 1) == 0 ? color : Colors.FONT_WHITE, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + i, str[i], i % 2 == 1 ? color : Colors.FONT_WHITE, scale);
 		}
 	}
 
@@ -500,25 +532,16 @@ public abstract class AbstractMode implements GameMode {
 	}
 
 	protected void drawResultNetRank(GameEngine engine, int playerID, int y, int color, int rank) {
-		drawResultNetRankScale(engine, playerID, y, color, 1.0f, rank);
-	}
-
-	protected void drawResultNetRankScale(GameEngine engine, int playerID, int y, int color, float scale, int rank) {
 		if (rank != -1) {
-			renderer.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, scale);
-			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
+			renderer.drawMenuFont(engine, playerID, 0, y, "NET-RANK", color, 1.0f);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), 1.0f);
 		}
 	}
 
 	protected void drawResultNetRankDaily(GameEngine engine, int playerID, int y, int color, int rank) {
-		drawResultNetRankDailyScale(engine, playerID, y, color, 1.0f, rank);
-	}
-
-	protected void drawResultNetRankDailyScale(GameEngine engine, int playerID, int y, int color, float scale,
-			int rank) {
 		if (rank != -1) {
-			renderer.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, scale);
-			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), scale);
+			renderer.drawMenuFont(engine, playerID, 0, y, "DAILY-RANK", color, 1.0f);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", rank + 1), 1.0f);
 		}
 	}
 
@@ -528,76 +551,10 @@ public abstract class AbstractMode implements GameMode {
 
 	protected void drawResultStatsScale(GameEngine engine, int playerID, int y, int color, float scale,
 			Statistic... statistics) {
-		var stats = engine.statistics;
+		Statistics stats = engine.statistics;
 		for (Statistic stat : statistics) {
-			switch (stat) {
-			case SCORE -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.score), scale);
-			}
-			case LINES -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LINES", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.lines), scale);
-			}
-			case TIME -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "TIME", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1,
-						String.format("%10s", GeneralUtil.getTime(stats.time)), scale);
-			}
-			case LEVEL -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level + 1), scale);
-			}
-			case LEVEL_MANIA -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.level), scale);
-			}
-			case PIECE -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.totalPieceLocked), scale);
-			}
-			case MAXCOMBO -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "MAX COMBO", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxCombo - 1), scale);
-			}
-			case SPL -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/LINE", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spl), scale);
-			}
-			case SPM -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/MIN", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.spm), scale);
-			}
-			case SPS -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "SCORE/SEC", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.sps), scale);
-			}
-			case LPM -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LINE/MIN", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lpm), scale);
-			}
-			case LPS -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LINE/SEC", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.lps), scale);
-			}
-			case PPM -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE/MIN", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.ppm), scale);
-			}
-			case PPS -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "PIECE/SEC", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10g", stats.pps), scale);
-			}
-			case MAXCHAIN -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "MAX CHAIN", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1, String.format("%10d", stats.maxChain), scale);
-			}
-			case LEVEL_ADD_DISP -> {
-				renderer.drawMenuFont(engine, playerID, 0, y, "LEVEL", color, scale);
-				renderer.drawMenuFont(engine, playerID, 0, y + 1,
-						String.format("%10d", stats.level + stats.levelDispAdd), scale);
-			}
-			}
+			renderer.drawMenuFont(engine, playerID, 0, y, stat.label(), color, scale);
+			renderer.drawMenuFont(engine, playerID, 0, y + 1, stats.get(stat), scale);
 			y += 2;
 		}
 	}

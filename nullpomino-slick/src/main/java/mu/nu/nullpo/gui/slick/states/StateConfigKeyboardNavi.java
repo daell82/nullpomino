@@ -40,6 +40,7 @@ import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * State of the keyboard setting screen
@@ -117,7 +118,7 @@ public class StateConfigKeyboardNavi extends DummyMenuChooseState {
 		GameKeySlick.gamekey[player].saveConfig(NullpoMinoSlick.propConfig);
 		NullpoMinoSlick.saveConfig();
 
-		ResourceHolderSlick.soundManager.play("decide");
+		ResourceHolderSlick.soundManager.play(Sounds.DECIDE);
 		gameObj.enterState(StateConfigMainMenu.ID);
 		return true;
 	}

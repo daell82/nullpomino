@@ -3,24 +3,23 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>nullpomino-core</artifactId>
-
 	<parent>
 		<groupId>mu.nu.nullpo</groupId>
 		<artifactId>nullpomino-parent</artifactId>
 		<version>7.6.0-SNAPSHOT</version>
-		<relativePath>../nullpomino-parent</relativePath>
 	</parent>
+	
+	<artifactId>nullpomino</artifactId>
+	
+	<packaging>pom</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>ch.qos.reload4j</groupId>
-			<artifactId>reload4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+	<modules>
+		<module>nullpomino-parent</module>
+		<module>nullpomino-core</module>
+		<module>nullpomino-swing</module>
+		<module>nullpomino-slick</module>
+		<module>nullpomino-tools</module>
+		<module>nullpomino-run</module>
+	</modules>
+	
 </project>

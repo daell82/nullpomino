@@ -51,6 +51,7 @@ import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * State selection screen replay
@@ -180,7 +181,7 @@ public class StateReplaySelect extends DummyMenuScrollState {
 
 	@Override
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
-		ResourceHolderSlick.soundManager.play("decide");
+		ResourceHolderSlick.soundManager.play(Sounds.DECIDE);
 		String dir = NullpoMinoSlick.propGlobal.getProperty("custom.replay.directory", "replay");
 		CustomProperties prop = CustomProperties.load(dir + "/" + list.get(cursor));
 		if(prop.isEmpty()) {

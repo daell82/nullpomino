@@ -78,13 +78,15 @@ public class GeneralUtil {
 	}
 
 	/**
-	 * Returns ○ if b is true, × if b is false
+	 * The method returns the value of {@link #getONorOFF(boolean)}.
 	 *
 	 * @param b Boolean variable to be checked
-	 * @return ○ if b is true, × if b is false
+	 * @return "ON" if b {@code true}, "OFF" otheriwse
+	 * @see #getONorOFF(boolean)
 	 */
 	public static String getOorX(boolean b) {
-		return b ? "c" : "e";
+		// return b ? "c" : "e"
+		return getONorOFF(b);
 	}
 
 	/**

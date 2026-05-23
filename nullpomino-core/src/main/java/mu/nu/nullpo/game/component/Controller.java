@@ -28,14 +28,12 @@
 */
 package mu.nu.nullpo.game.component;
 
-import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * button inputClass to manage the state
  */
-public class Controller implements Serializable {
-	/** Serial version ID */
-	private static final long serialVersionUID = -4855072501928533723L;
+public class Controller {
 
 	/** ↑ (Hard drop) button */
 	public static final int BUTTON_UP = 0;
@@ -82,7 +80,7 @@ public class Controller implements Serializable {
 	public static final int BUTTON_BIT_E = 256;
 	public static final int BUTTON_BIT_F = 512;
 
-	/**If you hold down the Button true */
+	/** If you hold down the Button true */
 	private boolean[] buttonPress;
 
 	/** I have to leave the Button press time */
@@ -100,9 +98,7 @@ public class Controller implements Serializable {
 	 * buttonThe state is not pressed all the
 	 */
 	public void clearButtonState() {
-		for (int i = 0; i < BUTTON_COUNT; i++) {
-			buttonPress[i] = false;
-		}
+		Arrays.fill(buttonPress, false);
 	}
 
 	/**
@@ -155,14 +151,14 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * buttonSets the status by pressing the
+	 * Sets the pressed state of a button
 	 *
-	 * @param key     Button number
-	 * @param pressed When true,Press, falseIf I do not press
+	 * @param button  Button number
+	 * @param pressed whether button is pressed or released
 	 */
-	public void setButtonState(int key, boolean pressed) {
-		if (key >= 0 && key < buttonPress.length) {
-			buttonPress[key] = pressed;
+	public void setButtonState(int button, boolean pressed) {
+		if (button >= 0 && button < buttonPress.length) {
+			buttonPress[button] = pressed;
 		}
 	}
 
@@ -209,47 +205,25 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * button inputBit state flagSet based on
+	 * Set the pressed states of all buttons (whether up or down)
 	 *
-	 * @param input button inputBit of state flag
+	 * @param bit mask for the controller state
 	 */
 	public void setButtonBit(int input) {
-		clearButtonState();
-
-		if ((input & BUTTON_BIT_UP) != 0) {
-			buttonPress[BUTTON_UP] = true;
-		}
-		if ((input & BUTTON_BIT_DOWN) != 0) {
-			buttonPress[BUTTON_DOWN] = true;
-		}
-		if ((input & BUTTON_BIT_LEFT) != 0) {
-			buttonPress[BUTTON_LEFT] = true;
-		}
-		if ((input & BUTTON_BIT_RIGHT) != 0) {
-			buttonPress[BUTTON_RIGHT] = true;
-		}
-		if ((input & BUTTON_BIT_A) != 0) {
-			buttonPress[BUTTON_A] = true;
-		}
-		if ((input & BUTTON_BIT_B) != 0) {
-			buttonPress[BUTTON_B] = true;
-		}
-		if ((input & BUTTON_BIT_C) != 0) {
-			buttonPress[BUTTON_C] = true;
-		}
-		if ((input & BUTTON_BIT_D) != 0) {
-			buttonPress[BUTTON_D] = true;
-		}
-		if ((input & BUTTON_BIT_E) != 0) {
-			buttonPress[BUTTON_E] = true;
-		}
-		if ((input & BUTTON_BIT_F) != 0) {
-			buttonPress[BUTTON_F] = true;
-		}
+		buttonPress[BUTTON_UP] = (input & BUTTON_BIT_UP) != 0;
+		buttonPress[BUTTON_DOWN] = (input & BUTTON_BIT_DOWN) != 0;
+		buttonPress[BUTTON_LEFT] = (input & BUTTON_BIT_LEFT) != 0;
+		buttonPress[BUTTON_RIGHT] = (input & BUTTON_BIT_RIGHT) != 0;
+		buttonPress[BUTTON_A] = (input & BUTTON_BIT_A) != 0;
+		buttonPress[BUTTON_B] = (input & BUTTON_BIT_B) != 0;
+		buttonPress[BUTTON_C] = (input & BUTTON_BIT_C) != 0;
+		buttonPress[BUTTON_D] = (input & BUTTON_BIT_D) != 0;
+		buttonPress[BUTTON_E] = (input & BUTTON_BIT_E) != 0;
+		buttonPress[BUTTON_F] = (input & BUTTON_BIT_F) != 0;
 	}
 
 	/**
-	 * button input timeUpdate
+	 * Update button input times
 	 */
 	public void updateButtonTime() {
 		for (int i = 0; i < BUTTON_COUNT; i++) {
@@ -262,11 +236,9 @@ public class Controller implements Serializable {
 	}
 
 	/**
-	 * button inputResets the state
+	 * Resets the pressed times of all buttons
 	 */
 	public void clearButtonTime() {
-		for (int i = 0; i < BUTTON_COUNT; i++) {
-			buttonTime[i] = 0;
-		}
+		Arrays.fill(buttonTime, 0);
 	}
 }

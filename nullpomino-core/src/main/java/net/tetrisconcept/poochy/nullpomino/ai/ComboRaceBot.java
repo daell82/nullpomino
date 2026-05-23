@@ -700,7 +700,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 						if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2) {
 							fldTemp.copy(fldBackup);
 							pieces[p].placeToField(x, y, rt, fldTemp);
-							if (fldTemp.checkLine() == 1) {
+							if (fldTemp.checkLineClears() == 1) {
 								fldTemp.clearLine();
 								fldTemp.downFloatingBlocks();
 								int index = fieldToIndex(fldTemp, 0);
@@ -734,7 +734,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 							if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
 									&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
 								pieces[p].placeToField(newX, newY, rot, fldTemp);
-								if (fldTemp.checkLine() == 1) {
+								if (fldTemp.checkLineClears() == 1) {
 									fldTemp.clearLine();
 									fldTemp.downFloatingBlocks();
 									int index = fieldToIndex(fldTemp, 0);
@@ -766,7 +766,7 @@ public class ComboRaceBot extends DummyAI implements Runnable {
 							if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
 									&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
 								pieces[p].placeToField(newX, newY, rot, fldTemp);
-								if (fldTemp.checkLine() == 1) {
+								if (fldTemp.checkLineClears() == 1) {
 									fldTemp.clearLine();
 									fldTemp.downFloatingBlocks();
 									int index = fieldToIndex(fldTemp, 0);

@@ -35,6 +35,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Dummy class for menus where the player picks from a list of options
@@ -81,14 +82,14 @@ public abstract class DummyMenuChooseState extends BaseGameState {
 				if (cursor < 0) {
 					cursor = maxCursor;
 				}
-				ResourceHolderSlick.soundManager.play("cursor");
+				ResourceHolderSlick.soundManager.play(Sounds.CURSOR);
 			}
 			if (GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_DOWN)) {
 				cursor++;
 				if (cursor > maxCursor) {
 					cursor = 0;
 				}
-				ResourceHolderSlick.soundManager.play("cursor");
+				ResourceHolderSlick.soundManager.play(Sounds.CURSOR);
 			}
 
 			int change = 0;
@@ -113,18 +114,17 @@ public abstract class DummyMenuChooseState extends BaseGameState {
 		}
 		if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_D)) {
 			if (onPushButtonD(container, game, delta)) {
-				;
+				return;
 			}
-			return;
+
 		}
 
 		// Cancel button
 		if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_B)
 				|| MouseInputSlick.mouseInput.isMouseRightClicked()) {
 			if (onCancel(container, game, delta)) {
-				;
+				return;
 			}
-			return;
 		}
 	}
 
@@ -137,7 +137,7 @@ public abstract class DummyMenuChooseState extends BaseGameState {
 				if (newCursor == cursor) {
 					return true;
 				}
-				ResourceHolderSlick.soundManager.play("cursor");
+				ResourceHolderSlick.soundManager.play(Sounds.CURSOR);
 				cursor = newCursor;
 			}
 		}

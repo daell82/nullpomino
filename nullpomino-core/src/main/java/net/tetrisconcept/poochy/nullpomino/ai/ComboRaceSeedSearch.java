@@ -233,7 +233,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 			}
 
 			for (int p = 0; p < 7; p++) {
-				int tempX = -1 + (fldBackup.getWidth() - pieces[p].getWidth() + 1) / 2;
+				int tempX = -1 + (fldBackup.getWidth() - pieces[p].getWidth()) / 2;
 				for (int rt = 0; rt < Piece.DIRECTION_COUNT; rt++) {
 					int minX = pieces[p].getMostMovableLeft(tempX, 0, rt, fldBackup);
 					int maxX = pieces[p].getMostMovableRight(tempX, 0, rt, fldBackup);
@@ -242,7 +242,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						if (p == Piece.PIECE_L || p == Piece.PIECE_T || p == Piece.PIECE_J || rt < 2) {
 							fldTemp.copy(fldBackup);
 							pieces[p].placeToField(x, y, rt, fldTemp);
-							if (fldTemp.checkLine() == 1) {
+							if (fldTemp.checkLineClears() == 1) {
 								fldTemp.clearLine();
 								fldTemp.downFloatingBlocks();
 								int index = fieldToIndex(fldTemp, 0);
@@ -272,7 +272,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
 								&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
 							pieces[p].placeToField(newX, newY, rot, fldTemp);
-							if (fldTemp.checkLine() == 1) {
+							if (fldTemp.checkLineClears() == 1) {
 								fldTemp.clearLine();
 								fldTemp.downFloatingBlocks();
 								int index = fieldToIndex(fldTemp, 0);
@@ -299,7 +299,7 @@ public class ComboRaceSeedSearch extends DummyAI {
 						if (!pieces[p].checkCollision(newX, newY, rot, fldTemp)
 								&& newY > pieces[p].getBottom(newX, 0, rot, fldTemp)) {
 							pieces[p].placeToField(newX, newY, rot, fldTemp);
-							if (fldTemp.checkLine() == 1) {
+							if (fldTemp.checkLineClears() == 1) {
 								fldTemp.clearLine();
 								fldTemp.downFloatingBlocks();
 								int index = fieldToIndex(fldTemp, 0);

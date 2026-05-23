@@ -82,7 +82,7 @@ public class TSpinAI extends BasicAI {
 		}
 
 		// Line clear
-		int lines = fld.checkLine();
+		int lines = fld.checkLineClears();
 		if (lines > 0) {
 			fld.clearLine();
 			fld.downFloatingBlocks();

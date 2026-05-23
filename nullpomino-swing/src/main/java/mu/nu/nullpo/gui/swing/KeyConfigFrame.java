@@ -32,8 +32,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.HeadlessException;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -46,11 +44,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
+
+import mu.nu.nullpo.gui.GameKeyDummy;
 
 /**
  * Key config frame
  */
-public class KeyConfigFrame extends JFrame implements ActionListener {
+public class KeyConfigFrame extends JFrame {
 	/** Serial version ID */
 	private static final long serialVersionUID = 1L;
 
@@ -59,12 +60,6 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 
 	/** Player number */
 	protected int playerID;
-
-	/** Key event receiver */
-	protected KeyConfigKeyEventListener keyEventListener;
-
-	/** Mouse event receiver */
-	protected KeyConfigMouseEventListener mouseEventListener;
 
 	/** Key config textbox */
 	protected JTextField[] txtfldGameKeys;
@@ -80,6 +75,7 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 
 	/**
 	 * Constructor
+	 *
 	 * @param owner Owner window (NullpoMinoSwing)
 	 * @throws HeadlessException When GUI cannot be used
 	 */
@@ -87,13 +83,11 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		super();
 		this.owner = owner;
 
-		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		setResizable(false);
 
-		keyEventListener = new KeyConfigKeyEventListener();
-		mouseEventListener = new KeyConfigMouseEventListener();
-		keyCodes = new int[GameKeySwing.MAX_BUTTON];
-		keyCodesNav = new int[GameKeySwing.MAX_BUTTON];
+		keyCodes = new int[GameKeyDummy.MAX_BUTTON];
+		keyCodesNav = new int[GameKeyDummy.MAX_BUTTON];
 
 		initUI();
 		pack();
@@ -101,22 +95,23 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 
 	/**
 	 * Load keyboard settings
+	 *
 	 * @param pl Player number
 	 */
 	public void load(int pl) {
 		this.playerID = pl;
-		setTitle(NullpoMinoSwing.getUIText("Title_KeyConfig") + " (" + (playerID+1) + "P)");
+		setTitle(NullpoMinoSwing.getUIText("Title_KeyConfig") + " (" + (playerID + 1) + "P)");
 
-		for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
+		for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
 			keyCodes[i] = GameKeySwing.gamekey[playerID].keymap[i];
-			if(keyCodes[i] == 0) {
+			if (keyCodes[i] == 0) {
 				txtfldGameKeys[i].setText("");
 			} else {
 				txtfldGameKeys[i].setText(KeyEvent.getKeyText(keyCodes[i]));
 			}
 
 			keyCodesNav[i] = GameKeySwing.gamekey[playerID].keymapNav[i];
-			if(keyCodesNav[i] == 0) {
+			if (keyCodesNav[i] == 0) {
 				txtfldGameKeysNav[i].setText("");
 			} else {
 				txtfldGameKeysNav[i].setText(KeyEvent.getKeyText(keyCodesNav[i]));
@@ -128,7 +123,7 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 	 * Save
 	 */
 	protected void save() {
-		for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
+		for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
 			GameKeySwing.gamekey[playerID].keymap[i] = keyCodes[i];
 			GameKeySwing.gamekey[playerID].keymapNav[i] = keyCodesNav[i];
 		}
@@ -161,8 +156,11 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		pKeySetting.setAlignmentX(LEFT_ALIGNMENT);
 		tabKeySetting.addTab(NullpoMinoSwing.getUIText("KeyConfig_Tab_Ingame"), pKeySetting);
 
-		txtfldGameKeys = new JTextField[GameKeySwing.MAX_BUTTON];
-		for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
+		var keyListener = new KeyConfigKeyEventListener();
+		var mouseListener = new KeyConfigMouseEventListener();
+
+		txtfldGameKeys = new JTextField[GameKeyDummy.MAX_BUTTON];
+		for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
 			JPanel psKeyTemp = new JPanel();
 			pKeySetting.add(psKeyTemp);
 			psKeyTemp.setLayout(new BorderLayout());
@@ -170,8 +168,8 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 			psKeyTemp.add(new JLabel(NullpoMinoSwing.getUIText("KeyConfig_LabelKey" + i)), BorderLayout.WEST);
 
 			txtfldGameKeys[i] = new JTextField(20);
-			txtfldGameKeys[i].addKeyListener(keyEventListener);
-			txtfldGameKeys[i].addMouseListener(mouseEventListener);
+			txtfldGameKeys[i].addKeyListener(keyListener);
+			txtfldGameKeys[i].addMouseListener(mouseListener);
 			txtfldGameKeys[i].setFocusTraversalKeysEnabled(false);
 			psKeyTemp.add(txtfldGameKeys[i], BorderLayout.EAST);
 		}
@@ -182,8 +180,8 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		pKeySettingNav.setAlignmentX(LEFT_ALIGNMENT);
 		tabKeySetting.addTab(NullpoMinoSwing.getUIText("KeyConfig_Tab_Menu"), pKeySettingNav);
 
-		txtfldGameKeysNav = new JTextField[GameKeySwing.MAX_BUTTON];
-		for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
+		txtfldGameKeysNav = new JTextField[GameKeyDummy.MAX_BUTTON];
+		for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
 			JPanel psKeyTemp = new JPanel();
 			pKeySettingNav.add(psKeyTemp);
 			psKeyTemp.setLayout(new BorderLayout());
@@ -191,8 +189,8 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 			psKeyTemp.add(new JLabel(NullpoMinoSwing.getUIText("KeyConfig_LabelKey" + i)), BorderLayout.WEST);
 
 			txtfldGameKeysNav[i] = new JTextField(20);
-			txtfldGameKeysNav[i].addKeyListener(keyEventListener);
-			txtfldGameKeysNav[i].addMouseListener(mouseEventListener);
+			txtfldGameKeysNav[i].addKeyListener(keyListener);
+			txtfldGameKeysNav[i].addMouseListener(mouseListener);
 			txtfldGameKeysNav[i].setFocusTraversalKeysEnabled(false);
 			psKeyTemp.add(txtfldGameKeysNav[i], BorderLayout.EAST);
 		}
@@ -203,10 +201,15 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		pKeyReset.setAlignmentX(LEFT_ALIGNMENT);
 		tabKeySetting.addTab(NullpoMinoSwing.getUIText("KeyConfig_Tab_Reset"), pKeyReset);
 
-		for(int i = 0; i < 3; i++) {
+		for (int i = 0; i < 3; i++) {
+			int id = i;
 			JButton btnReset = new JButton(NullpoMinoSwing.getUIText("KeyConfig_Reset" + i));
-			btnReset.addActionListener(this);
-			btnReset.setActionCommand("KeyConfig_Reset" + i);
+			btnReset.addActionListener(_ -> {
+				GameKeySwing.gamekey[playerID].loadDefaultKeymap(id);
+				GameKeySwing.gamekey[playerID].saveConfig(NullpoMinoSwing.propConfig);
+				NullpoMinoSwing.saveConfig();
+				load(playerID);
+			});
 			btnReset.setMaximumSize(new Dimension(Short.MAX_VALUE, 30));
 			pKeyReset.add(btnReset);
 		}
@@ -218,38 +221,17 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		this.add(pButtons);
 
 		JButton btnOK = new JButton(NullpoMinoSwing.getUIText("KeyConfig_OK"));
-		btnOK.addActionListener(this);
-		btnOK.setActionCommand("KeyConfig_OK");
+		btnOK.addActionListener(_ -> {
+			save();
+			setVisible(false);
+		});
 		btnOK.setMaximumSize(new Dimension(Short.MAX_VALUE, 30));
 		pButtons.add(btnOK);
 
 		JButton btnCancel = new JButton(NullpoMinoSwing.getUIText("KeyConfig_Cancel"));
-		btnCancel.addActionListener(this);
-		btnCancel.setActionCommand("KeyConfig_Cancel");
+		btnCancel.addActionListener(_ -> setVisible(false));
 		btnCancel.setMaximumSize(new Dimension(Short.MAX_VALUE, 30));
 		pButtons.add(btnCancel);
-	}
-
-	/*
-	 * Called when a button is pressed
-	 */
-	public void actionPerformed(ActionEvent e) {
-		if(e.getActionCommand() == "KeyConfig_OK") {
-			save();
-			this.setVisible(false);
-		}
-		else if(e.getActionCommand() == "KeyConfig_Cancel") {
-			this.setVisible(false);
-		}
-		else if(e.getActionCommand().startsWith("KeyConfig_Reset")) {
-			String strTemp = e.getActionCommand().replaceFirst("KeyConfig_Reset", "");
-			int id = Integer.parseInt(strTemp);
-
-			GameKeySwing.gamekey[playerID].loadDefaultKeymap(id);
-			GameKeySwing.gamekey[playerID].saveConfig(NullpoMinoSwing.propConfig);
-			NullpoMinoSwing.saveConfig();
-			load(playerID);
-		}
 	}
 
 	/**
@@ -259,12 +241,12 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		@Override
 		public void keyPressed(KeyEvent e) {
 			Component c = e.getComponent();
-			for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
-				if(c == txtfldGameKeys[i]) {
+			for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
+				if (c == txtfldGameKeys[i]) {
 					keyCodes[i] = e.getKeyCode();
 					txtfldGameKeys[i].setText(KeyEvent.getKeyText(e.getKeyCode()));
 					break;
-				} else if(c == txtfldGameKeysNav[i]) {
+				} else if (c == txtfldGameKeysNav[i]) {
 					keyCodesNav[i] = e.getKeyCode();
 					txtfldGameKeysNav[i].setText(KeyEvent.getKeyText(e.getKeyCode()));
 					break;
@@ -299,13 +281,13 @@ public class KeyConfigFrame extends JFrame implements ActionListener {
 		}
 
 		protected void popupButton(MouseEvent e) {
-			if(e.isPopupTrigger()) {
+			if (e.isPopupTrigger()) {
 				Component c = e.getComponent();
-				for(int i = 0; i < GameKeySwing.MAX_BUTTON; i++) {
-					if(c == txtfldGameKeys[i]) {
+				for (int i = 0; i < GameKeyDummy.MAX_BUTTON; i++) {
+					if (c == txtfldGameKeys[i]) {
 						keyCodes[i] = 0;
 						txtfldGameKeys[i].setText("");
-					} else if(c == txtfldGameKeysNav[i]) {
+					} else if (c == txtfldGameKeysNav[i]) {
 						keyCodes[i] = 0;
 						txtfldGameKeysNav[i].setText("");
 					}

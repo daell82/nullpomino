@@ -28,9 +28,12 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
+import java.util.List;
+
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.mode.menu.IntegerMenuItem;
 import mu.nu.nullpo.game.subsystem.mode.menu.OnOffMenuItem;
 import mu.nu.nullpo.util.Colors;
@@ -286,7 +289,9 @@ public class GradeMania2Mode extends AbstractMode {
 	/** Section TimeRecord */
 	private int[] bestSectionTime;
 
-	public GradeMania2Mode() {
+	@Override
+	public void modeInit(GameManager manager) {
+		super.modeInit(manager);
 		propName = "grademania2";
 		startlevel = new IntegerMenuItem("startlevel", LEVEL, Colors.FONT_BLUE, 0, 0, 9) {
 			@Override
@@ -305,12 +310,7 @@ public class GradeMania2Mode extends AbstractMode {
 		lvstopse = new OnOffMenuItem("lvstopse", "LVSTOPSE", Colors.FONT_BLUE, false);
 		big = new OnOffMenuItem("big", "BIG", Colors.FONT_BLUE, false);
 		showsectiontime = new OnOffMenuItem("showsectiontime", "SHOW STIME", Colors.FONT_BLUE, false);
-		menu.add(startlevel);
-		menu.add(alwaysghost);
-		menu.add(always20g);
-		menu.add(lvstopse);
-		menu.add(big);
-		menu.add(showsectiontime);
+		menu = List.of(startlevel, alwaysghost, always20g, lvstopse, big, showsectiontime);
 	}
 
 	/*

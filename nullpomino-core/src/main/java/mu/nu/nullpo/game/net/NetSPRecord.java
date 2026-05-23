@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.net;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,9 +12,7 @@ import mu.nu.nullpo.util.CustomProperties;
 /**
  * Single player mode record
  */
-public class NetSPRecord implements Serializable {
-	/** serialVersionUID for Serialize */
-	private static final long serialVersionUID = 1L;
+public class NetSPRecord {
 
 	/** Ranking type constants */
 	public static final int RANKINGTYPE_GENERIC_SCORE = 0;
@@ -66,108 +63,112 @@ public class NetSPRecord implements Serializable {
 		Statistics s1 = r1.stats;
 		Statistics s2 = r2.stats;
 
-		switch (type) {
-		case RANKINGTYPE_GENERIC_SCORE:
+		return switch (type) {
+		case RANKINGTYPE_GENERIC_SCORE -> {
 			if (s1.score > s2.score) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines > s2.lines) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines == s2.lines && s1.time < s2.time) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_GENERIC_TIME:
+			yield false;
+		}
+		case RANKINGTYPE_GENERIC_TIME -> {
 			if (s1.time < s2.time) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.totalPieceLocked < s2.totalPieceLocked) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.totalPieceLocked == s2.totalPieceLocked && s1.pps > s2.pps) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_SCORERACE:
+			yield false;
+		}
+		case RANKINGTYPE_SCORERACE -> {
 			if (s1.time < s2.time) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.lines < s2.lines) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.lines == s2.lines && s1.spl > s2.spl) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_DIGRACE:
+			yield false;
+		}
+		case RANKINGTYPE_DIGRACE -> {
 			if (s1.time < s2.time) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.lines < s2.lines) {
-				return true;
+				yield true;
 			}
 			if (s1.time == s2.time && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_ULTRA:
+			yield false;
+		}
+		case RANKINGTYPE_ULTRA -> {
 			if (s1.score > s2.score) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines > s2.lines) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines == s2.lines && s1.totalPieceLocked < s2.totalPieceLocked) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_COMBORACE:
+			yield false;
+		}
+		case RANKINGTYPE_COMBORACE -> {
 			if (s1.maxCombo > s2.maxCombo) {
-				return true;
+				yield true;
 			}
 			if (s1.maxCombo == s2.maxCombo && s1.time < s2.time) {
-				return true;
+				yield true;
 			}
 			if (s1.maxCombo == s2.maxCombo && s1.time == s2.time && s1.pps > s2.pps) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_DIGCHALLENGE:
+			yield false;
+		}
+		case RANKINGTYPE_DIGCHALLENGE -> {
 			if (s1.score > s2.score) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines > s2.lines) {
-				return true;
+				yield true;
 			}
 			if (s1.score == s2.score && s1.lines == s2.lines && s1.time > s2.time) {
-				return true;
+				yield true;
 			}
-			break;
-		case RANKINGTYPE_TIMEATTACK: {
+			yield false;
+		}
+		case RANKINGTYPE_TIMEATTACK -> {
 			// Cap the line count at 150 or 200
 			int maxLines = r1.gameType >= 5 ? 200 : 150;
 			int l1 = Math.min(s1.lines, maxLines);
 			int l2 = Math.min(s2.lines, maxLines);
 			if (s1.rollclear > s2.rollclear) {
-				return true;
+				yield true;
 			}
 			if (s1.rollclear == s2.rollclear && l1 > l2) {
-				return true;
+				yield true;
 			}
 			if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time < s2.time) {
-				return true;
+				yield true;
 			}
 			if (s1.rollclear == s2.rollclear && l1 == l2 && s1.time == s2.time && s1.pps > s2.pps) {
-				return true;
+				yield true;
 			}
-			break;
+			yield false;
 		}
-		default:
-			break;
-		}
-
-		return false;
+		default -> false;
+		};
 	}
 
 	/**
@@ -330,7 +331,7 @@ public class NetSPRecord implements Serializable {
 	 *
 	 * @param s String Array (String[9])
 	 */
-	public void importStringArray(String[] s) {
+	private void importStringArray(String[] s) {
 		strPlayerName = NetUtil.urlDecode(s[0]);
 		strModeName = NetUtil.urlDecode(s[1]);
 		strRuleName = NetUtil.urlDecode(s[2]);
@@ -355,7 +356,7 @@ public class NetSPRecord implements Serializable {
 	 *
 	 * @param s String (Split by ;)
 	 */
-	public void importString(String s) {
+	private void importString(String s) {
 		importStringArray(s.split(";"));
 	}
 
@@ -417,7 +418,7 @@ public class NetSPRecord implements Serializable {
 		case RANKINGTYPE_ULTRA -> stats.score + "," + stats.lines + "," + stats.totalPieceLocked;
 		case RANKINGTYPE_COMBORACE -> stats.maxCombo + "," + stats.time + "," + stats.pps;
 		case RANKINGTYPE_DIGCHALLENGE -> stats.score + "," + stats.lines + "," + stats.time;
-		case RANKINGTYPE_TIMEATTACK -> +stats.lines + "," + stats.time + "," + stats.pps + "," + stats.rollclear;
+		case RANKINGTYPE_TIMEATTACK -> stats.lines + "," + stats.time + "," + stats.pps + "," + stats.rollclear;
 		default -> "";
 		};
 	}

@@ -1423,7 +1423,7 @@ public class PoochyBot extends DummyAI implements Runnable {
 		}
 
 		// Line clear
-		int lines = fld.checkLine() / move;
+		int lines = fld.checkLineClears() / move;
 		if (lines > 0) {
 			fld.clearLine();
 			fld.downFloatingBlocks();

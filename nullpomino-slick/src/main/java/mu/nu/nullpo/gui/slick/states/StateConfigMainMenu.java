@@ -38,6 +38,7 @@ import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Options screen
@@ -108,12 +109,12 @@ public class StateConfigMainMenu extends DummyMenuChooseState {
 		if (player > 1) {
 			player = 0;
 		}
-		ResourceHolderSlick.soundManager.play("change");
+		ResourceHolderSlick.soundManager.play(Sounds.CHANGE);
 	}
 
 	@Override
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
-		ResourceHolderSlick.soundManager.play("decide");
+		ResourceHolderSlick.soundManager.play(Sounds.DECIDE);
 		switch (cursor) {
 		case 0 -> game.enterState(StateConfigGeneral.ID);
 		case 1 -> {

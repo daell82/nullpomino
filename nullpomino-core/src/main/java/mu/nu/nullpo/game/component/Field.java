@@ -472,16 +472,19 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * Line clear check
+	 * Check the field for line which will be cleared (i.e. a line with all
+	 * non-empty and non-wall blocks).
+	 * <p>
+	 * When a vanishing line is found, the method will add a copy into
+	 * {@link #lastLinesCleared} and set the {@link Block#BLOCK_ATTRIBUTE_ERASE}
+	 * flag to the original blocks in the field.
 	 *
-	 * @return VanishLinescount
+	 * @return the amount of lines that will be erased
 	 */
-	public int checkLine() {
-		int lines = 0;
+	public int checkLineClears() {
 		lastLinesCleared.clear();
 
 		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
-			Block[] row = new Block[width];
 			boolean lineClear = true;
 			for (int x = 0; x < width; x++) {
 				Block block = getBlock(x, y);
@@ -489,38 +492,43 @@ public class Field implements Serializable {
 					lineClear = false;
 					break;
 				}
-				row[x] = new Block(block);
 			}
 			setLineFlag(y, lineClear);
 
 			if (lineClear) {
-				lines++;
-				lastLinesCleared.add(row);
-				for (int x = 0; x < width; x++) {
-					getBlock(x, y).setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
+				Block[] fieldRow = getRow(y);
+				Block[] clearedRow = new Block[width];
+				for (int i = 0; i < width; i++) {
+					clearedRow[i] = new Block(fieldRow[i]);
+					fieldRow[i].setAttribute(Block.BLOCK_ATTRIBUTE_ERASE, true);
 				}
+				lastLinesCleared.add(clearedRow);
 			}
 		}
-		return lines;
+		return lastLinesCleared.size();
 	}
 
 	/**
-	 * Line clear check (Elimination flagI will not or settings)
+	 * Check the field for lines which will be cleared (i.e. a line with all
+	 * non-empty and non-wall blocks).
+	 * <p>
+	 * The method does not modify the state of the field.
 	 *
-	 * @return VanishLinescount
+	 * @return the amount of lines that will be erased
+	 * @see #checkLineClears()
 	 */
-	public int checkLineNoFlag() {
+	public int countLineClear() {
 		int lines = 0;
-
 		for (int y = hiddenHeight * -1; y < getHeightWithoutHurryupFloor(); y++) {
-			boolean flag = true;
+			boolean lineClear = true;
 			for (int x = 0; x < width; x++) {
-				if (getBlockEmpty(x, y) || getBlock(x, y).getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
-					flag = false;
+				Block block = getBlock(x, y);
+				if (block == null || block.isEmpty() || block.getAttribute(Block.BLOCK_ATTRIBUTE_WALL)) {
+					lineClear = false;
 					break;
 				}
 			}
-			if (flag) {
+			if (lineClear) {
 				lines++;
 			}
 		}
@@ -1030,34 +1038,6 @@ public class Field implements Serializable {
 	}
 
 	/**
-	 * @deprecated unused method
-	 * @return an ArrayList of rows representing the TGM attack of the last line
-	 *         clear action The TGM attack is the lines of the last line clear
-	 *         flipped vertically and without the blocks that caused it.
-	 *
-	 */
-	@Deprecated(since = "7.6")
-	public List<Block[]> getLastLinesAsTGMAttack() {
-		List<Block[]> attack = new ArrayList<>();
-
-		for (Block[] row : lastLinesCleared) {
-			Block[] row2 = new Block[getWidth()];
-			for (int i = 0; i < getWidth(); i++) {
-				Block b = row[i];
-				// Put an empty block if the original block was in the last commit to the field.
-				if (b.getAttribute(Block.BLOCK_ATTRIBUTE_LAST_COMMIT)) {
-					row2[i] = new Block();
-				} else {
-					row2[i] = row[i];
-				}
-			}
-			attack.add(0, row2);
-		}
-
-		return attack;
-	}
-
-	/**
 	 * Holes1I only place opengarbage blockAdded to the bottom of the
 	 *
 	 * @param hole      Hole position (-1If no hole)
@@ -1065,8 +1045,10 @@ public class Field implements Serializable {
 	 * @param skin      garbage blockPicture of
 	 * @param attribute garbage blockAttributes
 	 * @param lines     Addgarbage blockOfLinescount
+	 * @deprecated unused method
 	 */
-	private void addSingleHoleGarbage(int hole, int color, int skin, int attribute, int lines) {
+	@Deprecated(since = "7.6")
+	protected void addSingleHoleGarbage(int hole, int color, int skin, int attribute, int lines) {
 		for (int k = 0; k < lines; k++) {
 			pushUp(1);
 			for (int x = 0; x < width; x++) {

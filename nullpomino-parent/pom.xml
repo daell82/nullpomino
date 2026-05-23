@@ -11,6 +11,7 @@
 
 	<properties>
 		<lombok.version>1.18.46</lombok.version>
+		<junit.version>6.1.0</junit.version>
 	</properties>
 
 	<dependencyManagement>
@@ -18,7 +19,7 @@
 			<dependency>
 				<groupId>org.junit</groupId>
 				<artifactId>junit-bom</artifactId>
-				<version>6.1.0</version>
+				<version>${junit.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>

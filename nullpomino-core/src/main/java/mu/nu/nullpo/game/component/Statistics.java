@@ -28,19 +28,50 @@
 */
 package mu.nu.nullpo.game.component;
 
-import java.io.Serializable;
-
-import mu.nu.nullpo.game.subsystem.mode.AbstractMode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.Accessors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
 
 /**
  * Information such as the Score
  */
-public class Statistics implements Serializable {
+public class Statistics {
 
-	/** Serial version ID */
-	private static final long serialVersionUID = -499640168205398295L;
+	/** Total score */
+	@Accessors(fluent = true)
+	@RequiredArgsConstructor
+	public enum Statistic {
+
+		// @formatter:off
+		SCORE("SCORE", "%10d"),
+		LINES("LINES", "%10d"),
+		TIME("TIME", "%10s"),
+		LEVEL("LEVEL", "%10d"), // NOSONAR
+		LEVEL_MANIA("LEVEL", "%10d"),
+		PIECE("PIECE", "%10d"),
+		MAXCOMBO("MAX COMBO", "%10d"),
+		SPL("SCORE/LINE", "%10g"),
+		SPM("SOCRE/MIN", "%10g"),
+		SPS("SCORE/SEC", "%10g"),
+		LPM("LINE/MIN", "%10g"),
+		LPS("LINE/SEC", "%10g"),
+		PPM("PIECE/MIN", "%10g"),
+		PPS("PIECE/SEC", "%10g"),
+		MAXCHAIN("MAX CHAIN", "%10d"),
+		LEVEL_ADD_DISP("LEVEL", "%10d");
+		// @formatter:on
+
+		@Getter
+		private final String label;
+
+		private final String format;
+
+		public String format(Object value) {
+			return String.format(format, value);
+		}
+	}
 
 	/** Total score */
 	public int score;
@@ -507,7 +538,7 @@ public class Statistics implements Serializable {
 		return String.join(";", array);
 	}
 
-	public String get(AbstractMode.Statistic stat) {
+	public String get(Statistic stat) {
 		Object value = switch (stat) {
 		case SCORE -> score;
 		case LINES -> lines;

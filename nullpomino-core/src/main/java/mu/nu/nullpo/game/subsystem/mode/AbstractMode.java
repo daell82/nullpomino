@@ -31,12 +31,10 @@ package mu.nu.nullpo.game.subsystem.mode;
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics;
+import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
@@ -85,40 +83,6 @@ public abstract class AbstractMode implements GameMode {
 
 	/** Number of entries in rankings */
 	protected static final int RANKING_MAX = 10;
-
-	/** Total score */
-	@Accessors(fluent = true)
-	@RequiredArgsConstructor
-	public enum Statistic {
-
-		// @formatter:off
-		SCORE("SCORE", "%10d"),
-		LINES("LINES", "%10d"),
-		TIME("TIME", "%10s"),
-		LEVEL("LEVEL", "%10d"), // NOSONAR
-		LEVEL_MANIA("LEVEL", "%10d"),
-		PIECE("PIECE", "%10d"),
-		MAXCOMBO("MAX COMBO", "%10d"),
-		SPL("SCORE/LINE", "%10g"),
-		SPM("SOCRE/MIN", "%10g"),
-		SPS("SCORE/SEC", "%10g"),
-		LPM("LINE/MIN", "%10g"),
-		LPS("LINE/SEC", "%10g"),
-		PPM("PIECE/MIN", "%10g"),
-		PPS("PIECE/SEC", "%10g"),
-		MAXCHAIN("MAX CHAIN", "%10d"),
-		LEVEL_ADD_DISP("LEVEL", "%10d");
-		// @formatter:on
-
-		@Getter
-		private final String label;
-
-		private final String format;
-
-		public String format(Object value) {
-			return String.format(format, value);
-		}
-	}
 
 	/** GameManager that owns this mode */
 	protected GameManager owner;

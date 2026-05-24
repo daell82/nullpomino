@@ -5,26 +5,28 @@ package mu.nu.nullpo.gui.swing;
 
 import java.awt.Color;
 
+import lombok.experimental.UtilityClass;
 import mu.nu.nullpo.util.Colors;
 
 /**
  *
  */
+@UtilityClass
 public class SwingColors {
 
 	public static Color getMeterColor(int meterColor) {
 		return switch (meterColor) {
-		case Colors.METER_COLOR_PINK -> new Color(255, 0, 255);
+		case Colors.METER_COLOR_PINK -> Color.MAGENTA;
 		case Colors.METER_COLOR_PURPLE -> new Color(128, 0, 255);
 		case Colors.METER_COLOR_DARKBLUE -> new Color(0, 0, 128);
-		case Colors.METER_COLOR_BLUE -> Color.blue;
-		case Colors.METER_COLOR_CYAN -> Color.cyan.darker();
+		case Colors.METER_COLOR_BLUE -> Color.BLUE;
+		case Colors.METER_COLOR_CYAN -> Color.CYAN.darker();
 		case Colors.METER_COLOR_DARKGREEN -> new Color(0, 128, 0);
-		case Colors.METER_COLOR_GREEN -> Color.green;
-		case Colors.METER_COLOR_YELLOW -> Color.yellow;
-		case Colors.METER_COLOR_ORANGE -> Color.orange;
-		case Colors.METER_COLOR_RED -> Color.red;
-		default -> Color.white;
+		case Colors.METER_COLOR_GREEN -> Color.GREEN;
+		case Colors.METER_COLOR_YELLOW -> Color.YELLOW;
+		case Colors.METER_COLOR_ORANGE -> Color.ORANGE;
+		case Colors.METER_COLOR_RED -> Color.RED;
+		default -> Color.WHITE;
 		};
 	}
 
@@ -36,14 +38,14 @@ public class SwingColors {
 	 */
 	public static Color getFontColor(int fontColor) {
 		return switch (fontColor) {
-		case Colors.FONT_BLUE -> new Color(0, 0, 255);
-		case Colors.FONT_RED -> new Color(255, 0, 0);
+		case Colors.FONT_BLUE -> Color.BLUE;
+		case Colors.FONT_RED -> Color.RED;
 		case Colors.FONT_PINK -> new Color(255, 128, 128);
-		case Colors.FONT_GREEN -> new Color(0, 255, 0);
-		case Colors.FONT_YELLOW -> new Color(255, 255, 0);
-		case Colors.FONT_CYAN -> new Color(0, 255, 255);
+		case Colors.FONT_GREEN -> Color.GREEN;
+		case Colors.FONT_YELLOW -> Color.YELLOW;
+		case Colors.FONT_CYAN -> Color.MAGENTA;
 		case Colors.FONT_ORANGE -> new Color(255, 128, 0);
-		case Colors.FONT_PURPLE -> new Color(255, 0, 255);
+		case Colors.FONT_PURPLE -> Color.MAGENTA;
 		case Colors.FONT_DARKBLUE -> new Color(0, 0, 128);
 		default -> Color.WHITE;
 		};
@@ -57,15 +59,15 @@ public class SwingColors {
 	 */
 	public static Color getSimpleBlockColor(int color) {
 		return switch (color) {
-		case Colors.BLOCK_COLOR_GRAY -> Color.lightGray;
-		case Colors.BLOCK_COLOR_RED -> Color.red;
-		case Colors.BLOCK_COLOR_ORANGE -> Color.orange;
-		case Colors.BLOCK_COLOR_YELLOW -> Color.yellow;
-		case Colors.BLOCK_COLOR_GREEN -> Color.green;
-		case Colors.BLOCK_COLOR_CYAN -> Color.cyan;
-		case Colors.BLOCK_COLOR_BLUE -> Color.blue;
-		case Colors.BLOCK_COLOR_PURPLE -> Color.magenta;
-		default -> Color.white;
+		case Colors.BLOCK_COLOR_GRAY -> Color.LIGHT_GRAY;
+		case Colors.BLOCK_COLOR_RED -> Color.RED;
+		case Colors.BLOCK_COLOR_ORANGE -> Color.ORANGE;
+		case Colors.BLOCK_COLOR_YELLOW -> Color.YELLOW;
+		case Colors.BLOCK_COLOR_GREEN -> Color.GREEN;
+		case Colors.BLOCK_COLOR_CYAN -> Color.CYAN;
+		case Colors.BLOCK_COLOR_BLUE -> Color.BLUE;
+		case Colors.BLOCK_COLOR_PURPLE -> Color.MAGENTA;
+		default -> Color.WHITE;
 		};
 	}
 
@@ -78,7 +80,7 @@ public class SwingColors {
 	 */
 	public static Color getBlockColor(int colorID) {
 		return switch (colorID) {
-		case Colors.BLOCK_COLOR_GRAY -> new Color(64, 64, 64);
+		case Colors.BLOCK_COLOR_GRAY -> Color.DARK_GRAY;
 		case Colors.BLOCK_COLOR_RED -> new Color(128, 0, 0);
 		case Colors.BLOCK_COLOR_ORANGE -> new Color(128, 64, 0);
 		case Colors.BLOCK_COLOR_YELLOW -> new Color(128, 128, 0);
@@ -92,14 +94,14 @@ public class SwingColors {
 
 	public static Color getBlockColorBright(int colorID) {
 		return switch (colorID) {
-		case Colors.BLOCK_COLOR_GRAY -> new Color(128, 128, 128);
-		case Colors.BLOCK_COLOR_RED -> new Color(255, 0, 0);
+		case Colors.BLOCK_COLOR_GRAY -> Color.GRAY;
+		case Colors.BLOCK_COLOR_RED -> Color.RED;
 		case Colors.BLOCK_COLOR_ORANGE -> new Color(255, 128, 0);
-		case Colors.BLOCK_COLOR_YELLOW -> new Color(255, 255, 0);
-		case Colors.BLOCK_COLOR_GREEN -> new Color(0, 255, 0);
-		case Colors.BLOCK_COLOR_CYAN -> new Color(0, 255, 255);
-		case Colors.BLOCK_COLOR_BLUE -> new Color(0, 0, 255);
-		case Colors.BLOCK_COLOR_PURPLE -> new Color(255, 0, 255);
+		case Colors.BLOCK_COLOR_YELLOW -> Color.YELLOW;
+		case Colors.BLOCK_COLOR_GREEN -> Color.GREEN;
+		case Colors.BLOCK_COLOR_CYAN -> Color.CYAN;
+		case Colors.BLOCK_COLOR_BLUE -> Color.BLUE;
+		case Colors.BLOCK_COLOR_PURPLE -> Color.MAGENTA;
 		default -> Color.BLACK;
 		};
 	}

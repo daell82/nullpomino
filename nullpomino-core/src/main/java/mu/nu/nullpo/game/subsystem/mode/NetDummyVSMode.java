@@ -2,6 +2,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import lombok.extern.log4j.Log4j;
@@ -302,8 +303,8 @@ public class NetDummyVSMode extends NetDummyMode {
 			owner.engines[i].framecolor = Colors.FRAME_COLOR_GRAY;
 		}
 
-		LinkedList<NetPlayerInfo> pList = netLobby.updateSameRoomPlayerInfoList();
-		LinkedList<String> teamList = new LinkedList<>();
+		List<NetPlayerInfo> pList = netLobby.updateSameRoomPlayerInfoList();
+		List<String> teamList = new LinkedList<>();
 
 		for (NetPlayerInfo pInfo : pList) {
 			if (pInfo.roomID == netCurrentRoomInfo.roomID) {

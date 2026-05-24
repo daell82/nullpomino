@@ -5,6 +5,7 @@ import java.util.Random;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.util.Colors;

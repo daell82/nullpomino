@@ -3133,8 +3133,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 *
 	 * @return Being in the same roomPlayerList
 	 */
-	public LinkedList<NetPlayerInfo> updateSameRoomPlayerInfoList() {
-		LinkedList<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfoList());
+	public List<NetPlayerInfo> updateSameRoomPlayerInfoList() {
+		List<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfoList());
 		int roomID = netPlayerClient.getYourPlayerInfo().roomID;
 		sameRoomPlayerInfoList.clear();
 
@@ -3152,7 +3152,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 *
 	 * @return Being in the same roomPlayerList
 	 */
-	public LinkedList<NetPlayerInfo> getSameRoomPlayerInfoList() {
+	public List<NetPlayerInfo> getSameRoomPlayerInfoList() {
 		return sameRoomPlayerInfoList;
 	}
 

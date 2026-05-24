@@ -30,6 +30,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
@@ -730,8 +731,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	 * Update player names
 	 */
 	private void updatePlayerNames() {
-		LinkedList<NetPlayerInfo> pList = netLobby.getSameRoomPlayerInfoList();
-		LinkedList<String> teamList = new LinkedList<>();
+		List<NetPlayerInfo> pList = netLobby.getSameRoomPlayerInfoList();
+		List<String> teamList = new LinkedList<>();
 
 		for (int i = 0; i < MAX_PLAYERS; i++) {
 			playerNames[i] = "";

@@ -7,9 +7,8 @@
 	
 	<parent>
 		<groupId>mu.nu.nullpo</groupId>
-		<artifactId>nullpomino-parent</artifactId>
+		<artifactId>nullpomino</artifactId>
 		<version>7.6.0-SNAPSHOT</version>
-		<relativePath>../nullpomino-parent</relativePath>
 	</parent>
 
 	<dependencies>

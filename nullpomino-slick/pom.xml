@@ -7,10 +7,27 @@
 
 	<parent>
 		<groupId>mu.nu.nullpo</groupId>
-		<artifactId>nullpomino-parent</artifactId>
+		<artifactId>nullpomino</artifactId>
 		<version>7.6.0-SNAPSHOT</version>
-		<relativePath>../nullpomino-parent</relativePath>
 	</parent>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.5.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>mu.nu.nullpo.gui.slick.NullpoMinoSlick</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 	<dependencies>
 		<dependency>

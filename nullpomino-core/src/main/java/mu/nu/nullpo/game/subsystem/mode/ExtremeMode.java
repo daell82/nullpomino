@@ -32,6 +32,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -293,7 +294,7 @@ public class ExtremeMode extends NetDummyMode {
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
-					netLobby.netPlayerClient.send("start1p\n");
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
 				}
 
 				return false;
@@ -348,8 +349,8 @@ public class ExtremeMode extends NetDummyMode {
 			} else {
 				strTSpinEnable = GeneralUtil.getONorOFF(enableTSpin);
 			}
-			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1),
-					"SPIN BONUS", strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "LEVEL", String.valueOf(startlevel + 1), "SPIN BONUS",
+					strTSpinEnable, "EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
 					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
 					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo), "ENDLESS",
 					GeneralUtil.getONorOFF(endless), "BIG", GeneralUtil.getONorOFF(big));
@@ -408,8 +409,7 @@ public class ExtremeMode extends NetDummyMode {
 
 		renderer.drawScoreFont(engine, playerID, 0, 0, "EXTREME", Colors.FONT_RED);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && !big && engine.ai == null) {
 				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
 				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
@@ -776,8 +776,8 @@ public class ExtremeMode extends NetDummyMode {
 	 */
 	@Override
 	public void renderResult(GameEngine engine, int playerID) {
-		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES,
-				Statistic.LEVEL, Statistic.TIME, Statistic.SPL, Statistic.LPM);
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES, Statistic.LEVEL,
+				Statistic.TIME, Statistic.SPL, Statistic.LPM);
 		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
 		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
 		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
@@ -964,17 +964,28 @@ public class ExtremeMode extends NetDummyMode {
 	protected void netSendStats(GameEngine engine) {
 		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
 				: engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.level + "\t";
-		msg += engine.statistics.lpm + "\t" + engine.statistics.spl + "\t" + endless + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t"
-				+ lastpiece
-				+ "\t";
-		msg += bg + "\t" + rolltime + "\t" + engine.meterValue + "\t" + engine.meterColor + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.score + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.level + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.spl + "\t";
+		stats += endless + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += lastscore + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece + "\t";
+		stats += bg + "\t";
+		stats += rolltime + "\t";
+		stats += engine.meterValue + "\t";
+		stats += engine.meterColor + "\n";
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -1011,16 +1022,14 @@ public class ExtremeMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "SCORE;" + engine.statistics.score + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "SCORE/LINE;" + engine.statistics.spl + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm;
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1030,10 +1039,17 @@ public class ExtremeMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += startlevel + "\t" + tspinEnableType + "\t" + enableTSpinKick + "\t" + enableB2B + "\t";
-		msg += enableCombo + "\t" + endless + "\t" + big + "\t" + spinCheckType + "\t" + tspinEnableEZ + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += startlevel + "\t";
+		options += tspinEnableType + "\t";
+		options += enableTSpinKick + "\t";
+		options += enableB2B + "\t";
+		options += enableCombo + "\t";
+		options += endless + "\t";
+		options += big + "\t";
+		options += spinCheckType + "\t";
+		options += tspinEnableEZ;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

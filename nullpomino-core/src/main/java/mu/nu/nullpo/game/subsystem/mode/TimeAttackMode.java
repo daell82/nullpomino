@@ -31,6 +31,7 @@ package mu.nu.nullpo.game.subsystem.mode;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -540,7 +541,7 @@ public class TimeAttackMode extends NetDummyMode {
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
-					netLobby.netPlayerClient.send("start1p\n");
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
 				}
 
 				return false;
@@ -1168,16 +1169,29 @@ public class TimeAttackMode extends NetDummyMode {
 	protected void netSendStats(GameEngine engine) {
 		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
 				: engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.pps + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += engine.statistics.level + "\t" + levelTimer + "\t" + levelTimerMax + "\t";
-		msg += rolltime + "\t" + norm + "\t" + bg + "\t" + engine.meterValue + "\t" + engine.meterColor + "\t";
-		msg += engine.heboHiddenEnable + "\t" + engine.heboHiddenTimerNow + "\t" + engine.heboHiddenTimerMax + "\t";
-		msg += engine.heboHiddenYNow + "\t" + engine.heboHiddenYLimit + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += engine.statistics.level + "\t";
+		stats += levelTimer + "\t";
+		stats += levelTimerMax + "\t";
+		stats += rolltime + "\t";
+		stats += norm + "\t";
+		stats += bg + "\t";
+		stats += engine.meterValue + "\t";
+		stats += engine.meterColor + "\t";
+		stats += engine.heboHiddenEnable + "\t";
+		stats += engine.heboHiddenTimerNow + "\t";
+		stats += engine.heboHiddenTimerMax + "\t";
+		stats += engine.heboHiddenYNow + "\t";
+		stats += engine.heboHiddenYLimit;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -1215,22 +1229,20 @@ public class TimeAttackMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "NORM;" + norm + "\t";
-		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-		subMsg += "SECTION AVERAGE;" + GeneralUtil.getTime(sectionavgtime) + "\t";
+		String stats = "";
+		stats += "NORM;" + norm + "\t";
+		stats += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		stats += "SECTION AVERAGE;" + GeneralUtil.getTime(sectionavgtime) + "\t";
 		for (int i = 0; i < sectiontime.length; i++) {
 			if (sectiontime[i] > 0) {
-				subMsg += "SECTION " + (i + 1) + ";" + GeneralUtil.getTime(sectiontime[i]) + "\t";
+				stats += "SECTION " + (i + 1) + ";" + GeneralUtil.getTime(sectiontime[i]) + "\t";
 			}
 		}
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1240,9 +1252,12 @@ public class TimeAttackMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += goaltype + "\t" + startlevel + "\t" + showsectiontime + "\t" + big + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += goaltype + "\t";
+		options += startlevel + "\t";
+		options += showsectiontime + "\t";
+		options += big;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

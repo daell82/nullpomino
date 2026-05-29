@@ -140,7 +140,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		loadMusicList();
 
 		// Look&FeelSetting
-		if (propConfig.getProperty("option.usenativelookandfeel", true) == true) {
+		if (propConfig.getProperty("option.usenativelookandfeel", true)) {
 			try {
 				UIManager.getInstalledLookAndFeels();
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -234,7 +234,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 		hashmapFileFilters.put(".xm", new SimpleFileFilter(".xm", getUIText("FileChooser_xm")));
 		hashmapFileFilters.put(".mod", new SimpleFileFilter(".mod", getUIText("FileChooser_mod")));
 		hashmapFileFilters.put(".aif", new SimpleFileFilter(".aif", getUIText("FileChooser_aif")));
-		hashmapFileFilters.put(".aiff", new SimpleFileFilter(".aif", getUIText("FileChooser_aiff")));
+		hashmapFileFilters.put(".aiff", new SimpleFileFilter(".aiff", getUIText("FileChooser_aiff")));
 		hashmapFileFilters.put(".ogg", new SimpleFileFilter(".ogg", getUIText("FileChooser_ogg")));
 
 		// File selection dialog
@@ -303,7 +303,7 @@ public class MusicListEditor extends JFrame implements ActionListener {
 
 			// default Set the directory
 			String defaultDirectory = txtfldMusicFileNames[number].getText();
-			if (defaultDirectory.length() < 1) {
+			if (defaultDirectory.isEmpty()) {
 				defaultDirectory = currentDirectory + "/res/bgm";
 			}
 

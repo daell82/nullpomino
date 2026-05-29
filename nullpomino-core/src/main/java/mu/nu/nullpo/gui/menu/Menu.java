@@ -1,23 +1,25 @@
 package mu.nu.nullpo.gui.menu;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 public class Menu {
 
 	@SuppressWarnings("unused")
-	private String title;
+	private final String title;
 
 	@SuppressWarnings("unused")
-	private String subTitle;
+	private final String subTitle;
 
 	private int selectedIndex;
 
-	private Vector<MenuItem> menuItems;
+	private final List<MenuItem> menuItems = new LinkedList<>();
 
-	public Menu(String title, String subTitle, Vector<MenuItem> menuItems) {
+	public Menu(String title, String subTitle, List<MenuItem> menuItems) {
 		this.title = title;
 		this.subTitle = subTitle;
-		this.menuItems = menuItems;
+		this.menuItems.addAll(menuItems);
 		selectedIndex = 0;
 	}
 
@@ -25,7 +27,7 @@ public class Menu {
 		this(title, subTitle, new Vector<>());
 	}
 
-	public Menu(String title, Vector<MenuItem> menuItems) {
+	public Menu(String title, List<MenuItem> menuItems) {
 		this(title, "", menuItems);
 	}
 

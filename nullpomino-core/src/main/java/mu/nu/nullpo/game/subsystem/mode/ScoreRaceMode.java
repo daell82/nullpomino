@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -407,7 +408,7 @@ public class ScoreRaceMode extends NetDummyMode {
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
-						netLobby.netPlayerClient.send("start1p\n");
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
 					}
 
 					return false;
@@ -996,24 +997,24 @@ public class ScoreRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendStats(GameEngine engine) {
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t";
-		msg += engine.statistics.lines + "\t";
-		msg += engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t";
-		msg += engine.statistics.spm + "\t";
-		msg += engine.statistics.lpm + "\t";
-		msg += engine.statistics.spl + "\t";
-		msg += goaltype + "\t";
-		msg += engine.gameActive + "\t";
-		msg += engine.timerActive + "\t";
-		msg += lastscore + "\t";
-		msg += scgettime + "\t";
-		msg += lastevent.ordinal() + "\t";
-		msg += lastb2b + "\t";
-		msg += lastcombo + "\t";
-		msg += lastpiece + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.score + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.spm + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.spl + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += lastscore + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -1046,18 +1047,16 @@ public class ScoreRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "/" + GOAL_TABLE[goaltype] + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "SCORE/MIN;" + engine.statistics.spm + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "SCORE;" + engine.statistics.score + "/" + GOAL_TABLE[goaltype] + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "SCORE/LINE;" + engine.statistics.spl + "\t";
+		stats += "SCORE/MIN;" + engine.statistics.spm + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1067,25 +1066,25 @@ public class ScoreRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t";
-		msg += engine.speed.denominator + "\t";
-		msg += engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t";
-		msg += engine.speed.lineDelay + "\t";
-		msg += engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t";
-		msg += bgmno + "\t";
-		msg += big + "\t";
-		msg += goaltype + "\t";
-		msg += tspinEnableType + "\t";
-		msg += enableTSpinKick + "\t";
-		msg += enableB2B + "\t";
-		msg += enableCombo + "\t";
-		msg += presetNumber + "\t";
-		msg += spinCheckType + "\t";
-		msg += tspinEnableEZ + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += big + "\t";
+		options += goaltype + "\t";
+		options += tspinEnableType + "\t";
+		options += enableTSpinKick + "\t";
+		options += enableB2B + "\t";
+		options += enableCombo + "\t";
+		options += presetNumber + "\t";
+		options += spinCheckType + "\t";
+		options += tspinEnableEZ;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

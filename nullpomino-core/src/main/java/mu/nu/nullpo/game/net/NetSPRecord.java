@@ -1,10 +1,10 @@
 package mu.nu.nullpo.game.net;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.Statistics;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
@@ -12,44 +12,40 @@ import mu.nu.nullpo.util.CustomProperties;
 /**
  * Single player mode record
  */
+@Log4j
 public class NetSPRecord {
 
 	/** Ranking type constants */
-	public static final int RANKINGTYPE_GENERIC_SCORE = 0;
-	public static final int RANKINGTYPE_GENERIC_TIME = 1;
-	public static final int RANKINGTYPE_SCORERACE = 2;
-	public static final int RANKINGTYPE_DIGRACE = 3;
-	public static final int RANKINGTYPE_ULTRA = 4;
-	public static final int RANKINGTYPE_COMBORACE = 5;
-	public static final int RANKINGTYPE_DIGCHALLENGE = 6;
-	public static final int RANKINGTYPE_TIMEATTACK = 7;
+	public enum RankingType {
+		GENERIC_SCORE, GENERIC_TIME, SCORERACE, DIGRACE, ULTRA, COMBORACE, DIGCHALLENGE, TIMEATTACK;
+	}
 
 	/** Player Name */
-	public String strPlayerName;
+	public String playerName;
 
 	/** Game Mode Name */
-	public String strModeName;
+	public String modeName;
 
 	/** Rule Name */
-	public String strRuleName;
-
-	/** Main Stats */
-	public Statistics stats;
-
-	/** List of custom stats (Each String is NAME;VALUE format) */
-	public final Map<String, String> customStats = new HashMap<>();
-
-	/** Replay data (Compressed) */
-	public String strReplayProp;
-
-	/** Time stamp (GMT) */
-	public String strTimeStamp;
+	public String ruleName;
 
 	/** Game Type ID */
 	public int gameType;
 
 	/** Game Style */
 	public GameStyle style;
+
+	/** Main Stats */
+	public Statistics stats;
+
+	/** List of custom stats (Each String is NAME;VALUE format) */
+	private final Map<String, String> customStats = new HashMap<>();
+
+	/** Replay data (Compressed) */
+	public String replayProp;
+
+	/** Time stamp (GMT) */
+	public String timeStamp;
 
 	/**
 	 * Compare 2 records
@@ -59,12 +55,12 @@ public class NetSPRecord {
 	 * @param r2   Record 2
 	 * @return <code>true</code> if r1 is better than r2
 	 */
-	public static boolean compareRecords(int type, NetSPRecord r1, NetSPRecord r2) {
+	public static boolean compareRecords(RankingType type, NetSPRecord r1, NetSPRecord r2) {
 		Statistics s1 = r1.stats;
 		Statistics s2 = r2.stats;
 
 		return switch (type) {
-		case RANKINGTYPE_GENERIC_SCORE -> {
+		case GENERIC_SCORE -> {
 			if (s1.score > s2.score) {
 				yield true;
 			}
@@ -76,7 +72,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_GENERIC_TIME -> {
+		case GENERIC_TIME -> {
 			if (s1.time < s2.time) {
 				yield true;
 			}
@@ -88,7 +84,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_SCORERACE -> {
+		case SCORERACE -> {
 			if (s1.time < s2.time) {
 				yield true;
 			}
@@ -100,7 +96,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_DIGRACE -> {
+		case DIGRACE -> {
 			if (s1.time < s2.time) {
 				yield true;
 			}
@@ -112,7 +108,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_ULTRA -> {
+		case ULTRA -> {
 			if (s1.score > s2.score) {
 				yield true;
 			}
@@ -124,7 +120,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_COMBORACE -> {
+		case COMBORACE -> {
 			if (s1.maxCombo > s2.maxCombo) {
 				yield true;
 			}
@@ -136,7 +132,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_DIGCHALLENGE -> {
+		case DIGCHALLENGE -> {
 			if (s1.score > s2.score) {
 				yield true;
 			}
@@ -148,7 +144,7 @@ public class NetSPRecord {
 			}
 			yield false;
 		}
-		case RANKINGTYPE_TIMEATTACK -> {
+		case TIMEATTACK -> {
 			// Cap the line count at 150 or 200
 			int maxLines = r1.gameType >= 5 ? 200 : 150;
 			int l1 = Math.min(s1.lines, maxLines);
@@ -175,7 +171,15 @@ public class NetSPRecord {
 	 * Default Constructor
 	 */
 	public NetSPRecord() {
-		reset();
+		playerName = "";
+		modeName = "";
+		ruleName = "";
+		stats = null;
+		replayProp = "";
+		timeStamp = "";
+		gameType = 0;
+		style = GameStyle.TETROMINO;
+
 	}
 
 	/**
@@ -184,16 +188,20 @@ public class NetSPRecord {
 	 * @param s Source
 	 */
 	public NetSPRecord(NetSPRecord s) {
-		copy(s);
-	}
+		playerName = s.playerName;
+		modeName = s.modeName;
+		ruleName = s.ruleName;
+		if (s.stats == null) {
+			stats = null;
+		} else {
+			stats = new Statistics(s.stats);
+		}
 
-	/**
-	 * Constructor that imports data from a String Array
-	 *
-	 * @param s String Array (String[6])
-	 */
-	public NetSPRecord(String[] s) {
-		importStringArray(s);
+		customStats.putAll(s.customStats);
+		replayProp = s.replayProp;
+		timeStamp = s.timeStamp;
+		gameType = s.gameType;
+		style = s.style;
 	}
 
 	/**
@@ -203,46 +211,6 @@ public class NetSPRecord {
 	 */
 	public NetSPRecord(String s) {
 		importString(s);
-	}
-
-	/**
-	 * Initialization
-	 */
-	public void reset() {
-		strPlayerName = "";
-		strModeName = "";
-		strRuleName = "";
-		stats = null;
-		customStats.clear();
-		strReplayProp = "";
-		strTimeStamp = "";
-		gameType = 0;
-		style = GameStyle.TETROMINO;
-	}
-
-	/**
-	 * Copy from other NetSPRecord
-	 *
-	 * @param s Source
-	 */
-	public void copy(NetSPRecord s) {
-		strPlayerName = s.strPlayerName;
-		strModeName = s.strModeName;
-		strRuleName = s.strRuleName;
-
-		if (s.stats == null) {
-			stats = null;
-		} else {
-			stats = new Statistics(s.stats);
-		}
-
-		customStats.clear();
-		customStats.putAll(s.customStats);
-
-		strReplayProp = s.strReplayProp;
-		strTimeStamp = s.strTimeStamp;
-		gameType = s.gameType;
-		style = s.style;
 	}
 
 	/**
@@ -281,8 +249,8 @@ public class NetSPRecord {
 	 * @param p CustomProperties that contains replay data
 	 */
 	public void setReplayProp(CustomProperties p) {
-		String strEncode = p.encode("NullpoMino Net Single Player Replay (" + strPlayerName + ")");
-		strReplayProp = NetUtil.compressString(strEncode);
+		String strEncode = p.encode("NullpoMino Net Single Player Replay (" + playerName + ")");
+		replayProp = NetUtil.compressString(strEncode);
 	}
 
 	/**
@@ -291,7 +259,7 @@ public class NetSPRecord {
 	 * @return CustomProperties that contains replay data
 	 */
 	public CustomProperties getReplayProp() {
-		String strEncode = NetUtil.decompressString(strReplayProp);
+		String strEncode = NetUtil.decompressString(replayProp);
 		CustomProperties p = new CustomProperties();
 		p.decode(strEncode);
 		return p;
@@ -304,15 +272,15 @@ public class NetSPRecord {
 	 */
 	private String[] exportStringArray() {
 		String[] s = new String[9];
-		s[0] = NetUtil.urlEncode(strPlayerName);
-		s[1] = NetUtil.urlEncode(strModeName);
-		s[2] = NetUtil.urlEncode(strRuleName);
+		s[0] = NetUtil.urlEncode(playerName);
+		s[1] = NetUtil.urlEncode(modeName);
+		s[2] = NetUtil.urlEncode(ruleName);
 		s[3] = stats == null ? "" : NetUtil.compressString(stats.exportString());
 		s[4] = customStats.isEmpty() ? "" : NetUtil.compressString(exportCustomStats());
-		s[5] = strReplayProp;
+		s[5] = replayProp;
 		s[6] = Integer.toString(gameType);
 		s[7] = Integer.toString(style.ordinal());
-		s[8] = strTimeStamp;
+		s[8] = timeStamp;
 		return s;
 	}
 
@@ -323,7 +291,7 @@ public class NetSPRecord {
 	 */
 	public String exportString() {
 		String[] array = exportStringArray();
-		return Arrays.stream(array).collect(Collectors.joining(";"));
+		return String.join(";", array);
 	}
 
 	/**
@@ -332,9 +300,9 @@ public class NetSPRecord {
 	 * @param s String Array (String[9])
 	 */
 	private void importStringArray(String[] s) {
-		strPlayerName = NetUtil.urlDecode(s[0]);
-		strModeName = NetUtil.urlDecode(s[1]);
-		strRuleName = NetUtil.urlDecode(s[2]);
+		playerName = NetUtil.urlDecode(s[0]);
+		modeName = NetUtil.urlDecode(s[1]);
+		ruleName = NetUtil.urlDecode(s[2]);
 		if (s[3].isEmpty()) {
 			stats = null;
 		} else {
@@ -345,10 +313,10 @@ public class NetSPRecord {
 		} else {
 			importCustomStats(NetUtil.decompressString(s[4]));
 		}
-		strReplayProp = s[5];
+		replayProp = s[5];
 		gameType = Integer.parseInt(s[6]);
 		style = GameStyle.values()[Integer.parseInt(s[7])];
-		strTimeStamp = s.length > 8 ? s[8] : "";
+		timeStamp = s.length > 8 ? s[8] : "";
 	}
 
 	/**
@@ -367,7 +335,7 @@ public class NetSPRecord {
 	 * @param r2   The other NetSPRecord
 	 * @return <code>true</code> if this this record is better than r2
 	 */
-	public boolean compare(int type, NetSPRecord r2) {
+	public boolean compare(RankingType type, NetSPRecord r2) {
 		return compareRecords(type, this, r2);
 	}
 
@@ -399,8 +367,7 @@ public class NetSPRecord {
 	 * @return Value (strDefault if not found)
 	 */
 	public String getCustomStat(String name, String strDefault) {
-		String strResult = getCustomStat(name);
-		return strResult == null ? strDefault : strResult;
+		return customStats.getOrDefault(name, strDefault);
 	}
 
 	/**
@@ -409,16 +376,16 @@ public class NetSPRecord {
 	 * @param type Ranking Type
 	 * @return Short String of stats of the record
 	 */
-	public String getStatRow(int type) {
+	public String getStatRow(RankingType type) {
 		return switch (type) {
-		case RANKINGTYPE_GENERIC_SCORE -> stats.score + "," + stats.lines + "," + stats.time;
-		case RANKINGTYPE_GENERIC_TIME -> stats.time + "," + stats.totalPieceLocked + "," + stats.pps;
-		case RANKINGTYPE_SCORERACE -> stats.time + "," + stats.lines + "," + stats.spl;
-		case RANKINGTYPE_DIGRACE -> stats.time + "," + stats.lines + "," + stats.totalPieceLocked;
-		case RANKINGTYPE_ULTRA -> stats.score + "," + stats.lines + "," + stats.totalPieceLocked;
-		case RANKINGTYPE_COMBORACE -> stats.maxCombo + "," + stats.time + "," + stats.pps;
-		case RANKINGTYPE_DIGCHALLENGE -> stats.score + "," + stats.lines + "," + stats.time;
-		case RANKINGTYPE_TIMEATTACK -> stats.lines + "," + stats.time + "," + stats.pps + "," + stats.rollclear;
+		case GENERIC_SCORE -> stats.score + "," + stats.lines + "," + stats.time;
+		case GENERIC_TIME -> stats.time + "," + stats.totalPieceLocked + "," + stats.pps;
+		case SCORERACE -> stats.time + "," + stats.lines + "," + stats.spl;
+		case DIGRACE -> stats.time + "," + stats.lines + "," + stats.totalPieceLocked;
+		case ULTRA -> stats.score + "," + stats.lines + "," + stats.totalPieceLocked;
+		case COMBORACE -> stats.maxCombo + "," + stats.time + "," + stats.pps;
+		case DIGCHALLENGE -> stats.score + "," + stats.lines + "," + stats.time;
+		case TIMEATTACK -> stats.lines + "," + stats.time + "," + stats.pps + "," + stats.rollclear;
 		default -> "";
 		};
 	}

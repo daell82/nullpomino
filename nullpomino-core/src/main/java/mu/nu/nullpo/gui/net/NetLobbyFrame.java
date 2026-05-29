@@ -106,11 +106,13 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import lombok.Getter;
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
@@ -125,6 +127,7 @@ import mu.nu.nullpo.util.GeneralUtil;
 /**
  * NullpoMino NetLobby
  */
+@Log4j
 public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageListener {
 
 	/** Serial Version ID */
@@ -134,7 +137,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * Room-table column names. These strings will be passed to getUIText(String)
 	 * subroutine.
 	 */
-	public static final String[] ROOMTABLE_COLUMNNAMES = { "RoomTable_ID", "RoomTable_Name", "RoomTable_Rated",
+	private static final String[] ROOMTABLE_COLUMNNAMES = { "RoomTable_ID", "RoomTable_Name", "RoomTable_Rated",
 			"RoomTable_RuleName", "RoomTable_ModeName", "RoomTable_Status", "RoomTable_Players",
 			"RoomTable_Spectators" };
 
@@ -142,7 +145,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * End-of-game statistics column names. These strings will be passed to
 	 * getUIText(String) subroutine.
 	 */
-	public static final String[] STATTABLE_COLUMNNAMES = { "StatTable_Rank", "StatTable_Name", "StatTable_Attack",
+	private static final String[] STATTABLE_COLUMNNAMES = { "StatTable_Rank", "StatTable_Name", "StatTable_Attack",
 			"StatTable_APL", "StatTable_APM", "StatTable_Lines", "StatTable_LPM", "StatTable_Piece", "StatTable_PPS",
 			"StatTable_Time", "StatTable_KO", "StatTable_Wins", "StatTable_Games" };
 
@@ -150,47 +153,44 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * 1P end-of-game statistics column names. These strings will be passed to
 	 * getUIText(String) subroutine.
 	 */
-	public static final String[] STATTABLE1P_COLUMNNAMES = { "StatTable1P_Description", "StatTable1P_Value" };
+	private static final String[] STATTABLE1P_COLUMNNAMES = { "StatTable1P_Description", "StatTable1P_Value" };
 
 	/**
 	 * Multiplayer leaderboard column names. These strings will be passed to
 	 * getUIText(String) subroutine.
 	 */
-	public static final String[] MPRANKING_COLUMNNAMES = { "MPRanking_Rank", "MPRanking_Name", "MPRanking_Rating",
+	private static final String[] MPRANKING_COLUMNNAMES = { "MPRanking_Rank", "MPRanking_Name", "MPRanking_Rating",
 			"MPRanking_PlayCount", "MPRanking_WinCount" };
 
 	/** Tuning: Generic Auto/Disable/Enable labels (before translation) */
-	public static final String[] TUNING_COMBOBOX_GENERIC = { "GameTuning_ComboboxGeneric_Auto",
+	private static final String[] TUNING_COMBOBOX_GENERIC = { "GameTuning_ComboboxGeneric_Auto",
 			"GameTuning_ComboboxGeneric_Disable", "GameTuning_ComboboxGeneric_Enable" };
 
 	/** Tuning: A button rotation (before translation) */
-	public static final String[] TUNING_ABUTTON_ROTATE = { "GameTuning_RotateButtonDefaultRight_Auto",
+	private static final String[] TUNING_ABUTTON_ROTATE = { "GameTuning_RotateButtonDefaultRight_Auto",
 			"GameTuning_RotateButtonDefaultRight_Left", "GameTuning_RotateButtonDefaultRight_Right" };
 
 	/** Tuning: Outline type names (before translation) */
-	public static final String[] TUNING_OUTLINE_TYPE_NAMES = { "GameTuning_OutlineType_Auto",
+	private static final String[] TUNING_OUTLINE_TYPE_NAMES = { "GameTuning_OutlineType_Auto",
 			"GameTuning_OutlineType_None", "GameTuning_OutlineType_Normal", "GameTuning_OutlineType_Connect",
 			"GameTuning_OutlineType_SameColor" };
 
 	/** Spin bonus names */
-	public static final String[] COMBOBOX_SPINBONUS_NAMES = { "CreateRoom_TSpin_Disable", "CreateRoom_TSpin_TOnly",
+	private static final String[] COMBOBOX_SPINBONUS_NAMES = { "CreateRoom_TSpin_Disable", "CreateRoom_TSpin_TOnly",
 			"CreateRoom_TSpin_All" };
 
 	/** Names for spin check types */
-	public static final String[] COMBOBOX_SPINCHECKTYPE_NAMES = { "CreateRoom_SpinCheck_4Point",
+	private static final String[] COMBOBOX_SPINCHECKTYPE_NAMES = { "CreateRoom_SpinCheck_4Point",
 			"CreateRoom_SpinCheck_Immobile" };
 
 	/** Constants for each screen-card */
-	public static final int SCREENCARD_SERVERSELECT = 0, SCREENCARD_LOBBY = 1, SCREENCARD_SERVERADD = 2,
+	private static final int SCREENCARD_SERVERSELECT = 0, SCREENCARD_LOBBY = 1, SCREENCARD_SERVERADD = 2,
 			SCREENCARD_CREATERATED_WAITING = 3, SCREENCARD_CREATERATED = 4, SCREENCARD_CREATEROOM = 5,
 			SCREENCARD_CREATEROOM1P = 6, SCREENCARD_MPRANKING = 7, SCREENCARD_RULECHANGE = 8;
 
 	/** Names for each screen-card */
-	public static final String[] SCREENCARD_NAMES = { "ServerSelect", "Lobby", "ServerAdd", "CreateRatedWaiting",
+	private static final String[] SCREENCARD_NAMES = { "ServerSelect", "Lobby", "ServerAdd", "CreateRatedWaiting",
 			"CreateRated", "CreateRoom", "CreateRoom1P", "MPRanking", "RuleChange" };
-
-	/** Log */
-	static final Logger log = Logger.getLogger(NetLobbyFrame.class);
 
 	/** NetPlayerClient */
 	public NetPlayerClient netPlayerClient;
@@ -199,16 +199,17 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	public RuleOptions ruleOptPlayer, ruleOptLock;
 
 	/** Map list */
-	public final List<String> mapList = new LinkedList<>();
+	@Getter
+	private final List<String> mapList = new LinkedList<>();
 
 	/** Event listeners */
-	protected final List<NetLobbyListener> listeners = new LinkedList<>();
+	private final List<NetLobbyListener> listeners = new LinkedList<>();
 
 	/** Preset info */
-	protected final List<NetRoomInfo> presets = new LinkedList<>();
+	private final List<NetRoomInfo> presets = new LinkedList<>();
 
 	/** Current game mode (act as special NetLobbyListener) */
-	protected NetDummyMode netDummyMode;
+	private NetDummyMode netDummyMode;
 
 	/** Property file for lobby settings */
 	protected CustomProperties propConfig;
@@ -403,7 +404,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	protected DefaultListModel<String> listmodelRoomChatPlayerList;
 
 	/** The same roomPlayerInformation */
-	protected LinkedList<NetPlayerInfo> sameRoomPlayerInfoList;
+	private List<NetPlayerInfo> sameRoomPlayerInfoList;
 
 	/** Chat input Column(Room screen) */
 	protected JTextField txtfldRoomChatInput;
@@ -2517,7 +2518,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @return PlayerOfName(Translated symbol trip)
 	 */
 	private String getPlayerNameWithTripCode(NetPlayerInfo pInfo) {
-		return convTripCode(pInfo.strName);
+		return convTripCode(pInfo.getPlayerName());
 	}
 
 	/**
@@ -2877,7 +2878,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (netPlayerClient.getYourPlayerInfo().roomID != roomID) {
 			txtpaneRoomChatLog.setText("");
 			setRoomButtonsEnabled(false);
-			netPlayerClient.send("roomjoin\t" + roomID + "\t" + watch + "\n");
+			netPlayerClient.send(NetCmd.ROOM_JOIN, roomID, watch);
 		}
 
 		changeCurrentScreenCard(SCREENCARD_LOBBY);
@@ -3029,10 +3030,10 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				}
 
 				// Team
-				if (pInfo.strTeam.length() > 0) {
-					name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.strTeam;
+				if (!pInfo.team.isEmpty()) {
+					name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
 					if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-						name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.strTeam;
+						name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
 					}
 				}
 
@@ -3044,8 +3045,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				 */
 
 				// Country code
-				if (pInfo.strCountry.length() > 0) {
-					name += " (" + pInfo.strCountry + ")";
+				if (!pInfo.country.isEmpty()) {
+					name += " (" + pInfo.country + ")";
 				}
 
 				/*
@@ -3081,48 +3082,49 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 
 			for (NetPlayerInfo pInfo : pList) {
-				if (pInfo.roomID == roomInfo.roomID) {
-					// Name
-					String name = getPlayerNameWithTripCode(pInfo);
+				if (pInfo.roomID != roomInfo.roomID) {
+					continue;
+				}
+				// Name
+				String name = getPlayerNameWithTripCode(pInfo);
+				if (pInfo.uid == netPlayerClient.getPlayerUID()) {
+					name = "*" + getPlayerNameWithTripCode(pInfo);
+				}
+
+				// Team
+				if (!pInfo.team.isEmpty()) {
+					name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
 					if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-						name = "*" + getPlayerNameWithTripCode(pInfo);
+						name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
 					}
+				}
 
-					// Team
-					if (pInfo.strTeam.length() > 0) {
-						name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.strTeam;
-						if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-							name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.strTeam;
-						}
-					}
+				// Rating
+				name += " |" + pInfo.rating[roomInfo.style.ordinal()] + "|";
 
-					// Rating
-					name += " |" + pInfo.rating[roomInfo.style.ordinal()] + "|";
+				// Country code
+				if (!pInfo.country.isEmpty()) {
+					name += " (" + pInfo.country + ")";
+				}
 
-					// Country code
-					if (pInfo.strCountry.length() > 0) {
-						name += " (" + pInfo.strCountry + ")";
-					}
+				/*
+				 * XXX Hostname if(pInfo.strHost.length() > 0) { name += " {" + pInfo.strHost +
+				 * "}"; }
+				 */
 
-					/*
-					 * XXX Hostname if(pInfo.strHost.length() > 0) { name += " {" + pInfo.strHost +
-					 * "}"; }
-					 */
+				// Status
+				if (pInfo.isPlaying()) {
+					name += getUIText("RoomUserList_Playing");
+				} else if (pInfo.isReady()) {
+					name += getUIText("RoomUserList_Ready");
+				}
 
-					// Status
-					if (pInfo.playing) {
-						name += getUIText("RoomUserList_Playing");
-					} else if (pInfo.ready) {
-						name += getUIText("RoomUserList_Ready");
-					}
-
-					if (pInfo.seatID >= 0 && pInfo.seatID < roomInfo.maxPlayers) {
-						listmodelRoomChatPlayerList.set(pInfo.seatID, "[" + (pInfo.seatID + 1) + "] " + name);
-					} else if (pInfo.queueID != -1) {
-						listmodelRoomChatPlayerList.addElement(pInfo.queueID + 1 + ". " + name);
-					} else {
-						listmodelRoomChatPlayerList.addElement(name);
-					}
+				if (pInfo.seatID >= 0 && pInfo.seatID < roomInfo.maxPlayers) {
+					listmodelRoomChatPlayerList.set(pInfo.seatID, "[" + (pInfo.seatID + 1) + "] " + name);
+				} else if (pInfo.queueID != -1) {
+					listmodelRoomChatPlayerList.addElement(pInfo.queueID + 1 + ". " + name);
+				} else {
+					listmodelRoomChatPlayerList.addElement(name);
 				}
 			}
 		}
@@ -3176,7 +3178,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		long sChecksum = checksumObj.getValue();
 
 		// Transmission
-		netPlayerClient.send("ruledata\t" + sChecksum + "\t" + strRuleData + "\n");
+		netPlayerClient.send(NetCmd.RULE_DATA, sChecksum, strRuleData);
 	}
 
 	/**
@@ -3331,7 +3333,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Cut
 		if (netPlayerClient != null) {
 			if (netPlayerClient.isConnected()) {
-				netPlayerClient.send("disconnect\n");
+				netPlayerClient.send(NetCmd.DISCONNECT);
 			}
 			netPlayerClient.threadRunning = false;
 			netPlayerClient.interrupt();
@@ -3357,14 +3359,15 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public void serverSelectDeleteButtonClicked() {
 		int index = listboxServerList.getSelectedIndex();
-		if (index != -1) {
-			String server = listboxServerList.getSelectedValue();
-			int answer = JOptionPane.showConfirmDialog(this, getUIText("MessageBody_ServerDelete") + "\n" + server,
-					getUIText("MessageTitle_ServerDelete"), JOptionPane.YES_NO_OPTION);
-			if (answer == JOptionPane.YES_OPTION) {
-				listmodelServerList.remove(index);
-				saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
-			}
+		if (index == -1) {
+			return;
+		}
+		String server = listboxServerList.getSelectedValue();
+		int answer = JOptionPane.showConfirmDialog(this, getUIText("MessageBody_ServerDelete") + "\n" + server,
+				getUIText("MessageTitle_ServerDelete"), JOptionPane.YES_NO_OPTION);
+		if (answer == JOptionPane.YES_OPTION) {
+			listmodelServerList.remove(index);
+			saveListFromDefaultListModel(listmodelServerList, "config/setting/netlobby_serverlist.cfg");
 		}
 	}
 
@@ -3373,37 +3376,38 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public void serverSelectConnectButtonClicked() {
 		int index = listboxServerList.getSelectedIndex();
-		if (index != -1) {
-			String strServer = listboxServerList.getSelectedValue();
-			int portSpliter = strServer.indexOf(":");
-			if (portSpliter == -1) {
-				portSpliter = strServer.length();
-			}
-
-			String strHost = strServer.substring(0, portSpliter);
-			log.debug("Host:" + strHost);
-
-			int port = NetBaseClient.DEFAULT_PORT;
-			try {
-				String strPort = strServer.substring(portSpliter + 1, strServer.length());
-				port = Integer.parseInt(strPort);
-			} catch (Exception e2) {
-				log.debug("Failed to get port number; Try to use default port");
-			}
-			log.debug("Port:" + port);
-
-			netPlayerClient = new NetPlayerClient(strHost, port, txtfldPlayerName.getText(),
-					txtfldPlayerTeam.getText().trim());
-			netPlayerClient.setDaemon(true);
-			netPlayerClient.addListener(this);
-			netPlayerClient.start();
-
-			txtpaneLobbyChatLog.setText("");
-			setLobbyButtonsEnabled(0);
-			tablemodelRoomList.setRowCount(0);
-
-			changeCurrentScreenCard(SCREENCARD_LOBBY);
+		if (index == -1) {
+			return;
 		}
+		String strServer = listboxServerList.getSelectedValue();
+		int portSpliter = strServer.indexOf(":");
+		if (portSpliter == -1) {
+			portSpliter = strServer.length();
+		}
+
+		String strHost = strServer.substring(0, portSpliter);
+		log.debug("Host:" + strHost);
+
+		int port = NetBaseClient.DEFAULT_PORT;
+		try {
+			String strPort = strServer.substring(portSpliter + 1, strServer.length());
+			port = Integer.parseInt(strPort);
+		} catch (Exception e2) {
+			log.debug("Failed to get port number; Try to use default port");
+		}
+		log.debug("Port:" + port);
+
+		netPlayerClient = new NetPlayerClient(strHost, port, txtfldPlayerName.getText(),
+				txtfldPlayerTeam.getText().trim());
+		netPlayerClient.setDaemon(true);
+		netPlayerClient.addListener(this);
+		netPlayerClient.start();
+
+		txtpaneLobbyChatLog.setText("");
+		setLobbyButtonsEnabled(0);
+		tablemodelRoomList.setRowCount(0);
+
+		changeCurrentScreenCard(SCREENCARD_LOBBY);
 	}
 
 	/**
@@ -3411,40 +3415,41 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 */
 	public void serverSelectSetObserverButtonClicked() {
 		int index = listboxServerList.getSelectedIndex();
-		if (index != -1) {
-			String strServer = listboxServerList.getSelectedValue();
-			int portSpliter = strServer.indexOf(":");
-			if (portSpliter == -1) {
-				portSpliter = strServer.length();
-			}
+		if (index == -1) {
+			return;
+		}
+		String strServer = listboxServerList.getSelectedValue();
+		int portSpliter = strServer.indexOf(":");
+		if (portSpliter == -1) {
+			portSpliter = strServer.length();
+		}
 
-			String strHost = strServer.substring(0, portSpliter);
-			log.debug("Host:" + strHost);
+		String strHost = strServer.substring(0, portSpliter);
+		log.debug("Host:" + strHost);
 
-			int port = NetBaseClient.DEFAULT_PORT;
+		int port = NetBaseClient.DEFAULT_PORT;
+		try {
+			String strPort = strServer.substring(portSpliter + 1, strServer.length());
+			port = Integer.parseInt(strPort);
+		} catch (Exception e2) {
+			log.debug("Failed to get port number; Try to use default port");
+		}
+		log.debug("Port:" + port);
+
+		int answer = JOptionPane.showConfirmDialog(this, getUIText("MessageBody_SetObserver") + "\n" + strServer,
+				getUIText("MessageTitle_SetObserver"), JOptionPane.YES_NO_OPTION);
+
+		if (answer == JOptionPane.YES_OPTION) {
+			propObserver.setProperty("observer.enable", true);
+			propObserver.setProperty("observer.host", strHost);
+			propObserver.setProperty("observer.port", port);
+
 			try {
-				String strPort = strServer.substring(portSpliter + 1, strServer.length());
-				port = Integer.parseInt(strPort);
-			} catch (Exception e2) {
-				log.debug("Failed to get port number; Try to use default port");
-			}
-			log.debug("Port:" + port);
-
-			int answer = JOptionPane.showConfirmDialog(this, getUIText("MessageBody_SetObserver") + "\n" + strServer,
-					getUIText("MessageTitle_SetObserver"), JOptionPane.YES_NO_OPTION);
-
-			if (answer == JOptionPane.YES_OPTION) {
-				propObserver.setProperty("observer.enable", true);
-				propObserver.setProperty("observer.host", strHost);
-				propObserver.setProperty("observer.port", port);
-
-				try {
-					FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
-					propObserver.store(out, "NullpoMino NetObserver Config");
-					out.close();
-				} catch (IOException e) {
-					log.warn("Failed to save NetObserver config file", e);
-				}
+				FileOutputStream out = new FileOutputStream("config/setting/netobserver.cfg");
+				propObserver.store(out, "NullpoMino NetObserver Config");
+				out.close();
+			} catch (IOException e) {
+				log.warn("Failed to save NetObserver config file", e);
 			}
 		}
 	}
@@ -3472,11 +3477,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (msg.startsWith("/team")) {
 			msg = msg.replaceFirst("/team", "");
 			msg = msg.trim();
-			netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(msg) + "\n");
+			netPlayerClient.send(NetCmd.CHANGE_TEAM, NetUtil.urlEncode(msg));
 		} else if (roomchat) {
-			netPlayerClient.send("chat\t" + NetUtil.urlEncode(msg) + "\n");
+			netPlayerClient.send(NetCmd.ROOM_CHAT, NetUtil.urlEncode(msg));
 		} else {
-			netPlayerClient.send("lobbychat\t" + NetUtil.urlEncode(msg) + "\n");
+			netPlayerClient.send(NetCmd.LOBBY_CHAT, NetUtil.urlEncode(msg));
 		}
 	}
 
@@ -3805,7 +3810,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			currentViewDetailRoomID = -1;
 			// setCreateRoomUIType(false, null);
 			changeCurrentScreenCard(SCREENCARD_CREATERATED_WAITING);
-			netPlayerClient.send("getpresets\n");
+			netPlayerClient.send(NetCmd.GET_PRESETS);
 		}
 		// Lobby Options
 		if (e.getActionCommand() == "Lobby_Options") {
@@ -3818,14 +3823,14 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Change team(Lobby screen)
 		if (e.getActionCommand() == "Lobby_TeamChange") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
+				txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().team);
 				roomListTopBarCardLayout.next(subpanelRoomListTopBar);
 			}
 		}
 		// Cut
 		if (e.getActionCommand() == "Lobby_Disconnect") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				netPlayerClient.send("disconnect\n");
+				netPlayerClient.send(NetCmd.DISCONNECT);
 				netPlayerClient.threadRunning = false;
 				netPlayerClient.interrupt();
 				netPlayerClient = null;
@@ -3841,7 +3846,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (e.getActionCommand() == "Lobby_Ranking" || e.getActionCommand() == "Room_Ranking") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
 				tablemodelMPRanking[0].setRowCount(0);
-				netPlayerClient.send("mpranking\t0\n");
+				netPlayerClient.send(NetCmd.MP_RANKING, 0);
 				changeCurrentScreenCard(SCREENCARD_MPRANKING);
 			}
 		}
@@ -3867,7 +3872,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Change teamOK(Lobby screen)
 		if (e.getActionCommand() == "Lobby_TeamChange_OK") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomListTeam.getText()) + "\n");
+				netPlayerClient.send(NetCmd.CHANGE_TEAM, NetUtil.urlEncode(txtfldRoomListTeam.getText()));
 				roomListTopBarCardLayout.first(subpanelRoomListTopBar);
 			}
 		}
@@ -3878,7 +3883,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Withdrawal button
 		if (e.getActionCommand() == "Room_Leave") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				netPlayerClient.send("roomjoin\t-1\tfalse\n");
+				netPlayerClient.send(NetCmd.ROOM_JOIN, -1, false);
 			}
 
 			tablemodelGameStat.setRowCount(0);
@@ -3900,25 +3905,25 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		}
 		// Participation in a war button
 		if (e.getActionCommand() == "Room_Join") {
-			netPlayerClient.send("changestatus\tfalse\n");
+			netPlayerClient.send(NetCmd.CHANGE_STATUS, false);
 			btnRoomButtonsJoin.setEnabled(false);
 		}
 		// Withdrawal(Watching only) button
 		if (e.getActionCommand() == "Room_SitOut") {
-			netPlayerClient.send("changestatus\ttrue\n");
+			netPlayerClient.send(NetCmd.CHANGE_STATUS, true);
 			btnRoomButtonsSitOut.setEnabled(false);
 		}
 		// Change team(Room screen)
 		if (e.getActionCommand() == "Room_TeamChange") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().strTeam);
+				txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().team);
 				roomTopBarCardLayout.next(subpanelRoomTopBar);
 			}
 		}
 		// Change teamOK(Room screen)
 		if (e.getActionCommand() == "Room_TeamChange_OK") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				netPlayerClient.send("changeteam\t" + NetUtil.urlEncode(txtfldRoomTeam.getText()) + "\n");
+				netPlayerClient.send(NetCmd.CHANGE_TEAM, NetUtil.urlEncode(txtfldRoomTeam.getText()));
 				roomTopBarCardLayout.first(subpanelRoomTopBar);
 			}
 		}
@@ -3957,9 +3962,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				r.strName = txtfldCreateRatedName.getText();
 				backupRoomInfo = r;
 
-				String msg = "ratedroomcreate\t" + NetUtil.urlEncode(r.strName) + "\t"
+				String msg = NetUtil.urlEncode(r.strName) + "\t"
 						+ spinnerCreateRatedMaxPlayers.getValue() + "\t" + presetIndex + "\t"
-						+ NetUtil.urlEncode("NET-VS-BATTLE") + "\n";
+						+ NetUtil.urlEncode("NET-VS-BATTLE");
 
 				txtpaneRoomChatLog.setText("");
 				setRoomButtonsEnabled(false);
@@ -3967,7 +3972,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				tabLobbyAndRoom.setSelectedIndex(1);
 				changeCurrentScreenCard(SCREENCARD_LOBBY);
 
-				netPlayerClient.send(msg);
+				netPlayerClient.send(NetCmd.ROOM_CREATE_RATED, msg);
 			} catch (Exception e2) {
 				log.error("Error on CreateRated_OK", e2);
 			}
@@ -3996,7 +4001,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				backupRoomInfo = r;
 
 				String msg;
-				msg = "roomcreate\t" + NetUtil.urlEncode(r.strName) + "\t";
+				msg = NetUtil.urlEncode(r.strName) + "\t";
 				msg += NetUtil.urlEncode(r.exportString()) + "\t";
 				msg += NetUtil.urlEncode(r.strMode) + "\t";
 
@@ -4035,15 +4040,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					msg += strCompressed;
 				}
 
-				msg += "\n";
-
 				txtpaneRoomChatLog.setText("");
 				setRoomButtonsEnabled(false);
 				tabLobbyAndRoom.setEnabledAt(1, true);
 				tabLobbyAndRoom.setSelectedIndex(1);
 				changeCurrentScreenCard(SCREENCARD_LOBBY);
 
-				netPlayerClient.send(msg);
+				netPlayerClient.send(NetCmd.ROOM_CREATE, msg);
 			} catch (Exception e2) {
 				log.error("Error on CreateRoom_OK", e2);
 			}
@@ -4119,8 +4122,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					tabLobbyAndRoom.setSelectedIndex(1);
 					changeCurrentScreenCard(SCREENCARD_LOBBY);
 
-					netPlayerClient.send("singleroomcreate\t" + "\t" + NetUtil.urlEncode(strMode) + "\t"
-							+ NetUtil.urlEncode(strRule) + "\n");
+					netPlayerClient.send(NetCmd.ROOM_CREATE_SP, "\t" + NetUtil.urlEncode(strMode),
+							NetUtil.urlEncode(strRule));
 				}
 			} catch (Exception e2) {
 				log.error("Error on CreateRoom1P_OK", e2);
@@ -4386,9 +4389,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					NetPlayerInfo p2 = netPlayerClient.getYourPlayerInfo();
 					if (p != null && p2 != null && p.roomID == p2.roomID) {
 						String strTemp = "";
-						if (!p.strHost.isEmpty()) {
+						if (!p.host.isEmpty()) {
 							strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(p),
-									p.strHost);
+									p.host);
 						} else {
 							strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(p));
 						}
@@ -4404,9 +4407,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 			if (pInfo != null) {
 				String strTemp = "";
-				if (!pInfo.strHost.isEmpty()) {
+				if (!pInfo.host.isEmpty()) {
 					strTemp = String.format(getUIText("SysMsg_EnterRoomWithHost"), getPlayerNameWithTripCode(pInfo),
-							pInfo.strHost);
+							pInfo.host);
 				} else {
 					strTemp = String.format(getUIText("SysMsg_EnterRoom"), getPlayerNameWithTripCode(pInfo));
 				}
@@ -4420,9 +4423,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 			if (pInfo != null) {
 				String strTemp = "";
-				if (!pInfo.strHost.isEmpty()) {
+				if (!pInfo.host.isEmpty()) {
 					strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(pInfo),
-							pInfo.strHost);
+							pInfo.host);
 				} else {
 					strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(pInfo));
 				}
@@ -4827,7 +4830,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
 		}
 		// Multiplayer Leaderboard
-		if (message[0].equals("mpranking")) {
+		if (message[0].equals(NetCmd.MP_RANKING.command())) {
 			int style = Integer.parseInt(message[1]);
 			int myRank = Integer.parseInt(message[2]);
 
@@ -5326,8 +5329,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					&& e.getKeyCode() != KeyEvent.VK_LEFT && e.getKeyCode() != KeyEvent.VK_RIGHT
 					&& e.getKeyCode() != KeyEvent.VK_HOME && e.getKeyCode() != KeyEvent.VK_END
 					&& e.getKeyCode() != KeyEvent.VK_PAGE_UP && e.getKeyCode() != KeyEvent.VK_PAGE_DOWN
-					&& (e.getKeyCode() != KeyEvent.VK_A || e.isControlDown() == false)
-					&& (e.getKeyCode() != KeyEvent.VK_C || e.isControlDown() == false) && !e.isAltDown()) {
+					&& (e.getKeyCode() != KeyEvent.VK_A || !e.isControlDown())
+					&& (e.getKeyCode() != KeyEvent.VK_C || !e.isControlDown()) && !e.isAltDown()) {
 				e.consume();
 			}
 		}

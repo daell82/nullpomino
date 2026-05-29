@@ -285,7 +285,7 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 			if(strModeToEnter == null) {
 				enterNewMode(null);
 				strModeToEnter = "";
-			} else if(strModeToEnter.length() > 0) {
+			} else if (!strModeToEnter.isEmpty()) {
 				enterNewMode(strModeToEnter);
 				strModeToEnter = "";
 			}
@@ -322,11 +322,9 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 		NullpoMinoSlick.loadGlobalConfig();	// Reload global config file
 
 		GameMode previousMode = gameManager.mode;
-		GameMode newModeTemp = newModeName == null ? new NetDummyMode() : NullpoMinoSlick.modeManager.getMode(newModeName);
+		GameMode newModeTemp = NullpoMinoSlick.modeManager.getMode(newModeName).orElse(new NetDummyMode());
 
-		if(newModeTemp == null) {
-			log.error("Cannot find a mode:" + newModeName);
-		} else if(newModeTemp instanceof NetDummyMode newMode) {
+		if (newModeTemp instanceof NetDummyMode newMode) {
 			log.info("Enter new mode:" + newModeTemp.getName());
 
 			modeName = newMode.getName();
@@ -357,7 +355,7 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 			if(gameManager.mode.getGameStyle().getMode() > 0) {
 				rulename = NullpoMinoSlick.propGlobal.getProperty(0 + ".rule." + gameManager.mode.getGameStyle(), "");
 			}
-			if(rulename != null && rulename.length() > 0) {
+			if (rulename != null && !rulename.isEmpty()) {
 				log.info("Load rule options from " + rulename);
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
@@ -368,13 +366,13 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 			gameManager.engines[0].ruleopt = ruleopt;
 
 			// Randomizer
-			if(ruleopt.strRandomizer != null && ruleopt.strRandomizer.length() > 0) {
+			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
 				gameManager.engines[0].randomizer = randomizerObject;
 			}
 
 			// Wallkick
-			if(ruleopt.strWallkick != null && ruleopt.strWallkick.length() > 0) {
+			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
 				gameManager.engines[0].wallkick = wallkickObject;
 			}

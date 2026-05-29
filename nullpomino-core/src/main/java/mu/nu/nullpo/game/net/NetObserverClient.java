@@ -30,16 +30,16 @@ package mu.nu.nullpo.game.net;
 
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
-
+import lombok.Getter;
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.types.Version;
 
 /**
  * Client(ObserverUse)
  */
+@Log4j
+@Getter
 public class NetObserverClient extends NetBaseClient {
-	/** Log */
-	static final Logger log = Logger.getLogger(NetObserverClient.class);
 
 	/** ServerVersion */
 	protected volatile float serverVersion = 0f;
@@ -97,7 +97,7 @@ public class NetObserverClient extends NetBaseClient {
 			}
 			Version version = Version.getCurrent();
 
-			send("observerlogin\t" + version.majorMinor() + "\t" + version + "\t" + version.isDevBuild() + "\n");
+			send(NetCmd.OBSERVER_LOGIN, version.majorMinor(), version, version.isDevBuild());
 		}
 		// PeoplecountUpdate
 		if (message[0].equals("observerupdate")) {
@@ -107,17 +107,5 @@ public class NetObserverClient extends NetBaseClient {
 		}
 
 		super.processPacket(fullMessage);
-	}
-
-	public float getServerVersion() {
-		return serverVersion;
-	}
-
-	public int getPlayerCount() {
-		return playerCount;
-	}
-
-	public int getObserverCount() {
-		return observerCount;
 	}
 }

@@ -6,6 +6,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -308,7 +309,7 @@ public class DigChallengeMode extends NetDummyMode {
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
-					netLobby.netPlayerClient.send("start1p\n");
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
 				}
 
 				return false;
@@ -1073,16 +1074,26 @@ public class DigChallengeMode extends NetDummyMode {
 	protected void netSendStats(GameEngine engine) {
 		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
 				: engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.level + "\t";
-		msg += garbageTimer + "\t" + garbageTotal + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t"
-				+ lastpiece + "\t";
-		msg += bg + "\t" + garbagePending + "\n";
-		netLobby.netPlayerClient.send(msg);
+		StringBuilder msg = new StringBuilder("stats\t");
+		msg.append(engine.statistics.score).append('\t');
+		msg.append(engine.statistics.lines).append("\t");
+		msg.append(engine.statistics.totalPieceLocked).append("\t");
+		msg.append(engine.statistics.time).append("\t");
+		msg.append(engine.statistics.level).append("\t");
+		msg.append(garbageTimer).append("\t");
+		msg.append(garbageTotal).append("\t");
+		msg.append(goaltype).append("\t");
+		msg.append(engine.gameActive).append("\t");
+		msg.append(engine.timerActive).append("\t");
+		msg.append(lastscore).append("\t");
+		msg.append(scgettime).append("\t");
+		msg.append(lastevent.ordinal()).append("\t");
+		msg.append(lastb2b).append("\t");
+		msg.append(lastcombo).append("\t");
+		msg.append(lastpiece).append("\t");
+		msg.append(bg).append("\t");
+		msg.append(garbagePending);
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
 	}
 
 	/**
@@ -1127,9 +1138,7 @@ public class DigChallengeMode extends NetDummyMode {
 		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
 		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
 		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(subMsg));
 	}
 
 	/**
@@ -1139,11 +1148,11 @@ public class DigChallengeMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
+		String msg = "option\t";
 		msg += goaltype + "\t" + startlevel + "\t" + bgmno + "\t";
 		msg += tspinEnableType + "\t" + enableTSpinKick + "\t" + spinCheckType + "\t" + tspinEnableEZ + "\t";
-		msg += enableB2B + "\t" + enableCombo + "\t" + engine.speed.das + "\n";
-		netLobby.netPlayerClient.send(msg);
+		msg += enableB2B + "\t" + enableCombo + "\t" + engine.speed.das;
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
 	}
 
 	/**

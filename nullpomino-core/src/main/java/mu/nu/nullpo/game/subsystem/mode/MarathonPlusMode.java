@@ -35,6 +35,7 @@ import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
@@ -313,7 +314,7 @@ public class MarathonPlusMode extends NetDummyMode {
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
-					netLobby.netPlayerClient.send("start1p\n");
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
 				}
 
 				return false;
@@ -858,7 +859,7 @@ public class MarathonPlusMode extends NetDummyMode {
 				netSendField(engine);
 				netSendNextAndHold(engine);
 				netSendStats(engine);
-				netLobby.netPlayerClient.send("game\tbonuslevelenter\n");
+				netLobby.netPlayerClient.send(NetCmd.GAME, "bonuslevelenter");
 			}
 
 		} else if (status0 == 90) {
@@ -877,7 +878,7 @@ public class MarathonPlusMode extends NetDummyMode {
 				netSendField(engine);
 				netSendNextAndHold(engine);
 				netSendStats(engine);
-				netLobby.netPlayerClient.send("game\tbonuslevelstart\n");
+				netLobby.netPlayerClient.send(NetCmd.GAME, "bonuslevelstart");
 			}
 			return true;
 		}
@@ -1171,18 +1172,30 @@ public class MarathonPlusMode extends NetDummyMode {
 	protected void netSendStats(GameEngine engine) {
 		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
 				: engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.level + "\t";
-		msg += engine.statistics.spl + "\t" + engine.statistics.spm + "\t" + engine.statistics.lpm + "\t"
-				+ engine.statistics.pps + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t"
-				+ lastpiece + "\t";
-		msg += bg + "\t";
-		msg += bonusLines + "\t" + bonusFlashNow + "\t" + bonusPieceCount + "\t" + bonusTime + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.score + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.level + "\t";
+		stats += engine.statistics.spl + "\t";
+		stats += engine.statistics.spm + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += lastscore + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece + "\t";
+		stats += bg + "\t";
+		stats += bonusLines + "\t";
+		stats += bonusFlashNow + "\t";
+		stats += bonusPieceCount + "\t";
+		stats += bonusTime;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -1238,25 +1251,24 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "BONUS LINE;" + bonusLines + "\t";
+		String stats = "";
+		stats += "SCORE;" + engine.statistics.score + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "BONUS LINE;" + bonusLines + "\t";
 		if (engine.statistics.level >= 20) {
-			subMsg += "LEVEL;BONUS\t";
+			stats += "LEVEL;BONUS\t";
 		} else {
-			subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+			stats += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
 		}
-		subMsg += "TOTAL TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "LV20- TIME;" + GeneralUtil.getTime(engine.statistics.time - bonusTime) + "\t";
-		subMsg += "BONUS TIME;" + GeneralUtil.getTime(bonusTime) + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "SCORE/MIN;" + engine.statistics.spm + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		stats += "TOTAL TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "LV20- TIME;" + GeneralUtil.getTime(engine.statistics.time - bonusTime) + "\t";
+		stats += "BONUS TIME;" + GeneralUtil.getTime(bonusTime) + "\t";
+		stats += "SCORE/LINE;" + engine.statistics.spl + "\t";
+		stats += "SCORE/MIN;" + engine.statistics.spm + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
 
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1266,10 +1278,16 @@ public class MarathonPlusMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += startlevel + "\t" + tspinEnableType + "\t" + enableTSpinKick + "\t" + enableB2B + "\t";
-		msg += enableCombo + "\t" + big + "\t" + spinCheckType + "\t" + tspinEnableEZ + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += startlevel + "\t";
+		options += tspinEnableType + "\t";
+		options += enableTSpinKick + "\t";
+		options += enableB2B + "\t";
+		options += enableCombo + "\t";
+		options += big + "\t";
+		options += spinCheckType + "\t";
+		options += tspinEnableEZ + "\n";
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

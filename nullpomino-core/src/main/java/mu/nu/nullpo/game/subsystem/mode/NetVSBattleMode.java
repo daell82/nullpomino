@@ -34,6 +34,7 @@ import java.util.Locale;
 
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
@@ -472,9 +473,8 @@ public class NetVSBattleMode extends NetDummyVSMode {
 				}
 				int targetSeatID = targetID == -1 ? -1 : netvsPlayerSeatID[targetID];
 
-				netLobby.netPlayerClient.send("game\tattack\t" + stringPts + "\t" + lastevents[playerID] + "\t"
-						+ lastb2b[playerID] + "\t" + lastcombo[playerID] + "\t" + garbage[playerID] + "\t"
-						+ lastpiece[playerID] + "\t" + targetSeatID + "\n");
+				netLobby.netPlayerClient.send(NetCmd.GAME, "attack", stringPts, lastevents[playerID], lastb2b[playerID],
+						lastcombo[playerID], garbage[playerID], lastpiece[playerID], targetSeatID);
 			}
 		}
 
@@ -600,8 +600,8 @@ public class NetVSBattleMode extends NetDummyVSMode {
 		if (playerID == 0 && engine.timerActive && netCurrentRoomInfo != null && netCurrentRoomInfo.hurryupSeconds >= 0
 				&& netvsPlayTimer == netCurrentRoomInfo.hurryupSeconds * 60 && !hurryupStarted) {
 			if (!netvsIsWatch() && !netvsIsPractice) {
-				netLobby.netPlayerClient.send("game\thurryup\n");
-				owner.renderer.playSE("hurryup");
+				netLobby.netPlayerClient.send(NetCmd.GAME, "hurryup");
+				owner.renderer.playSE(Sounds.HURRY_UP);
 			}
 			hurryupStarted = true;
 			hurryupShowFrames = 60 * 5;
@@ -875,7 +875,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 	@Override
 	protected void netSendStats(GameEngine engine) {
 		if (engine.playerID == 0 && !netvsIsPractice && !netvsIsWatch()) {
-			netLobby.netPlayerClient.send("game\tstats\t" + garbage[engine.playerID] + "\n");
+			netLobby.netPlayerClient.send(NetCmd.GAME, "stats", garbage[engine.playerID]);
 		}
 	}
 
@@ -895,16 +895,20 @@ public class NetVSBattleMode extends NetDummyVSMode {
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
 		int playerID = engine.playerID;
-		String msg = "gstat\t";
-		msg += netvsPlayerPlace[playerID] + "\t";
-		msg += (float) garbageSent[playerID] / GARBAGE_DENOMINATOR + "\t" + playerAPL[playerID] + "\t"
-				+ playerAPM[playerID] + "\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
-		msg += netvsPlayTimer + "\t" + currentKO + "\t" + netvsPlayerWinCount[playerID] + "\t"
-				+ netvsPlayerPlayCount[playerID];
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += netvsPlayerPlace[playerID] + "\t";
+		stats += (float) garbageSent[playerID] / GARBAGE_DENOMINATOR + "\t";
+		stats += playerAPL[playerID] + "\t";
+		stats += playerAPM[playerID] + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += netvsPlayTimer + "\t";
+		stats += currentKO + "\t";
+		stats += netvsPlayerWinCount[playerID] + "\t";
+		stats += netvsPlayerPlayCount[playerID];
+		netLobby.netPlayerClient.send(NetCmd.GSTAT, stats);
 	}
 
 	/*

@@ -53,7 +53,7 @@ public record Version(int major, int minor, int micro, boolean isDevBuild, Strin
 	public static Version of(@NonNull String version) {
 		char last = version.charAt(version.length() - 1);
 		boolean dev = last == 'd' || last == 'D';
-		String[] parts = version.split("\\.");
+		String[] parts = version.replaceAll("\s+", "").split("\\.");
 		return switch (parts.length) {
 		case 0 -> throw new IllegalArgumentException("Invalid version format: " + version);
 		case 1 -> new Version(parseInt(parts[0]), 0, 0, dev, version);

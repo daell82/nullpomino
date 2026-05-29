@@ -74,121 +74,121 @@ public class Statistics {
 	}
 
 	/** Total score */
-	public int score;
+	public int score = 0;
 
 	/** Line clear score */
-	public int scoreFromLineClear;
+	public int scoreFromLineClear = 0;
 
 	/** Soft drop score */
-	public int scoreFromSoftDrop;
+	public int scoreFromSoftDrop = 0;
 
 	/** Hard drop score */
-	public int scoreFromHardDrop;
+	public int scoreFromHardDrop = 0;
 
 	/** I got in some other wayScore */
-	public int scoreFromOtherBonus;
+	public int scoreFromOtherBonus = 0;
 
 	/** Total line count */
-	public int lines;
+	public int lines = 0;
 
 	/** Course time */
-	public int time;
+	public int time = 0;
 
 	/** Level */
-	public int level;
+	public int level = 0;
 
 	/**
 	 * LevelAdded to the display of count (Display levelUse if it is different from
 	 * the value of the internal)
 	 */
-	public int levelDispAdd;
+	public int levelDispAdd = 0;
 
 	/** total piece count */
-	public int totalPieceLocked;
+	public int totalPieceLocked = 0;
 
 	/** The total operating pieces are time */
-	public int totalPieceActiveTime;
+	public int totalPieceActiveTime = 0;
 
 	/** Total piece move count */
-	public int totalPieceMove;
+	public int totalPieceMove = 0;
 
 	/** Total piece rotation count */
-	public int totalPieceRotate;
+	public int totalPieceRotate = 0;
 
 	/** 1-line clear count */
-	public int totalSingle;
+	public int totalSingle = 0;
 
 	/** 2-line clear count */
-	public int totalDouble;
+	public int totalDouble = 0;
 
 	/** 3-line clear count */
-	public int totalTriple;
+	public int totalTriple = 0;
 
 	/** 4-line clear count */
-	public int totalFour;
+	public int totalFour = 0;
 
 	/** T-Spin 0 lines (with wallkick) count */
-	public int totalTSpinZeroMini;
+	public int totalTSpinZeroMini = 0;
 
 	/** T-Spin 0 lines (without wallkick) count */
-	public int totalTSpinZero;
+	public int totalTSpinZero = 0;
 
 	/** T-Spin 1 line (with wallkick) count */
-	public int totalTSpinSingleMini;
+	public int totalTSpinSingleMini = 0;
 
 	/** T-Spin 1 line (without wallkick) count */
-	public int totalTSpinSingle;
+	public int totalTSpinSingle = 0;
 
 	/** T-Spin 2 line (with wallkick) count */
-	public int totalTSpinDoubleMini;
+	public int totalTSpinDoubleMini = 0;
 
 	/** T-Spin 2 line (without wallkick) count */
-	public int totalTSpinDouble;
+	public int totalTSpinDouble = 0;
 
 	/** T-Spin 3 line count */
-	public int totalTSpinTriple;
+	public int totalTSpinTriple = 0;
 
 	/** Back to Back 4-line clear count */
-	public int totalB2BFour;
+	public int totalB2BFour = 0;
 
 	/** Back to Back T-Spin clear count */
-	public int totalB2BTSpin;
+	public int totalB2BTSpin = 0;
 
 	/** Hold use count */
-	public int totalHoldUsed;
+	public int totalHoldUsed = 0;
 
 	/** Largest combo */
-	public int maxCombo;
+	public int maxCombo = 0;
 
 	/** Score Per Line */
-	public double spl;
+	public double spl = 0d;
 
 	/** Score Per Minute */
-	public double spm;
+	public double spm = 0d;
 
 	/** Score Per Second */
-	public double sps;
+	public double sps = 0d;
 
 	/** Lines Per Minute */
-	public float lpm;
+	public float lpm = 0f;
 
 	/** Lines Per Second */
-	public float lps;
+	public float lps = 0f;
 
 	/** Pieces Per Minute */
-	public float ppm;
+	public float ppm = 0f;
 
 	/** Pieces Per Second */
-	public float pps;
+	public float pps = 0f;
 
 	/** TAS detection: slowdown rate */
-	public float gamerate;
+	public float gamerate = 0f;
 
 	/** Max chain */
-	public int maxChain;
+	public int maxChain = 0;
 
 	/** Roll cleared flag (0=Died 1=Reached 2=Fully Survived) */
-	public int rollclear;
+	public int rollclear = 0;
 
 	/**
 	 * Constructor
@@ -203,7 +203,43 @@ public class Statistics {
 	 * @param s Copy source
 	 */
 	public Statistics(Statistics s) {
-		copy(s);
+		score = s.score;
+		scoreFromLineClear = s.scoreFromLineClear;
+		scoreFromSoftDrop = s.scoreFromSoftDrop;
+		scoreFromHardDrop = s.scoreFromHardDrop;
+		scoreFromOtherBonus = s.scoreFromOtherBonus;
+		lines = s.lines;
+		time = s.time;
+		level = s.level;
+		levelDispAdd = s.levelDispAdd;
+		totalPieceLocked = s.totalPieceLocked;
+		totalPieceActiveTime = s.totalPieceActiveTime;
+		totalPieceMove = s.totalPieceMove;
+		totalPieceRotate = s.totalPieceRotate;
+		totalSingle = s.totalSingle;
+		totalDouble = s.totalDouble;
+		totalTriple = s.totalTriple;
+		totalFour = s.totalFour;
+		totalTSpinZeroMini = s.totalTSpinZeroMini;
+		totalTSpinZero = s.totalTSpinZero;
+		totalTSpinSingleMini = s.totalTSpinSingleMini;
+		totalTSpinSingle = s.totalTSpinSingle;
+		totalTSpinDoubleMini = s.totalTSpinDoubleMini;
+		totalTSpinDouble = s.totalTSpinDouble;
+		totalTSpinTriple = s.totalTSpinTriple;
+		totalB2BFour = s.totalB2BFour;
+		totalB2BTSpin = s.totalB2BTSpin;
+		maxCombo = s.maxCombo;
+		spl = s.spl;
+		spm = s.spm;
+		sps = s.sps;
+		lpm = s.lpm;
+		lps = s.lps;
+		ppm = s.ppm;
+		pps = s.pps;
+		gamerate = s.gamerate;
+		maxChain = s.maxChain;
+		rollclear = s.rollclear;
 	}
 
 	/**
@@ -257,51 +293,6 @@ public class Statistics {
 		gamerate = 0f;
 		maxChain = 0;
 		rollclear = 0;
-	}
-
-	/**
-	 * OtherStatisticsCopy the value of the
-	 *
-	 * @param s Copy source
-	 */
-	private void copy(Statistics s) {
-		score = s.score;
-		scoreFromLineClear = s.scoreFromLineClear;
-		scoreFromSoftDrop = s.scoreFromSoftDrop;
-		scoreFromHardDrop = s.scoreFromHardDrop;
-		scoreFromOtherBonus = s.scoreFromOtherBonus;
-		lines = s.lines;
-		time = s.time;
-		level = s.level;
-		levelDispAdd = s.levelDispAdd;
-		totalPieceLocked = s.totalPieceLocked;
-		totalPieceActiveTime = s.totalPieceActiveTime;
-		totalPieceMove = s.totalPieceMove;
-		totalPieceRotate = s.totalPieceRotate;
-		totalSingle = s.totalSingle;
-		totalDouble = s.totalDouble;
-		totalTriple = s.totalTriple;
-		totalFour = s.totalFour;
-		totalTSpinZeroMini = s.totalTSpinZeroMini;
-		totalTSpinZero = s.totalTSpinZero;
-		totalTSpinSingleMini = s.totalTSpinSingleMini;
-		totalTSpinSingle = s.totalTSpinSingle;
-		totalTSpinDoubleMini = s.totalTSpinDoubleMini;
-		totalTSpinDouble = s.totalTSpinDouble;
-		totalTSpinTriple = s.totalTSpinTriple;
-		totalB2BFour = s.totalB2BFour;
-		totalB2BTSpin = s.totalB2BTSpin;
-		maxCombo = s.maxCombo;
-		spl = s.spl;
-		spm = s.spm;
-		sps = s.sps;
-		lpm = s.lpm;
-		lps = s.lps;
-		ppm = s.ppm;
-		pps = s.pps;
-		gamerate = s.gamerate;
-		maxChain = s.maxChain;
-		rollclear = s.rollclear;
 	}
 
 	/**

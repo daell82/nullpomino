@@ -32,6 +32,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -55,29 +56,11 @@ public class UltraMode extends NetDummyMode {
 	/** Time limit type */
 	private static final int GOALTYPE_MAX = 5;
 
-	/** Most recent scoring event type constants */
-	private static final int EVENT_NONE = 0;
-	private static final int EVENT_SINGLE = 1;
-	private static final int EVENT_DOUBLE = 2;
-	private static final int EVENT_TRIPLE = 3;
-	private static final int EVENT_FOUR = 4;
-	private static final int EVENT_TSPIN_ZERO_MINI = 5;
-	private static final int EVENT_TSPIN_ZERO = 6;
-	private static final int EVENT_TSPIN_SINGLE_MINI = 7;
-	private static final int EVENT_TSPIN_SINGLE = 8;
-	private static final int EVENT_TSPIN_DOUBLE_MINI = 9;
-	private static final int EVENT_TSPIN_DOUBLE = 10;
-	private static final int EVENT_TSPIN_TRIPLE = 11;
-	private static final int EVENT_TSPIN_EZ = 12;
-
 	/** Most recent increase in score */
 	private int lastscore;
 
 	/** Time to display the most recent increase in score */
 	private int scgettime;
-
-	/** Most recent scoring event type */
-	private int lastevent;
 
 	/** Most recent scoring event b2b */
 	private boolean lastb2b;
@@ -150,7 +133,7 @@ public class UltraMode extends NetDummyMode {
 		renderer = engine.owner.renderer;
 		lastscore = 0;
 		scgettime = 0;
-		lastevent = EVENT_NONE;
+		lastevent = LineClearEvent.NONE;
 		lastb2b = false;
 		lastcombo = 0;
 		lastpiece = 0;
@@ -414,7 +397,7 @@ public class UltraMode extends NetDummyMode {
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
-						netLobby.netPlayerClient.send("start1p\n");
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
 					}
 
 					return false;
@@ -602,77 +585,80 @@ public class UltraMode extends NetDummyMode {
 			}
 			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(time), fontcolor);
 
-			if (lastevent != EVENT_NONE && scgettime < 120) {
+			if (lastevent != LineClearEvent.NONE && scgettime < 120) {
 				String strPieceName = Piece.getPieceName(lastpiece);
 
 				switch (lastevent) {
-				case EVENT_SINGLE:
+				case SINGLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
-				case EVENT_DOUBLE:
+				case DOUBLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
 					break;
-				case EVENT_TRIPLE:
+				case TRIPLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
 					break;
-				case EVENT_FOUR:
+				case FOUR:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_ZERO_MINI:
+				case TSPIN_ZERO_MINI:
 					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PURPLE);
 					break;
-				case EVENT_TSPIN_ZERO:
+				case TSPIN_ZERO:
 					renderer.drawMenuFont(engine, playerID, 2, 21, strPieceName + "-SPIN", Colors.FONT_PINK);
 					break;
-				case EVENT_TSPIN_SINGLE_MINI:
+				case TSPIN_SINGLE_MINI:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_SINGLE:
+				case TSPIN_SINGLE:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_DOUBLE_MINI:
+				case TSPIN_DOUBLE_MINI:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_DOUBLE:
+				case TSPIN_DOUBLE:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_TRIPLE:
+				case TSPIN_TRIPLE:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
 					}
 					break;
-				case EVENT_TSPIN_EZ:
+				case TSPIN_EZ:
 					if (lastb2b) {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
 					} else {
 						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
 					}
 					break;
+				default:
+					break;
 				}
 
-				if (lastcombo >= 2 && lastevent != EVENT_TSPIN_ZERO_MINI && lastevent != EVENT_TSPIN_ZERO) {
+				if (lastcombo >= 2 && lastevent != LineClearEvent.TSPIN_ZERO_MINI
+						&& lastevent != LineClearEvent.TSPIN_ZERO) {
 					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
 				}
 			}
@@ -702,10 +688,10 @@ public class UltraMode extends NetDummyMode {
 			if (lines == 0 && !engine.tspinez) {
 				if (engine.tspinmini) {
 					pts += 100;
-					lastevent = EVENT_TSPIN_ZERO_MINI;
+					lastevent = LineClearEvent.TSPIN_ZERO_MINI;
 				} else {
 					pts += 400;
-					lastevent = EVENT_TSPIN_ZERO;
+					lastevent = LineClearEvent.TSPIN_ZERO;
 				}
 			}
 			// Immobile EZ Spin
@@ -715,7 +701,7 @@ public class UltraMode extends NetDummyMode {
 				} else {
 					pts += 120 * (engine.statistics.level + 1);
 				}
-				lastevent = EVENT_TSPIN_EZ;
+				lastevent = LineClearEvent.TSPIN_EZ;
 			}
 			// T-Spin 1 line
 			else if (lines == 1) {
@@ -725,14 +711,14 @@ public class UltraMode extends NetDummyMode {
 					} else {
 						pts += 200;
 					}
-					lastevent = EVENT_TSPIN_SINGLE_MINI;
+					lastevent = LineClearEvent.TSPIN_SINGLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1200;
 					} else {
 						pts += 800;
 					}
-					lastevent = EVENT_TSPIN_SINGLE;
+					lastevent = LineClearEvent.TSPIN_SINGLE;
 				}
 			}
 			// T-Spin 2 lines
@@ -743,14 +729,14 @@ public class UltraMode extends NetDummyMode {
 					} else {
 						pts += 400 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE_MINI;
+					lastevent = LineClearEvent.TSPIN_DOUBLE_MINI;
 				} else {
 					if (engine.b2b) {
 						pts += 1800 * (engine.statistics.level + 1);
 					} else {
 						pts += 1200 * (engine.statistics.level + 1);
 					}
-					lastevent = EVENT_TSPIN_DOUBLE;
+					lastevent = LineClearEvent.TSPIN_DOUBLE;
 				}
 			}
 			// T-Spin 3 lines
@@ -760,21 +746,21 @@ public class UltraMode extends NetDummyMode {
 				} else {
 					pts += 1600;
 				}
-				lastevent = EVENT_TSPIN_TRIPLE;
+				lastevent = LineClearEvent.TSPIN_TRIPLE;
 			}
 		} else {
 			switch (lines) {
 			case 1:
 				pts += 100; // 1Column
-				lastevent = EVENT_SINGLE;
+				lastevent = LineClearEvent.SINGLE;
 				break;
 			case 2:
 				pts += 300; // 2Column
-				lastevent = EVENT_DOUBLE;
+				lastevent = LineClearEvent.DOUBLE;
 				break;
 			case 3:
 				pts += 500; // 3Column
-				lastevent = EVENT_TRIPLE;
+				lastevent = LineClearEvent.TRIPLE;
 				break;
 			default:
 				if (lines >= 4) {
@@ -784,7 +770,7 @@ public class UltraMode extends NetDummyMode {
 					} else {
 						pts += 800;
 					}
-					lastevent = EVENT_FOUR;
+					lastevent = LineClearEvent.FOUR;
 				}
 				break;
 			}
@@ -1045,16 +1031,25 @@ public class UltraMode extends NetDummyMode {
 	@Override
 	protected void netSendStats(GameEngine engine) {
 		int bg = owner.backgroundStatus.fadesw ? owner.backgroundStatus.fadebg : owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.spm + "\t";
-		msg += engine.statistics.lpm + "\t" + engine.statistics.spl + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece
-				+ "\t";
-		msg += bg + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.score + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.spm + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.spl + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += lastscore + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece + "\t";
+		stats += bg;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -1074,7 +1069,7 @@ public class UltraMode extends NetDummyMode {
 		engine.timerActive = Boolean.parseBoolean(message[13]);
 		lastscore = Integer.parseInt(message[14]);
 		scgettime = Integer.parseInt(message[15]);
-		lastevent = Integer.parseInt(message[16]);
+		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
 		lastb2b = Boolean.parseBoolean(message[17]);
 		lastcombo = Integer.parseInt(message[18]);
 		lastpiece = Integer.parseInt(message[19]);
@@ -1103,17 +1098,15 @@ public class UltraMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "SCORE/MIN;" + engine.statistics.spm + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "SCORE;" + engine.statistics.score + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "SCORE/LINE;" + engine.statistics.spl + "\t";
+		stats += "SCORE/MIN;" + engine.statistics.spm + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1123,13 +1116,25 @@ public class UltraMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t" + bgmno + "\t" + big + "\t" + goaltype + "\t" + tspinEnableType + "\t";
-		msg += enableTSpinKick + "\t" + enableB2B + "\t" + enableCombo + "\t" + presetNumber + "\t";
-		msg += spinCheckType + "\t" + tspinEnableEZ + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += big + "\t";
+		options += goaltype + "\t";
+		options += tspinEnableType + "\t";
+		options += enableTSpinKick + "\t";
+		options += enableB2B + "\t";
+		options += enableCombo + "\t";
+		options += presetNumber + "\t";
+		options += spinCheckType + "\t";
+		options += tspinEnableEZ;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

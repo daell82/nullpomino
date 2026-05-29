@@ -170,7 +170,7 @@ public class ResourceHolderSlick {
 
 		// Font
 		try {
-			ttfFont = new UnicodeFont(skindir + "/font/font.ttf", 16, false, false);
+			ttfFont = new UnicodeFont(skindir + "/font/font.ttf", 16, true, false);
 			ttfFont.getEffects().add(new ShadowEffect(Color.black, 1, 1, 1));
 			ttfFont.getEffects().add(new ColorEffect(Color.white));
 		} catch (SlickException e) {

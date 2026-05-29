@@ -1,5 +1,9 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
@@ -154,14 +158,13 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 					}
 				}
 
-				String strMsg = "racewin";
+				List<Integer> ids = new LinkedList<>();
 				for (int i = 0; i < getPlayers(); i++) {
 					if (uidArray[i] != -1) {
-						strMsg += "\t" + uidArray[i];
+						ids.add(uidArray[i]);
 					}
 				}
-				strMsg += "\n";
-				netLobby.netPlayerClient.send(strMsg);
+				netLobby.netPlayerClient.send(NetCmd.RACE_WIN, ids.toArray());
 
 				// Wait until everyone dies
 				engine.stat = GameEngine.Status.NOTHING;
@@ -274,12 +277,14 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 		if (engine.displaySize == DisplaySize.SMALL) {
 			scale = 0.5f;
 		}
-
-		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, "LINE",
-				String.format("%10d", engine.statistics.lines), "PIECE",
-				String.format("%10d", engine.statistics.totalPieceLocked), "LINE/MIN",
-				String.format("%10g", engine.statistics.lpm), "PIECE/SEC", String.format("%10g", engine.statistics.pps),
+		// @formatter:off
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale,
+				"LINE",	String.format("%10d", engine.statistics.lines),
+				"PIECE", String.format("%10d", engine.statistics.totalPieceLocked),
+				"LINE/MIN", String.format("%10g", engine.statistics.lpm),
+				"PIECE/SEC", String.format("%10g", engine.statistics.pps),
 				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+		// @formatter:on
 	}
 
 	/*
@@ -288,9 +293,11 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	@Override
 	protected void netSendStats(GameEngine engine) {
 		if (engine.playerID == 0 && !netvsIsPractice && !netvsIsWatch()) {
-			String strMsg = "game\tstats\t" + engine.statistics.lines + "\t" + engine.statistics.pps + "\t"
-					+ engine.statistics.lpm + "\n";
-			netLobby.netPlayerClient.send(strMsg);
+			String stats = "stats\t";
+			stats += engine.statistics.lines + "\t";
+			stats += engine.statistics.pps + "\t";
+			stats += engine.statistics.lpm;
+			netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 		}
 	}
 
@@ -317,14 +324,14 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
 		int playerID = engine.playerID;
-		String msg = "gstat\t";
-		msg += netvsPlayerPlace[playerID] + "\t";
-		msg += 0 + "\t" + 0 + "\t" + 0 + "\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
-		msg += netvsPlayTimer + "\t" + 0 + "\t" + netvsPlayerWinCount[playerID] + "\t" + netvsPlayerPlayCount[playerID];
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += netvsPlayerPlace[playerID] + "\t";
+		stats += 0 + "\t" + 0 + "\t" + 0 + "\t";
+		stats += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
+		stats += netvsPlayTimer + "\t" + 0 + "\t" + netvsPlayerWinCount[playerID] + "\t"
+				+ netvsPlayerPlayCount[playerID];
+		netLobby.netPlayerClient.send(NetCmd.GSTAT, stats);
 	}
 
 	/*

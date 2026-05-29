@@ -1257,7 +1257,7 @@ public class GameEngine {
 	/**
 	 * Get the Direction Of Lateral motion input
 	 *
-	 * @return -1:Left 0:No 1:Right
+	 * @return the current move direction
 	 */
 	protected MoveDirection getMoveDirection() {
 		if (ctrl.isPress(Controller.BUTTON_LEFT) && ctrl.isPress(Controller.BUTTON_RIGHT)) {
@@ -1512,7 +1512,7 @@ public class GameEngine {
 	 * @return Appearance position ofX-coordinate
 	 */
 	public int getSpawnPosX(Field fld, Piece piece) {
-		int x = -1 + (fld.getWidth() - piece.getWidth()) / 2;
+		int x = -1 + (fld.getWidth() - piece.getWidth() + 2) / 2;
 
 		if (big && bigmove && x % 2 != 0) {
 			x++;

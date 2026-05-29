@@ -128,26 +128,6 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 	}
 
 	/*
-	 * Menu A string forTTF font Drawing on
-	 */
-	@Override
-	public void drawTTFMenuFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
-		int x2 = x * 16;
-		int y2 = y * 16 + 12;
-		if (!engine.owner.menuOnly) {
-			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
-			if (engine.displaySize == DisplaySize.SMALL) {
-				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
-			} else {
-				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
-			}
-		}
-		graphics.setColor(SwingColors.getFontColor(color));
-		graphics.drawString(str, x2, y2);
-		graphics.setColor(Color.white);
-	}
-
-	/*
 	 * Render scoreFor font Draw a
 	 */
 	@Override
@@ -159,6 +139,20 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		int x2 = getScoreDisplayPositionX(engine, playerID) + x * size;
 		int y2 = getScoreDisplayPositionY(engine, playerID) + y * size;
 		NormalFontSwing.printFont(x2, y2, str, color, scale);
+	}
+
+	/*
+	 * I can draw directly to the specified coordinatesTTF font Draw a
+	 */
+	@Override
+	public void drawTTFDirectFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
+		var font = resourceManager.getTtfFont();
+		if (font != null) {
+			graphics.setFont(font);
+		}
+		graphics.setColor(SwingColors.getFontColor(color));
+		graphics.drawString(str, x, y + 4);
+		graphics.setColor(Color.white);
 	}
 
 	/*
@@ -176,7 +170,31 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 		if (font != null) {
 			graphics.setFont(font);
 		}
-		graphics.drawString(str, x2, y2);
+		graphics.drawString(str, x2, y2 + 4);
+		graphics.setColor(Color.white);
+	}
+
+	/*
+	 * Menu A string forTTF font Drawing on
+	 */
+	@Override
+	public void drawTTFMenuFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
+		int x2 = x * 16;
+		int y2 = y * 16 + 12;
+		if (!engine.owner.menuOnly) {
+			x2 += getFieldDisplayPositionX(engine, playerID) + 4;
+			if (engine.displaySize == DisplaySize.SMALL) {
+				y2 += getFieldDisplayPositionY(engine, playerID) + 4;
+			} else {
+				y2 += getFieldDisplayPositionY(engine, playerID) + 52;
+			}
+		}
+		var font = resourceManager.getTtfFont();
+		if (font != null) {
+			graphics.setFont(font);
+		}
+		graphics.setColor(SwingColors.getFontColor(color));
+		graphics.drawString(str, x2, y2 + 4);
 		graphics.setColor(Color.white);
 	}
 
@@ -186,16 +204,6 @@ public class RendererSwing extends AbstractRenderer<Graphics2D> {
 	@Override
 	public void drawDirectFont(GameEngine engine, int playerID, int x, int y, String str, int color, float scale) {
 		NormalFontSwing.printFont(x, y, str, color, scale);
-	}
-
-	/*
-	 * I can draw directly to the specified coordinatesTTF font Draw a
-	 */
-	@Override
-	public void drawTTFDirectFont(GameEngine engine, int playerID, int x, int y, String str, int color) {
-		graphics.setColor(SwingColors.getFontColor(color));
-		graphics.drawString(str, x, y);
-		graphics.setColor(Color.white);
 	}
 
 	/*

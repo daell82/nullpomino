@@ -58,6 +58,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import mu.nu.nullpo.game.net.NetBaseClient;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -629,7 +630,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	private void logout() {
 		if (client != null) {
 			if (client.isConnected()) {
-				client.send("disconnect\n");
+				client.send(NetCmd.DISCONNECT);
 			}
 			client.removeListener(this);
 			client.threadRunning = false;
@@ -658,12 +659,12 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	 * @param msg Command to send
 	 * @return true if successful
 	 */
-	private boolean sendCommand(String msg) {
+	private boolean sendCommand(NetCmd cmd, String... msg) {
 		if (client == null || !client.isConnected()) {
 			return false;
 		}
-		String strCommand = NetUtil.compressString(msg);
-		return client.send("admin\t" + strCommand + "\n");
+		String strCommand = NetUtil.compressString(cmd.command() + "\t" + String.join("\t", msg));
+		return client.send(NetCmd.ADMIN, strCommand);
 	}
 
 	/**
@@ -760,13 +761,13 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			addConsoleLog(getUIText("Console_Shutdown"));
 			isWantedDisconnect = true;
 			isShutdownRequested = true;
-			sendCommand("shutdown");
+			sendCommand(NetCmd.SHUTDOWN);
 		}
 		// announce
 		else if (commands[0].equalsIgnoreCase("announce")) {
 			String strTemp = GeneralUtil.stringCombine(commands, " ", 1);
 			if (!strTemp.isEmpty()) {
-				sendCommand("announce\t" + NetUtil.urlEncode(strTemp));
+				sendCommand(NetCmd.ANNOUNCE, NetUtil.urlEncode(strTemp));
 				addConsoleLog(getUIText("Console_Announce") + strTemp);
 			}
 		}
@@ -826,12 +827,12 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		}
 		// banlist
 		else if (commands[0].equalsIgnoreCase("banlist")) {
-			sendCommand("banlist");
+			sendCommand(NetCmd.BAN_LIST);
 		}
 		// unban
 		else if (commands[0].equalsIgnoreCase("unban")) {
 			if (commands.length > 1) {
-				sendCommand("unban\t" + commands[1]);
+				sendCommand(NetCmd.UNBAN, commands[1]);
 			} else {
 				addConsoleLog(getUIText("Console_UnBan_NoParams"));
 			}
@@ -840,7 +841,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		else if (commands[0].equalsIgnoreCase("playerdelete") || commands[0].equalsIgnoreCase("pdel")) {
 			String strTemp = GeneralUtil.stringCombine(commands, " ", 1);
 			if (!strTemp.isEmpty()) {
-				sendCommand("playerdelete\t" + strTemp);
+				sendCommand(NetCmd.PLAYER_DELETE, strTemp);
 			} else {
 				addConsoleLog(getUIText("Console_PlayerDelete_NoParams"));
 			}
@@ -848,7 +849,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		// roomdelete/rdef
 		else if (commands[0].equalsIgnoreCase("roomdelete") || commands[0].equalsIgnoreCase("rdel")) {
 			if (commands.length > 1) {
-				sendCommand("roomdelete\t" + commands[1]);
+				sendCommand(NetCmd.ROOM_DELETE, commands[1]);
 			} else {
 				addConsoleLog(getUIText("Console_RoomDelete_NoParams"));
 			}
@@ -932,7 +933,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 
 			if (answer == JOptionPane.YES_OPTION) {
-				sendCommand("ban\t" + strIP);
+				sendCommand(NetCmd.BAN, strIP);
 			}
 		} else {
 			int answer = JOptionPane.YES_OPTION;
@@ -944,7 +945,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 
 			if (answer == JOptionPane.YES_OPTION) {
-				sendCommand("ban\t" + strIP + "\t" + banLength);
+				sendCommand(NetCmd.BAN, strIP, Integer.toString(banLength));
 			}
 		}
 	}
@@ -1070,7 +1071,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		// Load/Refresh Ranking
 		if (e.getActionCommand() == "MPRanking_Button_LoadRanking") {
 			btnRankingLoad.setEnabled(false);
-			client.send("mpranking\t0\n");
+			client.send(NetCmd.MP_RANKING, 0);
 		}
 	}
 
@@ -1120,16 +1121,12 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 
 			// Send login message
-			String strUsername = txtfldUsername.getText();
+			String user = txtfldUsername.getText();
 
 			RC4 rc4 = new RC4(passfldPassword.getPassword());
-			byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(strUsername));
+			byte[] ePassword = rc4.rc4(NetUtil.stringToBytes(user));
 			String b64Password = Base64.getEncoder().encodeToString(ePassword);
-
-			String strLogin = "adminlogin\t" + clientVersion.majorMinor() + "\t" + strUsername + "\t" + b64Password
-					+ "\t" + clientVersion.isDevBuild() + "\n";
-			log.debug("Send login message:" + strLogin);
-			client.send(strLogin);
+			client.send(NetCmd.ADMIN_LOGIN, clientVersion.majorMinor(), user, b64Password, clientVersion.isDevBuild());
 		}
 		// Login failed
 		if (message[0].equals("adminloginfail")) {
@@ -1318,7 +1315,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 
 			for (int i = 1; i < message.length; i++) {
 				String[] strClientData = message[i].split("\\|");
-
+				var foo = NetCmd.CLIENT_LIST;
 				String strIP = strClientData[0]; // IP
 				String strHost = strClientData[1]; // Hostname
 
@@ -1341,7 +1338,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				strTableData[0] = strIP;
 				strTableData[1] = strHost;
 				strTableData[2] = strType;
-				strTableData[3] = pInfo != null ? pInfo.strName : "";
+				strTableData[3] = pInfo != null ? pInfo.getPlayerName() : "";
 
 				// Add the row data
 				int rowNumber = i - 1;
@@ -1654,8 +1651,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				public void actionPerformed(ActionEvent evt) {
 					int rowNumber = table.getSelectedRow();
 					String strName = (String) table.getValueAt(rowNumber, 1);
-					sendCommand("playerdelete\t" + strName);
-					client.send("mpranking\t0\n");
+					sendCommand(NetCmd.PLAYER_DELETE, strName);
+					client.send(NetCmd.MP_RANKING, 0);
 				}
 			});
 		}
@@ -1697,7 +1694,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				public void actionPerformed(ActionEvent evt) {
 					int rowNumber = table.getSelectedRow();
 					String strID = (String) table.getValueAt(rowNumber, 0);
-					sendCommand("roomdelete\t" + strID);
+					sendCommand(NetCmd.ROOM_DELETE, strID);
 				}
 			});
 		}

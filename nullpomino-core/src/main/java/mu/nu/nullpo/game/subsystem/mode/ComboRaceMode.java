@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -415,7 +416,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 			// Confirm
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 14) {
 					loadPreset(engine, owner.modeConfig, presetNumber);
@@ -434,7 +435,7 @@ public class ComboRaceMode extends NetDummyMode {
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
-						netLobby.netPlayerClient.send("start1p\n");
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
 					}
 
 					return false;
@@ -929,16 +930,26 @@ public class ComboRaceMode extends NetDummyMode {
 	@Override
 	protected void netSendStats(GameEngine engine) {
 		int bg = owner.backgroundStatus.fadesw ? owner.backgroundStatus.fadebg : owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.pps + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += engine.meterColor + "\t" + engine.meterValue + "\t";
-		msg += bg + "\t";
-		msg += scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t" + lastpiece + "\t";
-		msg += engine.statistics.maxCombo + "\t" + engine.combo + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += engine.meterColor + "\t";
+		stats += engine.meterValue + "\t";
+		stats += bg + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece + "\t";
+		stats += engine.statistics.maxCombo + "\t";
+		stats += engine.combo;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -973,15 +984,14 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "MAX COMBO;" + (engine.statistics.maxCombo - 1) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "MAX COMBO;" + (engine.statistics.maxCombo - 1) + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -991,13 +1001,23 @@ public class ComboRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t" + bgmno + "\t" + goaltype + "\t" + presetNumber + "\t";
-		msg += shapetype + "\t" + comboColumn + "\t" + comboWidth + "\t" + ceilingAdjust + "\t" + spawnAboveField
-				+ "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += goaltype + "\t";
+		options += presetNumber + "\t";
+		options += shapetype + "\t";
+		options += comboColumn + "\t";
+		options += comboWidth + "\t";
+		options += ceilingAdjust + "\t";
+		options += spawnAboveField;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

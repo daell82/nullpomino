@@ -38,7 +38,6 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.mode.GameMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.gui.slick.GameKeySlick;
@@ -49,6 +48,7 @@ import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
 
 /**
@@ -144,11 +144,11 @@ public class StateInGame extends BasicGameState {
 		pause = false;
 
 		modeName = NullpoMinoSlick.propGlobal.getProperty("name.mode", "");
-		GameMode modeObj = NullpoMinoSlick.modeManager.getMode(modeName);
-		if (modeObj == null) {
+		var mode = NullpoMinoSlick.modeManager.getMode(modeName);
+		if (mode.isEmpty()) {
 			log.error("Couldn't find mode:" + modeName);
 		} else {
-			gameManager.mode = modeObj;
+			gameManager.mode = mode.get();
 		}
 
 		gameManager.init();
@@ -181,7 +181,7 @@ public class StateInGame extends BasicGameState {
 							"");
 				}
 			}
-			if (rulename != null && rulename.length() > 0) {
+			if (rulename != null && !rulename.isEmpty()) {
 				log.info("Load rule options from " + rulename);
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
@@ -192,13 +192,13 @@ public class StateInGame extends BasicGameState {
 			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
-			if (ruleopt.strRandomizer != null && ruleopt.strRandomizer.length() > 0) {
+			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
 				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
-			if (ruleopt.strWallkick != null && ruleopt.strWallkick.length() > 0) {
+			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
 				gameManager.engines[i].wallkick = wallkickObject;
 			}
@@ -226,11 +226,11 @@ public class StateInGame extends BasicGameState {
 
 		// Mode
 		modeName = prop.getProperty("name.mode", "");
-		GameMode modeObj = NullpoMinoSlick.modeManager.getMode(modeName);
-		if (modeObj == null) {
+		var mode = NullpoMinoSlick.modeManager.getMode(modeName);
+		if (mode.isEmpty()) {
 			log.error("Couldn't find mode:" + modeName);
 		} else {
-			gameManager.mode = modeObj;
+			gameManager.mode = mode.get();
 		}
 
 		gameManager.init();
@@ -243,13 +243,13 @@ public class StateInGame extends BasicGameState {
 			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
-			if (ruleopt.strRandomizer != null && ruleopt.strRandomizer.length() > 0) {
+			if (ruleopt.strRandomizer != null && !ruleopt.strRandomizer.isEmpty()) {
 				Randomizer randomizerObject = GeneralUtil.loadRandomizer(ruleopt.strRandomizer);
 				gameManager.engines[i].randomizer = randomizerObject;
 			}
 
 			// Wallkick
-			if (ruleopt.strWallkick != null && ruleopt.strWallkick.length() > 0) {
+			if (ruleopt.strWallkick != null && !ruleopt.strWallkick.isEmpty()) {
 				Wallkick wallkickObject = GeneralUtil.loadWallkick(ruleopt.strWallkick);
 				gameManager.engines[i].wallkick = wallkickObject;
 			}
@@ -406,7 +406,7 @@ public class StateInGame extends BasicGameState {
 				|| GameKeySlick.gamekey[1].isPushKey(GameKeyDummy.BUTTON_PAUSE)) {
 			if (!pause) {
 				if (gameManager != null && gameManager.isGameActive() && pauseFrame <= 0) {
-					ResourceHolderSlick.soundManager.play("pause");
+					ResourceHolderSlick.soundManager.play(Sounds.PAUSE);
 					pause = true;
 					cursor = 0;
 					if (!enableframestep) {
@@ -417,7 +417,7 @@ public class StateInGame extends BasicGameState {
 					}
 				}
 			} else {
-				ResourceHolderSlick.soundManager.play("pause");
+				ResourceHolderSlick.soundManager.play(Sounds.PAUSE);
 				pause = false;
 				pauseFrame = 0;
 				if (!enableframestep) {
@@ -440,7 +440,7 @@ public class StateInGame extends BasicGameState {
 					}
 				}
 
-				ResourceHolderSlick.soundManager.play("cursor");
+				ResourceHolderSlick.soundManager.play(Sounds.CURSOR);
 			}
 			if (GameKeySlick.gamekey[0].isMenuRepeatKey(GameKeyDummy.BUTTON_DOWN)) {
 				cursor++;
@@ -452,12 +452,12 @@ public class StateInGame extends BasicGameState {
 					cursor = 0;
 				}
 
-				ResourceHolderSlick.soundManager.play("cursor");
+				ResourceHolderSlick.soundManager.play(Sounds.CURSOR);
 			}
 
 			// Confirm
 			if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_A)) {
-				ResourceHolderSlick.soundManager.play("decide");
+				ResourceHolderSlick.soundManager.play(Sounds.DECIDE);
 				switch (cursor) {
 				case 0:
 					// Continue
@@ -480,7 +480,7 @@ public class StateInGame extends BasicGameState {
 				case 3:
 					// Replay re-record
 					gameManager.replayRerecord = true;
-					ResourceHolderSlick.soundManager.play("tspin1");
+					ResourceHolderSlick.soundManager.play(Sounds.TSPIN1);
 					cursor = 0;
 					break;
 				default:
@@ -490,7 +490,7 @@ public class StateInGame extends BasicGameState {
 			}
 			// Unpause by cancel key
 			else if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_B) && pauseFrame <= 0) {
-				ResourceHolderSlick.soundManager.play("pause");
+				ResourceHolderSlick.soundManager.play(Sounds.PAUSE);
 				pause = false;
 				pauseFrame = 5;
 				GameKeySlick.gamekey[0].clear();
@@ -521,13 +521,13 @@ public class StateInGame extends BasicGameState {
 			// Replay re-record
 			if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_D)) {
 				gameManager.replayRerecord = true;
-				ResourceHolderSlick.soundManager.play("tspin1");
+				ResourceHolderSlick.soundManager.play(Sounds.TSPIN1);
 				cursor = 0;
 			}
 			// Show invisible blocks during replays
 			if (GameKeySlick.gamekey[0].isPushKey(GameKeyDummy.BUTTON_E)) {
 				gameManager.replayShowInvisible = !gameManager.replayShowInvisible;
-				ResourceHolderSlick.soundManager.play("tspin1");
+				ResourceHolderSlick.soundManager.play(Sounds.TSPIN1);
 				cursor = 0;
 			}
 		} else {
@@ -541,7 +541,7 @@ public class StateInGame extends BasicGameState {
 			}
 			if (ResourceHolderSlick.bgmIsPlaying()) {
 				int basevolume = NullpoMinoSlick.propConfig.getProperty("option.bgmvolume", 128);
-				float basevolume2 = basevolume / (float) 128;
+				float basevolume2 = basevolume / 128f;
 				float newvolume = gameManager.bgmStatus.volume * basevolume2;
 				if (newvolume < 0f) {
 					newvolume = 0f;

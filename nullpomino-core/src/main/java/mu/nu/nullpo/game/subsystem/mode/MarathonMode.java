@@ -32,6 +32,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -299,7 +300,7 @@ public class MarathonMode extends NetDummyMode {
 
 				// NET: Signal start of the game
 				if (netIsNetPlay) {
-					netLobby.netPlayerClient.send("start1p\n");
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
 				}
 
 				return false;
@@ -924,17 +925,25 @@ public class MarathonMode extends NetDummyMode {
 	protected void netSendStats(GameEngine engine) {
 		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
 				: engine.owner.backgroundStatus.bg;
-		String msg = "game\tstats\t";
-		msg += engine.statistics.score + "\t" + engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked
-				+ "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.level + "\t";
-		msg += engine.statistics.lpm + "\t" + engine.statistics.spl + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += lastscore + "\t" + scgettime + "\t" + lastevent.ordinal() + "\t" + lastb2b + "\t" + lastcombo + "\t"
-				+ lastpiece
-				+ "\t";
-		msg += bg + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String msg = "stats\t";
+		msg += engine.statistics.score + "\t";
+		msg += engine.statistics.lines + "\t";
+		msg += engine.statistics.totalPieceLocked + "\t";
+		msg += engine.statistics.time + "\t";
+		msg += engine.statistics.level + "\t";
+		msg += engine.statistics.lpm + "\t";
+		msg += engine.statistics.spl + "\t";
+		msg += goaltype + "\t";
+		msg += engine.gameActive + "\t";
+		msg += engine.timerActive + "\t";
+		msg += lastscore + "\t";
+		msg += scgettime + "\t";
+		msg += lastevent.ordinal() + "\t";
+		msg += lastb2b + "\t";
+		msg += lastcombo + "\t";
+		msg += lastpiece + "\t";
+		msg += bg;
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
 	}
 
 	/**
@@ -981,16 +990,14 @@ public class MarathonMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "SCORE;" + engine.statistics.score + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "SCORE/LINE;" + engine.statistics.spl + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "SCORE;" + engine.statistics.score + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "SCORE/LINE;" + engine.statistics.spl + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -1000,11 +1007,17 @@ public class MarathonMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += startlevel + "\t" + tspinEnableType + "\t" + enableTSpinKick + "\t" + spinCheckType + "\t"
-				+ tspinEnableEZ + "\t";
-		msg += enableB2B + "\t" + enableCombo + "\t" + goaltype + "\t" + big + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String msg = "option\t";
+		msg += startlevel + "\t";
+		msg += tspinEnableType + "\t";
+		msg += enableTSpinKick + "\t";
+		msg += spinCheckType + "\t";
+		msg += tspinEnableEZ + "\t";
+		msg += enableB2B + "\t";
+		msg += enableCombo + "\t";
+		msg += goaltype + "\t";
+		msg += big;
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
 	}
 
 	/**

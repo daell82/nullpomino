@@ -44,7 +44,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param msg Message
 	 */
 	public NetChatMessage(String msg) {
@@ -54,7 +54,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param msg   Message
 	 * @param pInfo Player Info
 	 */
@@ -62,13 +62,13 @@ public class NetChatMessage implements Serializable {
 		reset();
 		strMessage = msg;
 		uid = pInfo.uid;
-		strUserName = pInfo.strName;
-		strHost = pInfo.strRealHost;
+		strUserName = pInfo.getPlayerName();
+		strHost = pInfo.realHost;
 	}
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param msg      Message
 	 * @param pInfo    Player Info
 	 * @param roomInfo Room Info
@@ -77,8 +77,8 @@ public class NetChatMessage implements Serializable {
 		reset();
 		strMessage = msg;
 		uid = pInfo.uid;
-		strUserName = pInfo.strName;
-		strHost = pInfo.strRealHost;
+		strUserName = pInfo.getPlayerName();
+		strHost = pInfo.realHost;
 		roomID = roomInfo.roomID;
 		strRoomName = roomInfo.strName;
 	}
@@ -109,10 +109,10 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Import from String array
-	 * 
+	 *
 	 * @param s String array (String[7])
 	 */
-	public void importStringArray(String[] s) {
+	private void importStringArray(String[] s) {
 		uid = Integer.parseInt(s[0]);
 		strUserName = NetUtil.urlDecode(s[1]);
 		strHost = NetUtil.urlDecode(s[2]);
@@ -124,7 +124,7 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Import from String (Divided by ;)
-	 * 
+	 *
 	 * @param str String
 	 */
 	public void importString(String str) {
@@ -133,10 +133,10 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Export to String array
-	 * 
+	 *
 	 * @return String array (String[7])
 	 */
-	public String[] exportStringArray() {
+	private String[] exportStringArray() {
 		String[] s = new String[7];
 		s[0] = Integer.toString(uid);
 		s[1] = NetUtil.urlEncode(strUserName);
@@ -150,33 +150,11 @@ public class NetChatMessage implements Serializable {
 
 	/**
 	 * Export to String (Divided by ;)
-	 * 
+	 *
 	 * @return String
 	 */
 	public String exportString() {
 		String[] data = exportStringArray();
-		String strResult = "";
-
-		for (int i = 0; i < data.length; i++) {
-			strResult += data[i];
-			if (i < data.length - 1) {
-				strResult += ";";
-			}
-		}
-
-		return strResult;
-	}
-
-	/**
-	 * Delete this NetChatMessage
-	 */
-	public void delete() {
-		uid = -1;
-		strUserName = null;
-		strHost = null;
-		roomID = -1;
-		strRoomName = null;
-		timestamp = null;
-		strMessage = null;
+		return String.join(";", data);
 	}
 }

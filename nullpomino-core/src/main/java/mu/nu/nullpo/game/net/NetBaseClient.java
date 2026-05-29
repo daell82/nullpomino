@@ -31,10 +31,12 @@ package mu.nu.nullpo.game.net;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import lombok.extern.log4j.Log4j;
 
@@ -148,9 +150,8 @@ public class NetBaseClient extends Thread {
 			byte[] buf = new byte[BUF_SIZE];
 			int size;
 
-			while (threadRunning && (size = socket.getInputStream().read(buf)) > 0) {
+			while (threadRunning && (size = socket.getInputStream().read(buf)) != -1) {
 				String message = new String(buf, 0, size, StandardCharsets.UTF_8);
-				// log.debug(message);
 
 				// The various processing depending on the received message
 				StringBuilder packetBuffer = new StringBuilder();
@@ -163,7 +164,7 @@ public class NetBaseClient extends Thread {
 				while ((index = packetBuffer.indexOf("\n")) != -1) {
 					String msgNow = packetBuffer.substring(0, index);
 					processPacket(msgNow);
-					packetBuffer = packetBuffer.replace(0, index + 1, "");
+					packetBuffer = packetBuffer.delete(0, index + 1);
 				}
 
 				// If there is an incomplete packet
@@ -173,7 +174,7 @@ public class NetBaseClient extends Thread {
 					notCompletePacketBuffer = null;
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			log.info("Socket disconnected", e);
 			exDisconnectReason = e;
 		}
@@ -227,7 +228,7 @@ public class NetBaseClient extends Thread {
 	 * @param bytes Message to be sent
 	 * @return true if successful
 	 */
-	public boolean send(byte[] bytes) {
+	private boolean send(byte[] bytes) {
 		try {
 			socket.getOutputStream().write(bytes);
 		} catch (Exception e) {
@@ -243,14 +244,14 @@ public class NetBaseClient extends Thread {
 	 * @param msg Message to be sent
 	 * @return true if successful
 	 */
-	public boolean send(String msg) {
-		try {
-			socket.getOutputStream().write(NetUtil.stringToBytes(msg));
-		} catch (Exception e) {
-			log.error("Failed to send message (" + msg + ")", e);
-			return false;
+	public boolean send(NetCmd cmd, Object... params) {
+		String msg = "";
+		if (params.length > 0) {
+			msg += "\t";
+			msg += Arrays.stream(params).map(Object::toString).collect(Collectors.joining("\t"));
 		}
-		return true;
+		msg += "\n";
+		return send(NetUtil.stringToBytes(cmd.command() + msg));
 	}
 
 	/**
@@ -353,7 +354,7 @@ public class NetBaseClient extends Thread {
 							timerPing.cancel();
 						}
 					} else {
-						send("ping\n");
+						send(NetCmd.PING);
 						pingCount++;
 
 						if (pingCount >= PING_AUTO_DISCONNECT_COUNT / 2) {

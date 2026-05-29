@@ -32,11 +32,13 @@ import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * LINE RACE Mode
@@ -175,7 +177,7 @@ public class LineRaceMode extends NetDummyMode {
 			int change = updateCursor(engine, 11, playerID);
 
 			if (change != 0) {
-				engine.playSE("change");
+				engine.playSE(Sounds.CHANGE);
 
 				int m = 1;
 				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
@@ -289,7 +291,7 @@ public class LineRaceMode extends NetDummyMode {
 
 			// Confirm
 			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5 && !netIsWatch) {
-				engine.playSE("decide");
+				engine.playSE(Sounds.DECIDE);
 
 				if (menuCursor == 10) {
 					// Load preset
@@ -311,7 +313,7 @@ public class LineRaceMode extends NetDummyMode {
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
-						netLobby.netPlayerClient.send("start1p\n");
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
 					}
 
 					return false;
@@ -484,7 +486,7 @@ public class LineRaceMode extends NetDummyMode {
 
 		// All clear
 		if (lines >= 1 && engine.field.isEmpty()) {
-			engine.playSE("bravo");
+			engine.playSE(Sounds.BRAVO);
 		}
 
 		// Game completed
@@ -610,10 +612,12 @@ public class LineRaceMode extends NetDummyMode {
 		for (int i = 0; i < RANKING_MAX; i++) {
 			if (time < rankingTime[goaltype][i] || rankingTime[goaltype][i] < 0) {
 				return i;
-			} else if (time == rankingTime[goaltype][i]
+			}
+			if (time == rankingTime[goaltype][i]
 					&& (piece < rankingPiece[goaltype][i] || rankingPiece[goaltype][i] == 0)) {
 				return i;
-			} else if (time == rankingTime[goaltype][i] && piece == rankingPiece[goaltype][i]
+			}
+			if (time == rankingTime[goaltype][i] && piece == rankingPiece[goaltype][i]
 					&& pps > rankingPPS[goaltype][i]) {
 				return i;
 			}
@@ -629,13 +633,16 @@ public class LineRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendStats(GameEngine engine) {
-		String msg = "game\tstats\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.pps + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive;
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -673,15 +680,13 @@ public class LineRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "LINE;" + engine.statistics.lines + "/" + GOAL_TABLE[goaltype] + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "";
+		stats += "LINE;" + engine.statistics.lines + "/" + GOAL_TABLE[goaltype] + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -691,12 +696,19 @@ public class LineRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t" + bgmno + "\t" + big + "\t" + goaltype + "\t" + presetNumber;
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += big + "\t";
+		options += goaltype + "\t";
+		options += presetNumber;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

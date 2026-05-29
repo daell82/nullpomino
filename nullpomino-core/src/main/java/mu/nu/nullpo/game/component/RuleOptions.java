@@ -29,6 +29,7 @@
 package mu.nu.nullpo.game.component;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
@@ -617,13 +618,13 @@ public class RuleOptions implements Serializable {
 	 * @return If compared to the same rulestrue
 	 */
 	public boolean compare(RuleOptions r, boolean ignoreGraphicsSetting) {
-		if (!ignoreGraphicsSetting && strRuleName != r.strRuleName) {
+		if (!ignoreGraphicsSetting && !Objects.equals(strRuleName, r.strRuleName)) {
 			return false;
 		}
-		if (strWallkick != r.strWallkick) {
+		if (!Objects.equals(strWallkick, r.strWallkick)) {
 			return false;
 		}
-		if (strRandomizer != r.strRandomizer) {
+		if (!Objects.equals(strRandomizer, r.strRandomizer)) {
 			return false;
 		}
 

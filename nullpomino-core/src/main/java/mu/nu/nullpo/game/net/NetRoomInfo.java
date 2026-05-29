@@ -52,7 +52,7 @@ public class NetRoomInfo implements Serializable {
 	/** Can participateMaximumPeoplecount */
 	public int maxPlayers = 6;
 
-	/** 自動開始までの待機 time */
+	/** automatic start time */
 	public int autoStartSeconds = 0;
 
 	/** Fall velocity(Molecule) */
@@ -577,7 +577,7 @@ public class NetRoomInfo implements Serializable {
 	public int getHowManyPlayersReady() {
 		int count = 0;
 		for (NetPlayerInfo pInfo : playerSeat) {
-			if (pInfo.ready) {
+			if (pInfo.isReady()) {
 				count++;
 			}
 		}
@@ -593,7 +593,7 @@ public class NetRoomInfo implements Serializable {
 	public int getHowManyPlayersPlaying() {
 		int count = 0;
 		for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-			if (pInfo.playing && playerSeat.contains(pInfo)) {
+			if (pInfo.isPlaying() && playerSeat.contains(pInfo)) {
 				count++;
 			}
 		}
@@ -609,7 +609,7 @@ public class NetRoomInfo implements Serializable {
 	public NetPlayerInfo getWinner() {
 		if (startPlayers >= 2 && getHowManyPlayersPlaying() < 2 && playing) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
+				if (pInfo.isPlaying() && pInfo.isConnected() && playerSeat.contains(pInfo)) {
 					return pInfo;
 				}
 			}
@@ -627,11 +627,11 @@ public class NetRoomInfo implements Serializable {
 			return null;
 		}
 		for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-			if (pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
-				if (pInfo.strTeam.isEmpty()) {
+			if (pInfo.isPlaying() && pInfo.isConnected() && playerSeat.contains(pInfo)) {
+				if (pInfo.team.isEmpty()) {
 					return null;
 				} else {
-					return pInfo.strTeam;
+					return pInfo.team;
 				}
 			}
 		}
@@ -646,12 +646,12 @@ public class NetRoomInfo implements Serializable {
 
 		if (startPlayers >= 2 && getHowManyPlayersPlaying() >= 2 && playing) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (pInfo != null && pInfo.playing && pInfo.connected && playerSeat.contains(pInfo)) {
-					if (pInfo.strTeam.isEmpty()) {
+				if (pInfo != null && pInfo.isPlaying() && pInfo.isConnected() && playerSeat.contains(pInfo)) {
+					if (pInfo.team.isEmpty()) {
 						return false;
 					} else if (teamname == null) {
-						teamname = pInfo.strTeam;
-					} else if (!teamname.equals(pInfo.strTeam)) {
+						teamname = pInfo.team;
+					} else if (!teamname.equals(pInfo.team)) {
 						return false;
 					}
 				}
@@ -667,11 +667,11 @@ public class NetRoomInfo implements Serializable {
 		List<String> teams = new LinkedList<>();
 		if (startPlayers >= 2) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (!pInfo.strTeam.isEmpty()) {
-					if (teams.contains(pInfo.strTeam)) {
+				if (!pInfo.team.isEmpty()) {
+					if (teams.contains(pInfo.team)) {
 						return true;
 					} else {
-						teams.add(pInfo.strTeam);
+						teams.add(pInfo.team);
 					}
 				}
 			}
@@ -687,11 +687,11 @@ public class NetRoomInfo implements Serializable {
 
 		if (startPlayers >= 2) {
 			for (NetPlayerInfo pInfo : playerSeatNowPlaying) {
-				if (!pInfo.strRealIP.isEmpty()) {
-					if (ips.contains(pInfo.strRealIP)) {
+				if (!pInfo.realIP.isEmpty()) {
+					if (ips.contains(pInfo.realIP)) {
 						return true;
 					} else {
-						ips.add(pInfo.strRealIP);
+						ips.add(pInfo.realIP);
 					}
 				}
 			}

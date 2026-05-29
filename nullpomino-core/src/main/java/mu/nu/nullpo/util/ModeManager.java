@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.subsystem.mode.GameMode;
@@ -91,8 +92,8 @@ public class ModeManager {
 	 * @param name of the game mode
 	 * @return {@link GameMode} if found or {@code null}
 	 */
-	public GameMode getMode(String name) {
-		return gameModes.stream().filter(m -> m.getName().equals(name)).findFirst().orElse(null);
+	public Optional<GameMode> getMode(String name) {
+		return gameModes.stream().filter(m -> m.getName().equals(name)).findFirst();
 	}
 
 	/**

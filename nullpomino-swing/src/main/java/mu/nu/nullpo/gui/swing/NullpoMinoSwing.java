@@ -76,6 +76,7 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetObserverClient;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -696,7 +697,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 		listboxRule.setSelectedIndex(0);
 		String strLastRule = propGlobal.getProperty("lastrule." + currentMode);
-		if (strLastRule != null && strLastRule.length() > 0) {
+		if (strLastRule != null && !strLastRule.isEmpty()) {
 			listboxRule.setSelectedValue(strLastRule, true);
 		}
 	}
@@ -887,11 +888,11 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 		// Mode
 		String modeName = propGlobal.getProperty("name.mode", "");
-		GameMode modeObj = modeManager.getMode(modeName);
-		if (modeObj == null) {
+		var mode = modeManager.getMode(modeName);
+		if (mode.isEmpty()) {
 			log.error("Couldn't find mode:" + modeName);
 		} else {
-			gameManager.mode = modeObj;
+			gameManager.mode = mode.get();
 		}
 
 		gameManager.init();
@@ -972,11 +973,11 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 		// Mode
 		String modeName = prop.getProperty("name.mode", "");
-		GameMode modeObj = modeManager.getMode(modeName);
-		if (modeObj == null) {
+		var mode = modeManager.getMode(modeName);
+		if (mode.isEmpty()) {
 			log.error("Couldn't find mode:" + modeName);
 		} else {
-			gameManager.mode = modeObj;
+			gameManager.mode = mode.get();
 		}
 
 		gameManager.init();
@@ -1036,11 +1037,9 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		loadGlobalConfig(); // Reload global config file
 
 		GameMode previousMode = gameManager.mode;
-		GameMode newModeTemp = modeName == null ? new NetDummyMode() : modeManager.getMode(modeName);
+		GameMode newModeTemp = modeManager.getMode(modeName).orElse(new NetDummyMode());
 
-		if (newModeTemp == null) {
-			log.error("Cannot find a mode:" + modeName);
-		} else if (newModeTemp instanceof NetDummyMode newMode) {
+		if (newModeTemp instanceof NetDummyMode newMode) {
 			log.info("Enter new mode:" + newModeTemp.getName());
 
 			if (previousMode != null) {
@@ -1133,7 +1132,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		String host = propObserver.getProperty("observer.host", "");
 		int port = propObserver.getProperty("observer.port", NetBaseClient.DEFAULT_PORT);
 
-		if (host.length() > 0 && port > 0) {
+		if (!host.isEmpty() && port > 0) {
 			netObserverClient = new NetObserverClient(host, port);
 			netObserverClient.start();
 			log.debug("Observer started");
@@ -1148,7 +1147,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 		if (netObserverClient != null) {
 			if (netObserverClient.isConnected()) {
-				netObserverClient.send("disconnect\n");
+				netObserverClient.send(NetCmd.DISCONNECT);
 			}
 			netObserverClient.threadRunning = false;
 			netObserverClient.connectedFlag = false;

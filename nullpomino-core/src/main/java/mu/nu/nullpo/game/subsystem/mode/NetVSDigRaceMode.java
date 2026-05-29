@@ -1,6 +1,10 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
@@ -287,37 +291,37 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 			updateMeter(engine);
 
 			// Game Completed
-			if (playerRemainLines[playerID] <= 0) {
-				if (netvsIsPractice) {
-					engine.stat = GameEngine.Status.EXCELLENT;
-					engine.resetStatc();
-				} else {
-					// Send game end message
-					int[] places = new int[NETVS_MAX_PLAYERS];
-					int[] uidArray = new int[NETVS_MAX_PLAYERS];
-					for (int i = 0; i < getPlayers(); i++) {
-						places[i] = getNowPlayerPlace(owner.engines[i], i);
-						uidArray[i] = -1;
-					}
-					for (int i = 0; i < getPlayers(); i++) {
-						if (places[i] >= 0 && places[i] < NETVS_MAX_PLAYERS) {
-							uidArray[places[i]] = netvsPlayerUID[i];
-						}
-					}
-
-					String strMsg = "racewin";
-					for (int i = 0; i < getPlayers(); i++) {
-						if (uidArray[i] != -1) {
-							strMsg += "\t" + uidArray[i];
-						}
-					}
-					strMsg += "\n";
-					netLobby.netPlayerClient.send(strMsg);
-
-					// Wait until everyone dies
-					engine.stat = GameEngine.Status.NOTHING;
-					engine.resetStatc();
+			if (playerRemainLines[playerID] > 0) {
+				return;
+			}
+			if (netvsIsPractice) {
+				engine.stat = GameEngine.Status.EXCELLENT;
+				engine.resetStatc();
+			} else {
+				// Send game end message
+				int[] places = new int[NETVS_MAX_PLAYERS];
+				int[] uidArray = new int[NETVS_MAX_PLAYERS];
+				for (int i = 0; i < getPlayers(); i++) {
+					places[i] = getNowPlayerPlace(owner.engines[i], i);
+					uidArray[i] = -1;
 				}
+				for (int i = 0; i < getPlayers(); i++) {
+					if (places[i] >= 0 && places[i] < NETVS_MAX_PLAYERS) {
+						uidArray[places[i]] = netvsPlayerUID[i];
+					}
+				}
+
+				List<Integer> ids = new LinkedList<>();
+				for (int i = 0; i < getPlayers(); i++) {
+					if (uidArray[i] != -1) {
+						ids.add(uidArray[i]);
+					}
+				}
+				netLobby.netPlayerClient.send(NetCmd.RACE_WIN, ids.toArray());
+
+				// Wait until everyone dies
+				engine.stat = GameEngine.Status.NOTHING;
+				engine.resetStatc();
 			}
 		}
 	}
@@ -401,16 +405,15 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 		}
 		// Games count
 		else if (!netvsIsPractice || playerID != 0) {
-			String strTemp = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
-
+			String message = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
 			if (engine.displaySize != DisplaySize.SMALL) {
 				int y2 = 21;
 				if (engine.stat == GameEngine.Status.RESULT) {
 					y2 = 22;
 				}
-				owner.renderer.drawMenuFont(engine, playerID, 0, y2, strTemp, Colors.FONT_WHITE);
+				owner.renderer.drawMenuFont(engine, playerID, 0, y2, message, Colors.FONT_WHITE);
 			} else {
-				owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, strTemp, Colors.FONT_WHITE, 0.5f);
+				owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, message, Colors.FONT_WHITE, 0.5f);
 			}
 		}
 	}
@@ -444,8 +447,7 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 
 		if (playerID == 0 && !netvsIsPractice && !netvsIsWatch()) {
 			int remainLines = playerRemainLines[playerID];
-			String strMsg = "game\tstats\t" + remainLines + "\n";
-			netLobby.netPlayerClient.send(strMsg);
+			netLobby.netPlayerClient.send(NetCmd.GAME, "stats", remainLines);
 		}
 	}
 
@@ -467,14 +469,13 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
 		int playerID = engine.playerID;
-		String msg = "gstat\t";
+		String msg = "";
 		msg += netvsPlayerPlace[playerID] + "\t";
 		msg += 0 + "\t" + 0 + "\t" + 0 + "\t";
 		msg += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
 		msg += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
 		msg += netvsPlayTimer + "\t" + 0 + "\t" + netvsPlayerWinCount[playerID] + "\t" + netvsPlayerPlayCount[playerID];
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		netLobby.netPlayerClient.send(NetCmd.GSTAT, msg);
 	}
 
 	/*

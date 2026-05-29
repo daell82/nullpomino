@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -321,7 +322,7 @@ public class DigRaceMode extends NetDummyMode {
 
 					// NET: Signal start of the game
 					if (netIsNetPlay) {
-						netLobby.netPlayerClient.send("start1p\n");
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
 					}
 
 					// Start game
@@ -504,8 +505,7 @@ public class DigRaceMode extends NetDummyMode {
 		renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " GARBAGE GAME)",
 				Colors.FONT_GREEN);
 
-		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && engine.ai == null && !netIsWatch) {
 				String strPieceTemp = owner.renderer.getNextDisplayType() == 2 ? "P." : "PIECE";
 				renderer.drawScoreFont(engine, playerID, 3, 3, "TIME     LINE " + strPieceTemp, Colors.FONT_BLUE);
@@ -735,14 +735,18 @@ public class DigRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendStats(GameEngine engine) {
-		String msg = "game\tstats\t";
-		msg += engine.statistics.lines + "\t" + engine.statistics.totalPieceLocked + "\t";
-		msg += engine.statistics.time + "\t" + engine.statistics.lpm + "\t";
-		msg += engine.statistics.pps + "\t" + goaltype + "\t";
-		msg += engine.gameActive + "\t" + engine.timerActive + "\t";
-		msg += engine.meterColor + "\t" + engine.meterValue;
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String stats = "stats\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += engine.meterColor + "\t";
+		stats += engine.meterValue;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
 	}
 
 	/**
@@ -769,17 +773,15 @@ public class DigRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendEndGameStats(GameEngine engine) {
-		String subMsg = "";
-		subMsg += "GARBAGE;" + (GOAL_TABLE[goaltype] - getRemainGarbageLines(engine, goaltype)) + "/"
-				+ GOAL_TABLE[goaltype] + "\t";
-		subMsg += "LINE;" + engine.statistics.lines + "\t";
-		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
-		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
-		subMsg += "LINE/MIN;" + engine.statistics.lpm + "\t";
-		subMsg += "PIECE/SEC;" + engine.statistics.pps + "\t";
-
-		String msg = "gstat1p\t" + NetUtil.urlEncode(subMsg) + "\n";
-		netLobby.netPlayerClient.send(msg);
+		int lines = getRemainGarbageLines(engine, goaltype);
+		String stats = "";
+		stats += "GARBAGE;" + (GOAL_TABLE[goaltype] - lines) + "/" + GOAL_TABLE[goaltype] + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps;
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
 	}
 
 	/**
@@ -789,12 +791,18 @@ public class DigRaceMode extends NetDummyMode {
 	 */
 	@Override
 	protected void netSendOptions(GameEngine engine) {
-		String msg = "game\toption\t";
-		msg += engine.speed.gravity + "\t" + engine.speed.denominator + "\t" + engine.speed.are + "\t";
-		msg += engine.speed.areLine + "\t" + engine.speed.lineDelay + "\t" + engine.speed.lockDelay + "\t";
-		msg += engine.speed.das + "\t" + bgmno + "\t" + goaltype + "\t" + presetNumber;
-		msg += "\n";
-		netLobby.netPlayerClient.send(msg);
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += goaltype + "\t";
+		options += presetNumber;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
 	}
 
 	/**

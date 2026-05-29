@@ -56,6 +56,7 @@ import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.util.Log;
 
 import mu.nu.nullpo.game.net.NetBaseClient;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetObserverClient;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.gui.slick.states.StateConfigAISelect;
@@ -853,7 +854,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 
 		if (netObserverClient != null) {
 			if (netObserverClient.isConnected()) {
-				netObserverClient.send("disconnect\n");
+				netObserverClient.send(NetCmd.DISCONNECT);
 			}
 			netObserverClient.threadRunning = false;
 			netObserverClient.connectedFlag = false;

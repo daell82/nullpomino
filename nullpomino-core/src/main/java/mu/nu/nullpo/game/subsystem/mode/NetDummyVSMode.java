@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -315,14 +316,14 @@ public class NetDummyVSMode extends NetDummyMode {
 
 					int playerID = netvsGetPlayerIDbySeatID(pInfo.seatID);
 					netvsPlayerExist[playerID] = true;
-					netvsPlayerReady[playerID] = pInfo.ready;
-					netvsPlayerActive[playerID] = pInfo.playing;
+					netvsPlayerReady[playerID] = pInfo.isReady();
+					netvsPlayerActive[playerID] = pInfo.isPlaying();
 					netvsPlayerSeatID[playerID] = pInfo.seatID;
 					netvsPlayerUID[playerID] = pInfo.uid;
 					netvsPlayerWinCount[playerID] = pInfo.winCountNow;
 					netvsPlayerPlayCount[playerID] = pInfo.playCountNow;
-					netvsPlayerName[playerID] = pInfo.strName;
-					netvsPlayerTeam[playerID] = pInfo.strTeam;
+					netvsPlayerName[playerID] = pInfo.getPlayerName();
+					netvsPlayerTeam[playerID] = pInfo.team;
 
 					// Set frame color
 					if (pInfo.seatID < NETVS_PLAYER_COLOR_FRAME.length) {
@@ -599,20 +600,20 @@ public class NetDummyVSMode extends NetDummyMode {
 		netvsSetGameScreenLayout();
 
 		// Map
-		if (netCurrentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
+		if (netCurrentRoomInfo.useMap && !netLobby.getMapList().isEmpty()) {
 			if (netvsRandMap == null) {
 				netvsRandMap = new Random();
 			}
 
 			int map = 0;
-			int maxMap = netLobby.mapList.size();
+			int maxMap = netLobby.getMapList().size();
 			do {
 				map = netvsRandMap.nextInt(maxMap);
 			} while (map == netvsMapPreviousPracticeMap && maxMap >= 2);
 			netvsMapPreviousPracticeMap = map;
 
 			engine.createFieldIfNeeded();
-			engine.field.stringToField(netLobby.mapList.get(map));
+			engine.field.stringToField(netLobby.getMapList().get(map));
 			engine.field.setAllSkin(engine.getSkin());
 			engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 			engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -742,13 +743,13 @@ public class NetDummyVSMode extends NetDummyMode {
 				if (engine.ctrl.isPush(Controller.BUTTON_A) && !netvsPlayerReady[0]) {
 					engine.playSE(Sounds.DECIDE);
 					netvsIsReadyChangePending = true;
-					netLobby.netPlayerClient.send("ready\ttrue\n");
+					netLobby.netPlayerClient.send(NetCmd.READY, true);
 				}
 				// Ready OFF
 				if (engine.ctrl.isPush(Controller.BUTTON_B) && netvsPlayerReady[0]) {
 					engine.playSE(Sounds.DECIDE);
 					netvsIsReadyChangePending = true;
-					netLobby.netPlayerClient.send("ready\tfalse\n");
+					netLobby.netPlayerClient.send(NetCmd.READY, false);
 				}
 			}
 
@@ -761,16 +762,16 @@ public class NetDummyVSMode extends NetDummyMode {
 		}
 
 		// Random Map Preview
-		if (netCurrentRoomInfo != null && netCurrentRoomInfo.useMap && !netLobby.mapList.isEmpty()) {
+		if (netCurrentRoomInfo != null && netCurrentRoomInfo.useMap && !netLobby.getMapList().isEmpty()) {
 			if (netvsPlayerExist[playerID]) {
 				if (menuTime % 30 == 0) {
 					int status5 = engine.statc_5() + 1;
-					if (status5 >= netLobby.mapList.size()) {
+					if (status5 >= netLobby.getMapList().size()) {
 						status5 = 0;
 					}
 					engine.statc_5(status5);
 					engine.createFieldIfNeeded();
-					engine.field.stringToField(netLobby.mapList.get(status5));
+					engine.field.stringToField(netLobby.getMapList().get(status5));
 					engine.field.setAllSkin(engine.getSkin());
 					engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
 					engine.field.setAllAttribute(Block.BLOCK_ATTRIBUTE_OUTLINE, true);
@@ -845,9 +846,9 @@ public class NetDummyVSMode extends NetDummyMode {
 	public boolean onReady(GameEngine engine, int playerID) {
 		if (engine.statc_0() == 0) {
 			// Map
-			if (netCurrentRoomInfo.useMap && netvsMapNo < netLobby.mapList.size() && !netvsIsPractice) {
+			if (netCurrentRoomInfo.useMap && netvsMapNo < netLobby.getMapList().size() && !netvsIsPractice) {
 				engine.createFieldIfNeeded();
-				engine.field.stringToField(netLobby.mapList.get(netvsMapNo));
+				engine.field.stringToField(netLobby.getMapList().get(netvsMapNo));
 				if (playerID == 0 && !netvsIsWatch()) {
 					engine.field.setAllSkin(engine.getSkin());
 				} else if (netCurrentRoomInfo.ruleLock && netLobby.ruleOptLock != null) {
@@ -949,7 +950,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				netvsAutoStartTimer--;
 			} else {
 				if (!netvsIsWatch()) {
-					netLobby.netPlayerClient.send("autostart\n");
+					netLobby.netPlayerClient.send(NetCmd.AUTOSTART);
 				}
 				netvsAutoStartTimer = 0;
 				netvsAutoStartTimerActive = false;
@@ -1041,7 +1042,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			netSendNextAndHold(engine);
 			netSendStats(engine);
 
-			netLobby.netPlayerClient.send("dead\t" + netvsLastAttackerUID + "\n");
+			netLobby.netPlayerClient.send(NetCmd.DEAD, netvsLastAttackerUID);
 
 			netvsPlayerResultReceived[playerID] = true;
 			netvsIsDeadPending = true;
@@ -1332,14 +1333,14 @@ public class NetDummyVSMode extends NetDummyMode {
 			if (pInfo.roomID == netCurrentRoomInfo.roomID && pInfo.seatID != -1) {
 				int playerID = netvsGetPlayerIDbySeatID(pInfo.seatID);
 
-				if (netvsPlayerReady[playerID] != pInfo.ready) {
-					netvsPlayerReady[playerID] = pInfo.ready;
+				if (netvsPlayerReady[playerID] != pInfo.isReady()) {
+					netvsPlayerReady[playerID] = pInfo.isReady();
 
 					if (playerID == 0 && !netvsIsWatch()) {
 						netvsIsReadyChangePending = false;
-					} else if (pInfo.ready) {
+					} else if (pInfo.isReady()) {
 						owner.renderer.playSE(Sounds.DECIDE);
-					} else if (!pInfo.playing) {
+					} else if (!pInfo.isPlaying()) {
 						owner.renderer.playSE(Sounds.CHANGE);
 					}
 				}

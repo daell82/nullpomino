@@ -33,23 +33,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.log4j.Logger;
-
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.types.Version;
-
 
 /**
  * Client(PlayerUse)
  */
+@Log4j
 public class NetPlayerClient extends NetBaseClient {
-	/** Log */
-	static final Logger log = Logger.getLogger(NetPlayerClient.class);
 
 	/** PlayerInformation */
-	protected List<NetPlayerInfo> playerInfoList = new LinkedList<>();
+	protected List<NetPlayerInfo> playerInfos = new LinkedList<>();
 
 	/** Room Information */
-	protected List<NetRoomInfo> roomInfoList = new LinkedList<>();
+	protected List<NetRoomInfo> roomInfos = new LinkedList<>();
 
 	/** OwnPlayerName */
 	protected String playerName;
@@ -60,9 +57,6 @@ public class NetPlayerClient extends NetBaseClient {
 	/** OwnPlayerIdentification number */
 	protected int playerUID;
 
-	/** ServerVersion */
-	protected float serverVersion = -1f;
-
 	/** Number of players */
 	protected int playerCount = -1;
 
@@ -70,44 +64,14 @@ public class NetPlayerClient extends NetBaseClient {
 	protected int observerCount = -1;
 
 	/**
-	 * Default constructor
-	 */
-	public NetPlayerClient() {
-		super();
-	}
-
-	/**
-	 * Constructor
-	 *
-	 * @param host Destination host
-	 */
-	public NetPlayerClient(String host) {
-		super(host);
-	}
-
-	/**
 	 * Constructor
 	 *
 	 * @param host Destination host
 	 * @param port Destination port number
-	 */
-	public NetPlayerClient(String host, int port) {
-		super(host, port);
-	}
-
-	/**
-	 * Constructor
-	 *
-	 * @param host Destination host
-	 * @param port Destination port number
-	 * @param name PlayerOfName
+	 * @param name of the player
 	 */
 	public NetPlayerClient(String host, int port, String name) {
-		super();
-		this.host = host;
-		this.port = port;
-		playerName = name;
-		playerTeam = "";
+		this(host, port, name, "");
 	}
 
 	/**
@@ -115,13 +79,11 @@ public class NetPlayerClient extends NetBaseClient {
 	 *
 	 * @param host Destination host
 	 * @param port Destination port number
-	 * @param name PlayerOfName
-	 * @param team BelongTeam name
+	 * @param name player name
+	 * @param team team name
 	 */
 	public NetPlayerClient(String host, int port, String name, String team) {
-		super();
-		this.host = host;
-		this.port = port;
+		super(host, port);
 		playerName = name;
 		playerTeam = team;
 	}
@@ -145,9 +107,8 @@ public class NetPlayerClient extends NetBaseClient {
 				startPingTask(pingInterval);
 			}
 			Version version = Version.getCurrent();
-			send("login\t" + version.majorMinor() + "\t" + NetUtil.urlEncode(playerName) + "\t"
-					+ Locale.getDefault().getCountry() + "\t" + NetUtil.urlEncode(playerTeam) + "\t"
-					+ version + "\t" + version.isDevBuild() + "\n");
+			send(NetCmd.PLAYER_LOGIN, version.majorMinor(), NetUtil.urlEncode(playerName),
+					Locale.getDefault().getCountry(), NetUtil.urlEncode(playerTeam), version, version.isDevBuild());
 		}
 		// PeoplecountUpdate
 		if (message[0].equals("observerupdate")) {
@@ -169,7 +130,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 			for (int i = 0; i < numPlayers; i++) {
 				NetPlayerInfo p = new NetPlayerInfo(message[2 + i]);
-				playerInfoList.add(p);
+				playerInfos.add(p);
 			}
 		}
 		// PlayerInformation update/A newPlayer
@@ -180,10 +141,10 @@ public class NetPlayerClient extends NetBaseClient {
 			NetPlayerInfo p2 = getPlayerInfoByUID(p.uid);
 
 			if (p2 == null) {
-				playerInfoList.add(p);
+				playerInfos.add(p);
 			} else {
-				int index = playerInfoList.indexOf(p2);
-				playerInfoList.set(index, p);
+				int index = playerInfos.indexOf(p2);
+				playerInfos.set(index, p);
 			}
 		}
 		// PlayerCut
@@ -194,7 +155,7 @@ public class NetPlayerClient extends NetBaseClient {
 			NetPlayerInfo p2 = getPlayerInfoByUID(p.uid);
 
 			if (p2 != null) {
-				playerInfoList.remove(p2);
+				playerInfos.remove(p2);
 				p2.delete();
 			}
 		}
@@ -206,7 +167,7 @@ public class NetPlayerClient extends NetBaseClient {
 
 			for (int i = 0; i < numRooms; i++) {
 				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
-				roomInfoList.add(r);
+				roomInfos.add(r);
 			}
 		}
 		// Room information update/New room appearance
@@ -217,10 +178,10 @@ public class NetPlayerClient extends NetBaseClient {
 			NetRoomInfo r2 = getRoomInfo(r.roomID);
 
 			if (r2 == null) {
-				roomInfoList.add(r);
+				roomInfos.add(r);
 			} else {
-				int index = roomInfoList.indexOf(r2);
-				roomInfoList.set(index, r);
+				int index = roomInfos.indexOf(r2);
+				roomInfos.set(index, r);
 			}
 		}
 		// Annihilation Room
@@ -231,7 +192,7 @@ public class NetPlayerClient extends NetBaseClient {
 			NetRoomInfo r2 = getRoomInfo(r.roomID);
 
 			if (r2 != null) {
-				roomInfoList.remove(r2);
+				roomInfos.remove(r2);
 				r2.delete();
 			}
 		}
@@ -268,7 +229,7 @@ public class NetPlayerClient extends NetBaseClient {
 			return null;
 		}
 
-		for (NetRoomInfo roomInfo : roomInfoList) {
+		for (NetRoomInfo roomInfo : roomInfos) {
 			if (roomID == roomInfo.roomID) {
 				return roomInfo;
 			}
@@ -284,8 +245,8 @@ public class NetPlayerClient extends NetBaseClient {
 	 * @return SpecifiedNameOfPlayerInformation(There were nonull)
 	 */
 	public NetPlayerInfo getPlayerInfoByName(String name) {
-		for (NetPlayerInfo pInfo : playerInfoList) {
-			if (pInfo != null && pInfo.strName == name) {
+		for (NetPlayerInfo pInfo : playerInfos) {
+			if (pInfo != null && pInfo.getPlayerName().equals(name)) {
 				return pInfo;
 			}
 		}
@@ -299,7 +260,7 @@ public class NetPlayerClient extends NetBaseClient {
 	 * @return SpecifiedIDOfPlayerInformation(There were nonull)
 	 */
 	public NetPlayerInfo getPlayerInfoByUID(int uid) {
-		for (NetPlayerInfo pInfo : playerInfoList) {
+		for (NetPlayerInfo pInfo : playerInfos) {
 			if (pInfo != null && pInfo.uid == uid) {
 				return pInfo;
 			}
@@ -311,14 +272,14 @@ public class NetPlayerClient extends NetBaseClient {
 	 * @return PlayerList of information
 	 */
 	public List<NetPlayerInfo> getPlayerInfoList() {
-		return playerInfoList;
+		return playerInfos;
 	}
 
 	/**
 	 * @return Listing Information Room
 	 */
 	public List<NetRoomInfo> getRoomInfoList() {
-		return roomInfoList;
+		return roomInfos;
 	}
 
 	/**
@@ -360,13 +321,6 @@ public class NetPlayerClient extends NetBaseClient {
 	 */
 	public NetRoomInfo getCurrentRoomInfo() {
 		return getRoomInfo(getCurrentRoomID());
-	}
-
-	/**
-	 * @return ServerVersion
-	 */
-	public float getServerVersion() {
-		return serverVersion;
 	}
 
 	/**

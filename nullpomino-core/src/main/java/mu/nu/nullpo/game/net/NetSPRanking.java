@@ -3,71 +3,56 @@ package mu.nu.nullpo.game.net;
 import java.util.LinkedList;
 import java.util.List;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import mu.nu.nullpo.game.net.NetSPRecord.RankingType;
+import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Single player mode ranking
  */
+@Getter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class NetSPRanking {
 
 	/** Game Mode Name */
-	public String modeName;
+	private String modeName;
 
 	/** Rule Name */
-	public String ruleName;
+	private String ruleName;
 
 	/** Game Type ID */
-	public int gameType;
+	private int gameType;
 
 	/** Game Style ID */
-	public int style;
+	private GameStyle style;
 
 	/** Ranking Type */
-	public int rankingType;
+	private RankingType rankingType;
 
 	/** Max number of records (-1:Unlimited) */
-	public int maxRecords;
+	private int maxRecords;
 
 	/** Records */
-	public final List<NetSPRecord> records = new LinkedList<>();
-
-	/**
-	 * Default Constructor
-	 */
-	public NetSPRanking() {
-		modeName = "";
-		ruleName = "";
-		gameType = 0;
-		style = 0;
-		rankingType = 0;
-		maxRecords = 100;
-	}
+	private final List<NetSPRecord> records = new LinkedList<>();
 
 	/**
 	 * Copy Constructor
 	 *
 	 * @param s Source
 	 */
-	public NetSPRanking(NetSPRanking s) {
-		copy(s);
-	}
-
-	/**
-	 * Copy from other NetSPRankingData
-	 *
-	 * @param s Source
-	 */
-	public void copy(NetSPRanking s) {
+	private NetSPRanking(NetSPRanking s) {
 		modeName = s.modeName;
 		ruleName = s.ruleName;
 		gameType = s.gameType;
 		style = s.style;
 		rankingType = s.rankingType;
 		maxRecords = s.maxRecords;
-		records.clear();
-		for (NetSPRecord netRecord : s.records) {
-			records.add(new NetSPRecord(netRecord));
-		}
+		s.records.stream().map(NetSPRecord::new).forEach(records::add);
 	}
 
 	/**
@@ -77,76 +62,11 @@ public class NetSPRanking {
 	 * @return NetSPRecord (null if not found)
 	 */
 	public NetSPRecord getRecord(String strPlayerName) {
-		int index = indexOf(strPlayerName);
-		return index == -1 ? null : records.get(index);
-	}
-
-	/**
-	 * Get specific player's record
-	 *
-	 * @param pInfo NetPlayerInfo
-	 * @return NetSPRecord (null if not found)
-	 */
-	public NetSPRecord getRecord(NetPlayerInfo pInfo) {
-		return getRecord(pInfo.strName);
-	}
-
-	/**
-	 * Get specific player's index
-	 *
-	 * @param strPlayerName Player Name
-	 * @return Index (-1 if not found)
-	 */
-	public int indexOf(String strPlayerName) {
-		for (int i = 0; i < records.size(); i++) {
-			NetSPRecord r = records.get(i);
-			if (r.strPlayerName.equals(strPlayerName)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Get specific player's index
-	 *
-	 * @param pInfo NetPlayerInfo
-	 * @return Index (-1 if not found)
-	 */
-	public int indexOf(NetPlayerInfo pInfo) {
-		return indexOf(pInfo.strName);
-	}
-
-	/**
-	 * Remove specific player's record
-	 *
-	 * @param strPlayerName Player Name
-	 * @return Number of records removed (0 if not found)
-	 */
-	public int removeRecord(String strPlayerName) {
-		int count = 0;
-
-		List<NetSPRecord> list = new LinkedList<>(records);
-		for (int i = 0; i < list.size(); i++) {
-			NetSPRecord r = list.get(i);
-
-			if (r.strPlayerName.equals(strPlayerName)) {
-				records.remove(i);
-				count++;
-			}
-		}
-
-		return count;
-	}
-
-	/**
-	 * Remove specific player's record
-	 *
-	 * @param pInfo NetPlayerInfo
-	 * @return Number of records removed (0 if not found)
-	 */
-	public int removeRecord(NetPlayerInfo pInfo) {
-		return removeRecord(pInfo.strName);
+		// @formatter:off
+		return records.stream()
+				.filter(r -> r.playerName.equals(strPlayerName))
+				.findFirst().orElse(null);
+		// @formatter:on
 	}
 
 	/**
@@ -156,8 +76,8 @@ public class NetSPRanking {
 	 * @return Returns <code>true</code> if there are no previous record of this
 	 *         player, or if the newer record (r1) is better than old one.
 	 */
-	public boolean isNewRecord(NetSPRecord r1) {
-		NetSPRecord r2 = getRecord(r1.strPlayerName);
+	private boolean isNewRecord(NetSPRecord r1) {
+		NetSPRecord r2 = getRecord(r1.playerName);
 		if (r2 == null) {
 			return true;
 		}
@@ -176,10 +96,10 @@ public class NetSPRanking {
 		}
 
 		// Remove older records
-		removeRecord(r1.strPlayerName);
+		records.removeIf(r -> r.playerName.equals(r1.playerName));
 
 		// Insert new record
-		LinkedList<NetSPRecord> list = new LinkedList<>(records);
+		List<NetSPRecord> list = new LinkedList<>(records);
 		int rank = -1;
 
 		for (int i = 0; i < list.size(); i++) {
@@ -254,12 +174,14 @@ public class NetSPRanking {
 		if (rankings == null || rankings.isEmpty()) {
 			return null;
 		}
-		NetSPRanking acc = new NetSPRanking(rankings.get(0));
-		for (NetSPRanking ranking : rankings) {
+		NetSPRanking accumulated = new NetSPRanking(rankings.get(0));
+		for (int i = 1; i < rankings.size(); i++) {
+			NetSPRanking ranking = rankings.get(i);
 			for (NetSPRecord element : ranking.records) {
-				acc.registerRecord(new NetSPRecord(element));
+				accumulated.registerRecord(new NetSPRecord(element));
 			}
 		}
-		return acc;
+		accumulated.ruleName = "all";
+		return accumulated;
 	}
 }

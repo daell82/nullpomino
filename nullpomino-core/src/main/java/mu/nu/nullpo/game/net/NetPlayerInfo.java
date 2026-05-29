@@ -28,33 +28,41 @@
 */
 package mu.nu.nullpo.game.net;
 
-import java.io.Serializable;
 import java.nio.channels.SocketChannel;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
+import mu.nu.nullpo.game.net.NetSPRecord.RankingType;
 import mu.nu.nullpo.game.types.GameStyle;
+import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Player information
  */
-public class NetPlayerInfo implements Serializable {
-	/** Serial version */
-	private static final long serialVersionUID = 1L;
+@Log4j
+@Getter
+public class NetPlayerInfo {
 
 	/** Default rating for multiplayer games */
 	public static final int DEFAULT_MULTIPLAYER_RATING = 1500;
 
 	/** Name */
-	public String strName = "";
+	@Setter
+	private String playerName = "";
 
 	/** Country code */
-	public String strCountry = "";
+	public String country = "";
 
 	/** Host */
-	public String strHost = "";
+	public String host = "";
 
 	/** Team name */
-	public String strTeam = "";
+	public String team = "";
 
 	/** Rules in use */
 	public RuleOptions ruleOpt = null;
@@ -78,7 +86,7 @@ public class NetPlayerInfo implements Serializable {
 	public int winCountNow = 0;
 
 	/** Single player personal records */
-	public NetSPPersonalBest spPersonalBest = new NetSPPersonalBest();
+	private final List<NetSPRecord> records = new LinkedList<>();
 
 	/** User ID */
 	public int uid = -1;
@@ -93,22 +101,26 @@ public class NetPlayerInfo implements Serializable {
 	public int queueID = -1;
 
 	/** true if "Ready" sign */
-	public boolean ready = false;
+	@Setter
+	private boolean ready = false;
 
 	/** true if playing now */
-	public boolean playing = false;
+	@Setter
+	private boolean playing = false;
 
 	/** true if connected */
-	public boolean connected = false;
+	@Setter
+	private boolean connected = false;
 
 	/** true if this player is using tripcode */
-	public boolean isTripUse = false;
+	@Setter
+	private boolean tripUse = false;
 
 	/** Real host name (for internal use) */
-	public String strRealHost = "";
+	public String realHost = "";
 
 	/** Real IP (for internal use) */
-	public String strRealIP = "";
+	public String realIP = "";
 
 	/** SocketChannel of this player (for internal use) */
 	public SocketChannel channel = null;
@@ -124,8 +136,43 @@ public class NetPlayerInfo implements Serializable {
 	 *
 	 * @param netPlayerInfo Copy source
 	 */
-	public NetPlayerInfo(NetPlayerInfo netPlayerInfo) {
-		copy(netPlayerInfo);
+	public NetPlayerInfo(NetPlayerInfo playerInfo) {
+		playerName = playerInfo.playerName;
+		country = playerInfo.country;
+		host = playerInfo.host;
+		team = playerInfo.team;
+
+		if (playerInfo.ruleOpt != null) {
+			ruleOpt = new RuleOptions(playerInfo.ruleOpt);
+		} else {
+			ruleOpt = null;
+		}
+
+		for (int i = 0; i < GameStyle.numStyles(); i++) {
+			rating[i] = playerInfo.rating[i];
+			ratingBefore[i] = playerInfo.ratingBefore[i];
+			playCount[i] = playerInfo.playCount[i];
+			winCount[i] = playerInfo.winCount[i];
+		}
+		records.clear();
+		for (NetSPRecord netRecord : playerInfo.records) {
+			records.add(new NetSPRecord(netRecord));
+		}
+
+		playCountNow = playerInfo.playCountNow;
+		winCountNow = playerInfo.winCountNow;
+
+		uid = playerInfo.uid;
+		roomID = playerInfo.roomID;
+		seatID = playerInfo.seatID;
+		queueID = playerInfo.queueID;
+		ready = playerInfo.ready;
+		playing = playerInfo.playing;
+		connected = playerInfo.connected;
+		tripUse = playerInfo.tripUse;
+		realHost = playerInfo.realHost;
+		realIP = playerInfo.realIP;
+		channel = playerInfo.channel;
 	}
 
 	/**
@@ -138,56 +185,15 @@ public class NetPlayerInfo implements Serializable {
 	}
 
 	/**
-	 * Copy from other NetPlayerInfo
-	 *
-	 * @param n Copy source
-	 */
-	private void copy(NetPlayerInfo n) {
-		strName = n.strName;
-		strCountry = n.strCountry;
-		strHost = n.strHost;
-		strTeam = n.strTeam;
-
-		if (n.ruleOpt != null) {
-			ruleOpt = new RuleOptions(n.ruleOpt);
-		} else {
-			ruleOpt = null;
-		}
-
-		for (int i = 0; i < GameStyle.numStyles(); i++) {
-			rating[i] = n.rating[i];
-			ratingBefore[i] = n.ratingBefore[i];
-			playCount[i] = n.playCount[i];
-			winCount[i] = n.winCount[i];
-		}
-		spPersonalBest = new NetSPPersonalBest(n.spPersonalBest);
-
-		playCountNow = n.playCountNow;
-		winCountNow = n.winCountNow;
-
-		uid = n.uid;
-		roomID = n.roomID;
-		seatID = n.seatID;
-		queueID = n.queueID;
-		ready = n.ready;
-		playing = n.playing;
-		connected = n.connected;
-		isTripUse = n.isTripUse;
-		strRealHost = n.strRealHost;
-		strRealIP = n.strRealIP;
-		channel = n.channel;
-	}
-
-	/**
 	 * Import from String array
 	 *
 	 * @param pdata String array (String[27])
 	 */
 	private void importStringArray(String[] pdata) {
-		strName = NetUtil.urlDecode(pdata[0]);
-		strCountry = NetUtil.urlDecode(pdata[1]);
-		strHost = NetUtil.urlDecode(pdata[2]);
-		strTeam = NetUtil.urlDecode(pdata[3]);
+		playerName = NetUtil.urlDecode(pdata[0]);
+		country = NetUtil.urlDecode(pdata[1]);
+		host = NetUtil.urlDecode(pdata[2]);
+		team = NetUtil.urlDecode(pdata[3]);
 		roomID = Integer.parseInt(pdata[4]);
 		uid = Integer.parseInt(pdata[5]);
 		seatID = Integer.parseInt(pdata[6]);
@@ -195,7 +201,7 @@ public class NetPlayerInfo implements Serializable {
 		ready = Boolean.parseBoolean(pdata[8]);
 		playing = Boolean.parseBoolean(pdata[9]);
 		connected = Boolean.parseBoolean(pdata[10]);
-		isTripUse = Boolean.parseBoolean(pdata[11]);
+		tripUse = Boolean.parseBoolean(pdata[11]);
 		rating[0] = Integer.parseInt(pdata[12]);
 		rating[1] = Integer.parseInt(pdata[13]);
 		rating[2] = Integer.parseInt(pdata[14]);
@@ -209,7 +215,7 @@ public class NetPlayerInfo implements Serializable {
 		winCount[2] = Integer.parseInt(pdata[22]);
 		winCount[3] = Integer.parseInt(pdata[23]);
 		if (pdata.length > 24) {
-			spPersonalBest.importString(NetUtil.decompressString(pdata[24]));
+			importRecords(pdata[24]);
 		}
 		if (pdata.length > 25) {
 			playCountNow = Integer.parseInt(pdata[25]);
@@ -235,10 +241,10 @@ public class NetPlayerInfo implements Serializable {
 	 */
 	private String[] exportStringArray() {
 		String[] pdata = new String[27];
-		pdata[0] = NetUtil.urlEncode(strName);
-		pdata[1] = NetUtil.urlEncode(strCountry);
-		pdata[2] = NetUtil.urlEncode(strHost);
-		pdata[3] = NetUtil.urlEncode(strTeam);
+		pdata[0] = NetUtil.urlEncode(playerName);
+		pdata[1] = NetUtil.urlEncode(country);
+		pdata[2] = NetUtil.urlEncode(host);
+		pdata[3] = NetUtil.urlEncode(team);
 		pdata[4] = Integer.toString(roomID);
 		pdata[5] = Integer.toString(uid);
 		pdata[6] = Integer.toString(seatID);
@@ -246,7 +252,7 @@ public class NetPlayerInfo implements Serializable {
 		pdata[8] = Boolean.toString(ready);
 		pdata[9] = Boolean.toString(playing);
 		pdata[10] = Boolean.toString(connected);
-		pdata[11] = Boolean.toString(isTripUse);
+		pdata[11] = Boolean.toString(tripUse);
 		pdata[12] = Integer.toString(rating[0]);
 		pdata[13] = Integer.toString(rating[1]);
 		pdata[14] = Integer.toString(rating[2]);
@@ -259,10 +265,84 @@ public class NetPlayerInfo implements Serializable {
 		pdata[21] = Integer.toString(winCount[1]);
 		pdata[22] = Integer.toString(winCount[2]);
 		pdata[23] = Integer.toString(winCount[3]);
-		pdata[24] = NetUtil.compressString(spPersonalBest.exportString());
+		pdata[24] = exportRecords();
 		pdata[25] = Integer.toString(playCountNow);
 		pdata[26] = Integer.toString(winCountNow);
 		return pdata;
+	}
+
+	/**
+	 * Write to a CustomProperties
+	 *
+	 * @param prop CustomProperties
+	 */
+	public void writeProperty(CustomProperties prop) {
+		String strKey = "sppersonal." + playerName + ".";
+		prop.setProperty(strKey + "numRecords", records.size());
+
+		for (int i = 0; i < records.size(); i++) {
+			NetSPRecord netRecord = records.get(i);
+			String recordData = NetUtil.compressString(netRecord.exportString());
+			prop.setProperty(strKey + i, recordData);
+		}
+	}
+
+	/**
+	 * Read from a CustomProperties
+	 *
+	 * @param prop CustomProperties
+	 */
+	public void readProperty(CustomProperties prop) {
+		String strKey = "sppersonal." + playerName + ".";
+		int numRecords = prop.getProperty(strKey + "numRecords", 0);
+
+		records.clear();
+		for (int i = 0; i < numRecords; i++) {
+			String recordData = prop.getProperty(strKey + i);
+			if (recordData != null) {
+				String strRecord = NetUtil.decompressString(recordData);
+				records.add(new NetSPRecord(strRecord));
+			}
+		}
+	}
+
+	/**
+	 * Import the record from a String
+	 *
+	 * @param s String (Split by ;)
+	 */
+	private void importRecords(String raw) {
+		records.clear();
+		if (raw.isBlank()) {
+			return;
+		}
+		String uncompressed = NetUtil.decompressString(raw);
+		if (uncompressed.isBlank()) {
+			return;
+		}
+		String[] array = uncompressed.split(";");
+		for (String data : array) {
+			String recordData = NetUtil.decompressString(data);
+			if (recordData.isBlank()) {
+				continue;
+			}
+			records.add(new NetSPRecord(recordData));
+		}
+	}
+
+	/**
+	 * Export the records to a String
+	 *
+	 * @return String (Split by ;)
+	 */
+	private String exportRecords() {
+		// @formatter:off
+		String data = records.stream()
+				.map(NetSPRecord::exportString)
+				.map(NetUtil::compressString)
+				.collect(Collectors.joining(";"));
+		return NetUtil.compressString(data);
+		// @formatter:on
 	}
 
 	/**
@@ -273,6 +353,64 @@ public class NetPlayerInfo implements Serializable {
 	public String exportString() {
 		String[] data = exportStringArray();
 		return String.join(";", data);
+	}
+
+	/**
+	 * Get specific NetSPRecord
+	 *
+	 * @param rule  Rule Name
+	 * @param mode  Mode Name
+	 * @param gtype Game Type
+	 * @return NetSPRecord (null if not found)
+	 */
+	public NetSPRecord findRecord(String rule, String mode, int gtype) {
+		for (NetSPRecord r : records) {
+			if (r.ruleName.equals(rule) && r.modeName.equals(mode) && r.gameType == gtype) {
+				return r;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Checks if r1 is a new record.
+	 *
+	 * @param rtype Ranking Type
+	 * @param r1    Newer Record
+	 * @return Returns <code>true</code> if there are no previous record of this
+	 *         player, or if the newer record (r1) is better than old one.
+	 */
+	public boolean isNewRecord(RankingType rtype, NetSPRecord r1) {
+		NetSPRecord r2 = findRecord(r1.ruleName, r1.modeName, r1.gameType);
+		if (r2 == null) {
+			return true;
+		}
+		return r1.compare(rtype, r2);
+	}
+
+	/**
+	 * Register a record.
+	 *
+	 * @param rtype Ranking Type
+	 * @param r1    Newer Record
+	 * @return Returns <code>true</code> if the newer record (r1) is registered.
+	 */
+	public boolean registerRecord(RankingType rtype, NetSPRecord r1) {
+		NetSPRecord r2 = findRecord(r1.ruleName, r1.modeName, r1.gameType);
+
+		if (r2 != null) {
+			if (r1.compare(rtype, r2)) {
+				// Replace with a new record
+				records.set(records.indexOf(r2), r1);
+			} else {
+				return false;
+			}
+		} else {
+			// Register a new record
+			records.add(r1);
+		}
+
+		return true;
 	}
 
 	/**

@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -1056,24 +1057,24 @@ public class UltraMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.score = Integer.parseInt(message[4]);
-		engine.statistics.lines = Integer.parseInt(message[5]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
-		engine.statistics.time = Integer.parseInt(message[7]);
-		engine.statistics.spm = Double.parseDouble(message[8]);
-		engine.statistics.lpm = Float.parseFloat(message[9]);
-		engine.statistics.spl = Double.parseDouble(message[10]);
-		goaltype = Integer.parseInt(message[11]);
-		engine.gameActive = Boolean.parseBoolean(message[12]);
-		engine.timerActive = Boolean.parseBoolean(message[13]);
-		lastscore = Integer.parseInt(message[14]);
-		scgettime = Integer.parseInt(message[15]);
-		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
-		lastb2b = Boolean.parseBoolean(message[17]);
-		lastcombo = Integer.parseInt(message[18]);
-		lastpiece = Integer.parseInt(message[19]);
-		owner.backgroundStatus.bg = Integer.parseInt(message[20]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.score = message.asInt(3);
+		engine.statistics.lines = message.asInt(4);
+		engine.statistics.totalPieceLocked = message.asInt(5);
+		engine.statistics.time = message.asInt(6);
+		engine.statistics.spm = message.asDouble(7);
+		engine.statistics.lpm = message.asFloat(8);
+		engine.statistics.spl = message.asDouble(9);
+		goaltype = message.asInt(10);
+		engine.gameActive = message.asBool(11);
+		engine.timerActive = message.asBool(12);
+		lastscore = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(18);
+		owner.backgroundStatus.bg = message.asInt(19);
 
 		// Time meter
 		int limitTime = (goaltype + 1) * 3600;
@@ -1141,24 +1142,24 @@ public class UltraMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		engine.speed.gravity = Integer.parseInt(message[4]);
-		engine.speed.denominator = Integer.parseInt(message[5]);
-		engine.speed.are = Integer.parseInt(message[6]);
-		engine.speed.areLine = Integer.parseInt(message[7]);
-		engine.speed.lineDelay = Integer.parseInt(message[8]);
-		engine.speed.lockDelay = Integer.parseInt(message[9]);
-		engine.speed.das = Integer.parseInt(message[10]);
-		bgmno = Integer.parseInt(message[11]);
-		big = Boolean.parseBoolean(message[12]);
-		goaltype = Integer.parseInt(message[13]);
-		tspinEnableType = Integer.parseInt(message[14]);
-		enableTSpinKick = Boolean.parseBoolean(message[15]);
-		enableB2B = Boolean.parseBoolean(message[16]);
-		enableCombo = Boolean.parseBoolean(message[17]);
-		presetNumber = Integer.parseInt(message[18]);
-		spinCheckType = Integer.parseInt(message[19]);
-		tspinEnableEZ = Boolean.parseBoolean(message[20]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		engine.speed.gravity = message.asInt(3);
+		engine.speed.denominator = message.asInt(4);
+		engine.speed.are = message.asInt(5);
+		engine.speed.areLine = message.asInt(6);
+		engine.speed.lineDelay = message.asInt(7);
+		engine.speed.lockDelay = message.asInt(8);
+		engine.speed.das = message.asInt(9);
+		bgmno = message.asInt(10);
+		big = message.asBool(11);
+		goaltype = message.asInt(12);
+		tspinEnableType = message.asInt(13);
+		enableTSpinKick = message.asBool(14);
+		enableB2B = message.asBool(15);
+		enableCombo = message.asBool(16);
+		presetNumber = message.asInt(17);
+		spinCheckType = message.asInt(18);
+		tspinEnableEZ = message.asBool(19);
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +15,7 @@ import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.component.Statistics;
 import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -510,31 +510,28 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * NET: Message received
 	 */
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+	public void netlobbyOnMessage(NetMessage message) {
+		switch (message.command()) {
 		// Player status update
-		if (message[0].equals("playerupdate")) {
-			netUpdatePlayerExist();
-		}
+		case PLAYER_UPDATE -> netUpdatePlayerExist();
 		// When someone logout
-		if (message[0].equals("playerlogout")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
-
+		case PLAYER_LOGOUT -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
 			if (netCurrentRoomInfo != null && pInfo.roomID == netCurrentRoomInfo.roomID) {
 				netUpdatePlayerExist();
 			}
 		}
 		// Game started
-		if (message[0].equals("start")) {
+		case START -> {
 			log.debug("NET: Game started");
-
 			if (netIsWatch) {
 				owner.reset();
 				owner.engines[0].stat = GameEngine.Status.READY;
 				owner.engines[0].resetStatc();
 			}
 		}
-		// Dead
-		if (message[0].equals("dead")) {
+		case DEAD -> {
+			// Dead
 			log.debug("NET: Dead");
 
 			if (netIsWatch) {
@@ -547,65 +544,52 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				}
 			}
 		}
-		// Replay send fail
-		if (message[0].equals("spsendng")) {
+		case SP_SEND_NG -> { // Replay send fail
 			netReplaySendStatus = 1;
 			netSendReplay(owner.engines[0]);
 		}
-		// Replay send complete
-		if (message[0].equals("spsendok")) {
+		case SP_SEND_OK -> { // Replay send complete
 			netReplaySendStatus = 2;
-			netRankingRank[0] = Integer.parseInt(message[1]);
-			netIsPB = Boolean.parseBoolean(message[2]);
-			netRankingRank[1] = Integer.parseInt(message[3]);
+			netRankingRank[0] = message.asInt(0);
+			netIsPB = message.asBool(1);
+			netRankingRank[1] = message.asInt(2);
 		}
 		// Netplay Ranking
-		if (message[0].equals("spranking")) {
-			netRecvNetPlayRanking(owner.engines[0], message);
-		}
+		case SP_RANKING -> netRecvNetPlayRanking(owner.engines[0], message);
 		// Reset
-		if (message[0].equals("reset1p")) {
-			if (netIsWatch) {
+		case RESET_SP -> {
+			if (netIsWatch) { // NOSONAR
 				owner.reset();
 			}
 		}
 		// Game messages
-		if (message[0].equals("game")) {
-			if (netIsWatch) {
+		case GAME -> {
+			if (netIsWatch) { // NOSONAR
 				GameEngine engine = owner.engines[0];
 				if (engine.field == null) {
 					engine.field = new Field();
 				}
-
+				String subCommand = message.text(2);
+				switch (subCommand) {
 				// Move cursor
-				if (message[3].equals("cursor")) {
-					if (engine.stat == GameEngine.Status.SETTING) {
-						menuCursor = Integer.parseInt(message[4]);
+				case "cursor" -> {
+					if (engine.stat == GameEngine.Status.SETTING) { // NOSONAR
+						menuCursor = message.asInt(3);
 						engine.playSE(Sounds.CURSOR);
 					}
 				}
 				// Change game options
-				if (message[3].equals("option")) {
-					netRecvOptions(engine, message);
-				}
-				// Field
-				if (message[3].equals("field") || message[3].equals("fieldattr")) {
-					netRecvField(engine, message);
-				}
+				case "option" -> netRecvOptions(engine, message);
+				// field update
+				case "field", "fieldattr" -> netRecvField(engine, message);
 				// Stats
-				if (message[3].equals("stats")) {
-					netRecvStats(engine, message);
-				}
+				case "stats" -> netRecvStats(engine, message);
 				// Current Piece
-				if (message[3].equals("piece")) {
-					netRecvPieceMovement(engine, message);
-				}
+				case "piece" -> netRecvPieceMovement(engine, message);
 				// Next and Hold
-				if (message[3].equals("next")) {
-					netRecvNextAndHold(engine, message);
-				}
+				case "next" -> netRecvNextAndHold(engine, message);
 				// Ending
-				if (message[3].equals("ending")) {
+				case "ending" -> {
 					engine.ending = 1;
 					if (!engine.staffrollEnable) {
 						engine.gameEnded();
@@ -614,12 +598,12 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					engine.resetStatc();
 				}
 				// Excellent
-				if (message[3].equals("excellent")) {
+				case "excellent" -> {
 					engine.stat = GameEngine.Status.EXCELLENT;
 					engine.resetStatc();
 				}
 				// Retry
-				if (message[3].equals("retry")) {
+				case "retry" -> {
 					engine.ending = 0;
 					engine.gameEnded();
 					engine.stat = GameEngine.Status.SETTING;
@@ -627,12 +611,18 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 					engine.playSE(Sounds.DECIDE);
 				}
 				// Display results screen
-				if (message[3].equals("resultsscreen")) {
+				case "resultsscreen" -> {
 					engine.field.reset();
 					engine.stat = GameEngine.Status.RESULT;
 					engine.resetStatc();
 				}
+				default -> log.debug("unknown game update: " + subCommand);
+				}
 			}
+		}
+		default -> {
+			// nothing
+		}
 		}
 	}
 
@@ -847,19 +837,18 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * customize "piece" message.
 	 *
 	 * @param engine  GameEngine
-	 * @param message Message array
+	 * @param message Message
 	 */
-	protected void netRecvPieceMovement(GameEngine engine, String[] message) {
-		int id = Integer.parseInt(message[4]);
-
+	protected void netRecvPieceMovement(GameEngine engine, NetMessage message) {
+		int id = message.asInt(3);
 		if (id >= 0) {
-			int pieceX = Integer.parseInt(message[5]);
-			int pieceY = Integer.parseInt(message[6]);
-			int pieceDir = Integer.parseInt(message[7]);
-			// int pieceBottomY = Integer.parseInt(message[8])
-			int pieceColor = Integer.parseInt(message[9]);
-			int pieceSkin = Integer.parseInt(message[10]);
-			boolean pieceBig = message.length > 11 && Boolean.parseBoolean(message[11]);
+			int pieceX = message.asInt(4);
+			int pieceY = message.asInt(5);
+			int pieceDir = message.asInt(6);
+			// int pieceBottomY = Integer.parseInt(message[7])
+			int pieceColor = message.asInt(8);
+			int pieceSkin = message.asInt(9);
+			boolean pieceBig = message.length() > 10 && message.asBool(10);
 
 			engine.nowPieceObject = new Piece(id);
 			engine.nowPieceObject.direction = pieceDir;
@@ -941,20 +930,20 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param engine  GameEngine
 	 * @param message Message array
 	 */
-	protected void netRecvField(GameEngine engine, String[] message) {
-		if (message[3].equals("fieldattr")) {
+	protected void netRecvField(GameEngine engine, NetMessage message) {
+		if ("fieldattr".equals(message.text(2))) {
 			// With attributes
-			if (message.length > 4) {
+			if (message.length() > 3) {
 				engine.nowPieceObject = null;
 				engine.holdDisable = false;
 				if (engine.stat == GameEngine.Status.SETTING) {
 					engine.stat = GameEngine.Status.MOVE;
 				}
-				int skin = Integer.parseInt(message[4]);
+				int skin = message.asInt(3);
 				netPlayerSkin = skin;
-				if (message.length > 6) {
-					boolean isCompressed = Boolean.parseBoolean(message[6]);
-					String strFieldData = message[5];
+				if (message.length() > 5) {
+					String strFieldData = message.text(4);
+					boolean isCompressed = message.asBool(5);
 					if (isCompressed) {
 						strFieldData = NetUtil.decompressString(strFieldData);
 					}
@@ -962,18 +951,18 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 				}
 			}
 		} else // Without attributes
-		if (message.length > 5) {
+		if (message.length() > 4) {
 			engine.nowPieceObject = null;
 			engine.holdDisable = false;
 			if (engine.stat == GameEngine.Status.SETTING) {
 				engine.stat = GameEngine.Status.MOVE;
 			}
-			int skin = Integer.parseInt(message[4]);
-			int highestWallY = Integer.parseInt(message[5]);
+			int skin = message.asInt(3);
+			int highestWallY = message.asInt(4);
 			netPlayerSkin = skin;
-			if (message.length > 7) {
-				String strFieldData = message[6];
-				boolean isCompressed = Boolean.parseBoolean(message[7]);
+			if (message.length() > 6) {
+				String strFieldData = message.text(5);
+				boolean isCompressed = message.asBool(6);
 				if (isCompressed) {
 					strFieldData = NetUtil.decompressString(strFieldData);
 				}
@@ -1021,14 +1010,14 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param engine  GameEngine
 	 * @param message Message array
 	 */
-	protected void netRecvNextAndHold(GameEngine engine, String[] message) {
-		int maxNext = Integer.parseInt(message[4]);
+	protected void netRecvNextAndHold(GameEngine engine, NetMessage message) {
+		int maxNext = message.asInt(3);
 		engine.ruleopt.nextDisplay = maxNext;
-		engine.holdDisable = Boolean.parseBoolean(message[5]);
+		engine.holdDisable = message.asBool(4);
 
 		for (int i = 0; i < maxNext + 1; i++) {
-			if (i + 6 < message.length) {
-				String[] strPieceData = message[i + 6].split(";");
+			if (i + 5 < message.length()) {
+				String[] strPieceData = message.text(i + 5).split(";");
 				int pieceID = Integer.parseInt(strPieceData[0]);
 				int pieceDirection = Integer.parseInt(strPieceData[1]);
 				int pieceColor = Integer.parseInt(strPieceData[2]);
@@ -1299,7 +1288,7 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 		netRankingMyRank[1] = -1;
 		netIsNetRankingDisplayMode = true;
 		owner.menuOnly = true;
-		String rule = NetUtil.urlEncode(netCurrentRoomInfo.rated ? netCurrentRoomInfo.ruleName : "all");
+		String rule = NetUtil.urlEncode(netCurrentRoomInfo.isRated() ? netCurrentRoomInfo.ruleName : "all");
 		String name = NetUtil.urlEncode(getName());
 		netLobby.netPlayerClient.send(NetCmd.SP_RANKING, rule, name, goaltype, false);
 		netLobby.netPlayerClient.send(NetCmd.SP_RANKING, rule, name, goaltype, true);
@@ -1311,16 +1300,16 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * @param engine  GameEngine
 	 * @param message Message array
 	 */
-	protected void netRecvNetPlayRanking(GameEngine engine, String[] message) {
-		log.debug("NetPlay ranking:\n" + String.join(" ", message));
+	protected void netRecvNetPlayRanking(GameEngine engine, NetMessage message) {
+		log.debug("NetPlay ranking:\n" + message);
 
-		if (message.length > 7) {
-			boolean isDaily = Boolean.parseBoolean(message[4]);
+		if (message.length() > 6) {
+			boolean isDaily = message.asBool(3);
 			int d = isDaily ? 1 : 0;
 
-			netRankingType = RankingType.values()[Integer.parseInt(message[5])];
-			int maxRecords = Integer.parseInt(message[6]);
-			String[] arrayRow = message[7].split(";");
+			netRankingType = RankingType.values()[message.asInt(4)];
+			int maxRecords = message.asInt(5);
+			String[] arrayRow = message.text(6).split(";");
 			maxRecords = Math.min(maxRecords, arrayRow.length);
 			netRankingNoDataFlag[d] = false;
 			netRankingReady[d] = false;
@@ -1396,8 +1385,8 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 			}
 
 			netRankingReady[d] = true;
-		} else if (message.length > 4) {
-			boolean isDaily = Boolean.parseBoolean(message[4]);
+		} else if (message.length() > 3) {
+			boolean isDaily = message.asBool(3);
 			int d = isDaily ? 1 : 0;
 			netRankingNoDataFlag[d] = true;
 			netRankingReady[d] = false;
@@ -1418,9 +1407,9 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * Game modes should implement this.
 	 *
 	 * @param engine  GameEngine
-	 * @param message Message array
+	 * @param message Message
 	 */
-	protected void netRecvStats(GameEngine engine, String[] message) {
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
 	}
 
 	/**
@@ -1446,9 +1435,9 @@ public class NetDummyMode extends AbstractMode implements NetLobbyListener {
 	 * Game modes should implement this.
 	 *
 	 * @param engine  GameEngine
-	 * @param message Message array
+	 * @param message Message
 	 */
-	protected void netRecvOptions(GameEngine engine, String[] message) {
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
 	}
 
 	/**

@@ -39,7 +39,6 @@ import mu.nu.nullpo.game.event.Renderer;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.mode.menu.AbstractMenuItem;
-import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.Sounds;
@@ -166,11 +165,6 @@ public abstract class AbstractMode implements GameMode {
 	@Override
 	public int getPlayers() {
 		return 1;
-	}
-
-	@Override
-	public GameStyle getGameStyle() {
-		return GameStyle.TETROMINO;
 	}
 
 	@Override

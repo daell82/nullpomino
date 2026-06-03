@@ -452,7 +452,7 @@ public class AvalancheVSBombBattleMode extends AvalancheVSDummyMode {
 				engine.quitflag = true;
 			}
 
-			// プレビュー用Map読み込み
+			// Preview Map Loading
 			if (useMap[playerID] && menuTime == 0) {
 				loadMapPreview(engine, playerID, mapNumber[playerID] < 0 ? 0 : mapNumber[playerID], true);
 			}

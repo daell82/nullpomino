@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Optional;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -54,11 +55,12 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -73,13 +75,18 @@ import net.clarenceho.crypto.RC4;
 /**
  * NetAdmin - NetServer admin tool
  */
+@Log4j
 public class NetAdmin extends JFrame implements ActionListener, NetMessageListener {
 	// ***** Constants *****
 	/** Serial Version ID */
 	private static final long serialVersionUID = 1L;
 
 	/** Constants for each screen-card */
-	private static final int SCREENCARD_LOGIN = 0, SCREENCARD_LOBBY = 1;
+	private static final int SCREENCARD_LOGIN = 0;
+	private static final int SCREENCARD_LOBBY = 1;
+
+	/** color for the console */
+	private static final Color COLOR = new Color(0, 64, 64);
 
 	/** Names for each screen-card */
 	private static final String[] SCREENCARD_NAMES = { "Login", "Lobby" };
@@ -110,8 +117,6 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			"RoomTable_RuleName", "RoomTable_Status", "RoomTable_Players", "RoomTable_Spectators" };
 
 	// ***** Variables *****
-	/** Log */
-	static Logger log = Logger.getLogger(NetAdmin.class);
 
 	/** ServerAdmin properties */
 	private static CustomProperties propConfig;
@@ -134,7 +139,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	private static boolean isShutdownRequested;
 
 	/** Hostname of the server */
-	private static String strServerHost;
+	private static String serverHost;
 
 	/** Port-number of the server */
 	private static int serverPort;
@@ -633,7 +638,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				client.send(NetCmd.DISCONNECT);
 			}
 			client.removeListener(this);
-			client.threadRunning = false;
+			client.close();
 			client.interrupt();
 			client = null;
 		}
@@ -785,7 +790,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 		}
 		// serverhost
 		else if (commands[0].equalsIgnoreCase("serverhost")) {
-			addConsoleLog(strServerHost);
+			addConsoleLog(serverHost);
 		}
 		// serverport
 		else if (commands[0].equalsIgnoreCase("serverport")) {
@@ -1039,7 +1044,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 					portSpliter = strHost.length();
 				}
 
-				strServerHost = strHost.substring(0, portSpliter);
+				serverHost = strHost.substring(0, portSpliter);
 
 				serverPort = NetBaseClient.DEFAULT_PORT;
 				try {
@@ -1051,7 +1056,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				// Begin connect
 				isWantedDisconnect = false;
 				isShutdownRequested = false;
-				client = new NetBaseClient(strServerHost, serverPort);
+				client = new NetBaseClient(serverHost, serverPort);
 				client.setDaemon(true);
 				client.addListener(this);
 				client.start();
@@ -1079,21 +1084,19 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	 * Received a message
 	 */
 	@Override
-	public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
+	public void netOnMessage(NetMessage message) {
 		// if(message.length > 0) log.debug(message[0]);
 
-		// Welcome
-		if (message[0].equals("welcome")) {
-			// welcome\t[MAJOR VERSION]\t[PLAYERS]\t[OBSERVERS]\t[MINOR VERSION]\t[FULL
-			// VERSION]\t[PING INTERVAL]\t[DEV BUILD]
+		switch (message.command()) {
+		case WELCOME -> { // [VERSION] | [PLAYERS] | [OBSERVERS] | [PING INTERVAL]
 			labelLoginMessage.setForeground(Color.black);
 			labelLoginMessage.setText(getUIText("Login_Message_LoggingIn"));
 
 			// Version check
 			Version clientVersion = Version.getCurrent();
-			serverVersion = Version.of(message[5]);
+			serverVersion = Version.of(message.text(0));
 
-			if (!clientVersion.isCompatible(serverVersion.major(), serverVersion.minor())) {
+			if (!clientVersion.isCompatible(serverVersion)) {
 				labelLoginMessage.setForeground(Color.red);
 				labelLoginMessage
 						.setText(String.format(getUIText("Login_Message_VersionError"), clientVersion, serverVersion));
@@ -1115,7 +1118,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			}
 
 			// Ping interval
-			long pingInterval = message.length > 6 ? Long.parseLong(message[6]) : NetBaseClient.PING_INTERVAL;
+			long pingInterval = message.length() > 3 ? message.asLong(3) : NetBaseClient.PING_INTERVAL;
 			if (pingInterval != NetBaseClient.PING_INTERVAL) {
 				client.startPingTask(pingInterval);
 			}
@@ -1128,42 +1131,35 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			String b64Password = Base64.getEncoder().encodeToString(ePassword);
 			client.send(NetCmd.ADMIN_LOGIN, clientVersion.majorMinor(), user, b64Password, clientVersion.isDevBuild());
 		}
-		// Login failed
-		if (message[0].equals("adminloginfail")) {
+		case ADMIN_LOGIN_FAIL -> { // Login failed
 			isWantedDisconnect = true;
 			logout();
 
 			labelLoginMessage.setForeground(Color.red);
-			if (message.length > 1 && message[1].equals("DISABLE")) {
+			if (message.length() > 1 && "DISABLE".equals(message.text(0))) {
 				labelLoginMessage.setText(getUIText("Login_Message_DisabledError"));
 			} else {
 				labelLoginMessage.setText(getUIText("Login_Message_LoginError"));
 			}
-			return;
 		}
-		// Banned
-		if (message[0].equals("banned")) {
+		case BANNED -> {
 			isWantedDisconnect = true;
 			logout();
 
 			labelLoginMessage.setForeground(Color.red);
 
-			Calendar cStart = GeneralUtil.importCalendarString(message[1]);
-			Calendar cExpire = message.length > 2 && !message[2].isEmpty()
-					? GeneralUtil.importCalendarString(message[2])
-					: null;
+			Calendar cStart = message.asDate(0);
+			Calendar cExpire = message.length() > 1 ? message.asDate(1) : null;
 
 			String strStart = cStart != null ? GeneralUtil.getCalendarString(cStart) : "???";
 			String strExpire = cExpire != null ? GeneralUtil.getCalendarString(cExpire)
 					: getUIText("Login_Message_Banned_Permanent");
 
 			labelLoginMessage.setText(String.format(getUIText("Login_Message_Banned"), strStart, strExpire));
-			return;
 		}
-		// Login successful
-		if (message[0].equals("adminloginsuccess")) {
-			strMyIP = message[1];
-			strMyHostname = message[2];
+		case ADMIN_LOGIN_SUCCESS -> {
+			strMyIP = message.text(0);
+			strMyHostname = message.text(1);
 
 			propConfig.setProperty("login.rememberUsername", chkboxRememberUsername.isSelected());
 			propConfig.setProperty("login.rememberPassword", chkboxRememberPassword.isSelected());
@@ -1181,19 +1177,18 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				propConfig.setProperty("login.password", "");
 			}
 
-			addConsoleLog(String.format(getUIText("Console_LoginOK"), strServerHost, serverPort));
+			addConsoleLog(String.format(getUIText("Console_LoginOK"), serverHost, serverPort));
 
 			SwingUtilities.invokeLater(() -> changeCurrentScreenCard(SCREENCARD_LOBBY));
 		}
-		// Multiplayer Leaderboard
-		if (message[0].equals("mpranking")) {
+		case MP_RANKING -> { // Multiplayer Leaderboard
 			btnRankingLoad.setEnabled(true);
 
-			int style = Integer.parseInt(message[1]);
+			int style = message.asInt(0);
 
 			tablemodelMPRanking[style].setRowCount(0);
 
-			String strPData = NetUtil.decompressString(message[3]);
+			String strPData = message.decompressed(1);
 			String[] strPDataA = strPData.split("\t");
 
 			for (String element : strPDataA) {
@@ -1215,24 +1210,20 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				}
 			}
 		}
-		// Room List
-		if (message[0].equals("roomlist")) {
-			int size = Integer.parseInt(message[1]);
-
+		case ROOM_LIST -> {
+			int size = message.asInt(0);
 			tablemodelRoomList.setRowCount(0);
 			for (int i = 0; i < size; i++) {
-				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
+				NetRoomInfo r = new NetRoomInfo(message.text(i + 1));
 				tablemodelRoomList.addRow(createRoomListRowData(r));
 			}
 		}
-		// New room appeared
-		if (message[0].equals("roomcreate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_CREATE -> { // New room appeared
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			tablemodelRoomList.addRow(createRoomListRowData(r));
 		}
-		// Room update
-		if (message[0].equals("roomupdate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_UPDATE -> {
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
 
 			for (int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
@@ -1248,9 +1239,8 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				}
 			}
 		}
-		// Room delete
-		if (message[0].equals("roomdelete")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_DELETE -> {
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
 
 			for (int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
@@ -1263,29 +1253,32 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				}
 			}
 		}
-		// Admin command result
-		if (message[0].equals("adminresult") && message.length > 1) {
-			String strAdminResultTemp = NetUtil.decompressString(message[1]);
-			String[] strAdminResultArray = strAdminResultTemp.split("\t");
-			onAdminResultMessage(client, strAdminResultArray);
+		case ADMIN_RESULT -> { // Admin command result
+			String data = message.decompressed(0);
+			NetMessage adminMsg = NetMessage.of(data.split("\t"));
+			onAdminResultMessage(client, adminMsg);
+		}
+		default -> {
+			// nothing
+		}
 		}
 	}
 
 	/**
 	 * Create a row of room list
 	 *
-	 * @param r NetRoomInfo
+	 * @param room NetRoomInfo
 	 * @return Row data
 	 */
-	private String[] createRoomListRowData(NetRoomInfo r) {
+	private String[] createRoomListRowData(NetRoomInfo room) {
 		String[] rowData = new String[7];
-		rowData[0] = Integer.toString(r.roomID);
-		rowData[1] = r.strName;
-		rowData[2] = r.rated ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
-		rowData[3] = r.ruleLock ? r.ruleName.toUpperCase() : getUIText("RoomTable_RuleName_Any");
-		rowData[4] = r.playing ? getUIText("RoomTable_Status_Playing") : getUIText("RoomTable_Status_Waiting");
-		rowData[5] = r.playerSeatedCount + "/" + r.maxPlayers;
-		rowData[6] = Integer.toString(r.spectatorCount);
+		rowData[0] = Integer.toString(room.roomID);
+		rowData[1] = room.strName;
+		rowData[2] = room.isRated() ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
+		rowData[3] = room.ruleLock ? room.ruleName.toUpperCase() : getUIText("RoomTable_RuleName_Any");
+		rowData[4] = room.playing ? getUIText("RoomTable_Status_Playing") : getUIText("RoomTable_Status_Waiting");
+		rowData[5] = room.playerSeatedCount + "/" + room.maxPlayers;
+		rowData[6] = Integer.toString(room.spectatorCount);
 		return rowData;
 	}
 
@@ -1296,9 +1289,10 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 	 * @param message Message
 	 * @throws IOException When something bad happens
 	 */
-	private void onAdminResultMessage(NetBaseClient client, String[] message) throws IOException {
+	private void onAdminResultMessage(NetBaseClient client, NetMessage message) {
 		// Client list
-		if (message[0].equals("clientlist")) {
+		switch (message.command()) {
+		case CLIENT_LIST -> {
 			// Get current selected IP and Type
 			String strSelectedIP = null;
 			String strSelectedType = null;
@@ -1309,13 +1303,13 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			tableUsers.getSelectionModel().clearSelection();
 
 			// Set number of rows
-			if (tablemodelUsers.getRowCount() > message.length - 1) {
-				tablemodelUsers.setRowCount(message.length - 1);
+			if (tablemodelUsers.getRowCount() > message.length() - 2) {
+				tablemodelUsers.setRowCount(message.length() - 2);
 			}
 
-			for (int i = 1; i < message.length; i++) {
-				String[] strClientData = message[i].split("\\|");
-				var foo = NetCmd.CLIENT_LIST;
+			for (int i = 0; i < message.length(); i++) {
+				String[] strClientData = message.text(i).split("\\|");
+
 				String strIP = strClientData[0]; // IP
 				String strHost = strClientData[1]; // Hostname
 
@@ -1341,7 +1335,7 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				strTableData[3] = pInfo != null ? pInfo.getPlayerName() : "";
 
 				// Add the row data
-				int rowNumber = i - 1;
+				int rowNumber = i;
 				int maxRow = tablemodelUsers.getRowCount();
 				if (rowNumber < maxRow) {
 					// Modify an existing row
@@ -1370,21 +1364,21 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 				}
 			}
 		}
-		// Ban
-		if (message[0].equals("ban") && message.length > 3) {
-			String strBanLength = getUIText("BanType" + message[2]);
-			addConsoleLog(String.format(getUIText("Console_Ban_Result"), message[1], strBanLength, message[3]),
-					new Color(0, 64, 64));
+		case BAN -> {
+			String bannedHost = message.text(0);
+			String banLength = getUIText("BanType" + message.text(1));
+			int kickCount = message.asInt(2);
+			addConsoleLog(String.format(getUIText("Console_Ban_Result"), bannedHost, banLength, kickCount), COLOR);
 		}
-
-		// Ban List
-		if (message[0].equals("banlist")) {
-			if (message.length < 2) {
-				addConsoleLog(getUIText("Console_BanList_Result_None"), new Color(0, 64, 64));
+		case UNBAN ->
+			addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message.text(0), message.text(1)), COLOR);
+		case BAN_LIST -> {
+			if (message.length() == 0) {
+				addConsoleLog(getUIText("Console_BanList_Result_None"), COLOR);
 			} else {
-				for (int i = 0; i < message.length - 1; i++) {
+				for (int i = 0; i < message.length(); i++) {
 					NetServerBan ban = new NetServerBan();
-					ban.importString(message[i + 1]);
+					ban.importString(message.text(i));
 
 					String strBanLength = getUIText("BanType" + ban.banLength);
 					String strDate = "";
@@ -1393,44 +1387,29 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 					}
 
 					addConsoleLog(String.format(getUIText("Console_BanList_Result"), ban.addr, strBanLength, strDate),
-							new Color(0, 64, 64));
+							COLOR);
 				}
 			}
 		}
-		// Un-Ban
-		if (message[0].equals("unban") && message.length > 2) {
-			addConsoleLog(String.format(getUIText("Console_UnBan_Result"), message[1], message[2]),
-					new Color(0, 64, 64));
-		}
-
-		// Player Delete
-		if (message[0].equals("playerdelete") && message.length > 1) {
-			addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message[1]), new Color(0, 64, 64));
-		}
-
+		case PLAYER_DELETE ->
+			addConsoleLog(String.format(getUIText("Console_PlayerDelete_Result"), message.text(0)), COLOR);
 		// Room Delete (OK)
-		if (message[0].equals("roomdeletesuccess") && message.length > 2) {
-			addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message[1], message[2]),
-					new Color(0, 64, 64));
-		}
-
-		// Room Delete (NG)
-		if (message[0].equals("roomdeletefail") && message.length > 1) {
-			addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message[1]), new Color(0, 64, 64));
-		}
-
+		case ROOM_DELETE_SUCCESS ->
+			addConsoleLog(String.format(getUIText("Console_RoomDelete_OK"), message.text(0), message.text(1)), COLOR);
+		// Room Delete ((failure)
+		case ROOM_DELETE_FAIL ->
+			addConsoleLog(String.format(getUIText("Console_RoomDelete_NG"), message.text(0)), COLOR);
 		// Diagnostics
-		if (message[0].equals("diag") && message.length > 1) {
-			addConsoleLog(message[1], new Color(0, 64, 64));
+		case DIAG -> addConsoleLog(message.text(0), COLOR);
+		default -> log.debug("Unhandled message type: " + message.command());
 		}
-
 	}
 
 	/*
 	 * Disconnected
 	 */
 	@Override
-	public void netOnDisconnect(NetBaseClient client, Throwable ex) {
+	public void netOnDisconnect(Optional<Throwable> ex) {
 		if (isShutdownRequested) {
 			log.info("Server shutdown completed");
 			labelLoginMessage.setForeground(Color.black);
@@ -1439,12 +1418,14 @@ public class NetAdmin extends JFrame implements ActionListener, NetMessageListen
 			log.info("Disconnected from the server");
 		} else {
 			labelLoginMessage.setForeground(Color.red);
-			if (ex == null) {
+			if (ex.isEmpty()) {
 				log.warn("ERROR Disconnected! (null)");
 				labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), "(null)"));
 			} else {
-				log.error("ERROR Disconnected!", ex);
-				labelLoginMessage.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), ex.toString()));
+				Throwable error = ex.get();
+				log.error("ERROR Disconnected!", error);
+				labelLoginMessage
+						.setText(String.format(getUIText("Login_Message_UnwantedDisconnect"), error.getMessage()));
 			}
 		}
 		logout();

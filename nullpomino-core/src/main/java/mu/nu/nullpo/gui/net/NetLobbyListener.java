@@ -30,6 +30,7 @@ package mu.nu.nullpo.gui.net;
 
 import java.io.IOException;
 
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
 
@@ -39,14 +40,14 @@ import mu.nu.nullpo.game.net.NetRoomInfo;
 public interface NetLobbyListener {
 	/**
 	 * Initialization Completed
-	 * 
+	 *
 	 * @param lobby NetLobbyFrame
 	 */
 	public void netlobbyOnInit(NetLobbyFrame lobby);
 
 	/**
 	 * Login completed
-	 * 
+	 *
 	 * @param lobby  NetLobbyFrame
 	 * @param client NetClient
 	 */
@@ -54,7 +55,7 @@ public interface NetLobbyListener {
 
 	/**
 	 * When you enter a room
-	 * 
+	 *
 	 * @param lobby    NetLobbyFrame
 	 * @param client   NetClient
 	 * @param roomInfo NetRoomInfo
@@ -63,7 +64,7 @@ public interface NetLobbyListener {
 
 	/**
 	 * When you returned to lobby
-	 * 
+	 *
 	 * @param lobby  NetLobbyFrame
 	 * @param client NetClient
 	 */
@@ -71,7 +72,7 @@ public interface NetLobbyListener {
 
 	/**
 	 * When disconnected
-	 * 
+	 *
 	 * @param lobby  NetLobbyFrame
 	 * @param client NetClient
 	 * @param ex     A Throwable that caused disconnection (null if unknown or
@@ -81,17 +82,17 @@ public interface NetLobbyListener {
 
 	/**
 	 * Message received
-	 * 
+	 *
 	 * @param lobby   NetLobbyFrame
 	 * @param client  NetClient
 	 * @param message Message (Already sepatated by tabs)
 	 * @throws IOException When something bad occurs
 	 */
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException;
+	public void netlobbyOnMessage(NetMessage message);
 
 	/**
 	 * When the lobby window is closed
-	 * 
+	 *
 	 * @param lobby NetLobbyFrame
 	 */
 	public void netlobbyOnExit(NetLobbyFrame lobby);

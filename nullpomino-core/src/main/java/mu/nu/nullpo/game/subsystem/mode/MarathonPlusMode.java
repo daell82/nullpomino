@@ -28,18 +28,15 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import java.io.IOException;
-
 import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
-import mu.nu.nullpo.game.net.NetPlayerClient;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -1126,28 +1123,30 @@ public class MarathonPlusMode extends NetDummyMode {
 	 * NET: Message received
 	 */
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
-		super.netlobbyOnMessage(lobby, client, message);
+	public void netlobbyOnMessage(NetMessage message) {
+		super.netlobbyOnMessage(message);
 
 		// Game messages
-		if (message[0].equals("game")) {
-			GameEngine engine = owner.engines[0];
-
-			// Bonus level entered
-			if (message[3].equals("bonuslevelenter")) {
-				engine.meterValue = 0;
-				owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
-				engine.timerActive = false;
-				engine.ending = 1;
-				engine.stat = GameEngine.Status.CUSTOM;
-				engine.resetStatc();
-			}
-			// Bonus level started
-			else if (message[3].equals("bonuslevelstart")) {
-				engine.ending = 0;
-				engine.stat = GameEngine.Status.READY;
-				engine.resetStatc();
-			}
+		if (message.command() != NetCmd.GAME) {
+			return;
+		}
+		// Game messages
+		GameEngine engine = owner.engines[0];
+		String gameCmd = message.text(2);
+		// Bonus level entered
+		if ("bonuslevelenter".equals(gameCmd)) {
+			engine.meterValue = 0;
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
+			engine.timerActive = false;
+			engine.ending = 1;
+			engine.stat = GameEngine.Status.CUSTOM;
+			engine.resetStatc();
+		}
+		// Bonus level started
+		else if ("bonuslevelstart".equals(gameCmd)) {
+			engine.ending = 0;
+			engine.stat = GameEngine.Status.READY;
+			engine.resetStatc();
 		}
 	}
 
@@ -1155,9 +1154,8 @@ public class MarathonPlusMode extends NetDummyMode {
 	 * NET: Receive field message
 	 */
 	@Override
-	protected void netRecvField(GameEngine engine, String[] message) {
+	protected void netRecvField(GameEngine engine, NetMessage message) {
 		super.netRecvField(engine, message);
-
 		if (engine.statistics.level >= 20 && engine.timerActive && engine.gameActive) {
 			bonusLevelProc(engine);
 		}
@@ -1202,29 +1200,29 @@ public class MarathonPlusMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.score = Integer.parseInt(message[4]);
-		engine.statistics.lines = Integer.parseInt(message[5]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
-		engine.statistics.time = Integer.parseInt(message[7]);
-		engine.statistics.level = Integer.parseInt(message[8]);
-		engine.statistics.spl = Double.parseDouble(message[9]);
-		engine.statistics.spm = Double.parseDouble(message[10]);
-		engine.statistics.lpm = Float.parseFloat(message[11]);
-		engine.statistics.pps = Float.parseFloat(message[12]);
-		engine.gameActive = Boolean.parseBoolean(message[13]);
-		engine.timerActive = Boolean.parseBoolean(message[14]);
-		lastscore = Integer.parseInt(message[15]);
-		scgettime = Integer.parseInt(message[16]);
-		lastevent = LineClearEvent.values()[Integer.parseInt(message[17])];
-		lastb2b = Boolean.parseBoolean(message[18]);
-		lastcombo = Integer.parseInt(message[19]);
-		lastpiece = Integer.parseInt(message[20]);
-		engine.owner.backgroundStatus.bg = Integer.parseInt(message[21]);
-		bonusLines = Integer.parseInt(message[22]);
-		bonusFlashNow = Integer.parseInt(message[23]);
-		bonusPieceCount = Integer.parseInt(message[24]);
-		bonusTime = Integer.parseInt(message[25]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.score = message.asInt(3);
+		engine.statistics.lines = message.asInt(4);
+		engine.statistics.totalPieceLocked = message.asInt(5);
+		engine.statistics.time = message.asInt(6);
+		engine.statistics.level = message.asInt(7);
+		engine.statistics.spl = message.asDouble(8);
+		engine.statistics.spm = message.asDouble(9);
+		engine.statistics.lpm = message.asFloat(10);
+		engine.statistics.pps = message.asFloat(11);
+		engine.gameActive = message.asBool(12);
+		engine.timerActive = message.asBool(13);
+		lastscore = message.asInt(14);
+		scgettime = message.asInt(15);
+		lastevent = LineClearEvent.values()[message.asInt(16)];
+		lastb2b = message.asBool(17);
+		lastcombo = message.asInt(18);
+		lastpiece = message.asInt(19);
+		engine.owner.backgroundStatus.bg = message.asInt(20);
+		bonusLines = message.asInt(21);
+		bonusFlashNow = message.asInt(22);
+		bonusPieceCount = message.asInt(23);
+		bonusTime = message.asInt(24);
 
 		// Meter
 		if (engine.statistics.level < 20) {
@@ -1294,15 +1292,15 @@ public class MarathonPlusMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		startlevel = Integer.parseInt(message[4]);
-		tspinEnableType = Integer.parseInt(message[5]);
-		enableTSpinKick = Boolean.parseBoolean(message[6]);
-		enableB2B = Boolean.parseBoolean(message[7]);
-		enableCombo = Boolean.parseBoolean(message[8]);
-		big = Boolean.parseBoolean(message[9]);
-		spinCheckType = Integer.parseInt(message[10]);
-		tspinEnableEZ = Boolean.parseBoolean(message[11]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		startlevel = message.asInt(3);
+		tspinEnableType = message.asInt(4);
+		enableTSpinKick = message.asBool(5);
+		enableB2B = message.asBool(6);
+		enableCombo = message.asBool(7);
+		big = message.asBool(8);
+		spinCheckType = message.asInt(9);
+		tspinEnableEZ = message.asBool(10);
 	}
 
 	/**

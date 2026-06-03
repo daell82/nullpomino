@@ -34,6 +34,7 @@ import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -753,17 +754,17 @@ public class DigRaceMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.lines = Integer.parseInt(message[4]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[5]);
-		engine.statistics.time = Integer.parseInt(message[6]);
-		engine.statistics.lpm = Float.parseFloat(message[7]);
-		engine.statistics.pps = Float.parseFloat(message[8]);
-		goaltype = Integer.parseInt(message[9]);
-		engine.gameActive = Boolean.parseBoolean(message[10]);
-		engine.timerActive = Boolean.parseBoolean(message[11]);
-		engine.meterColor = Integer.parseInt(message[12]);
-		engine.meterValue = Integer.parseInt(message[13]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.lines = message.asInt(3);
+		engine.statistics.totalPieceLocked = message.asInt(4);
+		engine.statistics.time = message.asInt(5);
+		engine.statistics.lpm = message.asFloat(6);
+		engine.statistics.pps = message.asFloat(7);
+		goaltype = message.asInt(8);
+		engine.gameActive = message.asBool(9);
+		engine.timerActive = message.asBool(10);
+		engine.meterColor = message.asInt(11);
+		engine.meterValue = message.asInt(12);
 	}
 
 	/**
@@ -809,17 +810,17 @@ public class DigRaceMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		engine.speed.gravity = Integer.parseInt(message[4]);
-		engine.speed.denominator = Integer.parseInt(message[5]);
-		engine.speed.are = Integer.parseInt(message[6]);
-		engine.speed.areLine = Integer.parseInt(message[7]);
-		engine.speed.lineDelay = Integer.parseInt(message[8]);
-		engine.speed.lockDelay = Integer.parseInt(message[9]);
-		engine.speed.das = Integer.parseInt(message[10]);
-		bgmno = Integer.parseInt(message[11]);
-		goaltype = Integer.parseInt(message[12]);
-		presetNumber = Integer.parseInt(message[13]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		engine.speed.gravity = message.asInt(3);
+		engine.speed.denominator = message.asInt(4);
+		engine.speed.are = message.asInt(5);
+		engine.speed.areLine = message.asInt(6);
+		engine.speed.lineDelay = message.asInt(7);
+		engine.speed.lockDelay = message.asInt(8);
+		engine.speed.das = message.asInt(9);
+		bgmno = message.asInt(10);
+		goaltype = message.asInt(11);
+		presetNumber = message.asInt(12);
 	}
 
 	/**

@@ -186,8 +186,7 @@ public class StateInGame extends BasicGameState {
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
 				log.info("Load rule options from setting file");
-				ruleopt = new RuleOptions();
-				ruleopt.readProperty(NullpoMinoSlick.propGlobal, i);
+				ruleopt = RuleOptions.of(NullpoMinoSlick.propGlobal, i);
 			}
 			gameManager.engines[i].ruleopt = ruleopt;
 
@@ -238,8 +237,7 @@ public class StateInGame extends BasicGameState {
 		// Initialization for each player
 		for (int i = 0; i < gameManager.getPlayers(); i++) {
 			// Rule
-			RuleOptions ruleopt = new RuleOptions();
-			ruleopt.readProperty(prop, i);
+			RuleOptions ruleopt = RuleOptions.of(prop, i);
 			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm

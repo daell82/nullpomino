@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
@@ -305,15 +306,15 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	 * Receive stats
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		if (message.length > 4) {
-			engine.statistics.lines = Integer.parseInt(message[4]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		if (message.length() > 3) {
+			engine.statistics.lines = message.asInt(3);
 		}
-		if (message.length > 5) {
-			engine.statistics.pps = Float.parseFloat(message[5]);
+		if (message.length() > 4) {
+			engine.statistics.pps = message.asFloat(4);
 		}
-		if (message.length > 6) {
-			engine.statistics.lpm = Float.parseFloat(message[6]);
+		if (message.length() > 5) {
+			engine.statistics.lpm = message.asFloat(5);
 		}
 		updateMeter(engine);
 	}
@@ -326,11 +327,17 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 		int playerID = engine.playerID;
 		String stats = "";
 		stats += netvsPlayerPlace[playerID] + "\t";
-		stats += 0 + "\t" + 0 + "\t" + 0 + "\t";
-		stats += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
-		stats += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
-		stats += netvsPlayTimer + "\t" + 0 + "\t" + netvsPlayerWinCount[playerID] + "\t"
-				+ netvsPlayerPlayCount[playerID];
+		stats += 0 + "\t";
+		stats += 0 + "\t";
+		stats += 0 + "\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += netvsPlayTimer + "\t";
+		stats += 0 + "\t";
+		stats += netvsPlayerWinCount[playerID] + "\t";
+		stats += netvsPlayerPlayCount[playerID];
 		netLobby.netPlayerClient.send(NetCmd.GSTAT, stats);
 	}
 
@@ -338,18 +345,18 @@ public class NetVSLineRaceMode extends NetDummyVSMode {
 	 * Receive end-of-game stats
 	 */
 	@Override
-	protected void netvsRecvEndGameStats(String[] message) {
-		int seatID = Integer.parseInt(message[2]);
+	protected void netvsRecvEndGameStats(NetMessage message) {
+		int seatID = message.asInt(1);
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
 			GameEngine engine = owner.engines[playerID];
 
-			engine.statistics.lines = Integer.parseInt(message[8]);
-			engine.statistics.lpm = Float.parseFloat(message[9]);
-			engine.statistics.totalPieceLocked = Integer.parseInt(message[10]);
-			engine.statistics.pps = Float.parseFloat(message[11]);
-			engine.statistics.time = Integer.parseInt(message[12]);
+			engine.statistics.lines = message.asInt(7);
+			engine.statistics.lpm = message.asFloat(8);
+			engine.statistics.totalPieceLocked = message.asInt(9);
+			engine.statistics.pps = message.asFloat(10);
+			engine.statistics.time = message.asInt(11);
 
 			netvsPlayerResultReceived[playerID] = true;
 		}

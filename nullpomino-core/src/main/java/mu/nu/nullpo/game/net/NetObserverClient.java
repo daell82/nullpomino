@@ -28,8 +28,6 @@
 */
 package mu.nu.nullpo.game.net;
 
-import java.io.IOException;
-
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.types.Version;
@@ -41,30 +39,11 @@ import mu.nu.nullpo.game.types.Version;
 @Getter
 public class NetObserverClient extends NetBaseClient {
 
-	/** ServerVersion */
-	protected volatile float serverVersion = 0f;
-
 	/** Number of players */
 	protected volatile int playerCount = 0;
 
 	/** Observercount */
 	protected volatile int observerCount = 0;
-
-	/**
-	 * Default constructor
-	 */
-	public NetObserverClient() {
-		super();
-	}
-
-	/**
-	 * Constructor
-	 *
-	 * @param host Destination host
-	 */
-	public NetObserverClient(String host) {
-		super(host);
-	}
 
 	/**
 	 * Constructor
@@ -80,32 +59,28 @@ public class NetObserverClient extends NetBaseClient {
 	 * The various processing depending on the received message
 	 */
 	@Override
-	protected void processPacket(String fullMessage) throws IOException {
-		String[] message = fullMessage.split("\t"); // Tab delimited
-
-		// Connection completion
-		if (message[0].equals("welcome")) {
-			// welcome\t[VERSION]\t[PLAYERS]\t[OBSERVERS]\t[VERSION MINOR]\t[VERSION
-			// STRING]\t[PING INTERVAL]\t[DEV BUILD]
-			serverVersion = Float.parseFloat(message[1]);
-			playerCount = Integer.parseInt(message[2]);
-			observerCount = Integer.parseInt(message[3]);
-
-			long pingInterval = message.length > 6 ? Long.parseLong(message[6]) : PING_INTERVAL;
+	protected void handleMessage(NetMessage message) {
+		switch (message.command()) {
+		case WELCOME -> { // Connection completion
+			// [VERSION] | [PLAYERS] | [OBSERVERS] | [PING INTERVAL]
+			playerCount = message.asInt(1);
+			observerCount = message.asInt(2);
+			long pingInterval = message.length() > 2 ? message.asLong(2) : PING_INTERVAL;
 			if (pingInterval != PING_INTERVAL) {
 				startPingTask(pingInterval);
 			}
-			Version version = Version.getCurrent();
-
-			send(NetCmd.OBSERVER_LOGIN, version.majorMinor(), version, version.isDevBuild());
+			send(NetCmd.OBSERVER_LOGIN, Version.getCurrent());
+			log.info("connected to server v" + message.text(0));
 		}
-		// PeoplecountUpdate
-		if (message[0].equals("observerupdate")) {
-			// observerupdate\t[PLAYERS]\t[OBSERVERS]
-			playerCount = Integer.parseInt(message[1]);
-			observerCount = Integer.parseInt(message[2]);
+		case OBSERVER_UPDATE -> { // PeoplecountUpdate
+			// [PLAYERS] | [OBSERVERS]
+			playerCount = message.asInt(0);
+			observerCount = message.asInt(1);
 		}
-
-		super.processPacket(fullMessage);
+		default -> {
+			// nothing
+		}
+		}
+		super.handleMessage(message);
 	}
 }

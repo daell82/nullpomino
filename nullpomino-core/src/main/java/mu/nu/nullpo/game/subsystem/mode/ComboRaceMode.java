@@ -34,6 +34,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -609,7 +610,7 @@ public class ComboRaceMode extends NetDummyMode {
 		}
 
 		if (engine.stat == GameEngine.Status.SETTING
-				|| engine.stat == GameEngine.Status.RESULT && owner.replayMode == false) {
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
 			if (!owner.replayMode && !big && engine.ai == null) {
 				renderer.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", Colors.FONT_BLUE);
 
@@ -956,25 +957,25 @@ public class ComboRaceMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.lines = Integer.parseInt(message[4]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[5]);
-		engine.statistics.time = Integer.parseInt(message[6]);
-		engine.statistics.lpm = Float.parseFloat(message[7]);
-		engine.statistics.pps = Float.parseFloat(message[8]);
-		goaltype = Integer.parseInt(message[9]);
-		engine.gameActive = Boolean.parseBoolean(message[10]);
-		engine.timerActive = Boolean.parseBoolean(message[11]);
-		engine.meterColor = Integer.parseInt(message[12]);
-		engine.meterValue = Integer.parseInt(message[13]);
-		owner.backgroundStatus.bg = Integer.parseInt(message[14]);
-		scgettime = Integer.parseInt(message[15]);
-		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
-		lastb2b = Boolean.parseBoolean(message[17]);
-		lastcombo = Integer.parseInt(message[18]);
-		lastpiece = Integer.parseInt(message[19]);
-		engine.statistics.maxCombo = Integer.parseInt(message[20]);
-		engine.combo = Integer.parseInt(message[21]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.lines = message.asInt(3);
+		engine.statistics.totalPieceLocked = message.asInt(3);
+		engine.statistics.time = message.asInt(5);
+		engine.statistics.lpm = message.asFloat(6);
+		engine.statistics.pps = message.asFloat(7);
+		goaltype = message.asInt(8);
+		engine.gameActive = message.asBool(9);
+		engine.timerActive = message.asBool(10);
+		engine.meterColor = message.asInt(11);
+		engine.meterValue = message.asInt(12);
+		owner.backgroundStatus.bg = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(17);
+		engine.statistics.maxCombo = message.asInt(19);
+		engine.combo = message.asInt(20);
 	}
 
 	/**
@@ -1024,22 +1025,22 @@ public class ComboRaceMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		engine.speed.gravity = Integer.parseInt(message[4]);
-		engine.speed.denominator = Integer.parseInt(message[5]);
-		engine.speed.are = Integer.parseInt(message[6]);
-		engine.speed.areLine = Integer.parseInt(message[7]);
-		engine.speed.lineDelay = Integer.parseInt(message[8]);
-		engine.speed.lockDelay = Integer.parseInt(message[9]);
-		engine.speed.das = Integer.parseInt(message[10]);
-		bgmno = Integer.parseInt(message[11]);
-		goaltype = Integer.parseInt(message[12]);
-		presetNumber = Integer.parseInt(message[13]);
-		shapetype = Integer.parseInt(message[14]);
-		comboColumn = Integer.parseInt(message[15]);
-		comboWidth = Integer.parseInt(message[16]);
-		ceilingAdjust = Integer.parseInt(message[17]);
-		spawnAboveField = Boolean.parseBoolean(message[18]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		engine.speed.gravity = message.asInt(3);
+		engine.speed.denominator = message.asInt(4);
+		engine.speed.are = message.asInt(5);
+		engine.speed.areLine = message.asInt(6);
+		engine.speed.lineDelay = message.asInt(7);
+		engine.speed.lockDelay = message.asInt(8);
+		engine.speed.das = message.asInt(9);
+		bgmno = message.asInt(10);
+		goaltype = message.asInt(11);
+		presetNumber = message.asInt(12);
+		shapetype = message.asInt(13);
+		comboColumn = message.asInt(14);
+		comboWidth = message.asInt(15);
+		ceilingAdjust = message.asInt(16);
+		spawnAboveField = message.asBool(17);
 	}
 
 	/**

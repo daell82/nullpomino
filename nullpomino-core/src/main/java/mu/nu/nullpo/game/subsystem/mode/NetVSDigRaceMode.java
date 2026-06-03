@@ -5,6 +5,7 @@ import java.util.List;
 
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
@@ -455,10 +456,10 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 	 * Receive stats
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
 		int playerID = engine.playerID;
-		if (message.length > 4) {
-			playerRemainLines[playerID] = Integer.parseInt(message[4]);
+		if (message.length() > 3) {
+			playerRemainLines[playerID] = message.asInt(3);
 		}
 		updateMeter(engine);
 	}
@@ -482,18 +483,18 @@ public class NetVSDigRaceMode extends NetDummyVSMode {
 	 * Receive end-of-game stats
 	 */
 	@Override
-	protected void netvsRecvEndGameStats(String[] message) {
-		int seatID = Integer.parseInt(message[2]);
+	protected void netvsRecvEndGameStats(NetMessage message) {
+		int seatID = message.asInt(1);
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
 			GameEngine engine = owner.engines[playerID];
 
-			engine.statistics.lines = Integer.parseInt(message[8]);
-			engine.statistics.lpm = Float.parseFloat(message[9]);
-			engine.statistics.totalPieceLocked = Integer.parseInt(message[10]);
-			engine.statistics.pps = Float.parseFloat(message[11]);
-			engine.statistics.time = Integer.parseInt(message[12]);
+			engine.statistics.lines = message.asInt(7);
+			engine.statistics.lpm = message.asFloat(8);
+			engine.statistics.totalPieceLocked = message.asInt(9);
+			engine.statistics.pps = message.asFloat(10);
+			engine.statistics.time = message.asInt(11);
 
 			netvsPlayerResultReceived[playerID] = true;
 		}

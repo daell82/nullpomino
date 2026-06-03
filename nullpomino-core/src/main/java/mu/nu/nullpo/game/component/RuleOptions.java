@@ -28,19 +28,14 @@
 */
 package mu.nu.nullpo.game.component;
 
-import java.io.Serializable;
 import java.util.Objects;
 
-import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 
 /**
  * Setting the rules of the game data
  */
-public class RuleOptions implements Serializable {
-
-	/** Serial version ID */
-	private static final long serialVersionUID = 5781310758989780350L;
+public class RuleOptions {
 
 	/**
 	 * Lateral motion counterOrrotation counterExceeded the fixed timeTo disable the
@@ -54,295 +49,435 @@ public class RuleOptions implements Serializable {
 	/** Lateral motion counterOrrotation counterI exceeded theWallkickDisable */
 	public static final int LOCKRESET_LIMIT_OVER_NOWALLKICK = 2;
 
-	/** Of this ruleName */
-	public String strRuleName;
+	/**
+	 * Create a new rule based on the properties
+	 *
+	 * @param properties with rule settings
+	 * @param id         player id to load
+	 * @return configured rule
+	 */
+	public static RuleOptions of(CustomProperties properties, int id) {
+		return new RuleOptions(properties, id);
+	}
+
+	/** Name of this rule */
+	public String strRuleName = "";
 
 	/**
 	 * UseWallkickThe class name of the algorithm (If an empty stringWallkickNot)
 	 */
-	public String strWallkick;
+	public String strWallkick = "";
 
 	/**
 	 * The class name of the order of appearance correction algorithm to be used (If
 	 * an empty string completely random)
 	 */
-	public String strRandomizer;
+	public String strRandomizer = "";
 
 	/** Game Style */
-	public int style;
+	public int style = 0;
 
 	/** BlockOf PeacerotationPatternX-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceOffsetX;
+	public int[][] pieceOffsetX = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockOf PeacerotationPatternY-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceOffsetY;
+	public int[][] pieceOffsetY = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockAppearance of the pieceX-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceSpawnX;
+	public int[][] pieceSpawnX = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockAppearance of the pieceY-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceSpawnY;
+	public int[][] pieceSpawnY = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockOf PeaceBigAppear whenX-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceSpawnXBig;
+	public int[][] pieceSpawnXBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockOf PeaceBigAppear whenY-coordinateCorrection (11Peace ×4Direction) */
-	public int[][] pieceSpawnYBig;
+	public int[][] pieceSpawnYBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
 
 	/** BlockPeace color */
-	public int[] pieceColor;
+	public int[] pieceColor = new int[Piece.PIECE_COUNT];
 
 	/** BlockThe initial pieceDirection */
-	public int[] pieceDefaultDirection;
+	public int[] pieceDefaultDirection = new int[Piece.PIECE_COUNT];;
 
 	/** fieldEmerge from the above */
-	public boolean pieceEnterAboveField;
+	public boolean pieceEnterAboveField = true;
 
 	/**
 	 * When the planned site appearance is buriedY-coordinateSlide on theMaximum
 	 * count
 	 */
-	public int pieceEnterMaxDistanceY;
+	public int pieceEnterMaxDistanceY = 0;
 
 	/** fieldThe width of the */
-	public int fieldWidth;
+	public int fieldWidth = Field.DEFAULT_WIDTH;
 
 	/** Field height */
-	public int fieldHeight;
+	public int fieldHeight = Field.DEFAULT_HEIGHT;
 
 	/** fieldThe height of the invisible part of the above */
-	public int fieldHiddenHeight;
+	public int fieldHiddenHeight = Field.DEFAULT_HIDDEN_HEIGHT;
 
 	/** fieldPresence or absence of a ceiling of */
-	public boolean fieldCeiling;
+	public boolean fieldCeiling = false;
 
 	/** fieldWhether you die did not put in the frame */
-	public boolean fieldLockoutDeath;
+	public boolean fieldLockoutDeath = true;
 
 	/** fieldWhether you die alone protruding into Attempts off target */
-	public boolean fieldPartialLockoutDeath;
+	public boolean fieldPartialLockoutDeath = false;
 
-	/** NEXTOfcount */
-	public int nextDisplay;
+	/** amount of NEXT pieces to show */
+	public int nextDisplay = 3;
 
 	/** Availability Hold */
-	public boolean holdEnable;
+	public boolean holdEnable = true;
 
 	/** Hold preceding */
-	public boolean holdInitial;
+	public boolean holdInitial = true;
 
 	/** Can not hold prior continuous use */
-	public boolean holdInitialLimit;
+	public boolean holdInitialLimit = false;
 
 	/**
 	 * When using the holdBlockThe orientation of the piece back to its initial
 	 * state
 	 */
-	public boolean holdResetDirection;
+	public boolean holdResetDirection = true;
 
 	/** You can hold count (-1:Limitless) */
-	public int holdLimit;
+	public int holdLimit = -1;
 
 	/** Hard dropAvailability */
-	public boolean harddropEnable;
+	public boolean harddropEnable = true;
 
 	/** Hard dropImmediately fixed */
-	public boolean harddropLock;
+	public boolean harddropLock = true;
 
 	/** Hard dropNot continuous use */
-	public boolean harddropLimit;
+	public boolean harddropLimit = true;
 
 	/** Soft dropAvailability */
-	public boolean softdropEnable;
+	public boolean softdropEnable = true;
 
 	/** Soft dropImmediately fixed */
-	public boolean softdropLock;
+	public boolean softdropLock = false;
 
 	/** Soft dropNot continuous use */
-	public boolean softdropLimit;
+	public boolean softdropLimit = false;
 
 	/** In the ground stateSoft dropThen immediately fixed */
-	public boolean softdropSurfaceLock;
+	public boolean softdropSurfaceLock = false;
 
 	/** Soft dropSpeed (1.0f=1G, 0.5f=0.5G) */
-	public float softdropSpeed;
+	public float softdropSpeed = 0.5f;
 
 	/** Soft dropSpeedCurrent × normal speednTo double */
-	public boolean softdropMultiplyNativeSpeed;
+	public boolean softdropMultiplyNativeSpeed = false;
 
 	/** Use new soft drop codes */
-	public boolean softdropGravitySpeedLimit;
+	public boolean softdropGravitySpeedLimit = false;
 
 	/** Preceding rotation */
-	public boolean rotateInitial;
+	public boolean rotateInitial = true;
 
 	/** PrecedingrotationNot continuous use */
-	public boolean rotateInitialLimit;
+	public boolean rotateInitialLimit = false;
 
 	/** Wallkick */
-	public boolean rotateWallkick;
+	public boolean rotateWallkick = true;
 
 	/** PrecedingrotationButWallkickMake */
-	public boolean rotateInitialWallkick;
+	public boolean rotateInitialWallkick = true;
 
 	/** TopDirectionToWallkickYou count (-1:Infinite) */
-	public int rotateMaxUpwardWallkick;
+	public int rotateMaxUpwardWallkick = -1;
 
 	/** falseLeft is positive ifrotation, When true,Right is positiverotation */
-	public boolean rotateButtonDefaultRight;
+	public boolean rotateButtonDefaultRight = true;
 
 	/** ReverserotationAllow (falseIf positiverotationThe same as the) */
-	public boolean rotateButtonAllowReverse;
+	public boolean rotateButtonAllowReverse = true;
 
 	/** 180-degree rotationAllow (falseIf positiverotationThe same as the) */
-	public boolean rotateButtonAllowDouble;
+	public boolean rotateButtonAllowDouble = true;
 
 	/** In the fall fixing timeReset */
-	public boolean lockresetFall;
+	public boolean lockresetFall = true;
 
 	/** Move fixed timeReset */
-	public boolean lockresetMove;
+	public boolean lockresetMove = true;
 
 	/** rotationFixed at timeReset */
-	public boolean lockresetRotate;
+	public boolean lockresetRotate = true;
 
 	/** Lock delay reset on wallkick */
-	public boolean lockresetWallkick;
+	public boolean lockresetWallkick = false;
 
 	/** Lateral motion countLimit (-1:Infinite) */
-	public int lockresetLimitMove;
+	public int lockresetLimitMove = 15;
 
 	/** rotation countLimit (-1:Infinite) */
-	public int lockresetLimitRotate;
+	public int lockresetLimitRotate = 15;
 
 	/**
 	 * Lateral motion counterAndrotation counterShare (Lateral motion counterI use
 	 * only)
 	 */
-	public boolean lockresetLimitShareCount;
+	public boolean lockresetLimitShareCount = true;
 
 	/**
 	 * Lateral motion counterOrrotation counterHappens when you exceed the
 	 * (LOCKRESET_LIMIT_OVER_Begins with a constantcountI use)
 	 */
-	public int lockresetLimitOver;
+	public int lockresetLimitOver = LOCKRESET_LIMIT_OVER_INSTANT;
 
 	/** Shining moment fixed frame count */
-	public int lockflash;
+	public int lockflash = 2;
 
 	/** BlockDedicated shines frame Put */
-	public boolean lockflashOnlyFrame;
+	public boolean lockflashOnlyFrame = true;
 
 	/** Line clearBeforeBlockShine frame Put */
-	public boolean lockflashBeforeLineClear;
+	public boolean lockflashBeforeLineClear = false;
 
 	/** ARE cancel on move */
-	public boolean areCancelMove;
+	public boolean areCancelMove = false;
 
 	/** ARE cancel on rotate */
-	public boolean areCancelRotate;
+	public boolean areCancelRotate = false;
 
 	/** ARE cancel on hold */
-	public boolean areCancelHold;
+	public boolean areCancelHold = false;
 
-	/** Minimum/MaximumARE (-1:Unspecified) */
-	public int minARE, maxARE;
+	/** Minimum ARE (-1:Unspecified) */
+	public int minARE = -1;
+	/** Maximum ARE (-1:Unspecified) */
+	public int maxARE = -1;
 
-	/** Minimum/MaximumARE after line clear (-1:Unspecified) */
-	public int minARELine, maxARELine;
+	/** Maximum ARE after line clear (-1:Unspecified) */
+	public int minARELine = -1;
+	/** Maximum ARE after line clear (-1:Unspecified) */
+	public int maxARELine = -1;
 
-	/** Minimum/MaximumLine clear time (-1:Unspecified) */
-	public int minLineDelay, maxLineDelay;
+	/** Maximum Line clear time (-1:Unspecified) */
+	public int minLineDelay = -1;
+	/** Maximum Line clear time (-1:Unspecified) */
+	public int maxLineDelay = -1;
 
-	/** Minimum/MaximumFixation time (-1:Unspecified) */
-	public int minLockDelay, maxLockDelay;
+	/** Minimum Fixation time (-1:Unspecified) */
+	public int minLockDelay = -1;
+	/** Maximum Fixation time (-1:Unspecified) */
+	public int maxLockDelay = -1;
 
-	/** Minimum/MaximumHorizontal reservoir time (-1:Unspecified) */
-	public int minDAS, maxDAS;
+	/** Minimum Horizontal reservoir time (-1:Unspecified) */
+	public int minDAS = -1;
+	/** Maximum Horizontal reservoir time (-1:Unspecified) */
+	public int maxDAS = -1;
 
 	/** Lateral movement interval */
-	public int dasDelay;
+	public int dasDelay = 0;
 
-	public boolean shiftLockEnable;
+	public boolean shiftLockEnable = false;
 
 	/** ReadyCan accumulate on the screen next to */
-	public boolean dasInReady;
+	public boolean dasInReady = true;
 
 	/** First frame Can accumulate in the horizontal */
-	public boolean dasInMoveFirstFrame;
+	public boolean dasInMoveFirstFrame = true;
 
 	/** BlockPossible reservoir beside the moment it shines */
-	public boolean dasInLockFlash;
+	public boolean dasInLockFlash = true;
 
 	/** Line clearCan I accumulate in horizontal */
-	public boolean dasInLineClear;
+	public boolean dasInLineClear = true;
 
 	/** ARECan I accumulate in horizontal */
-	public boolean dasInARE;
+	public boolean dasInARE = true;
 
 	/** AREAt the end of the frame Can accumulate in the horizontal */
-	public boolean dasInARELastFrame;
+	public boolean dasInARELastFrame = true;
 
 	/** EndingCan accumulate on the screen next to the inrush */
-	public boolean dasInEndingStart;
+	public boolean dasInEndingStart = true;
 
 	/** Charge DAS on blocked move */
-	public boolean dasChargeOnBlockedMove;
+	public boolean dasChargeOnBlockedMove = false;
 
 	/**
 	 * Leave DAS charge alone when left/right are not held -- useful with
 	 * dasRedirectInDelay
 	 **/
-	public boolean dasStoreChargeOnNeutral;
+	public boolean dasStoreChargeOnNeutral = false;
 
 	/** Allow direction changes during delays without zeroing DAS charge **/
-	public boolean dasRedirectInDelay;
+	public boolean dasRedirectInDelay = false;
 
 	/** First frame Can be moved in */
-	public boolean moveFirstFrame;
+	public boolean moveFirstFrame = true;
 
 	/** Diagonal movement */
-	public boolean moveDiagonal;
+	public boolean moveDiagonal = true;
 
 	/** Permit simultaneous push up and down */
-	public boolean moveUpAndDown;
+	public boolean moveUpAndDown = true;
 
 	/** Simultaneously pressing the left and right permit */
-	public boolean moveLeftAndRightAllow;
+	public boolean moveLeftAndRightAllow = true;
 
 	/**
 	 * Before when I press the left and right simultaneously frame Of input
 	 * DirectionGive priority to (Preferred to ignore the left and right while
 	 * holding down the left and press the right)
 	 */
-	public boolean moveLeftAndRightUsePreviousInput;
+	public boolean moveLeftAndRightUsePreviousInput = false;
 
 	/** Line clearOn afterBlockThe1View the animation step by step fall */
-	public boolean lineFallAnim;
+	public boolean lineFallAnim = true;
 
 	/** Line delay cancel on move */
-	public boolean lineCancelMove;
+	public boolean lineCancelMove = false;
 
 	/** Line delay cancel on rotate */
-	public boolean lineCancelRotate;
+	public boolean lineCancelRotate = false;
 
 	/** Line delay cancel on hold */
-	public boolean lineCancelHold;
+	public boolean lineCancelHold = false;
 
 	/** BlockPicture of */
-	public int skin;
+	public int skin = 0;
 
 	/**
 	 * ghost Presence or absence of (falseIfMode At theghost A is enabledI hide,
 	 * even if you)
 	 */
-	public boolean ghost;
+	public boolean ghost = true;
 
 	/**
 	 * Constructor
 	 */
 	public RuleOptions() {
-		reset();
+		// nothing
+	}
+
+	private RuleOptions(CustomProperties p, int id) {
+		strRuleName = p.getProperty(id + ".ruleopt.strRuleName", strRuleName);
+		strWallkick = p.getProperty(id + ".ruleopt.strWallkick", strWallkick);
+		strRandomizer = p.getProperty(id + ".ruleopt.strRandomizer", strRandomizer);
+
+		style = p.getProperty(id + ".ruleopt.style", 0);
+
+		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
+			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
+				pieceOffsetX[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
+				pieceOffsetY[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
+				pieceSpawnX[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);
+				pieceSpawnY[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnY." + i + "." + j, pieceSpawnY[i][j]);
+				pieceSpawnXBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnXBig." + i + "." + j,
+						pieceSpawnXBig[i][j]);
+				pieceSpawnYBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnYBig." + i + "." + j,
+						pieceSpawnYBig[i][j]);
+			}
+			pieceColor[i] = p.getProperty(id + ".ruleopt.pieceColor." + i, pieceColor[i]);
+			pieceDefaultDirection[i] = p.getProperty(id + ".ruleopt.pieceDefaultDirection." + i,
+					pieceDefaultDirection[i]);
+		}
+		pieceEnterAboveField = p.getProperty(id + ".ruleopt.pieceEnterAboveField", pieceEnterAboveField);
+		pieceEnterMaxDistanceY = p.getProperty(id + ".ruleopt.pieceEnterMaxDistanceY", pieceEnterMaxDistanceY);
+
+		fieldWidth = p.getProperty(id + ".ruleopt.fieldWidth", fieldWidth);
+		fieldHeight = p.getProperty(id + ".ruleopt.fieldHeight", fieldHeight);
+		fieldHiddenHeight = p.getProperty(id + ".ruleopt.fieldHiddenHeight", fieldHiddenHeight);
+		fieldCeiling = p.getProperty(id + ".ruleopt.fieldCeiling", fieldCeiling);
+		fieldLockoutDeath = p.getProperty(id + ".ruleopt.fieldLockoutDeath", fieldLockoutDeath);
+		fieldPartialLockoutDeath = p.getProperty(id + ".ruleopt.fieldPartialLockoutDeath", fieldPartialLockoutDeath);
+
+		nextDisplay = p.getProperty(id + ".ruleopt.nextDisplay", nextDisplay);
+
+		holdEnable = p.getProperty(id + ".ruleopt.holdEnable", holdEnable);
+		holdInitial = p.getProperty(id + ".ruleopt.holdInitial", holdInitial);
+		holdInitialLimit = p.getProperty(id + ".ruleopt.holdInitialLimit", holdInitialLimit);
+		holdResetDirection = p.getProperty(id + ".ruleopt.holdResetDirection", holdResetDirection);
+		holdLimit = p.getProperty(id + ".ruleopt.holdLimit", holdLimit);
+
+		harddropEnable = p.getProperty(id + ".ruleopt.harddropEnable", harddropEnable);
+		harddropLock = p.getProperty(id + ".ruleopt.harddropLock", harddropLock);
+		harddropLimit = p.getProperty(id + ".ruleopt.harddropLimit", harddropLimit);
+
+		softdropEnable = p.getProperty(id + ".ruleopt.softdropEnable", softdropEnable);
+		softdropLock = p.getProperty(id + ".ruleopt.softdropLock", softdropLock);
+		softdropLimit = p.getProperty(id + ".ruleopt.softdropLimit", softdropLimit);
+		softdropSurfaceLock = p.getProperty(id + ".ruleopt.softdropSurfaceLock", softdropSurfaceLock);
+		softdropSpeed = p.getProperty(id + ".ruleopt.softdropSpeed", softdropSpeed);
+		softdropMultiplyNativeSpeed = p.getProperty(id + ".ruleopt.softdropMultiplyNativeSpeed",
+				softdropMultiplyNativeSpeed);
+		softdropGravitySpeedLimit = p.getProperty(id + ".ruleopt.softdropGravitySpeedLimit", softdropGravitySpeedLimit);
+
+		rotateInitial = p.getProperty(id + ".ruleopt.rotateInitial", rotateInitial);
+		rotateInitialLimit = p.getProperty(id + ".ruleopt.rotateInitialLimit", rotateInitialLimit);
+		rotateWallkick = p.getProperty(id + ".ruleopt.rotateWallkick", rotateWallkick);
+		rotateInitialWallkick = p.getProperty(id + ".ruleopt.rotateInitialWallkick", rotateInitialWallkick);
+		rotateMaxUpwardWallkick = p.getProperty(id + ".ruleopt.rotateMaxUpwardWallkick", rotateMaxUpwardWallkick);
+		rotateButtonDefaultRight = p.getProperty(id + ".ruleopt.rotateButtonDefaultRight", rotateButtonDefaultRight);
+		rotateButtonAllowReverse = p.getProperty(id + ".ruleopt.rotateButtonAllowReverse", rotateButtonAllowReverse);
+		rotateButtonAllowDouble = p.getProperty(id + ".ruleopt.rotateButtonAllowDouble", rotateButtonAllowDouble);
+
+		lockresetFall = p.getProperty(id + ".ruleopt.lockresetFall", lockresetFall);
+		lockresetMove = p.getProperty(id + ".ruleopt.lockresetMove", lockresetMove);
+		lockresetRotate = p.getProperty(id + ".ruleopt.lockresetRotate", lockresetRotate);
+		lockresetWallkick = p.getProperty(id + ".ruleopt.lockresetWallkick", lockresetWallkick);
+		lockresetLimitMove = p.getProperty(id + ".ruleopt.lockresetLimitMove", lockresetLimitMove);
+		lockresetLimitRotate = p.getProperty(id + ".ruleopt.lockresetLimitRotate", lockresetLimitRotate);
+		lockresetLimitShareCount = p.getProperty(id + ".ruleopt.lockresetLimitShareCount", lockresetLimitShareCount);
+		lockresetLimitOver = p.getProperty(id + ".ruleopt.lockresetLimitOver", lockresetLimitOver);
+
+		lockflash = p.getProperty(id + ".ruleopt.lockflash", lockflash);
+		lockflashOnlyFrame = p.getProperty(id + ".ruleopt.lockflashOnlyFrame", lockflashOnlyFrame);
+		lockflashBeforeLineClear = p.getProperty(id + ".ruleopt.lockflashBeforeLineClear", lockflashBeforeLineClear);
+		areCancelMove = p.getProperty(id + ".ruleopt.areCancelMove", areCancelMove);
+		areCancelRotate = p.getProperty(id + ".ruleopt.areCancelRotate", areCancelRotate);
+		areCancelHold = p.getProperty(id + ".ruleopt.areCancelHold", areCancelHold);
+
+		minARE = p.getProperty(id + ".ruleopt.minARE", minARE);
+		maxARE = p.getProperty(id + ".ruleopt.maxARE", maxARE);
+		minARELine = p.getProperty(id + ".ruleopt.minARELine", minARELine);
+		maxARELine = p.getProperty(id + ".ruleopt.maxARELine", maxARELine);
+		minLineDelay = p.getProperty(id + ".ruleopt.minLineDelay", minLineDelay);
+		maxLineDelay = p.getProperty(id + ".ruleopt.maxLineDelay", maxLineDelay);
+		minLockDelay = p.getProperty(id + ".ruleopt.minLockDelay", minLockDelay);
+		maxLockDelay = p.getProperty(id + ".ruleopt.maxLockDelay", maxLockDelay);
+		minDAS = p.getProperty(id + ".ruleopt.minDAS", minDAS);
+		maxDAS = p.getProperty(id + ".ruleopt.maxDAS", maxDAS);
+
+		dasDelay = p.getProperty(id + ".ruleopt.dasDelay", dasDelay);
+		shiftLockEnable = p.getProperty(id + ".ruleopt.shiftLockEnable", shiftLockEnable);
+
+		dasInReady = p.getProperty(id + ".ruleopt.dasInReady", dasInReady);
+		dasInMoveFirstFrame = p.getProperty(id + ".ruleopt.dasInMoveFirstFrame", dasInMoveFirstFrame);
+		dasInLockFlash = p.getProperty(id + ".ruleopt.dasInLockFlash", dasInLockFlash);
+		dasInLineClear = p.getProperty(id + ".ruleopt.dasInLineClear", dasInLineClear);
+		dasInARE = p.getProperty(id + ".ruleopt.dasInARE", dasInARE);
+		dasInARELastFrame = p.getProperty(id + ".ruleopt.dasInARELastFrame", dasInARELastFrame);
+		dasInEndingStart = p.getProperty(id + ".ruleopt.dasInEndingStart", dasInEndingStart);
+		dasChargeOnBlockedMove = p.getProperty(id + ".ruleopt.dasOnBlockedMove", dasChargeOnBlockedMove);
+		dasStoreChargeOnNeutral = p.getProperty(id + ".ruleopt.dasStoreChargeOnNeutral", dasStoreChargeOnNeutral);
+		dasRedirectInDelay = p.getProperty(id + ".ruleopt.dasRedirectInARE", dasRedirectInDelay);
+
+		moveFirstFrame = p.getProperty(id + ".ruleopt.moveFirstFrame", moveFirstFrame);
+		moveDiagonal = p.getProperty(id + ".ruleopt.moveDiagonal", moveDiagonal);
+		moveUpAndDown = p.getProperty(id + ".ruleopt.moveUpAndDown", moveUpAndDown);
+		moveLeftAndRightAllow = p.getProperty(id + ".ruleopt.moveLeftAndRightAllow", moveLeftAndRightAllow);
+		moveLeftAndRightUsePreviousInput = p.getProperty(id + ".ruleopt.moveLeftAndRightUsePreviousInput",
+				moveLeftAndRightUsePreviousInput);
+
+		lineFallAnim = p.getProperty(id + ".ruleopt.lineFallAnim", lineFallAnim);
+		lineCancelMove = p.getProperty(id + ".ruleopt.lineCancelMove", lineCancelMove);
+		lineCancelRotate = p.getProperty(id + ".ruleopt.lineCancelRotate", lineCancelRotate);
+		lineCancelHold = p.getProperty(id + ".ruleopt.lineCancelHold", lineCancelHold);
+
+		skin = p.getProperty(id + ".ruleopt.skin", skin);
+		ghost = p.getProperty(id + ".ruleopt.ghost", ghost);
 	}
 
 	/**
@@ -352,133 +487,6 @@ public class RuleOptions implements Serializable {
 	 */
 	public RuleOptions(RuleOptions r) {
 		copy(r);
-	}
-
-	/**
-	 * Initialization
-	 */
-	public void reset() {
-		strRuleName = "";
-		strWallkick = "";
-		strRandomizer = "";
-
-		style = 0;
-
-		pieceOffsetX = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		pieceOffsetY = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		pieceSpawnX = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		pieceSpawnY = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		pieceSpawnXBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-		pieceSpawnYBig = new int[Piece.PIECE_COUNT][Piece.DIRECTION_COUNT];
-
-		pieceColor = new int[Piece.PIECE_COUNT];
-		pieceColor[Piece.PIECE_I] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_L] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_O] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_Z] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_T] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_J] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_S] = Colors.BLOCK_COLOR_GRAY;
-		pieceColor[Piece.PIECE_I1] = Colors.BLOCK_COLOR_PURPLE;
-		pieceColor[Piece.PIECE_I2] = Colors.BLOCK_COLOR_BLUE;
-		pieceColor[Piece.PIECE_I3] = Colors.BLOCK_COLOR_GREEN;
-		pieceColor[Piece.PIECE_L3] = Colors.BLOCK_COLOR_ORANGE;
-
-		pieceDefaultDirection = new int[Piece.PIECE_COUNT];
-		pieceEnterAboveField = true;
-		pieceEnterMaxDistanceY = 0;
-
-		fieldWidth = Field.DEFAULT_WIDTH;
-		fieldHeight = Field.DEFAULT_HEIGHT;
-		fieldHiddenHeight = Field.DEFAULT_HIDDEN_HEIGHT;
-		fieldCeiling = false;
-		fieldLockoutDeath = true;
-		fieldPartialLockoutDeath = false;
-
-		nextDisplay = 3;
-
-		holdEnable = true;
-		holdInitial = true;
-		holdInitialLimit = false;
-		holdResetDirection = true;
-		holdLimit = -1;
-
-		harddropEnable = true;
-		harddropLock = true;
-		harddropLimit = true;
-
-		softdropEnable = true;
-		softdropLock = false;
-		softdropLimit = false;
-		softdropSurfaceLock = false;
-		softdropSpeed = 0.5f;
-		softdropMultiplyNativeSpeed = false;
-		softdropGravitySpeedLimit = false;
-
-		rotateInitial = true;
-		rotateInitialLimit = false;
-		rotateWallkick = true;
-		rotateInitialWallkick = true;
-		rotateMaxUpwardWallkick = -1;
-		rotateButtonDefaultRight = true;
-		rotateButtonAllowReverse = true;
-		rotateButtonAllowDouble = true;
-
-		lockresetFall = true;
-		lockresetMove = true;
-		lockresetRotate = true;
-		lockresetWallkick = false;
-		lockresetLimitMove = 15;
-		lockresetLimitRotate = 15;
-		lockresetLimitShareCount = true;
-		lockresetLimitOver = LOCKRESET_LIMIT_OVER_INSTANT;
-
-		lockflash = 2;
-		lockflashOnlyFrame = true;
-		lockflashBeforeLineClear = false;
-		areCancelMove = false;
-		areCancelRotate = false;
-		areCancelHold = false;
-
-		minARE = -1;
-		maxARE = -1;
-		minARELine = -1;
-		maxARELine = -1;
-		minLineDelay = -1;
-		maxLineDelay = -1;
-		minLockDelay = -1;
-		maxLockDelay = -1;
-		minDAS = -1;
-		maxDAS = -1;
-
-		dasDelay = 0;
-
-		shiftLockEnable = false;
-
-		dasInReady = true;
-		dasInMoveFirstFrame = true;
-		dasInLockFlash = true;
-		dasInLineClear = true;
-		dasInARE = true;
-		dasInARELastFrame = true;
-		dasInEndingStart = true;
-		dasChargeOnBlockedMove = false;
-		dasStoreChargeOnNeutral = false;
-		dasRedirectInDelay = false;
-
-		moveFirstFrame = true;
-		moveDiagonal = true;
-		moveUpAndDown = true;
-		moveLeftAndRightAllow = true;
-		moveLeftAndRightUsePreviousInput = false;
-
-		lineFallAnim = true;
-		lineCancelMove = false;
-		lineCancelRotate = false;
-		lineCancelHold = false;
-
-		skin = 0;
-		ghost = true;
 	}
 
 	/**
@@ -1035,130 +1043,5 @@ public class RuleOptions implements Serializable {
 
 		p.setProperty(id + ".ruleopt.skin", skin);
 		p.setProperty(id + ".ruleopt.ghost", ghost);
-	}
-
-	/**
-	 * Read from the property set
-	 *
-	 * @param p  Property Set
-	 * @param id Player IDOrPresetID
-	 */
-	public void readProperty(CustomProperties p, int id) {
-		strRuleName = p.getProperty(id + ".ruleopt.strRuleName", strRuleName);
-		strWallkick = p.getProperty(id + ".ruleopt.strWallkick", strWallkick);
-		strRandomizer = p.getProperty(id + ".ruleopt.strRandomizer", strRandomizer);
-
-		style = p.getProperty(id + ".ruleopt.style", 0);
-
-		for (int i = 0; i < Piece.PIECE_COUNT; i++) {
-			for (int j = 0; j < Piece.DIRECTION_COUNT; j++) {
-				pieceOffsetX[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetX." + i + "." + j, pieceOffsetX[i][j]);
-				pieceOffsetY[i][j] = p.getProperty(id + ".ruleopt.pieceOffsetY." + i + "." + j, pieceOffsetY[i][j]);
-				pieceSpawnX[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnX." + i + "." + j, pieceSpawnX[i][j]);
-				pieceSpawnY[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnY." + i + "." + j, pieceSpawnY[i][j]);
-				pieceSpawnXBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnXBig." + i + "." + j,
-						pieceSpawnXBig[i][j]);
-				pieceSpawnYBig[i][j] = p.getProperty(id + ".ruleopt.pieceSpawnYBig." + i + "." + j,
-						pieceSpawnYBig[i][j]);
-			}
-			pieceColor[i] = p.getProperty(id + ".ruleopt.pieceColor." + i, pieceColor[i]);
-			pieceDefaultDirection[i] = p.getProperty(id + ".ruleopt.pieceDefaultDirection." + i,
-					pieceDefaultDirection[i]);
-		}
-		pieceEnterAboveField = p.getProperty(id + ".ruleopt.pieceEnterAboveField", pieceEnterAboveField);
-		pieceEnterMaxDistanceY = p.getProperty(id + ".ruleopt.pieceEnterMaxDistanceY", pieceEnterMaxDistanceY);
-
-		fieldWidth = p.getProperty(id + ".ruleopt.fieldWidth", fieldWidth);
-		fieldHeight = p.getProperty(id + ".ruleopt.fieldHeight", fieldHeight);
-		fieldHiddenHeight = p.getProperty(id + ".ruleopt.fieldHiddenHeight", fieldHiddenHeight);
-		fieldCeiling = p.getProperty(id + ".ruleopt.fieldCeiling", fieldCeiling);
-		fieldLockoutDeath = p.getProperty(id + ".ruleopt.fieldLockoutDeath", fieldLockoutDeath);
-		fieldPartialLockoutDeath = p.getProperty(id + ".ruleopt.fieldPartialLockoutDeath", fieldPartialLockoutDeath);
-
-		nextDisplay = p.getProperty(id + ".ruleopt.nextDisplay", nextDisplay);
-
-		holdEnable = p.getProperty(id + ".ruleopt.holdEnable", holdEnable);
-		holdInitial = p.getProperty(id + ".ruleopt.holdInitial", holdInitial);
-		holdInitialLimit = p.getProperty(id + ".ruleopt.holdInitialLimit", holdInitialLimit);
-		holdResetDirection = p.getProperty(id + ".ruleopt.holdResetDirection", holdResetDirection);
-		holdLimit = p.getProperty(id + ".ruleopt.holdLimit", holdLimit);
-
-		harddropEnable = p.getProperty(id + ".ruleopt.harddropEnable", harddropEnable);
-		harddropLock = p.getProperty(id + ".ruleopt.harddropLock", harddropLock);
-		harddropLimit = p.getProperty(id + ".ruleopt.harddropLimit", harddropLimit);
-
-		softdropEnable = p.getProperty(id + ".ruleopt.softdropEnable", softdropEnable);
-		softdropLock = p.getProperty(id + ".ruleopt.softdropLock", softdropLock);
-		softdropLimit = p.getProperty(id + ".ruleopt.softdropLimit", softdropLimit);
-		softdropSurfaceLock = p.getProperty(id + ".ruleopt.softdropSurfaceLock", softdropSurfaceLock);
-		softdropSpeed = p.getProperty(id + ".ruleopt.softdropSpeed", softdropSpeed);
-		softdropMultiplyNativeSpeed = p.getProperty(id + ".ruleopt.softdropMultiplyNativeSpeed",
-				softdropMultiplyNativeSpeed);
-		softdropGravitySpeedLimit = p.getProperty(id + ".ruleopt.softdropGravitySpeedLimit", softdropGravitySpeedLimit);
-
-		rotateInitial = p.getProperty(id + ".ruleopt.rotateInitial", rotateInitial);
-		rotateInitialLimit = p.getProperty(id + ".ruleopt.rotateInitialLimit", rotateInitialLimit);
-		rotateWallkick = p.getProperty(id + ".ruleopt.rotateWallkick", rotateWallkick);
-		rotateInitialWallkick = p.getProperty(id + ".ruleopt.rotateInitialWallkick", rotateInitialWallkick);
-		rotateMaxUpwardWallkick = p.getProperty(id + ".ruleopt.rotateMaxUpwardWallkick", rotateMaxUpwardWallkick);
-		rotateButtonDefaultRight = p.getProperty(id + ".ruleopt.rotateButtonDefaultRight", rotateButtonDefaultRight);
-		rotateButtonAllowReverse = p.getProperty(id + ".ruleopt.rotateButtonAllowReverse", rotateButtonAllowReverse);
-		rotateButtonAllowDouble = p.getProperty(id + ".ruleopt.rotateButtonAllowDouble", rotateButtonAllowDouble);
-
-		lockresetFall = p.getProperty(id + ".ruleopt.lockresetFall", lockresetFall);
-		lockresetMove = p.getProperty(id + ".ruleopt.lockresetMove", lockresetMove);
-		lockresetRotate = p.getProperty(id + ".ruleopt.lockresetRotate", lockresetRotate);
-		lockresetWallkick = p.getProperty(id + ".ruleopt.lockresetWallkick", lockresetWallkick);
-		lockresetLimitMove = p.getProperty(id + ".ruleopt.lockresetLimitMove", lockresetLimitMove);
-		lockresetLimitRotate = p.getProperty(id + ".ruleopt.lockresetLimitRotate", lockresetLimitRotate);
-		lockresetLimitShareCount = p.getProperty(id + ".ruleopt.lockresetLimitShareCount", lockresetLimitShareCount);
-		lockresetLimitOver = p.getProperty(id + ".ruleopt.lockresetLimitOver", lockresetLimitOver);
-
-		lockflash = p.getProperty(id + ".ruleopt.lockflash", lockflash);
-		lockflashOnlyFrame = p.getProperty(id + ".ruleopt.lockflashOnlyFrame", lockflashOnlyFrame);
-		lockflashBeforeLineClear = p.getProperty(id + ".ruleopt.lockflashBeforeLineClear", lockflashBeforeLineClear);
-		areCancelMove = p.getProperty(id + ".ruleopt.areCancelMove", areCancelMove);
-		areCancelRotate = p.getProperty(id + ".ruleopt.areCancelRotate", areCancelRotate);
-		areCancelHold = p.getProperty(id + ".ruleopt.areCancelHold", areCancelHold);
-
-		minARE = p.getProperty(id + ".ruleopt.minARE", minARE);
-		maxARE = p.getProperty(id + ".ruleopt.maxARE", maxARE);
-		minARELine = p.getProperty(id + ".ruleopt.minARELine", minARELine);
-		maxARELine = p.getProperty(id + ".ruleopt.maxARELine", maxARELine);
-		minLineDelay = p.getProperty(id + ".ruleopt.minLineDelay", minLineDelay);
-		maxLineDelay = p.getProperty(id + ".ruleopt.maxLineDelay", maxLineDelay);
-		minLockDelay = p.getProperty(id + ".ruleopt.minLockDelay", minLockDelay);
-		maxLockDelay = p.getProperty(id + ".ruleopt.maxLockDelay", maxLockDelay);
-		minDAS = p.getProperty(id + ".ruleopt.minDAS", minDAS);
-		maxDAS = p.getProperty(id + ".ruleopt.maxDAS", maxDAS);
-
-		dasDelay = p.getProperty(id + ".ruleopt.dasDelay", dasDelay);
-		shiftLockEnable = p.getProperty(id + ".ruleopt.shiftLockEnable", shiftLockEnable);
-
-		dasInReady = p.getProperty(id + ".ruleopt.dasInReady", dasInReady);
-		dasInMoveFirstFrame = p.getProperty(id + ".ruleopt.dasInMoveFirstFrame", dasInMoveFirstFrame);
-		dasInLockFlash = p.getProperty(id + ".ruleopt.dasInLockFlash", dasInLockFlash);
-		dasInLineClear = p.getProperty(id + ".ruleopt.dasInLineClear", dasInLineClear);
-		dasInARE = p.getProperty(id + ".ruleopt.dasInARE", dasInARE);
-		dasInARELastFrame = p.getProperty(id + ".ruleopt.dasInARELastFrame", dasInARELastFrame);
-		dasInEndingStart = p.getProperty(id + ".ruleopt.dasInEndingStart", dasInEndingStart);
-		dasChargeOnBlockedMove = p.getProperty(id + ".ruleopt.dasOnBlockedMove", dasChargeOnBlockedMove);
-		dasStoreChargeOnNeutral = p.getProperty(id + ".ruleopt.dasStoreChargeOnNeutral", dasStoreChargeOnNeutral);
-		dasRedirectInDelay = p.getProperty(id + ".ruleopt.dasRedirectInARE", dasRedirectInDelay);
-
-		moveFirstFrame = p.getProperty(id + ".ruleopt.moveFirstFrame", moveFirstFrame);
-		moveDiagonal = p.getProperty(id + ".ruleopt.moveDiagonal", moveDiagonal);
-		moveUpAndDown = p.getProperty(id + ".ruleopt.moveUpAndDown", moveUpAndDown);
-		moveLeftAndRightAllow = p.getProperty(id + ".ruleopt.moveLeftAndRightAllow", moveLeftAndRightAllow);
-		moveLeftAndRightUsePreviousInput = p.getProperty(id + ".ruleopt.moveLeftAndRightUsePreviousInput",
-				moveLeftAndRightUsePreviousInput);
-
-		lineFallAnim = p.getProperty(id + ".ruleopt.lineFallAnim", lineFallAnim);
-		lineCancelMove = p.getProperty(id + ".ruleopt.lineCancelMove", lineCancelMove);
-		lineCancelRotate = p.getProperty(id + ".ruleopt.lineCancelRotate", lineCancelRotate);
-		lineCancelHold = p.getProperty(id + ".ruleopt.lineCancelHold", lineCancelHold);
-
-		skin = p.getProperty(id + ".ruleopt.skin", skin);
-		ghost = p.getProperty(id + ".ruleopt.ghost", ghost);
 	}
 }

@@ -66,6 +66,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.zip.Adler32;
 
 import javax.imageio.ImageIO;
@@ -113,6 +114,7 @@ import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetMessageListener;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
@@ -2137,8 +2139,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// ** Rule Listboxes
 		listboxRuleChangeRuleList = new EnumMap<>(GameStyle.class);
 		for (GameStyle style : GameStyle.values()) {
-			int i = style.getMode();
-			var list = new JList<>(extractRuleListFromRuleEntries(i));
+			var list = new JList<>(extractRuleListFromRuleEntries(style));
 			listboxRuleChangeRuleList.put(style, list);
 			JScrollPane spRuleList = new JScrollPane(list);
 			tabRuleChange.addTab(style.getName(), spRuleList);
@@ -2856,9 +2857,9 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		String[] rowData = new String[8];
 		rowData[0] = Integer.toString(r.roomID);
 		rowData[1] = r.strName;
-		rowData[2] = r.rated ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
+		rowData[2] = r.isRated() ? getUIText("RoomTable_Rated_True") : getUIText("RoomTable_Rated_False");
 		rowData[3] = r.ruleLock ? r.ruleName.toUpperCase() : getUIText("RoomTable_RuleName_Any");
-		rowData[4] = r.strMode;
+		rowData[4] = r.getMode();
 		rowData[5] = r.playing ? getUIText("RoomTable_Status_Playing") : getUIText("RoomTable_Status_Waiting");
 		rowData[6] = r.playerSeatedCount + "/" + r.maxPlayers;
 		rowData[7] = Integer.toString(r.spectatorCount);
@@ -2978,8 +2979,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			} else {
 				r = new NetRoomInfo();
 				r.maxPlayers = 1;
-				r.singleplayer = true;
-				r.strMode = propConfig.getProperty("createroom1p.strMode", "");
+				r.setSingleplayer(true);
+				r.setMode(propConfig.getProperty("createroom1p.strMode", ""));
 				r.ruleName = propConfig.getProperty("createroom1p.ruleName", "");
 			}
 		}
@@ -2987,7 +2988,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (r != null) {
 			// listboxCreateRoom1PModeList.setSelectedIndex(0);
 			// listboxCreateRoom1PRuleList.setSelectedIndex(0);
-			listboxCreateRoom1PModeList.setSelectedValue(r.strMode, true);
+			listboxCreateRoom1PModeList.setSelectedValue(r.getMode(), true);
 			listboxCreateRoom1PRuleList.setSelectedValue(r.ruleName, true);
 		}
 	}
@@ -3003,7 +3004,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (roomInfo != null) {
 			currentViewDetailRoomID = roomID;
 
-			if (roomInfo.singleplayer) {
+			if (roomInfo.isSingleplayer()) {
 				setCreateRoom1PUIType(true, roomInfo);
 				changeCurrentScreenCard(SCREENCARD_CREATEROOM1P);
 			} else {
@@ -3017,43 +3018,14 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * Lobby screenPlayerList update
 	 */
 	public void updateLobbyUserList() {
-		LinkedList<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfoList());
+		LinkedList<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfos());
 
 		if (!pList.isEmpty()) {
 			listmodelLobbyChatPlayerList.clear();
 
 			for (NetPlayerInfo pInfo : pList) {
 				// Name
-				String name = getPlayerNameWithTripCode(pInfo);
-				if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-					name = "*" + getPlayerNameWithTripCode(pInfo);
-				}
-
-				// Team
-				if (!pInfo.team.isEmpty()) {
-					name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
-					if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-						name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
-					}
-				}
-
-				// Rating
-				name += " |" + pInfo.rating[0] + "|";
-				/*
-				 * name += " |T:" + pInfo.rating[0] + "|"; name += "A:" + pInfo.rating[1] + "|";
-				 * name += "P:" + pInfo.rating[2] + "|"; name += "S:" + pInfo.rating[3] + "|";
-				 */
-
-				// Country code
-				if (!pInfo.country.isEmpty()) {
-					name += " (" + pInfo.country + ")";
-				}
-
-				/*
-				 * XXX Hostname if(pInfo.strHost.length() > 0) { name += " {" + pInfo.strHost +
-				 * "}"; }
-				 */
-
+				String name = getDisplayName(pInfo);
 				if (pInfo.roomID == -1) {
 					listmodelLobbyChatPlayerList.addElement(name);
 				} else {
@@ -3061,6 +3033,40 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				}
 			}
 		}
+	}
+
+	private String getDisplayName(NetPlayerInfo pInfo) {
+		return getDisplayName(pInfo, GameStyle.TETROMINO);
+	}
+
+	private String getDisplayName(NetPlayerInfo pInfo, GameStyle style) {
+		// Name
+		String name = getPlayerNameWithTripCode(pInfo);
+		if (pInfo.uid == netPlayerClient.getPlayerUID()) {
+			name = "*" + name;
+		}
+		var team = pInfo.getTeam();
+		if (team.isPresent()) {
+			name += " - " + team.get();
+		}
+
+		// Rating
+		name += " |" + pInfo.rating[style.ordinal()] + "|";
+		/*
+		 * name += " |T:" + pInfo.rating[0] + "|"; name += "A:" + pInfo.rating[1] + "|";
+		 * name += "P:" + pInfo.rating[2] + "|"; name += "S:" + pInfo.rating[3] + "|";
+		 */
+
+		String country = pInfo.getCountry();
+		if (!country.isEmpty()) {
+			name += " (" + country + ")";
+		}
+
+		/*
+		 * XXX Hostname if(pInfo.strHost.length() > 0) { name += " {" + pInfo.strHost +
+		 * "}"; }
+		 */
+		return name;
 	}
 
 	/**
@@ -3072,7 +3078,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			return;
 		}
 
-		LinkedList<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfoList());
+		LinkedList<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfos());
 
 		if (!pList.isEmpty()) {
 			listmodelRoomChatPlayerList.clear();
@@ -3086,31 +3092,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					continue;
 				}
 				// Name
-				String name = getPlayerNameWithTripCode(pInfo);
-				if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-					name = "*" + getPlayerNameWithTripCode(pInfo);
-				}
-
-				// Team
-				if (!pInfo.team.isEmpty()) {
-					name = getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
-					if (pInfo.uid == netPlayerClient.getPlayerUID()) {
-						name = "*" + getPlayerNameWithTripCode(pInfo) + " - " + pInfo.team;
-					}
-				}
-
-				// Rating
-				name += " |" + pInfo.rating[roomInfo.style.ordinal()] + "|";
-
-				// Country code
-				if (!pInfo.country.isEmpty()) {
-					name += " (" + pInfo.country + ")";
-				}
-
-				/*
-				 * XXX Hostname if(pInfo.strHost.length() > 0) { name += " {" + pInfo.strHost +
-				 * "}"; }
-				 */
+				String name = getDisplayName(pInfo, roomInfo.style);
 
 				// Status
 				if (pInfo.isPlaying()) {
@@ -3136,7 +3118,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @return Being in the same roomPlayerList
 	 */
 	public List<NetPlayerInfo> updateSameRoomPlayerInfoList() {
-		List<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfoList());
+		List<NetPlayerInfo> pList = new LinkedList<>(netPlayerClient.getPlayerInfos());
 		int roomID = netPlayerClient.getYourPlayerInfo().roomID;
 		sameRoomPlayerInfoList.clear();
 
@@ -3335,7 +3317,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			if (netPlayerClient.isConnected()) {
 				netPlayerClient.send(NetCmd.DISCONNECT);
 			}
-			netPlayerClient.threadRunning = false;
+			netPlayerClient.close();
 			netPlayerClient.interrupt();
 			netPlayerClient = null;
 		}
@@ -3529,7 +3511,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			Integer integerTargetTimer = (Integer) spinnerCreateRoomTargetTimer.getValue();
 
 			roomInfo.strName = roomName;
-			roomInfo.strMode = modeName;
+			roomInfo.setMode(modeName);
 			roomInfo.maxPlayers = integerMaxPlayers;
 			roomInfo.autoStartSeconds = integerAutoStartSeconds;
 			roomInfo.gravity = integerGravity;
@@ -3578,8 +3560,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (r != null) {
 			txtfldCreateRoomName.setText(r.strName);
 			comboboxCreateRoomMode.setSelectedIndex(0);
-			if (r.strMode.length() > 0) {
-				comboboxCreateRoomMode.setSelectedItem(r.strMode);
+			if (!r.getMode().isEmpty()) {
+				comboboxCreateRoomMode.setSelectedItem(r.getMode());
 			}
 			spinnerCreateRoomMaxPlayers.setValue(r.maxPlayers);
 			spinnerCreateRoomAutoStartSeconds.setValue(r.autoStartSeconds);
@@ -3644,25 +3626,18 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		ruleEntries.clear();
 
 		for (String element : filelist) {
-			RuleEntry entry = new RuleEntry();
-
+			String filename;
+			String filepath;
+			String rulename;
+			GameStyle style;
 			File file = new File("config/rule/" + element);
-			entry.filename = element;
-			entry.filepath = file.getPath();
+			CustomProperties prop = CustomProperties.load(file);
+			filename = element;
+			filepath = file.getPath();
+			rulename = prop.getProperty("0.ruleopt.strRuleName", "");
+			style = GameStyle.values()[prop.getProperty("0.ruleopt.style", 0)];
 
-			CustomProperties prop = new CustomProperties();
-			try {
-				FileInputStream in = new FileInputStream("config/rule/" + element);
-				prop.load(in);
-				in.close();
-				entry.rulename = prop.getProperty("0.ruleopt.strRuleName", "");
-				entry.style = prop.getProperty("0.ruleopt.style", 0);
-			} catch (Exception e) {
-				entry.rulename = "";
-				entry.style = -1;
-			}
-
-			ruleEntries.add(entry);
+			ruleEntries.add(new RuleEntry(filename, filepath, rulename, style));
 		}
 	}
 
@@ -3672,7 +3647,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param currentStyle Current style
 	 * @return Subset of rule entries
 	 */
-	public List<RuleEntry> getSubsetEntries(int currentStyle) {
+	public List<RuleEntry> getSubsetEntries(GameStyle currentStyle) {
 		List<RuleEntry> subEntries = new LinkedList<>();
 		for (RuleEntry ruleEntry : ruleEntries) {
 			if (ruleEntry.style == currentStyle) {
@@ -3688,7 +3663,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * @param currentStyle Current style
 	 * @return Rule name + file name list
 	 */
-	public String[] extractRuleListFromRuleEntries(int currentStyle) {
+	public String[] extractRuleListFromRuleEntries(GameStyle currentStyle) {
 		List<RuleEntry> subEntries = getSubsetEntries(currentStyle);
 
 		String[] result = new String[subEntries.size()];
@@ -3707,15 +3682,15 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Set rule selections
 		String[] strCurrentFileName = new String[GameStyle.numStyles()];
 
-		for (int i = 0; i < GameStyle.numStyles(); i++) {
+		for (GameStyle style : GameStyle.values()) {
+			int i = style.ordinal();
 			if (i == 0) {
 				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile", "");
 			} else {
 				strCurrentFileName[i] = propGlobal.getProperty(0 + ".rulefile." + i, "");
 			}
 
-			List<RuleEntry> subEntries = getSubsetEntries(i);
-			GameStyle style = GameStyle.values()[i];
+			List<RuleEntry> subEntries = getSubsetEntries(style);
 			for (int j = 0; j < subEntries.size(); j++) {
 				if (subEntries.get(j).filename.equals(strCurrentFileName[i])) {
 					listboxRuleChangeRuleList.get(style).setSelectedIndex(j);
@@ -3823,7 +3798,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Change team(Lobby screen)
 		if (e.getActionCommand() == "Lobby_TeamChange") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().team);
+				txtfldRoomListTeam.setText(netPlayerClient.getYourPlayerInfo().getTeam().orElse(""));
 				roomListTopBarCardLayout.next(subpanelRoomListTopBar);
 			}
 		}
@@ -3831,7 +3806,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		if (e.getActionCommand() == "Lobby_Disconnect") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
 				netPlayerClient.send(NetCmd.DISCONNECT);
-				netPlayerClient.threadRunning = false;
+				netPlayerClient.close();
 				netPlayerClient.interrupt();
 				netPlayerClient = null;
 			}
@@ -3916,7 +3891,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 		// Change team(Room screen)
 		if (e.getActionCommand() == "Room_TeamChange") {
 			if (netPlayerClient != null && netPlayerClient.isConnected()) {
-				txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().team);
+				txtfldRoomTeam.setText(netPlayerClient.getYourPlayerInfo().getTeam().orElse(""));
 				roomTopBarCardLayout.next(subpanelRoomTopBar);
 			}
 		}
@@ -4003,7 +3978,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				String msg;
 				msg = NetUtil.urlEncode(r.strName) + "\t";
 				msg += NetUtil.urlEncode(r.exportString()) + "\t";
-				msg += NetUtil.urlEncode(r.strMode) + "\t";
+				msg += NetUtil.urlEncode(r.getMode()) + "\t";
 
 				// Map send
 				if (r.useMap) {
@@ -4150,7 +4125,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			for (int i = 0; i < GameStyle.numStyles(); i++) {
 				GameStyle style = GameStyle.values()[i];
 				int id = listboxRuleChangeRuleList.get(style).getSelectedIndex();
-				List<RuleEntry> subEntries = getSubsetEntries(i);
+				List<RuleEntry> subEntries = getSubsetEntries(style);
 				RuleEntry entry = null;
 				if (id >= 0) {
 					entry = subEntries.get(id);
@@ -4215,8 +4190,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					in.close();
 				} catch (Exception e2) {
 				}
-				ruleOptPlayer = new RuleOptions();
-				ruleOptPlayer.readProperty(propRule, 0);
+				ruleOptPlayer = RuleOptions.of(propRule, 0);
 
 				// Send rule
 				if (netPlayerClient != null && netPlayerClient.isConnected()) {
@@ -4232,12 +4206,11 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * Message reception
 	 */
 	@Override
-	public void netOnMessage(NetBaseClient client, String[] message) throws IOException {
+	public void netOnMessage(NetMessage message) {
 		// addSystemChatLog(getCurrentChatLogTextPane(), message[0], Color.green);
 
-		// Connection completion
-		if (message[0].equals("welcome")) {
-			// welcome\t[VERSION]\t[PLAYERS]
+		switch (message.command()) {
+		case WELCOME -> { // [VERSION] | [PLAYERS] | [OBSERVERS]
 			// Chat logFile creation
 			if (writerLobbyLog == null) {
 				try {
@@ -4270,59 +4243,44 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					netPlayerClient.getPort());
 			addSystemChatLogLater(txtpaneLobbyChatLog, strTemp, Color.blue);
 
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_ServerVersion") + message[1], Color.blue);
-			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_NumberOfPlayers") + message[2], Color.blue);
+			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_ServerVersion") + message.text(0), Color.blue);
+			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_NumberOfPlayers") + message.text(1),
+					Color.blue);
 		}
-		// Successful login
-		if (message[0].equals("loginsuccess")) {
+		case PLAYER_LOGIN_SUCCESS -> { // Successful login
 			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginOK"), Color.blue);
 			addSystemChatLogLater(txtpaneLobbyChatLog,
-					getUIText("SysMsg_YourNickname") + convTripCode(NetUtil.urlDecode(message[1])), Color.blue);
+					getUIText("SysMsg_YourNickname") + convTripCode(message.urlDecoded(0)), Color.blue);
 			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_YourUID") + netPlayerClient.getPlayerUID(),
 					Color.blue);
 
 			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataStart"), Color.blue);
 			sendMyRuleDataToServer();
 		}
-		// Login failure
-		if (message[0].equals("loginfail")) {
+		case PLAYER_LOGIN_FAIL -> {
 			setLobbyButtonsEnabled(0);
-
-			if (message.length > 1 && message[1].equals("DIFFERENT_VERSION")) {
-				String strClientVer = Version.getCurrent().majorMinor();
-				String strServerVer = message[2];
-				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), strClientVer,
-						strServerVer);
-				addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
-			} else if (message.length > 1 && message[1].equals("DIFFERENT_BUILD")) {
-				String strClientBuildType = Version.getCurrent().getBuildType();
-				String strServerBuildType = message[2];
-				String strErrorMsg = String.format(getUIText("SysMsg_LoginFailDifferentBuild"), strClientBuildType,
-						strServerBuildType);
-				addSystemChatLogLater(txtpaneLobbyChatLog, strErrorMsg, Color.red);
+			String reason = message.text(0);
+			if (reason.contains("version")) {
+				String cliVer = Version.getCurrent().toString();
+				String srvVer = message.text(1);
+				String errMsg = String.format(getUIText("SysMsg_LoginFailDifferentVersion"), cliVer, srvVer);
+				addSystemChatLogLater(txtpaneLobbyChatLog, errMsg, Color.red);
 			} else {
-				String reason = GeneralUtil.stringCombine(message, " ", 1);
-				addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginFail") + reason, Color.red);
+				String text = GeneralUtil.stringCombine(message.data(), " ", 0);
+				addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_LoginFail") + text, Color.red);
 			}
 		}
-		// Banned
-		if (message[0].equals("banned")) {
+		case BANNED -> { // [FROM] | [TO]
 			setLobbyButtonsEnabled(0);
-
-			Calendar cStart = GeneralUtil.importCalendarString(message[1]);
-			Calendar cExpire = message.length > 2 && !message[2].isEmpty()
-					? GeneralUtil.importCalendarString(message[2])
-					: null;
-
+			Calendar cStart = message.asDate(0);
+			Calendar cExpire = message.length() > 1 ? message.asDate(1) : null;
 			String strStart = cStart != null ? GeneralUtil.getCalendarString(cStart) : "???";
 			String strExpire = cExpire != null ? GeneralUtil.getCalendarString(cExpire)
 					: getUIText("SysMsg_Banned_Permanent");
-
 			addSystemChatLogLater(txtpaneLobbyChatLog, String.format(getUIText("SysMsg_Banned"), strStart, strExpire),
 					Color.red);
 		}
-		// Rule dataTransmission success
-		if (message[0].equals("ruledatasuccess")) {
+		case RULE_DATA_SUCCESS -> { // Rule dataTransmission success
 			addSystemChatLogLater(txtpaneLobbyChatLog, getUIText("SysMsg_SendRuleDataOK"), Color.blue);
 
 			// ListenerCall
@@ -4330,36 +4288,33 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				l.netlobbyOnLoginOK(this, netPlayerClient);
 			}
 			if (netDummyMode != null) {
+				// XXX this does nothing
 				netDummyMode.netlobbyOnLoginOK(this, netPlayerClient);
 			}
 
 			setLobbyButtonsEnabled(1);
 		}
 		// Rule dataTransmission failure
-		if (message[0].equals("ruledatafail")) {
-			sendMyRuleDataToServer();
-		}
+		case RULE_DATA_FAIL -> sendMyRuleDataToServer();
 		// Rule receive (for rule-locked games)
-		if (message[0].equals("rulelock")) {
+		case RULE_LOCK -> {
 			if (ruleOptLock == null) {
 				ruleOptLock = new RuleOptions();
 			}
-
-			String strRuleData = NetUtil.decompressString(message[1]);
-
+			String strRuleData = message.decompressed(0);
 			CustomProperties prop = new CustomProperties();
 			prop.decode(strRuleData);
-			ruleOptLock.readProperty(prop, 0);
+			ruleOptLock = RuleOptions.of(prop, 0);
 
 			log.info("Received rule data (" + ruleOptLock.strRuleName + ")");
 		}
 		// Rated-game rule list
-		if (message[0].equals("rulelist")) {
-			int mode = Integer.parseInt(message[1]);
+		case RULE_LIST -> {
+			int mode = message.asInt(0);
 			GameStyle style = GameStyle.values()[mode];
 			listRatedRuleName.get(style).clear();
-			for (int i = 0; i < message.length - 2; i++) {
-				String name = NetUtil.urlDecode(message[2 + i]);
+			for (int i = 1; i < message.length(); i++) {
+				String name = message.urlDecoded(i);
 				listRatedRuleName.get(style).add(name);
 			}
 
@@ -4377,39 +4332,40 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// PlayerList
-		if (message[0].equals("playerlist") || message[0].equals("playerupdate") || message[0].equals("playernew")
-				|| message[0].equals("playerlogout")) {
+		case PLAYER_LIST, PLAYER_UPDATE, PLAYER_NEW -> {
 			SwingUtilities.invokeLater(this::updateLobbyUserList);
-
 			if (tabLobbyAndRoom.isEnabledAt(1)) {
 				SwingUtilities.invokeLater(this::updateRoomUserList);
-
-				if (message[0].equals("playerlogout")) {
-					NetPlayerInfo p = new NetPlayerInfo(message[1]);
-					NetPlayerInfo p2 = netPlayerClient.getYourPlayerInfo();
-					if (p != null && p2 != null && p.roomID == p2.roomID) {
-						String strTemp = "";
-						if (!p.host.isEmpty()) {
-							strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(p),
-									p.host);
-						} else {
-							strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(p));
-						}
-						addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
-					}
+			}
+		}
+		case PLAYER_LOGOUT -> {
+			SwingUtilities.invokeLater(this::updateLobbyUserList);
+			if (tabLobbyAndRoom.isEnabledAt(1)) {
+				SwingUtilities.invokeLater(this::updateRoomUserList);
+			}
+			NetPlayerInfo p = new NetPlayerInfo(message.text(0));
+			NetPlayerInfo p2 = netPlayerClient.getYourPlayerInfo();
+			if (p != null && p2 != null && p.roomID == p2.roomID) {
+				String strTemp = "";
+				if (!p.getHost().isEmpty()) {
+					strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(p),
+							p.getHost());
+				} else {
+					strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(p));
 				}
+				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
 			}
 		}
 		// PlayerEntering a room
-		if (message[0].equals("playerenter")) {
-			int uid = Integer.parseInt(message[1]);
+		case PLAYER_ENTER -> {
+			int uid = message.asInt(0);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
 
 			if (pInfo != null) {
 				String strTemp = "";
-				if (!pInfo.host.isEmpty()) {
+				if (!pInfo.getHost().isEmpty()) {
 					strTemp = String.format(getUIText("SysMsg_EnterRoomWithHost"), getPlayerNameWithTripCode(pInfo),
-							pInfo.host);
+							pInfo.getHost());
 				} else {
 					strTemp = String.format(getUIText("SysMsg_EnterRoom"), getPlayerNameWithTripCode(pInfo));
 				}
@@ -4417,32 +4373,33 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// PlayerWithdrawal
-		if (message[0].equals("playerleave")) {
-			int uid = Integer.parseInt(message[1]);
+		case PLAYER_LEAVE -> {
+			int uid = message.asInt(0);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
 
 			if (pInfo != null) {
 				String strTemp = "";
-				if (!pInfo.host.isEmpty()) {
+				if (!pInfo.getHost().isEmpty()) {
 					strTemp = String.format(getUIText("SysMsg_LeaveRoomWithHost"), getPlayerNameWithTripCode(pInfo),
-							pInfo.host);
+							pInfo.getHost());
 				} else {
 					strTemp = String.format(getUIText("SysMsg_LeaveRoom"), getPlayerNameWithTripCode(pInfo));
 				}
 				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
 			}
+
 		}
 		// Change team
-		if (message[0].equals("changeteam")) {
-			int uid = Integer.parseInt(message[1]);
+		case CHANGE_TEAM -> {
+			int uid = message.asInt(0);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
 
 			if (pInfo != null) {
 				String strTeam = "";
 				String strTemp = "";
 
-				if (message.length > 3) {
-					strTeam = NetUtil.urlDecode(message[3]);
+				if (message.length() > 2) {
+					strTeam = message.urlDecoded(2);
 					strTemp = String.format(getUIText("SysMsg_ChangeTeam"), getPlayerNameWithTripCode(pInfo), strTeam);
 				} else {
 					strTemp = String.format(getUIText("SysMsg_ChangeTeam_None"), getPlayerNameWithTripCode(pInfo));
@@ -4450,29 +4407,30 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 
 				addSystemChatLogLater(getCurrentChatLogTextPane(), strTemp, Color.blue);
 			}
+
 		}
 		// Room list
-		if (message[0].equals("roomlist")) {
-			int size = Integer.parseInt(message[1]);
+		case ROOM_LIST -> {
+			int size = message.asInt(0);
 
 			tablemodelRoomList.setRowCount(0);
-			for (int i = 0; i < size; i++) {
-				NetRoomInfo r = new NetRoomInfo(message[2 + i]);
+			for (int i = 1; i <= size; i++) {
+				NetRoomInfo r = new NetRoomInfo(message.text(i));
 				tablemodelRoomList.addRow(createRoomListRowData(r));
 			}
 		}
 		// Receive presets
-		if (message[0].equals("ratedpresets")) {
-			if (currentScreenCardNumber == SCREENCARD_CREATERATED_WAITING) {
-				if (message.length == 1) {
+		case RATED_PRESETS -> {
+			if (currentScreenCardNumber == SCREENCARD_CREATERATED_WAITING) { // NOSONAR
+				if (message.isEmpty()) {
 					currentViewDetailRoomID = -1;
 					setCreateRoomUIType(false, null);
 					changeCurrentScreenCard(SCREENCARD_CREATEROOM);
 				} else {
 					comboboxCreateRatedPresets.removeAllItems();
 					String preset;
-					for (int i = 1; i < message.length; i++) {
-						preset = NetUtil.decompressString(message[i]);
+					for (int i = 0; i < message.length(); i++) {
+						preset = message.decompressed(i);
 						NetRoomInfo r = new NetRoomInfo(preset);
 						presets.add(r);
 						comboboxCreateRatedPresets.addItem(r.strName);
@@ -4482,13 +4440,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// New room appearance
-		if (message[0].equals("roomcreate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_CREATE -> {
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			tablemodelRoomList.addRow(createRoomListRowData(r));
 		}
 		// Room information update
-		if (message[0].equals("roomupdate")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_UPDATE -> {
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
 
 			for (int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
@@ -4505,8 +4463,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Annihilation Room
-		if (message[0].equals("roomdelete")) {
-			NetRoomInfo r = new NetRoomInfo(message[1]);
+		case ROOM_DELETE -> {
+			NetRoomInfo r = new NetRoomInfo(message.text(0));
 			int columnID = tablemodelRoomList.findColumn(getUIText(ROOMTABLE_COLUMNNAMES[0]));
 
 			for (int i = 0; i < tablemodelRoomList.getRowCount(); i++) {
@@ -4524,10 +4482,10 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Successfully create and enter Room
-		if (message[0].equals("roomcreatesuccess") || message[0].equals("roomjoinsuccess")) {
-			int roomID = Integer.parseInt(message[1]);
-			int seatID = Integer.parseInt(message[2]);
-			int queueID = Integer.parseInt(message[3]);
+		case ROOM_CREATE_SUCCESS, ROOM_JOIN_SUCCESS -> {
+			int roomID = message.asInt(0);
+			int seatID = message.asInt(1);
+			int queueID = message.asInt(2);
 
 			netPlayerClient.getYourPlayerInfo().roomID = roomID;
 			netPlayerClient.getYourPlayerInfo().seatID = seatID;
@@ -4555,13 +4513,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				}
 
 				if (netPlayerClient != null && netPlayerClient.getRoomInfo(roomID) != null) {
-					if (netPlayerClient.getRoomInfo(roomID).singleplayer) {
+					if (netPlayerClient.getRoomInfo(roomID).isSingleplayer()) {
 						btnRoomButtonsJoin.setVisible(false);
 						btnRoomButtonsSitOut.setVisible(false);
 						btnRoomButtonsRanking.setVisible(false);
 						gameStatCardLayout.show(subpanelGameStat, "GameStat1P");
 					} else {
-						btnRoomButtonsRanking.setVisible(netPlayerClient.getRoomInfo(roomID).rated);
+						btnRoomButtonsRanking.setVisible(netPlayerClient.getRoomInfo(roomID).isRated());
 						gameStatCardLayout.show(subpanelGameStat, "GameStatMP");
 					}
 				}
@@ -4591,6 +4549,7 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					l.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
 				}
 				if (netDummyMode != null) {
+					// XXX this does nothing
 					netDummyMode.netlobbyOnRoomJoin(this, netPlayerClient, roomInfo);
 				}
 			} else {
@@ -4609,23 +4568,22 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 					l.netlobbyOnRoomLeave(this, netPlayerClient);
 				}
 				if (netDummyMode != null) {
+					// XXX this does nothing
 					netDummyMode.netlobbyOnRoomLeave(this, netPlayerClient);
 				}
 			}
 		}
 		// Entry Room failure
-		if (message[0].equals("roomjoinfail")) {
-			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoinFail"), Color.red);
-		}
+		case ROOM_JOIN_FAIL -> addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_RoomJoinFail"), Color.red);
 		// Kicked from a room
-		if (message[0].equals("roomkicked")) {
-			String strKickMsg = String.format(getUIText("SysMsg_Kicked_" + message[1]), NetUtil.urlDecode(message[3]),
-					message[2]);
+		case ROOM_KICKED -> {
+			String strKickMsg = String.format(getUIText("SysMsg_Kicked_" + message.text(0)), message.urlDecoded(2),
+					message.text(1));
 			addSystemChatLogLater(txtpaneLobbyChatLog, strKickMsg, Color.red);
 		}
 		// Map receive
-		if (message[0].equals("map")) {
-			String strDecompressed = NetUtil.decompressString(message[1]);
+		case MAP -> {
+			String strDecompressed = message.decompressed(0);
 			String[] strMaps = strDecompressed.split("\t");
 
 			mapList.clear();
@@ -4633,56 +4591,59 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			log.debug("Received " + mapList.size() + " maps");
 		}
 		// Lobby chat
-		if (message[0].equals("lobbychat")) {
-			int uid = Integer.parseInt(message[1]);
+		case LOBBY_CHAT -> {
+			int uid = message.asInt(0);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
 
 			if (pInfo != null) {
-				Calendar calendar = GeneralUtil.importCalendarString(message[3]);
-				String strMsgBody = NetUtil.urlDecode(message[4]);
+				Calendar calendar = message.asDate(2);
+				String strMsgBody = message.urlDecoded(3);
 				addUserChatLogLater(txtpaneLobbyChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
 			}
 		}
 		// Room chat
-		if (message[0].equals("chat")) {
-			int uid = Integer.parseInt(message[1]);
+		case ROOM_CHAT -> {
+			int uid = message.asInt(0);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
 
 			if (pInfo != null) {
-				Calendar calendar = GeneralUtil.importCalendarString(message[3]);
-				String strMsgBody = NetUtil.urlDecode(message[4]);
+				Calendar calendar = message.asDate(2);
+				String strMsgBody = message.urlDecoded(3);
 				addUserChatLogLater(txtpaneRoomChatLog, getPlayerNameWithTripCode(pInfo), calendar, strMsgBody);
 			}
 		}
 		// Lobby chat/Room chat (history)
-		if (message[0].equals("lobbychath") || message[0].equals("chath")) {
-			String strUsername = convTripCode(NetUtil.urlDecode(message[1]));
-			Calendar calendar = GeneralUtil.importCalendarString(message[2]);
-			String strMsgBody = NetUtil.urlDecode(message[3]);
-			JTextPane txtpane = message[0].equals("lobbychath") ? txtpaneLobbyChatLog : txtpaneRoomChatLog;
+		case LOBBY_CHAT_HIST, ROOM_CHAT_HIST -> {
+			String strUsername = convTripCode(message.urlDecoded(0));
+			Calendar calendar = message.asDate(1);
+			String strMsgBody = message.text(2);
+			JTextPane txtpane = message.command() == NetCmd.LOBBY_CHAT_HIST ? txtpaneLobbyChatLog : txtpaneRoomChatLog;
 			addRecordedUserChatLogLater(txtpane, strUsername, calendar, strMsgBody);
 		}
 		// Participation status change
-		if (message[0].equals("changestatus")) {
-			int uid = Integer.parseInt(message[2]);
+		case CHANGE_STATUS -> {
+			int uid = message.asInt(1);
 			NetPlayerInfo pInfo = netPlayerClient.getPlayerInfoByUID(uid);
-
 			if (pInfo != null) {
-				if (message[1].equals("watchonly")) {
+				String status = message.text(0);
+				switch (status) {
+				case "watchonly" -> {
 					String strTemp = String.format(getUIText("SysMsg_StatusChange_Spectator"),
 							getPlayerNameWithTripCode(pInfo));
 					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
 					if (uid == netPlayerClient.getPlayerUID()) {
 						setRoomJoinButtonVisible(true);
 					}
-				} else if (message[1].equals("joinqueue")) {
+				}
+				case "joinqueue" -> {
 					String strTemp = String.format(getUIText("SysMsg_StatusChange_Queue"),
 							getPlayerNameWithTripCode(pInfo));
 					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
 					if (uid == netPlayerClient.getPlayerUID()) {
 						setRoomJoinButtonVisible(false);
 					}
-				} else if (message[1].equals("joinseat")) {
+				}
+				case "joinseat" -> {
 					String strTemp = String.format(getUIText("SysMsg_StatusChange_Joined"),
 							getPlayerNameWithTripCode(pInfo));
 					addSystemChatLogLater(txtpaneRoomChatLog, strTemp, Color.blue);
@@ -4690,17 +4651,18 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 						setRoomJoinButtonVisible(false);
 					}
 				}
+				default -> log.debug("unknown status change: " + status);
+				}
 			}
-
 			SwingUtilities.invokeLater(this::updateRoomUserList);
 		}
 		// Automatically start timerStart
-		if (message[0].equals("autostartbegin")) {
-			String strTemp = String.format(getUIText("SysMsg_AutoStartBegin"), message[1]);
+		case AUTOSTART_BEGIN -> {
+			String strTemp = String.format(getUIText("SysMsg_AutoStartBegin"), message.text(0));
 			addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(64, 128, 0));
 		}
 		// game start
-		if (message[0].equals("start")) {
+		case START -> {
 			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameStart"), new Color(0, 128, 0));
 			tablemodelGameStat.setRowCount(0);
 			tablemodelGameStat1P.setRowCount(0);
@@ -4713,13 +4675,12 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Death
-		if (message[0].equals("dead")) {
-			int uid = Integer.parseInt(message[1]);
-			String name = convTripCode(NetUtil.urlDecode(message[2]));
+		case DEAD -> {
+			int uid = message.asInt(0);
+			String name = convTripCode(message.urlDecoded(1));
 
-			if (message.length > 6) {
-				String strTemp = String.format(getUIText("SysMsg_KO"), convTripCode(NetUtil.urlDecode(message[6])),
-						name);
+			if (message.length() > 5) {
+				String strTemp = String.format(getUIText("SysMsg_KO"), convTripCode(message.urlDecoded(5)), name);
 				addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
 			}
 
@@ -4730,23 +4691,23 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Game stats (Multiplayer)
-		if (message[0].equals("gstat")) {
+		case GSTAT -> {
 			String[] rowdata = new String[13];
-			int myRank = Integer.parseInt(message[4]);
+			int myRank = message.asInt(3);
 
 			rowdata[0] = Integer.toString(myRank); // Rank
-			rowdata[1] = convTripCode(NetUtil.urlDecode(message[3])); // Name
-			rowdata[2] = message[5]; // Attack count
-			rowdata[3] = message[6]; // APL
-			rowdata[4] = message[7]; // APM
-			rowdata[5] = message[8]; // Line count
-			rowdata[6] = message[9]; // LPM
-			rowdata[7] = message[10]; // Piece count
-			rowdata[8] = message[11]; // PPS
-			rowdata[9] = GeneralUtil.getTime(Integer.parseInt(message[12])); // Time
-			rowdata[10] = message[13]; // KO
-			rowdata[11] = message[14]; // Win
-			rowdata[12] = message[15]; // Games
+			rowdata[1] = convTripCode(message.urlDecoded(2)); // Name
+			rowdata[2] = message.text(4); // Attack count
+			rowdata[3] = message.text(5); // APL
+			rowdata[4] = message.text(6); // APM
+			rowdata[5] = message.text(7); // Line count
+			rowdata[6] = message.text(8); // LPM
+			rowdata[7] = message.text(9); // Piece count
+			rowdata[8] = message.text(10); // PPS
+			rowdata[9] = message.asTime(11); // Time
+			rowdata[10] = message.text(12); // KO
+			rowdata[11] = message.text(13); // Win
+			rowdata[12] = message.text(14); // Games
 
 			int insertPos = 0;
 			for (int i = 0; i < tablemodelGameStat.getRowCount(); i++) {
@@ -4776,8 +4737,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Game stats (Single player)
-		if (message[0].equals("gstat1p")) {
-			String strRowData = NetUtil.urlDecode(message[1]);
+		case GSTAT_1P -> {
+			String strRowData = message.urlDecoded(0);
 			String[] rowData = strRowData.split("\t");
 
 			if (writerRoomLog != null) {
@@ -4799,20 +4760,17 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// game finished
-		if (message[0].equals("finish")) {
+		case FINISH -> {
 			addSystemChatLogLater(txtpaneRoomChatLog, getUIText("SysMsg_GameEnd"), new Color(0, 128, 0));
 
-			if (message.length > 3 && !message[3].isEmpty()) {
-				boolean flagTeamWin = false;
-				if (message.length > 4) {
-					flagTeamWin = Boolean.parseBoolean(message[4]);
-				}
-
+			if (message.length() > 3) {
+				String name = message.urlDecoded(2);
+				boolean isTeamWin = message.asBool(3);
 				String strWinner = "";
-				if (flagTeamWin) {
-					strWinner = String.format(getUIText("SysMsg_WinnerTeam"), NetUtil.urlDecode(message[3]));
+				if (isTeamWin) {
+					strWinner = String.format(getUIText("SysMsg_WinnerTeam"), name);
 				} else {
-					strWinner = String.format(getUIText("SysMsg_Winner"), convTripCode(NetUtil.urlDecode(message[3])));
+					strWinner = String.format(getUIText("SysMsg_Winner"), convTripCode(name));
 				}
 				addSystemChatLogLater(txtpaneRoomChatLog, strWinner, new Color(0, 128, 0));
 			}
@@ -4822,21 +4780,21 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			itemLobbyMenuTeamChange.setEnabled(true);
 		}
 		// Rating change
-		if (message[0].equals("rating")) {
-			String strPlayerName = convTripCode(NetUtil.urlDecode(message[3]));
-			int ratingNow = Integer.parseInt(message[4]);
-			int ratingChange = Integer.parseInt(message[5]);
+		case RATING -> {
+			String strPlayerName = convTripCode(message.urlDecoded(2));
+			int ratingNow = message.asInt(3);
+			int ratingChange = message.asInt(4);
 			String strTemp = String.format(getUIText("SysMsg_Rating"), strPlayerName, ratingNow, ratingChange);
 			addSystemChatLogLater(txtpaneRoomChatLog, strTemp, new Color(0, 128, 0));
 		}
 		// Multiplayer Leaderboard
-		if (message[0].equals(NetCmd.MP_RANKING.command())) {
-			int style = Integer.parseInt(message[1]);
-			int myRank = Integer.parseInt(message[2]);
+		case MP_RANKING -> {
+			int style = message.asInt(0);
+			int myRank = message.asInt(1);
 
 			tablemodelMPRanking[style].setRowCount(0);
 
-			String strPData = NetUtil.decompressString(message[3]);
+			String strPData = message.decompressed(2);
 			String[] strPDataA = strPData.split("\t");
 
 			for (String element : strPDataA) {
@@ -4863,19 +4821,19 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 			}
 		}
 		// Announcement from the admin
-		if (message[0].equals("announce")) {
+		case ANNOUNCE -> {
 			String strTime = getCurrentTimeAsString();
-			String strMessage = "[" + strTime + "]<ADMIN>:" + NetUtil.urlDecode(message[1]);
+			String strMessage = "[" + strTime + "]<ADMIN>:" + message.urlDecoded(0);
 			addSystemChatLogLater(getCurrentChatLogTextPane(), strMessage, new Color(255, 32, 0));
 		}
 		// Single player replay download
-		if (message[0].equals("spdownload")) {
-			long sChecksum = Long.parseLong(message[1]);
+		case SP_DOWNLOAD -> {
+			long sChecksum = message.asLong(0);
 			Adler32 checksumObj = new Adler32();
-			checksumObj.update(NetUtil.stringToBytes(message[2]));
+			checksumObj.update(NetUtil.stringToBytes(message.text(1)));
 
 			if (checksumObj.getValue() == sChecksum) {
-				String strReplay = NetUtil.decompressString(message[2]);
+				String strReplay = message.decompressed(2);
 				CustomProperties prop = new CustomProperties();
 				prop.decode(strReplay);
 
@@ -4888,15 +4846,16 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 				}
 			}
 		}
-
+		default -> log.debug("unknown message type: " + message.command());
+		}
 		// ListenerCall
 		if (listeners != null) {
 			for (NetLobbyListener l : listeners) {
-				l.netlobbyOnMessage(this, netPlayerClient, message);
+				l.netlobbyOnMessage(message);
 			}
 		}
 		if (netDummyMode != null) {
-			netDummyMode.netlobbyOnMessage(this, netPlayerClient, message);
+			netDummyMode.netlobbyOnMessage(message);
 		}
 	}
 
@@ -4904,13 +4863,13 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	 * When it is cut
 	 */
 	@Override
-	public void netOnDisconnect(NetBaseClient client, Throwable ex) {
+	public void netOnDisconnect(Optional<Throwable> result) {
 		SwingUtilities.invokeLater(() -> {
 			setLobbyButtonsEnabled(0);
 			setRoomButtonsEnabled(false);
 			tablemodelRoomList.setRowCount(0);
 		});
-
+		Throwable ex = result.orElse(null);
 		if (ex != null) {
 			addSystemChatLogLater(getCurrentChatLogTextPane(),
 					getUIText("SysMsg_DisconnectedError") + "\n" + ex.getLocalizedMessage(), Color.red);
@@ -5393,15 +5352,8 @@ public class NetLobbyFrame extends JFrame implements ActionListener, NetMessageL
 	/**
 	 * Rule entry for rule change screen
 	 */
-	protected class RuleEntry {
-		/** File name */
-		public String filename;
-		/** File path */
-		public String filepath;
-		/** Rule name */
-		public String rulename;
-		/** Game style */
-		public int style;
+	protected record RuleEntry (String filename, String filepath,String rulename, GameStyle style) {
+		// nothing so far
 	}
 
 	/**

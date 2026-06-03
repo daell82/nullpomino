@@ -28,18 +28,16 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Locale;
 
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetCmd;
-import mu.nu.nullpo.game.net.NetPlayerClient;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.types.DisplaySize;
-import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.GeneralUtil;
 import mu.nu.nullpo.util.Sounds;
@@ -742,38 +740,20 @@ public class NetVSBattleMode extends NetDummyVSMode {
 				int b2bColor = lastb2b[playerID] ? Colors.FONT_RED : Colors.FONT_ORANGE;
 				if (engine.displaySize != DisplaySize.SMALL) {
 					switch (lastevents[playerID]) {
-					case LineClearEvent.SINGLE:
-						renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
-						break;
-					case LineClearEvent.DOUBLE:
-						renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
-						break;
-					case LineClearEvent.TRIPLE:
-						renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
-						break;
-					case LineClearEvent.FOUR:
-						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_SINGLE_MINI:
+					case SINGLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+					case DOUBLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+					case TRIPLE -> renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+					case FOUR -> renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", b2bColor);
+					case TSPIN_SINGLE_MINI ->
 						renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-S", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_SINGLE:
-						renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-SINGLE", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_DOUBLE_MINI:
+					case TSPIN_SINGLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-SINGLE", b2bColor);
+					case TSPIN_DOUBLE_MINI ->
 						renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-D", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_DOUBLE:
-						renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-DOUBLE", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_TRIPLE:
-						renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-TRIPLE", b2bColor);
-						break;
-					case LineClearEvent.TSPIN_EZ:
-						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + piece, b2bColor);
-						break;
-					default:
-						break;
+					case TSPIN_DOUBLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-DOUBLE", b2bColor);
+					case TSPIN_TRIPLE -> renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-TRIPLE", b2bColor);
+					case TSPIN_EZ -> renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + piece, b2bColor);
+					default -> {
+					}
 					}
 
 					if (lastcombo[playerID] >= 2) {
@@ -787,38 +767,27 @@ public class NetVSBattleMode extends NetDummyVSMode {
 					}
 					int y2 = y + 168;
 					switch (lastevents[playerID]) {
-					case LineClearEvent.SINGLE:
+					case SINGLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + 16, y2, "SINGLE", Colors.FONT_DARKBLUE, 0.5f);
-						break;
-					case LineClearEvent.DOUBLE:
+					case DOUBLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + 16, y2, "DOUBLE", Colors.FONT_BLUE, 0.5f);
-						break;
-					case LineClearEvent.TRIPLE:
+					case TRIPLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + 16, y2, "TRIPLE", Colors.FONT_GREEN, 0.5f);
-						break;
-					case LineClearEvent.FOUR:
-						renderer.drawDirectFont(engine, playerID, x + 4 + 24, y2, "FOUR", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_SINGLE_MINI:
+					case FOUR -> renderer.drawDirectFont(engine, playerID, x + 4 + 24, y2, "FOUR", b2bColor, 0.5f);
+					case TSPIN_SINGLE_MINI ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y2, piece + "-MINI-S", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_SINGLE:
+					case TSPIN_SINGLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y2, piece + "-SINGLE", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_DOUBLE_MINI:
+					case TSPIN_DOUBLE_MINI ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y2, piece + "-MINI-D", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_DOUBLE:
+					case TSPIN_DOUBLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y2, piece + "-DOUBLE", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_TRIPLE:
+					case TSPIN_TRIPLE ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + x2, y2, piece + "-TRIPLE", b2bColor, 0.5f);
-						break;
-					case LineClearEvent.TSPIN_EZ:
+					case TSPIN_EZ ->
 						renderer.drawDirectFont(engine, playerID, x + 4 + 24, y2, "EZ-" + piece, b2bColor, 0.5f);
-						break;
-					default:
-						break;
+					default -> {
+					}
 					}
 
 					if (lastcombo[playerID] >= 2) {
@@ -883,9 +852,9 @@ public class NetVSBattleMode extends NetDummyVSMode {
 	 * Receive stats
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		if (message.length > 4) {
-			garbage[engine.playerID] = Integer.parseInt(message[4]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		if (message.length() > 3) {
+			garbage[engine.playerID] = message.asInt(3);
 		}
 	}
 
@@ -915,24 +884,23 @@ public class NetVSBattleMode extends NetDummyVSMode {
 	 * Receive end-of-game stats
 	 */
 	@Override
-	protected void netvsRecvEndGameStats(String[] message) {
-		int seatID = Integer.parseInt(message[2]);
+	protected void netvsRecvEndGameStats(NetMessage message) {
+		int seatID = message.asInt(1);
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
 			GameEngine engine = owner.engines[playerID];
 
-			float tempGarbageSend = Float.parseFloat(message[5]);
+			float tempGarbageSend = message.asFloat(4);
 			garbageSent[playerID] = (int) (tempGarbageSend * GARBAGE_DENOMINATOR);
 
-			playerAPL[playerID] = Float.parseFloat(message[6]);
-			playerAPM[playerID] = Float.parseFloat(message[7]);
-			engine.statistics.lines = Integer.parseInt(message[8]);
-			engine.statistics.lpm = Float.parseFloat(message[9]);
-			engine.statistics.totalPieceLocked = Integer.parseInt(message[10]);
-			engine.statistics.pps = Float.parseFloat(message[11]);
-			engine.statistics.time = Integer.parseInt(message[12]);
-
+			playerAPL[playerID] = message.asFloat(5);
+			playerAPM[playerID] = message.asFloat(6);
+			engine.statistics.lines = message.asInt(7);
+			engine.statistics.lpm = message.asFloat(8);
+			engine.statistics.totalPieceLocked = message.asInt(9);
+			engine.statistics.pps = message.asFloat(10);
+			engine.statistics.time = message.asInt(11);
 			netvsPlayerResultReceived[playerID] = true;
 		}
 	}
@@ -941,16 +909,17 @@ public class NetVSBattleMode extends NetDummyVSMode {
 	 * Message received
 	 */
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
-		super.netlobbyOnMessage(lobby, client, message);
+	public void netlobbyOnMessage(NetMessage message) {
+		super.netlobbyOnMessage(message);
 
+		switch (message.command()) {
 		// Dead
-		if (message[0].equals("dead")) {
-			int seatID = Integer.parseInt(message[3]);
+		case DEAD -> {
+			int seatID = message.asInt(2);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
 			int koUID = -1;
-			if (message.length > 5) {
-				koUID = Integer.parseInt(message[5]);
+			if (message.length() > 4) {
+				koUID = message.asInt(4);
 			}
 
 			// Increase KO count
@@ -960,30 +929,29 @@ public class NetVSBattleMode extends NetDummyVSMode {
 			}
 		}
 		// Game messages
-		if (message[0].equals("game")) {
-			int uid = Integer.parseInt(message[1]);
-			int seatID = Integer.parseInt(message[2]);
+		case GAME -> {
+			int uid = message.asInt(0);
+			int seatID = message.asInt(1);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
 			// GameEngine engine = owner.engine[playerID];
-
+			String gameCmd = message.text(2);
 			// Attack
-			if (message[3].equals("attack")) {
+			if ("attack".equals(gameCmd)) {
 				int[] pts = new int[ATTACK_CATEGORIES];
 				int sumPts = 0;
 
 				for (int i = 0; i < ATTACK_CATEGORIES; i++) {
-					pts[i] = Integer.parseInt(message[4 + i]);
+					pts[i] = message.asInt(i + 3);
 					sumPts += pts[i];
 				}
 
-				lastevents[playerID] = LineClearEvent.values()[Integer.parseInt(message[ATTACK_CATEGORIES + 5])];
-				lastb2b[playerID] = Boolean.parseBoolean(message[ATTACK_CATEGORIES + 6]);
-				lastcombo[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 7]);
-				garbage[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 8]);
-				lastpiece[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 9]);
+				lastevents[playerID] = LineClearEvent.values()[message.asInt(ATTACK_CATEGORIES + 4)];
+				lastb2b[playerID] = message.asBool(ATTACK_CATEGORIES + 5);
+				lastcombo[playerID] = message.asInt(ATTACK_CATEGORIES + 6);
+				garbage[playerID] = message.asInt(ATTACK_CATEGORIES + 7);
+				lastpiece[playerID] = message.asInt(ATTACK_CATEGORIES + 8);
 				scgettime[playerID] = 0;
-				int targetSeatID = Integer.parseInt(message[ATTACK_CATEGORIES + 10]);
-
+				int targetSeatID = message.asInt(ATTACK_CATEGORIES + 9);
 				if (!netvsIsWatch() && owner.engines[0].timerActive && sumPts > 0 && !netvsIsPractice
 						&& !netvsIsNewcomer
 						&& (targetSeatID == -1 || netvsPlayerSeatID[0] == targetSeatID || !netCurrentRoomInfo.isTarget)
@@ -1009,7 +977,7 @@ public class NetVSBattleMode extends NetDummyVSMode {
 				}
 			}
 			// HurryUp
-			if (message[3].equals("hurryup")) {
+			if ("hurryup".equals(gameCmd)) {
 				if (!hurryupStarted && netCurrentRoomInfo != null && netCurrentRoomInfo.hurryupSeconds > 0) {
 					if (!netvsIsWatch() && !netvsIsPractice && owner.engines[0].timerActive) {
 						renderer.playSE(Sounds.HURRY_UP);
@@ -1018,6 +986,10 @@ public class NetVSBattleMode extends NetDummyVSMode {
 					hurryupShowFrames = 60 * 5;
 				}
 			}
+		}
+		default -> {
+			// ignore
+		}
 		}
 	}
 

@@ -32,6 +32,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -1198,28 +1199,28 @@ public class TimeAttackMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.lines = Integer.parseInt(message[4]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[5]);
-		engine.statistics.time = Integer.parseInt(message[6]);
-		engine.statistics.lpm = Float.parseFloat(message[7]);
-		engine.statistics.pps = Float.parseFloat(message[8]);
-		goaltype = Integer.parseInt(message[9]);
-		engine.gameActive = Boolean.parseBoolean(message[10]);
-		engine.timerActive = Boolean.parseBoolean(message[11]);
-		engine.statistics.level = Integer.parseInt(message[12]);
-		levelTimer = Integer.parseInt(message[13]);
-		levelTimerMax = Integer.parseInt(message[14]);
-		rolltime = Integer.parseInt(message[15]);
-		norm = Integer.parseInt(message[16]);
-		engine.owner.backgroundStatus.bg = Integer.parseInt(message[17]);
-		engine.meterValue = Integer.parseInt(message[18]);
-		engine.meterColor = Integer.parseInt(message[19]);
-		engine.heboHiddenEnable = Boolean.parseBoolean(message[20]);
-		engine.heboHiddenTimerNow = Integer.parseInt(message[21]);
-		engine.heboHiddenTimerMax = Integer.parseInt(message[21]);
-		engine.heboHiddenYNow = Integer.parseInt(message[22]);
-		engine.heboHiddenYLimit = Integer.parseInt(message[23]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.lines = message.asInt(3);
+		engine.statistics.totalPieceLocked = message.asInt(4);
+		engine.statistics.time = message.asInt(5);
+		engine.statistics.lpm = message.asFloat(6);
+		engine.statistics.pps = message.asFloat(7);
+		goaltype = message.asInt(8);
+		engine.gameActive = message.asBool(9);
+		engine.timerActive = message.asBool(10);
+		engine.statistics.level = message.asInt(11);
+		levelTimer = message.asInt(12);
+		levelTimerMax = message.asInt(13);
+		rolltime = message.asInt(14);
+		norm = message.asInt(15);
+		engine.owner.backgroundStatus.bg = message.asInt(16);
+		engine.meterValue = message.asInt(17);
+		engine.meterColor = message.asInt(18);
+		engine.heboHiddenEnable = message.asBool(19);
+		engine.heboHiddenTimerNow = message.asInt(20);
+		engine.heboHiddenTimerMax = message.asInt(20);
+		engine.heboHiddenYNow = message.asInt(21);
+		engine.heboHiddenYLimit = message.asInt(22);
 	}
 
 	/**
@@ -1264,11 +1265,11 @@ public class TimeAttackMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		goaltype = Integer.parseInt(message[4]);
-		startlevel = Integer.parseInt(message[5]);
-		showsectiontime = Boolean.parseBoolean(message[6]);
-		big = Boolean.parseBoolean(message[7]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		goaltype = message.asInt(3);
+		startlevel = message.asInt(4);
+		showsectiontime = message.asBool(5);
+		big = message.asBool(6);
 	}
 
 	/**

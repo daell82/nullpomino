@@ -31,6 +31,7 @@ package mu.nu.nullpo.game.net;
 import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -56,16 +57,19 @@ public class NetPlayerInfo {
 	private String playerName = "";
 
 	/** Country code */
-	public String country = "";
+	@Setter
+	private String country = "";
 
 	/** Host */
-	public String host = "";
+	@Setter
+	private String host = "";
 
 	/** Team name */
-	public String team = "";
+	private Optional<String> team = Optional.empty();
 
 	/** Rules in use */
-	public RuleOptions ruleOpt = null;
+	@Setter
+	private RuleOptions rule = null;
 
 	/** Multiplayer rating */
 	public int[] rating = new int[GameStyle.numStyles()];
@@ -132,56 +136,12 @@ public class NetPlayerInfo {
 	}
 
 	/**
-	 * Copy constructor
-	 *
-	 * @param netPlayerInfo Copy source
-	 */
-	public NetPlayerInfo(NetPlayerInfo playerInfo) {
-		playerName = playerInfo.playerName;
-		country = playerInfo.country;
-		host = playerInfo.host;
-		team = playerInfo.team;
-
-		if (playerInfo.ruleOpt != null) {
-			ruleOpt = new RuleOptions(playerInfo.ruleOpt);
-		} else {
-			ruleOpt = null;
-		}
-
-		for (int i = 0; i < GameStyle.numStyles(); i++) {
-			rating[i] = playerInfo.rating[i];
-			ratingBefore[i] = playerInfo.ratingBefore[i];
-			playCount[i] = playerInfo.playCount[i];
-			winCount[i] = playerInfo.winCount[i];
-		}
-		records.clear();
-		for (NetSPRecord netRecord : playerInfo.records) {
-			records.add(new NetSPRecord(netRecord));
-		}
-
-		playCountNow = playerInfo.playCountNow;
-		winCountNow = playerInfo.winCountNow;
-
-		uid = playerInfo.uid;
-		roomID = playerInfo.roomID;
-		seatID = playerInfo.seatID;
-		queueID = playerInfo.queueID;
-		ready = playerInfo.ready;
-		playing = playerInfo.playing;
-		connected = playerInfo.connected;
-		tripUse = playerInfo.tripUse;
-		realHost = playerInfo.realHost;
-		realIP = playerInfo.realIP;
-		channel = playerInfo.channel;
-	}
-
-	/**
 	 * String constructor (Uses importString)
 	 *
 	 * @param str String(Divided by ;)
 	 */
 	public NetPlayerInfo(String str) {
-		importString(str);
+		importStringArray(str.split(";"));
 	}
 
 	/**
@@ -193,7 +153,7 @@ public class NetPlayerInfo {
 		playerName = NetUtil.urlDecode(pdata[0]);
 		country = NetUtil.urlDecode(pdata[1]);
 		host = NetUtil.urlDecode(pdata[2]);
-		team = NetUtil.urlDecode(pdata[3]);
+		setTeam(NetUtil.urlDecode(pdata[3]));
 		roomID = Integer.parseInt(pdata[4]);
 		uid = Integer.parseInt(pdata[5]);
 		seatID = Integer.parseInt(pdata[6]);
@@ -226,12 +186,18 @@ public class NetPlayerInfo {
 	}
 
 	/**
-	 * Import from String (Divided by ;)
+	 * Sets the team name of this player. If the team name is empty or {@code null}
+	 * the team-property will be cleared
 	 *
-	 * @param str String
+	 * @param teamName to set
+	 * @see Optional#isEmpty()
 	 */
-	private void importString(String str) {
-		importStringArray(str.split(";"));
+	public void setTeam(String teamName) {
+		if (teamName == null || teamName.isBlank()) {
+			team = Optional.empty();
+		} else {
+			team = Optional.of(teamName);
+		}
 	}
 
 	/**
@@ -244,7 +210,7 @@ public class NetPlayerInfo {
 		pdata[0] = NetUtil.urlEncode(playerName);
 		pdata[1] = NetUtil.urlEncode(country);
 		pdata[2] = NetUtil.urlEncode(host);
-		pdata[3] = NetUtil.urlEncode(team);
+		pdata[3] = NetUtil.urlEncode(team.orElse(""));
 		pdata[4] = Integer.toString(roomID);
 		pdata[5] = Integer.toString(uid);
 		pdata[6] = Integer.toString(seatID);
@@ -425,6 +391,6 @@ public class NetPlayerInfo {
 	 * Delete this player
 	 */
 	public void delete() {
-		ruleOpt = null;
+		rule = null;
 	}
 }

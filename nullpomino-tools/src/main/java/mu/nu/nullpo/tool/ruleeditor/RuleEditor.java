@@ -1760,8 +1760,7 @@ public class RuleEditor extends JFrame implements ActionListener {
 		prop.load(in);
 		in.close();
 
-		RuleOptions ruleopt = new RuleOptions();
-		ruleopt.readProperty(prop, 0);
+		RuleOptions ruleopt = RuleOptions.of(prop, 0);
 
 		log.debug("Loaded rule file from " + filename);
 

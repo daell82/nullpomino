@@ -289,11 +289,7 @@ public class GeneralUtil {
 		} catch (Exception e) {
 			log.warn("Failed to load rule from " + filename, e);
 		}
-
-		RuleOptions ruleopt = new RuleOptions();
-		ruleopt.readProperty(prop, 0);
-
-		return ruleopt;
+		return RuleOptions.of(prop, 0);
 	}
 
 	private static <T> T loadClass(String name) {

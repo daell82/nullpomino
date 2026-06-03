@@ -77,6 +77,7 @@ import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.component.RuleOptions;
 import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetObserverClient;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -926,8 +927,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
 				log.debug("Load rule options from setting file");
-				ruleopt = new RuleOptions();
-				ruleopt.readProperty(propGlobal, i);
+				ruleopt = RuleOptions.of(propGlobal, i);
 			}
 			gameManager.engines[i].ruleopt = ruleopt;
 
@@ -985,8 +985,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		// Initialization for each player
 		for (int i = 0; i < gameManager.getPlayers(); i++) {
 			// Rule
-			RuleOptions ruleopt = new RuleOptions();
-			ruleopt.readProperty(prop, i);
+			RuleOptions ruleopt = RuleOptions.of(prop, i);
 			gameManager.engines[i].ruleopt = ruleopt;
 
 			// NEXTOrder generation algorithm
@@ -1075,8 +1074,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 				ruleOptions = GeneralUtil.loadRule(rulename);
 			} else {
 				log.info("Load rule options from setting file");
-				ruleOptions = new RuleOptions();
-				ruleOptions.readProperty(propGlobal, 0);
+				ruleOptions = RuleOptions.of(propGlobal, 0);
 			}
 			gameManager.engines[0].ruleopt = ruleOptions;
 
@@ -1149,8 +1147,7 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 			if (netObserverClient.isConnected()) {
 				netObserverClient.send(NetCmd.DISCONNECT);
 			}
-			netObserverClient.threadRunning = false;
-			netObserverClient.connectedFlag = false;
+			netObserverClient.close();
 			netObserverClient = null;
 			log.debug("Observer stoped");
 		}
@@ -1188,14 +1185,14 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 	}
 
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+	public void netlobbyOnMessage(NetMessage message) {
 	}
 
 	@Override
 	public void netlobbyOnRoomJoin(NetLobbyFrame lobby, NetPlayerClient client, NetRoomInfo roomInfo) {
 		// enterNewMode(roomInfo.strMode);
 		if (gameFrame != null) {
-			gameFrame.strModeToEnter = roomInfo.strMode;
+			gameFrame.strModeToEnter = roomInfo.getMode();
 		}
 	}
 

@@ -28,7 +28,6 @@
 */
 package mu.nu.nullpo.game.subsystem.mode;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -42,6 +41,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -294,7 +294,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	private int[] scgettime;
 
 	/** Most recent scoring event type */
-	private LineClearEvent[] lastevent;
+	private LineClearEvent[] lastevents;
 
 	/** true if most recent scoring event was B2B */
 	private boolean[] lastb2b;
@@ -564,7 +564,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		playerWinCount = new int[MAX_PLAYERS];
 //		playerTeamsIsTank = new boolean[MAX_PLAYERS];
 		scgettime = new int[MAX_PLAYERS];
-		lastevent = new LineClearEvent[MAX_PLAYERS];
+		lastevents = new LineClearEvent[MAX_PLAYERS];
 		lastb2b = new boolean[MAX_PLAYERS];
 		lastcombo = new int[MAX_PLAYERS];
 		lastpiece = new int[MAX_PLAYERS];
@@ -746,7 +746,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			for (NetPlayerInfo pInfo : pList) {
 				if (pInfo.seatID != -1 && getPlayerIDbySeatID(pInfo.seatID) == i) {
 					playerNames[i] = pInfo.getPlayerName();
-					playerTeams[i] = pInfo.team;
+					playerTeams[i] = pInfo.getTeam().orElse("");
 					playerGamesCount[i] = pInfo.playCountNow;
 					playerWinCount[i] = pInfo.winCountNow;
 
@@ -888,24 +888,24 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 	 *
 	 * @param message Message
 	 */
-	private void recvGameStat(String[] message) {
-		// int uid = Integer.parseInt(message[1]);
-		int seatID = Integer.parseInt(message[2]);
+	private void recvGameStat(NetMessage message) {
+		// int uid = message.asInt(0);
+		int seatID = message.asInt(1);
 		int playerID = getPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || playerSeatNumber < 0) {
 			GameEngine engine = owner.engines[playerID];
 
-			float tempGarbageSend = Float.parseFloat(message[5]);
+			float tempGarbageSend = message.asFloat(4);
 			garbageSent[playerID] = (int) (tempGarbageSend * GARBAGE_DENOMINATOR);
 
-			playerAPL[playerID] = Float.parseFloat(message[6]);
-			playerAPM[playerID] = Float.parseFloat(message[7]);
-			engine.statistics.lines = Integer.parseInt(message[8]);
-			engine.statistics.lpm = Float.parseFloat(message[9]);
-			engine.statistics.totalPieceLocked = Integer.parseInt(message[10]);
-			engine.statistics.pps = Float.parseFloat(message[11]);
-			engine.statistics.time = Integer.parseInt(message[12]);
+			playerAPL[playerID] = message.asFloat(5);
+			playerAPM[playerID] = message.asFloat(6);
+			engine.statistics.lines = message.asInt(7);
+			engine.statistics.lpm = message.asFloat(8);
+			engine.statistics.totalPieceLocked = message.asInt(9);
+			engine.statistics.pps = message.asFloat(10);
+			engine.statistics.time = message.asInt(11);
 
 			isPlayerResultReceived[playerID] = true;
 		}
@@ -1297,55 +1297,55 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				mainAttackCategory = ATTACK_CATEGORY_SPIN;
 				if (engine.tspinez) {
 					attackLineIndex = LINE_ATTACK_INDEX_EZ_T;
-					lastevent[playerID] = LineClearEvent.TSPIN_EZ;
+					lastevents[playerID] = LineClearEvent.TSPIN_EZ;
 				}
 				// T-Spin 1 line
 				else if (lines == 1) {
 					if (engine.tspinmini) {
 						attackLineIndex = LINE_ATTACK_INDEX_TMINI;
-						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE_MINI;
+						lastevents[playerID] = LineClearEvent.TSPIN_SINGLE_MINI;
 					} else {
 						attackLineIndex = LINE_ATTACK_INDEX_TSINGLE;
-						lastevent[playerID] = LineClearEvent.TSPIN_SINGLE;
+						lastevents[playerID] = LineClearEvent.TSPIN_SINGLE;
 					}
 				}
 				// T-Spin 2 lines
 				else if (lines == 2) {
 					if (engine.tspinmini && engine.useAllSpinBonus) {
 						attackLineIndex = LINE_ATTACK_INDEX_TMINI_D;
-						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE_MINI;
+						lastevents[playerID] = LineClearEvent.TSPIN_DOUBLE_MINI;
 					} else {
 						attackLineIndex = LINE_ATTACK_INDEX_TDOUBLE;
-						lastevent[playerID] = LineClearEvent.TSPIN_DOUBLE;
+						lastevents[playerID] = LineClearEvent.TSPIN_DOUBLE;
 					}
 				}
 				// T-Spin 3 lines
 				else if (lines >= 3) {
 					attackLineIndex = LINE_ATTACK_INDEX_TTRIPLE;
-					lastevent[playerID] = LineClearEvent.TSPIN_TRIPLE;
+					lastevents[playerID] = LineClearEvent.TSPIN_TRIPLE;
 				}
 			} else {
 				switch (lines) {
 				case 1:
 					// 1Column
 					attackLineIndex = LINE_ATTACK_INDEX_SINGLE;
-					lastevent[playerID] = LineClearEvent.SINGLE;
+					lastevents[playerID] = LineClearEvent.SINGLE;
 					break;
 				case 2:
 					// 2Column
 					attackLineIndex = LINE_ATTACK_INDEX_DOUBLE;
-					lastevent[playerID] = LineClearEvent.DOUBLE;
+					lastevents[playerID] = LineClearEvent.DOUBLE;
 					break;
 				case 3:
 					// 3Column
 					attackLineIndex = LINE_ATTACK_INDEX_TRIPLE;
-					lastevent[playerID] = LineClearEvent.TRIPLE;
+					lastevents[playerID] = LineClearEvent.TRIPLE;
 					break;
 				default:
 					if (lines >= 4) {
 						// 4 lines
 						attackLineIndex = LINE_ATTACK_INDEX_FOUR;
-						lastevent[playerID] = LineClearEvent.FOUR;
+						lastevents[playerID] = LineClearEvent.FOUR;
 					}
 					break;
 				}
@@ -1448,7 +1448,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 				int targetSeatID = targetID == -1 ? -1 : allPlayerSeatNumbers[targetID];
 
-				netLobby.netPlayerClient.send(NetCmd.GAME, "attack", stringPts, lastevent[playerID], lastb2b[playerID],
+				netLobby.netPlayerClient.send(NetCmd.GAME, "attack", stringPts, lastevents[playerID], lastb2b[playerID],
 						lastcombo[playerID], garbage[playerID], lastpiece[playerID], targetSeatID);
 			}
 		}
@@ -1722,7 +1722,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				renderer.drawDirectFont(engine, 0, x, 342, "" + numWins, Colors.FONT_WHITE, 0.5f);
 			}
 			renderer.drawDirectFont(engine, 0, x, 358, "ALL ROOMS", Colors.FONT_GREEN, 0.5f);
-			renderer.drawDirectFont(engine, 0, x, 366, "" + netLobby.netPlayerClient.getRoomInfoList().size(),
+			renderer.drawDirectFont(engine, 0, x, 366, "" + netLobby.netPlayerClient.getRoomInfos().size(),
 					Colors.FONT_WHITE, 0.5f);
 		}
 
@@ -1802,7 +1802,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 		// Practice mode
 		if (playerID == 0 && (isPractice || numNowPlayers == 1) && isPracticeExitAllowed) {
-			if (lastevent[playerID] == LineClearEvent.NONE || scgettime[playerID] >= 120) {
+			if (lastevents[playerID] == LineClearEvent.NONE || scgettime[playerID] >= 120) {
 				renderer.drawMenuFont(engine, 0, 0, 21,
 						"F(" + renderer.getKeyNameByButtonID(engine, Controller.BUTTON_F) + " KEY):\n END GAME",
 						Colors.FONT_PURPLE);
@@ -1838,11 +1838,11 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 		}
 
 		// Line clear event
-		if (lastevent[playerID] != LineClearEvent.NONE && scgettime[playerID] < 120) {
+		if (lastevents[playerID] != LineClearEvent.NONE && scgettime[playerID] < 120) {
 			String piece = Piece.getPieceName(lastpiece[playerID]);
 			var color = lastb2b[playerID] ? Colors.FONT_RED : Colors.FONT_ORANGE;
 			if (engine.displaySize != DisplaySize.SMALL) {
-				switch (lastevent[playerID]) {
+				switch (lastevents[playerID]) {
 				case LineClearEvent.SINGLE:
 					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
 					break;
@@ -1887,7 +1887,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				if (useFractionalGarbage && garbage[playerID] > 0) {
 					x2 = 0;
 				}
-				switch (lastevent[playerID]) {
+				switch (lastevents[playerID]) {
 				case LineClearEvent.SINGLE:
 					renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, "SINGLE", Colors.FONT_DARKBLUE,
 							0.5f);
@@ -2277,10 +2277,12 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 	@Deprecated
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+	public void netlobbyOnMessage(NetMessage message) {
+
+		switch (message.command()) {
 		// PlayerState change
-		if (message[0].equals("playerupdate")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
+		case PLAYER_UPDATE -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
 
 			if (pInfo.roomID == currentRoomID && pInfo.seatID != -1) {
 				int playerID = getPlayerIDbySeatID(pInfo.seatID);
@@ -2302,8 +2304,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			updatePlayerNames();
 		}
 		// PlayerCut
-		if (message[0].equals("playerlogout")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
+		case PLAYER_LOGOUT -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
 
 			if (pInfo.roomID == currentRoomID && pInfo.seatID != -1) {
 				updatePlayerExist();
@@ -2311,11 +2313,11 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		// Participation status change
-		if (message[0].equals("changestatus")) {
-			int uid = Integer.parseInt(message[2]);
+		case CHANGE_STATUS -> {
+			int uid = message.asInt(1);
 
 			if (uid == netLobby.netPlayerClient.getPlayerUID()) {
-				playerSeatNumber = client.getYourPlayerInfo().seatID;
+				playerSeatNumber = netLobby.netPlayerClient.getYourPlayerInfo().seatID;
 				isReady[0] = false;
 
 				updatePlayerExist();
@@ -2357,8 +2359,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					}
 					owner.engines[i].resetStatc();
 				}
-			} else if (message[1].equals("watchonly")) {
-				int seatID = Integer.parseInt(message[4]);
+			} else if ("watchonly".equals(message.text(0))) {
+				int seatID = message.asInt(3);
 				int playerID = getPlayerIDbySeatID(seatID);
 				isPlayerExist[playerID] = false;
 				isReady[playerID] = false;
@@ -2366,15 +2368,15 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		// I came someone
-		if (message[0].equals("playerenter")) {
-			int seatID = Integer.parseInt(message[3]);
+		case PLAYER_ENTER -> {
+			int seatID = message.asInt(2);
 			if (seatID != -1 && numPlayers < 2) {
 				owner.renderer.playSE(Sounds.LEVEL_STOP);
 			}
 		}
 		// I went out someone
-		if (message[0].equals("playerleave")) {
-			int seatID = Integer.parseInt(message[3]);
+		case PLAYER_LEAVE -> {
+			int seatID = message.asInt(2);
 
 			if (seatID != -1) {
 				int playerID = getPlayerIDbySeatID(seatID);
@@ -2390,26 +2392,24 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		// Automatic timer start
-		if (message[0].equals("autostartbegin")) {
-			if (numPlayers >= 2) {
-				int seconds = Integer.parseInt(message[1]);
+		case AUTOSTART_BEGIN -> {
+			if (numPlayers >= 2) { // NOSONAR
+				int seconds = message.asInt(0);
 				autoStartTimer = seconds * 60;
 				autoStartActive = true;
 			}
 		}
 		// Automatic timer stop
-		if (message[0].equals("autostartstop")) {
-			autoStartActive = false;
-		}
+		case AUTOSTART_STOP -> autoStartActive = false;
 		// game start
-		if (message[0].equals("start")) {
-			long randseed = Long.parseLong(message[1], 16);
-			numNowPlayers = Integer.parseInt(message[2]);
+		case START -> {
+			long randseed = Long.parseLong(message.text(0), 16);
+			numNowPlayers = message.asInt(1);
 			if (numNowPlayers >= 2 && playerSeatNumber != -1) {
 				numGames++;
 			}
 			numAlivePlayers = numNowPlayers;
-			mapNo = Integer.parseInt(message[3]);
+			mapNo = message.asInt(2);
 
 			resetFlags();
 			owner.reset();
@@ -2477,12 +2477,12 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		// Death
-		if (message[0].equals("dead")) {
-			int seatID = Integer.parseInt(message[3]);
+		case DEAD -> {
+			int seatID = message.asInt(2);
 			int playerID = getPlayerIDbySeatID(seatID);
 			int koUID = -1;
-			if (message.length > 5) {
-				koUID = Integer.parseInt(message[5]);
+			if (message.length() > 4) {
+				koUID = message.asInt(4);
 			}
 
 //			if((useTankMode) && (playerTeamsIsTank[playerID])) {
@@ -2500,7 +2500,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 
 			if (!isDead[playerID]) {
 				isDead[playerID] = true;
-				playerPlace[playerID] = Integer.parseInt(message[4]);
+				playerPlace[playerID] = message.asInt(3);
 				owner.engines[playerID].gameEnded();
 				owner.engines[playerID].stat = GameEngine.Status.GAMEOVER;
 				owner.engines[playerID].resetStatc();
@@ -2516,11 +2516,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			}
 		}
 		// Game Stats
-		if (message[0].equals("gstat")) {
-			recvGameStat(message);
-		}
+		case GSTAT -> recvGameStat(message);
 		// game finished
-		if (message[0].equals("finish")) {
+		case FINISH -> {
 			log.debug("Game Finished");
 
 			isNetGameActive = false;
@@ -2540,10 +2538,9 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				owner.engines[0].resetStatc();
 			}
 
-			boolean flagTeamWin = Boolean.parseBoolean(message[4]);
+			boolean flagTeamWin = message.asBool(3);
 
 			if (flagTeamWin) {
-				// String strTeam = NetUtil.urlDecode(message[3]);
 				for (int i = 0; i < MAX_PLAYERS; i++) {
 					if (isPlayerExist[i] && !isDead[i]) {
 						playerPlace[i] = 1;
@@ -2560,7 +2557,7 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					}
 				}
 			} else {
-				int seatID = Integer.parseInt(message[2]);
+				int seatID = message.asInt(1);
 				if (seatID != -1) {
 					int playerID = getPlayerIDbySeatID(seatID);
 					if (isPlayerExist[playerID]) {
@@ -2587,31 +2584,31 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 			updatePlayerNames();
 		}
 		// game messages
-		if (message[0].equals("game")) {
-			int uid = Integer.parseInt(message[1]);
-			int seatID = Integer.parseInt(message[2]);
+		case GAME -> {
+			int uid = message.asInt(0);
+			int seatID = message.asInt(1);
 			int playerID = getPlayerIDbySeatID(seatID);
 
 			if (owner.engines[playerID].field == null) {
 				owner.engines[playerID].field = new Field();
 			}
 
+			String gameCmd = message.text(2);
+
+			switch (gameCmd) {
 			// Field without attributes
-			if (message[3].equals("field")) {
-				if (message.length > 7) {
+			case "field" -> {
+				if (message.length() > 6) { // NOSONAR
 					owner.engines[playerID].nowPieceObject = null;
 					owner.engines[playerID].holdDisable = false;
-					garbage[playerID] = Integer.parseInt(message[4]);
-					int skin = Integer.parseInt(message[5]);
-					int highestGarbageY = Integer.parseInt(message[6]);
-					int highestWallY = Integer.parseInt(message[7]);
+					garbage[playerID] = message.asInt(3);
+					int skin = message.asInt(4);
+					int highestGarbageY = message.asInt(5);
+					int highestWallY = message.asInt(6);
 					playerSkin[playerID] = skin;
-					if (message.length > 9) {
-						String strFieldData = message[8];
-						boolean isCompressed = Boolean.parseBoolean(message[9]);
-						if (isCompressed) {
-							strFieldData = NetUtil.decompressString(strFieldData);
-						}
+					if (message.length() > 8) {
+						boolean isCompressed = message.asBool(8);
+						String strFieldData = isCompressed ? message.decompressed(7) : message.text(7);
 						owner.engines[playerID].field.stringToField(strFieldData, skin, highestGarbageY, highestWallY);
 					} else {
 						owner.engines[playerID].field.reset();
@@ -2619,19 +2616,16 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 			}
 			// Field with attributes
-			if (message[3].equals("fieldattr")) {
-				if (message.length > 5) {
+			case "fieldattr" -> {
+				if (message.length() > 4) { // NOSONAR
 					owner.engines[playerID].nowPieceObject = null;
 					owner.engines[playerID].holdDisable = false;
-					garbage[playerID] = Integer.parseInt(message[4]);
-					int skin = Integer.parseInt(message[5]);
+					garbage[playerID] = message.asInt(3);
+					int skin = message.asInt(4);
 					playerSkin[playerID] = skin;
-					if (message.length > 7) {
-						String strFieldData = message[6];
-						boolean isCompressed = Boolean.parseBoolean(message[7]);
-						if (isCompressed) {
-							strFieldData = NetUtil.decompressString(strFieldData);
-						}
+					if (message.length() > 6) {
+						boolean isCompressed = message.asBool(6);
+						String strFieldData = isCompressed ? message.decompressed(5) : message.text(5);
 						owner.engines[playerID].field.attrStringToField(strFieldData, skin);
 					} else {
 						owner.engines[playerID].field.reset();
@@ -2639,17 +2633,17 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 			}
 			// During operationBlock
-			if (message[3].equals("piece")) {
-				int id = Integer.parseInt(message[4]);
+			case "piece" -> {
+				int id = message.asInt(3);
 
 				if (id >= 0) {
-					int pieceX = Integer.parseInt(message[5]);
-					int pieceY = Integer.parseInt(message[6]);
-					int pieceDir = Integer.parseInt(message[7]);
-					// int pieceBottomY = Integer.parseInt(message[8]);
-					int pieceColor = Integer.parseInt(message[9]);
-					int pieceSkin = Integer.parseInt(message[10]);
-					boolean pieceBig = message.length > 11 && Boolean.parseBoolean(message[11]);
+					int pieceX = message.asInt(4);
+					int pieceY = message.asInt(5);
+					int pieceDir = message.asInt(6);
+					// int pieceBottomY = message.asInt(7);
+					int pieceColor = message.asInt(8);
+					int pieceSkin = message.asInt(9);
+					boolean pieceBig = message.length() > 10 && message.asBool(10);
 
 					owner.engines[playerID].nowPieceObject = new Piece(id);
 					owner.engines[playerID].nowPieceObject.direction = pieceDir;
@@ -2699,27 +2693,27 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 //				playerTeamsIsTank[playerID] = true;
 //			}
 			// Attack
-			if (message[3].equals("attack")) {
-				// int pts = Integer.parseInt(message[4]);
+			case "attack" -> {
+				// int pts = message.asInt(3);
 				int[] pts = new int[ATTACK_CATEGORIES];
 				int sumPts = 0;
 
 				for (int i = 0; i < ATTACK_CATEGORIES; i++) {
-					pts[i] = Integer.parseInt(message[4 + i]);
+					pts[i] = message.asInt(3 + i);
 					sumPts += pts[i];
 				}
 
-				lastevent[playerID] = LineClearEvent.values()[Integer.parseInt(message[ATTACK_CATEGORIES + 5])];
-				lastb2b[playerID] = Boolean.parseBoolean(message[ATTACK_CATEGORIES + 6]);
-				lastcombo[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 7]);
-				garbage[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 8]);
-				lastpiece[playerID] = Integer.parseInt(message[ATTACK_CATEGORIES + 9]);
+				lastevents[playerID] = LineClearEvent.values()[message.asInt(ATTACK_CATEGORIES + 4)];
+				lastb2b[playerID] = message.asBool(ATTACK_CATEGORIES + 5);
+				lastcombo[playerID] = message.asInt(ATTACK_CATEGORIES + 6);
+				garbage[playerID] = message.asInt(ATTACK_CATEGORIES + 7);
+				lastpiece[playerID] = message.asInt(ATTACK_CATEGORIES + 8);
 				scgettime[playerID] = 0;
-				int targetSeatID = Integer.parseInt(message[ATTACK_CATEGORIES + 10]);
+				int targetSeatID = message.asInt(ATTACK_CATEGORIES + 9);
 
 				if (playerSeatNumber != -1 && owner.engines[0].timerActive && sumPts > 0 && !isPractice && !isNewcomer
 						&& (targetSeatID == -1 || playerSeatNumber == targetSeatID || !currentRoomInfo.isTarget)
-						&& (playerTeams[0].length() <= 0 || playerTeams[playerID].length() <= 0
+						&& (playerTeams[0].isEmpty() || playerTeams[playerID].isEmpty()
 								|| !playerTeams[0].equalsIgnoreCase(playerTeams[playerID])))
 //				if( (playerSeatNumber != -1) && (owner.engine[0].timerActive) && (sumPts > 0) && (!isPractice) && (!isNewcomer) &&
 //					((targetSeatID == -1) || (playerSeatNumber == targetSeatID) || (!currentRoomInfo.isTarget)) &&
@@ -2747,18 +2741,16 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				}
 			}
 			// Update bar rising auction
-			if (message[3].equals("garbageupdate")) {
-				garbage[playerID] = Integer.parseInt(message[4]);
-			}
+			case "garbageupdate" -> garbage[playerID] = message.asInt(3);
 			// NEXT and HOLD
-			if (message[3].equals("next")) {
-				int maxNext = Integer.parseInt(message[4]);
+			case "next" -> {
+				int maxNext = message.asInt(3);
 				owner.engines[playerID].ruleopt.nextDisplay = maxNext;
-				owner.engines[playerID].holdDisable = Boolean.parseBoolean(message[5]);
+				owner.engines[playerID].holdDisable = message.asBool(6);
 
 				for (int i = 0; i < maxNext + 1; i++) {
-					if (i + 6 < message.length) {
-						String[] strPieceData = message[i + 6].split(";");
+					if (i + 5 < message.length()) {
+						String[] strPieceData = message.text(i + 5).split(";");
 						int pieceID = Integer.parseInt(strPieceData[0]);
 						int pieceDirection = Integer.parseInt(strPieceData[1]);
 						int pieceColor = Integer.parseInt(strPieceData[2]);
@@ -2791,8 +2783,8 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 				owner.engines[playerID].isHoldVisible = true;
 			}
 			// HurryUp
-			if (message[3].equals("hurryup")) {
-				if (!hurryupStarted && hurryupSeconds > 0) {
+			case "hurryup" -> {
+				if (!hurryupStarted && hurryupSeconds > 0) { // NOSONAR
 					if (playerSeatNumber != -1 && owner.engines[0].timerActive) {
 						owner.renderer.playSE(Sounds.HURRY_UP);
 					}
@@ -2800,6 +2792,12 @@ public class LegacyNetVSBattleMode extends NetDummyMode {
 					hurryupShowFrames = 60 * 5;
 				}
 			}
+			default -> log.debug("unknown game update: " + gameCmd);
+			}
+		}
+		default -> {
+			// ignore
+		}
 		}
 	}
 

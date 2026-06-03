@@ -44,35 +44,37 @@ public interface GameMode {
 	 *
 	 * @return Mode name
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * Get (max) number of players.
 	 *
 	 * @return Number of players
 	 */
-	public int getPlayers();
+	int getPlayers();
 
 	/**
-	 * Get game style.
+	 * Get game style. The default implementation return {@link GameStyle#TETROMINO}
 	 *
 	 * @return Game style of this mode
 	 */
-	public GameStyle getGameStyle();
+	default GameStyle getGameStyle() {
+		return GameStyle.TETROMINO;
+	}
 
 	/**
 	 * Sets the game manager for this mode
 	 *
 	 * @param manager to use
 	 */
-	public void setOwner(GameManager manager);
+	void setOwner(GameManager manager);
 
 	/**
 	 * Initialization of game mode. Executed before the game screen appears.
 	 *
 	 * @param manager GameManager that owns this mode
 	 */
-	public void modeInit(GameManager manager);
+	void modeInit(GameManager manager);
 
 	/**
 	 * Initialization for each player.
@@ -80,7 +82,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void playerInit(GameEngine engine, int playerID);
+	void playerInit(GameEngine engine, int playerID);
 
 	/**
 	 * Executed after Ready->Go, before the first piece appears.
@@ -88,7 +90,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void startGame(GameEngine engine, int playerID);
+	void startGame(GameEngine engine, int playerID);
 
 	/**
 	 * Executed at the start of each frame.
@@ -96,7 +98,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void onFirst(GameEngine engine, int playerID);
+	void onFirst(GameEngine engine, int playerID);
 
 	/**
 	 * Executed at the end of each frame. You can update your own timers here.
@@ -104,7 +106,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void onLast(GameEngine engine, int playerID);
+	void onLast(GameEngine engine, int playerID);
 
 	/**
 	 * Settings screen.
@@ -114,7 +116,7 @@ public interface GameMode {
 	 * @return true if you don't want to start the game yet. false if settings are
 	 *         done.
 	 */
-	public boolean onSetting(GameEngine engine, int playerID);
+	boolean onSetting(GameEngine engine, int playerID);
 
 	/**
 	 * Ready->Go screen.
@@ -124,7 +126,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onReady(GameEngine engine, int playerID);
+	boolean onReady(GameEngine engine, int playerID);
 
 	/**
 	 * Piece movement screen. This is where the player can move/rotate/drop current
@@ -135,7 +137,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onMove(GameEngine engine, int playerID);
+	boolean onMove(GameEngine engine, int playerID);
 
 	/**
 	 * "Lock flash" screen. Certain rules may skip this screen.
@@ -145,7 +147,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onLockFlash(GameEngine engine, int playerID);
+	boolean onLockFlash(GameEngine engine, int playerID);
 
 	/**
 	 * During line clear.
@@ -155,7 +157,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onLineClear(GameEngine engine, int playerID);
+	boolean onLineClear(GameEngine engine, int playerID);
 
 	/**
 	 * During ARE.
@@ -165,7 +167,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onARE(GameEngine engine, int playerID);
+	boolean onARE(GameEngine engine, int playerID);
 
 	/**
 	 * During ending-start sequence.
@@ -175,7 +177,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onEndingStart(GameEngine engine, int playerID);
+	boolean onEndingStart(GameEngine engine, int playerID);
 
 	/**
 	 * "Custom" screen. Any game mode can use this screen freely.
@@ -184,7 +186,7 @@ public interface GameMode {
 	 * @param playerID Player ID
 	 * @return This is ignored.
 	 */
-	public boolean onCustom(GameEngine engine, int playerID);
+	boolean onCustom(GameEngine engine, int playerID);
 
 	/**
 	 * "Excellent!" screen.
@@ -194,7 +196,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onExcellent(GameEngine engine, int playerID);
+	boolean onExcellent(GameEngine engine, int playerID);
 
 	/**
 	 * "Game Over" screen.
@@ -204,7 +206,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onGameOver(GameEngine engine, int playerID);
+	boolean onGameOver(GameEngine engine, int playerID);
 
 	/**
 	 * End-of-game results screen.
@@ -214,7 +216,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onResult(GameEngine engine, int playerID);
+	boolean onResult(GameEngine engine, int playerID);
 
 	/**
 	 * Field editor screen.
@@ -224,7 +226,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean onFieldEdit(GameEngine engine, int playerID);
+	boolean onFieldEdit(GameEngine engine, int playerID);
 
 	/**
 	 * Executed at the start of each frame.
@@ -232,7 +234,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderFirst(GameEngine engine, int playerID);
+	void renderFirst(GameEngine engine, int playerID);
 
 	/**
 	 * Executed at the end of each frame. You can render HUD here.
@@ -240,7 +242,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderLast(GameEngine engine, int playerID);
+	void renderLast(GameEngine engine, int playerID);
 
 	/**
 	 * Render settings screen.
@@ -248,7 +250,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderSetting(GameEngine engine, int playerID);
+	void renderSetting(GameEngine engine, int playerID);
 
 	/**
 	 * Render Ready->Go screen.
@@ -256,7 +258,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderReady(GameEngine engine, int playerID);
+	void renderReady(GameEngine engine, int playerID);
 
 	/**
 	 * Render piece movement screen.
@@ -264,7 +266,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderMove(GameEngine engine, int playerID);
+	void renderMove(GameEngine engine, int playerID);
 
 	/**
 	 * Render "Lock flash" screen.
@@ -272,7 +274,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderLockFlash(GameEngine engine, int playerID);
+	void renderLockFlash(GameEngine engine, int playerID);
 
 	/**
 	 * Render line clear screen.
@@ -280,7 +282,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderLineClear(GameEngine engine, int playerID);
+	void renderLineClear(GameEngine engine, int playerID);
 
 	/**
 	 * Render ARE screen.
@@ -288,7 +290,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderARE(GameEngine engine, int playerID);
+	void renderARE(GameEngine engine, int playerID);
 
 	/**
 	 * Render "ending start sequence" screen.
@@ -296,7 +298,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderEndingStart(GameEngine engine, int playerID);
+	void renderEndingStart(GameEngine engine, int playerID);
 
 	/**
 	 * Render "Custom" screen.
@@ -304,7 +306,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderCustom(GameEngine engine, int playerID);
+	void renderCustom(GameEngine engine, int playerID);
 
 	/**
 	 * Render "Excellent!" screen.
@@ -312,7 +314,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderExcellent(GameEngine engine, int playerID);
+	void renderExcellent(GameEngine engine, int playerID);
 
 	/**
 	 * Render "Game Over" screen.
@@ -320,7 +322,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderGameOver(GameEngine engine, int playerID);
+	void renderGameOver(GameEngine engine, int playerID);
 
 	/**
 	 * Render results screen.
@@ -328,7 +330,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderResult(GameEngine engine, int playerID);
+	void renderResult(GameEngine engine, int playerID);
 
 	/**
 	 * Render field editor screen.
@@ -336,7 +338,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderFieldEdit(GameEngine engine, int playerID);
+	void renderFieldEdit(GameEngine engine, int playerID);
 
 	/**
 	 * Render player input.
@@ -344,7 +346,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void renderInput(GameEngine engine, int playerID);
+	void renderInput(GameEngine engine, int playerID);
 
 	/**
 	 * Executed when a block gets destroyed in line-clear screen.
@@ -355,7 +357,7 @@ public interface GameMode {
 	 * @param y        Y-coordinate
 	 * @param blk      Block
 	 */
-	public void blockBreak(GameEngine engine, int playerID, int x, int y, Block blk);
+	void blockBreak(GameEngine engine, int playerID, int x, int y, Block blk);
 
 	/**
 	 * Calculate score. Executed before pieceLocked. Please note this event will be
@@ -365,7 +367,7 @@ public interface GameMode {
 	 * @param playerID Player ID
 	 * @param lines    Number of lines. Can be zero.
 	 */
-	public void calcScore(GameEngine engine, int playerID, int lines);
+	void calcScore(GameEngine engine, int playerID, int lines);
 
 	/**
 	 * After soft drop is used
@@ -374,7 +376,7 @@ public interface GameMode {
 	 * @param playerID Player ID
 	 * @param fall     Number of rows
 	 */
-	public void afterSoftDropFall(GameEngine engine, int playerID, int fall);
+	void afterSoftDropFall(GameEngine engine, int playerID, int fall);
 
 	/**
 	 * After hard drop is used
@@ -383,7 +385,7 @@ public interface GameMode {
 	 * @param playerID Player ID
 	 * @param fall     Number of rows
 	 */
-	public void afterHardDropFall(GameEngine engine, int playerID, int fall);
+	void afterHardDropFall(GameEngine engine, int playerID, int fall);
 
 	/**
 	 * Executed after the player exits field-editor screen.
@@ -391,7 +393,7 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void fieldEditExit(GameEngine engine, int playerID);
+	void fieldEditExit(GameEngine engine, int playerID);
 
 	/**
 	 * When the current piece locked (Executed before calcScore)
@@ -400,7 +402,7 @@ public interface GameMode {
 	 * @param playerID Player ID
 	 * @param lines    Number of lines. Can be zero.
 	 */
-	public void pieceLocked(GameEngine engine, int playerID, int lines);
+	void pieceLocked(GameEngine engine, int playerID, int lines);
 
 	/**
 	 * When line clear ends
@@ -410,7 +412,7 @@ public interface GameMode {
 	 * @return true if you override everything of this screen (skips default
 	 *         behavior)
 	 */
-	public boolean lineClearEnd(GameEngine engine, int playerID);
+	boolean lineClearEnd(GameEngine engine, int playerID);
 
 	/**
 	 * Called when saving replay
@@ -420,7 +422,7 @@ public interface GameMode {
 	 * @param prop     CustomProperties of replay file (You can write additional
 	 *                 settings here)
 	 */
-	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop);
+	void saveReplay(GameEngine engine, int playerID, CustomProperties prop);
 
 	/**
 	 * Called when a replay file is loaded
@@ -430,35 +432,35 @@ public interface GameMode {
 	 * @param prop     CustomProperties of replay file (You can read additional
 	 *                 settings here)
 	 */
-	public void loadReplay(GameEngine engine, int playerID, CustomProperties prop);
+	void loadReplay(GameEngine engine, int playerID, CustomProperties prop);
 
 	/**
 	 * Is netplay-only mode?
 	 *
 	 * @return true if this is netplay-only mode.
 	 */
-	public boolean isNetplayMode();
+	boolean isNetplayMode();
 
 	/**
 	 * Is VS mode?
 	 *
 	 * @return true if this is multiplayer mode.
 	 */
-	public boolean isVSMode();
+	boolean isVSMode();
 
 	/**
 	 * Initialization for netplay.
 	 *
 	 * @param obj Any object (Currently NetLobbyFrame)
 	 */
-	public void netplayInit(Object obj);
+	void netplayInit(Object obj);
 
 	/**
 	 * When the mode unloads during netplay (Called when mode change happens)
 	 *
 	 * @param obj Any object (Currently NetLobbyFrame)
 	 */
-	public void netplayUnload(Object obj);
+	void netplayUnload(Object obj);
 
 	/**
 	 * Called when retry key is pressed during netplay
@@ -466,5 +468,5 @@ public interface GameMode {
 	 * @param engine   GameEngine
 	 * @param playerID Player ID
 	 */
-	public void netplayOnRetryKey(GameEngine engine, int playerID);
+	void netplayOnRetryKey(GameEngine engine, int playerID);
 }

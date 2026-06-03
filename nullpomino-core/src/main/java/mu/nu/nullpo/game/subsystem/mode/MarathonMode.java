@@ -33,6 +33,7 @@ import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -950,24 +951,24 @@ public class MarathonMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.score = Integer.parseInt(message[4]);
-		engine.statistics.lines = Integer.parseInt(message[5]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
-		engine.statistics.time = Integer.parseInt(message[7]);
-		engine.statistics.level = Integer.parseInt(message[8]);
-		engine.statistics.lpm = Float.parseFloat(message[9]);
-		engine.statistics.spl = Double.parseDouble(message[10]);
-		goaltype = Integer.parseInt(message[11]);
-		engine.gameActive = Boolean.parseBoolean(message[12]);
-		engine.timerActive = Boolean.parseBoolean(message[13]);
-		lastscore = Integer.parseInt(message[14]);
-		scgettime = Integer.parseInt(message[15]);
-		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
-		lastb2b = Boolean.parseBoolean(message[17]);
-		lastcombo = Integer.parseInt(message[18]);
-		lastpiece = Integer.parseInt(message[19]);
-		engine.owner.backgroundStatus.bg = Integer.parseInt(message[20]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.score = message.asInt(3);
+		engine.statistics.lines = message.asInt(4);
+		engine.statistics.totalPieceLocked = message.asInt(5);
+		engine.statistics.time = message.asInt(6);
+		engine.statistics.level = message.asInt(7);
+		engine.statistics.lpm = message.asFloat(8);
+		engine.statistics.spl = message.asDouble(9);
+		goaltype = message.asInt(10);
+		engine.gameActive = message.asBool(11);
+		engine.timerActive = message.asBool(12);
+		lastscore = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(18);
+		engine.owner.backgroundStatus.bg = message.asInt(19);
 
 		// Meter
 		engine.meterValue = engine.statistics.lines % 10 * renderer.getMeterMax(engine) / 9;
@@ -1024,16 +1025,16 @@ public class MarathonMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		startlevel = Integer.parseInt(message[4]);
-		tspinEnableType = Integer.parseInt(message[5]);
-		enableTSpinKick = Boolean.parseBoolean(message[6]);
-		spinCheckType = Integer.parseInt(message[7]);
-		tspinEnableEZ = Boolean.parseBoolean(message[8]);
-		enableB2B = Boolean.parseBoolean(message[9]);
-		enableCombo = Boolean.parseBoolean(message[10]);
-		goaltype = Integer.parseInt(message[11]);
-		big = Boolean.parseBoolean(message[12]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		startlevel = message.asInt(3);
+		tspinEnableType = message.asInt(4);
+		enableTSpinKick = message.asBool(5);
+		spinCheckType = message.asInt(6);
+		tspinEnableEZ = message.asBool(7);
+		enableB2B = message.asBool(8);
+		enableCombo = message.asBool(9);
+		goaltype = message.asInt(10);
+		big = message.asBool(11);
 	}
 
 	/**

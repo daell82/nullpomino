@@ -856,8 +856,7 @@ public class NullpoMinoSlick extends StateBasedGame {
 			if (netObserverClient.isConnected()) {
 				netObserverClient.send(NetCmd.DISCONNECT);
 			}
-			netObserverClient.threadRunning = false;
-			netObserverClient.connectedFlag = false;
+			netObserverClient.close();
 			netObserverClient = null;
 		}
 		propObserver = null;

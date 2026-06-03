@@ -7,6 +7,7 @@ import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.Statistics.Statistic;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetUtil;
 import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
@@ -1100,25 +1101,25 @@ public class DigChallengeMode extends NetDummyMode {
 	 * NET: Receive various in-game stats (as well as goaltype)
 	 */
 	@Override
-	protected void netRecvStats(GameEngine engine, String[] message) {
-		engine.statistics.score = Integer.parseInt(message[4]);
-		engine.statistics.lines = Integer.parseInt(message[5]);
-		engine.statistics.totalPieceLocked = Integer.parseInt(message[6]);
-		engine.statistics.time = Integer.parseInt(message[7]);
-		engine.statistics.level = Integer.parseInt(message[8]);
-		garbageTimer = Integer.parseInt(message[9]);
-		garbageTotal = Integer.parseInt(message[10]);
-		goaltype = Integer.parseInt(message[11]);
-		engine.gameActive = Boolean.parseBoolean(message[12]);
-		engine.timerActive = Boolean.parseBoolean(message[13]);
-		lastscore = Integer.parseInt(message[14]);
-		scgettime = Integer.parseInt(message[15]);
-		lastevent = LineClearEvent.values()[Integer.parseInt(message[16])];
-		lastb2b = Boolean.parseBoolean(message[17]);
-		lastcombo = Integer.parseInt(message[18]);
-		lastpiece = Integer.parseInt(message[19]);
-		engine.owner.backgroundStatus.bg = Integer.parseInt(message[20]);
-		garbagePending = Integer.parseInt(message[21]);
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.score = message.asInt(3);
+		engine.statistics.lines = message.asInt(4);
+		engine.statistics.totalPieceLocked = message.asInt(5);
+		engine.statistics.time = message.asInt(6);
+		engine.statistics.level = message.asInt(7);
+		garbageTimer = message.asInt(8);
+		garbageTotal = message.asInt(9);
+		goaltype = message.asInt(10);
+		engine.gameActive = message.asBool(11);
+		engine.timerActive = message.asBool(12);
+		lastscore = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(18);
+		engine.owner.backgroundStatus.bg = message.asInt(19);
+		garbagePending = message.asInt(20);
 
 		// Meter
 		updateMeter(engine);
@@ -1149,9 +1150,16 @@ public class DigChallengeMode extends NetDummyMode {
 	@Override
 	protected void netSendOptions(GameEngine engine) {
 		String msg = "option\t";
-		msg += goaltype + "\t" + startlevel + "\t" + bgmno + "\t";
-		msg += tspinEnableType + "\t" + enableTSpinKick + "\t" + spinCheckType + "\t" + tspinEnableEZ + "\t";
-		msg += enableB2B + "\t" + enableCombo + "\t" + engine.speed.das;
+		msg += goaltype + "\t";
+		msg += startlevel + "\t";
+		msg += bgmno + "\t";
+		msg += tspinEnableType + "\t";
+		msg += enableTSpinKick + "\t";
+		msg += spinCheckType + "\t";
+		msg += tspinEnableEZ + "\t";
+		msg += enableB2B + "\t";
+		msg += enableCombo + "\t";
+		msg += engine.speed.das;
 		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
 	}
 
@@ -1159,17 +1167,17 @@ public class DigChallengeMode extends NetDummyMode {
 	 * NET: Receive game options
 	 */
 	@Override
-	protected void netRecvOptions(GameEngine engine, String[] message) {
-		goaltype = Integer.parseInt(message[4]);
-		startlevel = Integer.parseInt(message[5]);
-		bgmno = Integer.parseInt(message[6]);
-		tspinEnableType = Integer.parseInt(message[7]);
-		enableTSpinKick = Boolean.parseBoolean(message[8]);
-		spinCheckType = Integer.parseInt(message[9]);
-		tspinEnableEZ = Boolean.parseBoolean(message[10]);
-		enableB2B = Boolean.parseBoolean(message[11]);
-		enableCombo = Boolean.parseBoolean(message[12]);
-		engine.speed.das = Integer.parseInt(message[13]);
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		goaltype = message.asInt(3);
+		startlevel = message.asInt(4);
+		bgmno = message.asInt(5);
+		tspinEnableType = message.asInt(6);
+		enableTSpinKick = message.asBool(7);
+		spinCheckType = message.asInt(8);
+		tspinEnableEZ = message.asBool(9);
+		enableB2B = message.asBool(10);
+		enableCombo = message.asBool(11);
+		engine.speed.das = message.asInt(12);
 	}
 
 	/**

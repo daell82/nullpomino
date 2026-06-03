@@ -224,8 +224,7 @@ public class StateConfigGameTuning extends BaseGameState {
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
 				log.info("Load rule options from setting file");
-				ruleopt = new RuleOptions();
-				ruleopt.readProperty(NullpoMinoSlick.propGlobal, i);
+				ruleopt = RuleOptions.of(NullpoMinoSlick.propGlobal, i);
 			}
 			gameManager.engines[i].ruleopt = ruleopt;
 

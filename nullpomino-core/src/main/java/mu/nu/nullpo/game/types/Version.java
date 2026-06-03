@@ -182,9 +182,11 @@ public record Version(int major, int minor, int micro, boolean isDevBuild, Strin
 	public boolean isGreater(int major, int minor, int micro) {
 		if (major() < major) {
 			return false;
-		} else if (major() == major && minor() < minor) {
+		}
+		if (major() == major && minor() < minor) {
 			return false;
-		} else if (major() == major && minor() == minor && micro() < micro) {
+		}
+		if (major() == major && minor() == minor && micro() < micro) {
 			return false;
 		}
 		return true;
@@ -198,8 +200,8 @@ public record Version(int major, int minor, int micro, boolean isDevBuild, Strin
 	 * @param minor version part
 	 * @return whether this version is compatible
 	 */
-	public boolean isCompatible(int major, int minor) {
-		return major() == major && minor() == minor;
+	public boolean isCompatible(Version other) {
+		return major() == other.major && minor() <= other.minor;
 	}
 
 	/**

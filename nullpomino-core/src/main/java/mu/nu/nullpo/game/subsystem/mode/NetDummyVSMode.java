@@ -1,6 +1,5 @@
 package mu.nu.nullpo.game.subsystem.mode;
 
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -10,6 +9,7 @@ import mu.nu.nullpo.game.component.BGMusicStatus;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetPlayerInfo;
 import mu.nu.nullpo.game.net.NetRoomInfo;
@@ -323,7 +323,7 @@ public class NetDummyVSMode extends NetDummyMode {
 					netvsPlayerWinCount[playerID] = pInfo.winCountNow;
 					netvsPlayerPlayCount[playerID] = pInfo.playCountNow;
 					netvsPlayerName[playerID] = pInfo.getPlayerName();
-					netvsPlayerTeam[playerID] = pInfo.team;
+					netvsPlayerTeam[playerID] = pInfo.getTeam().orElse("");
 
 					// Set frame color
 					if (pInfo.seatID < NETVS_PLAYER_COLOR_FRAME.length) {
@@ -628,8 +628,8 @@ public class NetDummyVSMode extends NetDummyMode {
 	 *
 	 * @param message Message
 	 */
-	protected void netvsRecvEndGameStats(String[] message) {
-		int seatID = Integer.parseInt(message[2]);
+	protected void netvsRecvEndGameStats(NetMessage message) {
+		int seatID = message.asInt(1);
 		int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 		if (playerID != 0 || netvsIsWatch()) {
@@ -722,7 +722,7 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 		}
 		owner.renderer.drawDirectFont(engine, 0, x, y + 72, "ALL ROOMS", Colors.FONT_GREEN, 0.5f);
-		owner.renderer.drawDirectFont(engine, 0, x, y + 80, "" + netLobby.netPlayerClient.getRoomInfoList().size(),
+		owner.renderer.drawDirectFont(engine, 0, x, y + 80, "" + netLobby.netPlayerClient.getRoomInfos().size(),
 				Colors.FONT_WHITE, 0.5f);
 	}
 
@@ -1324,10 +1324,11 @@ public class NetDummyVSMode extends NetDummyMode {
 	 * NET-VS: Message received
 	 */
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+	public void netlobbyOnMessage(NetMessage message) {
+		switch (message.command()) {
 		// Player status update
-		if (message[0].equals("playerupdate")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
+		case PLAYER_UPDATE -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
 
 			// Ready status change
 			if (pInfo.roomID == netCurrentRoomInfo.roomID && pInfo.seatID != -1) {
@@ -1349,16 +1350,15 @@ public class NetDummyVSMode extends NetDummyMode {
 			netUpdatePlayerExist();
 		}
 		// When someone logout
-		if (message[0].equals("playerlogout")) {
-			NetPlayerInfo pInfo = new NetPlayerInfo(message[1]);
-
+		case PLAYER_LOGOUT -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
 			if (pInfo.roomID == netCurrentRoomInfo.roomID && pInfo.seatID != -1) {
 				netUpdatePlayerExist();
 			}
 		}
 		// Player status change (Join/Watch)
-		if (message[0].equals("changestatus")) {
-			int uid = Integer.parseInt(message[2]);
+		case CHANGE_STATUS -> {
+			int uid = message.asInt(1);
 
 			netUpdatePlayerExist();
 			netvsSetGameScreenLayout();
@@ -1385,38 +1385,35 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 		}
 		// Someone entered here
-		if (message[0].equals("playerenter")) {
-			int seatID = Integer.parseInt(message[3]);
+		case PLAYER_ENTER -> {
+			int seatID = message.asInt(2);
 			if (seatID != -1 && netvsNumPlayers < 2) {
 				owner.renderer.playSE(Sounds.LEVEL_STOP);
 			}
 		}
 		// Someone leave here
-		if (message[0].equals("playerleave")) {
+		case PLAYER_LEAVE -> {
 			netUpdatePlayerExist();
-
 			if (netvsNumPlayers < 2) {
 				netvsAutoStartTimerActive = false;
 			}
 		}
 		// Automatic timer start
-		if (message[0].equals("autostartbegin")) {
-			if (netvsNumPlayers >= 2) {
-				int seconds = Integer.parseInt(message[1]);
+		case AUTOSTART_BEGIN -> {
+			if (netvsNumPlayers >= 2) { // NOSONAR
+				int seconds = message.asInt(0);
 				netvsAutoStartTimer = seconds * 60;
 				netvsAutoStartTimerActive = true;
 			}
 		}
 		// Automatic timer stop
-		if (message[0].equals("autostartstop")) {
-			netvsAutoStartTimerActive = false;
-		}
+		case AUTOSTART_STOP -> netvsAutoStartTimerActive = false;
 		// Game Started
-		if (message[0].equals("start")) {
-			long randseed = Long.parseLong(message[1], 16);
-			netvsNumNowPlayers = Integer.parseInt(message[2]);
+		case START -> {
+			long randseed = Long.parseLong(message.text(0), 16);
+			netvsNumNowPlayers = message.asInt(1);
 			netvsNumAlivePlayers = netvsNumNowPlayers;
-			netvsMapNo = Integer.parseInt(message[3]);
+			netvsMapNo = message.asInt(2);
 
 			netvsResetFlags();
 			netUpdatePlayerExist();
@@ -1485,13 +1482,13 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 		}
 		// Dead
-		if (message[0].equals("dead")) {
-			int seatID = Integer.parseInt(message[3]);
+		case DEAD -> {
+			int seatID = message.asInt(2);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
 
 			if (!netvsPlayerDead[playerID]) {
 				netvsPlayerDead[playerID] = true;
-				netvsPlayerPlace[playerID] = Integer.parseInt(message[4]);
+				netvsPlayerPlace[playerID] = message.asInt(3);
 				owner.engines[playerID].stat = GameEngine.Status.GAMEOVER;
 				owner.engines[playerID].resetStatc();
 				netvsNumAlivePlayers--;
@@ -1511,11 +1508,9 @@ public class NetDummyVSMode extends NetDummyMode {
 			}
 		}
 		// End-of-game Stats
-		if (message[0].equals("gstat")) {
-			netvsRecvEndGameStats(message);
-		}
+		case GSTAT -> netvsRecvEndGameStats(message);
 		// Game Finished
-		if (message[0].equals("finish")) {
+		case FINISH -> {
 			netvsIsGameActive = false;
 			netvsIsGameFinished = true;
 			netvsPlayTimerActive = false;
@@ -1531,7 +1526,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				owner.engines[0].resetStatc();
 			}
 
-			boolean flagTeamWin = Boolean.parseBoolean(message[4]);
+			boolean flagTeamWin = message.asBool(3);
 
 			if (flagTeamWin) {
 				// Team won
@@ -1551,7 +1546,7 @@ public class NetDummyVSMode extends NetDummyMode {
 				}
 			} else {
 				// Normal player won
-				int seatID = Integer.parseInt(message[2]);
+				int seatID = message.asInt(1);
 				if (seatID != -1) {
 					int playerID = netvsGetPlayerIDbySeatID(seatID);
 					if (netvsPlayerExist[playerID]) {
@@ -1576,28 +1571,24 @@ public class NetDummyVSMode extends NetDummyMode {
 			netUpdatePlayerExist();
 		}
 		// Game messages
-		if (message[0].equals("game")) {
-			// int uid = Integer.parseInt(message[1])
-			int seatID = Integer.parseInt(message[2]);
+		case GAME -> {
+			// int uid = message.asInt(0);
+			int seatID = message.asInt(1);
 			int playerID = netvsGetPlayerIDbySeatID(seatID);
 			GameEngine engine = owner.engines[playerID];
 
 			if (engine.field == null) {
 				engine.createFieldIfNeeded();
 			}
-
+			String gameCmd = message.text(2);
+			switch (gameCmd) {
 			// Field
-			if (message[3].equals("field") || message[3].equals("fieldattr")) {
-				netRecvField(engine, message);
-			}
+			case "field", "fieldattr" -> netRecvField(engine, message);
 			// Stats
-			if (message[3].equals("stats")) {
-				netRecvStats(engine, message);
-			}
+			case "stats" -> netRecvStats(engine, message);
 			// Current Piece
-			if (message[3].equals("piece")) {
+			case "piece" -> {
 				netRecvPieceMovement(engine, message);
-
 				// Play timer start
 				if (netvsIsWatch() && !netvsIsNewcomer && !netvsPlayTimerActive && !netvsIsGameFinished) {
 					netvsPlayTimerActive = true;
@@ -1611,9 +1602,12 @@ public class NetDummyVSMode extends NetDummyMode {
 				}
 			}
 			// Next and Hold
-			if (message[3].equals("next")) {
-				netRecvNextAndHold(engine, message);
+			case "next" -> netRecvNextAndHold(engine, message);
 			}
+		}
+		default -> {
+			// ignore ?
+		}
 		}
 	}
 }

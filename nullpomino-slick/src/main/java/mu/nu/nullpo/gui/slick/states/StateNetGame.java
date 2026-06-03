@@ -28,8 +28,6 @@
 */
 package mu.nu.nullpo.gui.slick.states;
 
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
@@ -39,6 +37,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 import mu.nu.nullpo.game.component.RuleOptions;
+import mu.nu.nullpo.game.net.NetMessage;
 import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
 import mu.nu.nullpo.game.play.GameManager;
@@ -360,8 +359,7 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 				ruleopt = GeneralUtil.loadRule(rulename);
 			} else {
 				log.info("Load rule options from setting file");
-				ruleopt = new RuleOptions();
-				ruleopt.readProperty(NullpoMinoSlick.propGlobal, 0);
+				ruleopt = RuleOptions.of(NullpoMinoSlick.propGlobal, 0);
 			}
 			gameManager.engines[0].ruleopt = ruleopt;
 
@@ -433,13 +431,13 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 	}
 
 	@Override
-	public void netlobbyOnMessage(NetLobbyFrame lobby, NetPlayerClient client, String[] message) throws IOException {
+	public void netlobbyOnMessage(NetMessage message) {
 	}
 
 	@Override
 	public void netlobbyOnRoomJoin(NetLobbyFrame lobby, NetPlayerClient client, NetRoomInfo roomInfo) {
 		//enterNewMode(roomInfo.strMode);
-		strModeToEnter = roomInfo.strMode;
+		strModeToEnter = roomInfo.getMode();
 	}
 
 	@Override

@@ -48,6 +48,7 @@ import javax.swing.WindowConstants;
 
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.gui.net.UpdateChecker;
+import mu.nu.nullpo.gui.net.UpdateChecker.Status;
 import mu.nu.nullpo.gui.net.UpdateCheckerListener;
 import mu.nu.nullpo.gui.swing.ext.BareBonesBrowserLaunch;
 
@@ -61,7 +62,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	private static final long serialVersionUID = 1L;
 
 	/** Parent window */
-	protected NullpoMinoSwing owner;
+	protected UpdateChecker updateChecker;
 
 	/** State labels */
 	protected JLabel lStatus;
@@ -105,7 +106,7 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	 */
 	public UpdateCheckFrame(NullpoMinoSwing owner) throws HeadlessException {
 		super();
-		this.owner = owner;
+		this.updateChecker = owner.getUpdateChecker();
 
 		// GUIOfInitialization
 		setTitle(NullpoMinoSwing.getUIText("Title_UpdateCheck"));
@@ -282,12 +283,12 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	 */
 	public void load() {
 		txtfldLatestVersion.setForeground(Color.black);
-		if (UpdateChecker.isCompleted()) {
-			txtfldLatestVersion.setText(UpdateChecker.getLatestVersionFullString());
-			txtfldReleaseDate.setText(UpdateChecker.getReleaseDate());
-			txtfldDownloadURL.setText(UpdateChecker.getDownloadURL());
+		if (updateChecker.isCompleted()) {
+			txtfldLatestVersion.setText(updateChecker.getLatestVersion().toString());
+			txtfldReleaseDate.setText(updateChecker.getReleaseDate());
+			txtfldDownloadURL.setText(updateChecker.getDownloadURL());
 
-			if (UpdateChecker.isNewVersionAvailable()) {
+			if (updateChecker.isNewVersionAvailable()) {
 				txtfldLatestVersion.setForeground(Color.red);
 			}
 			btnOpenDownloadURL.setEnabled(true);
@@ -305,10 +306,10 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 		// Update Now check
 		switch (e.getActionCommand()) {
 		case "CheckNow" -> {
-			if (!UpdateChecker.isRunning()) {// NOSONAR
+			if (!updateChecker.isRunning()) {// NOSONAR
 				txtfldLatestVersion.setForeground(Color.black);
-				UpdateChecker.addListener(this);
-				UpdateChecker.startCheckForUpdates(txtfldXMLURL.getText());
+				updateChecker.addListener(this);
+				updateChecker.startCheckForUpdates(txtfldXMLURL.getText());
 				btnCheckNow.setEnabled(false);
 			}
 		}
@@ -335,28 +336,27 @@ public class UpdateCheckFrame extends JFrame implements ActionListener, UpdateCh
 	}
 
 	@Override
-	public void onUpdateCheckerEnd(int status) {
+	public void onUpdateCheckerEnd(Status status) {
 		btnCheckNow.setEnabled(true);
 
-		if (status == UpdateChecker.STATUS_ERROR) {
+		if (status == Status.ERROR) {
 			SwingUtilities
 					.invokeLater(() -> lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Failed")));
-		} else if (status == UpdateChecker.STATUS_COMPLETE) {
+		} else if (status == Status.COMPLETE) {
 			SwingUtilities.invokeLater(() -> {
-				String strURL = UpdateChecker.getDownloadURL();
-				String strInstaller = UpdateChecker.getWindowsInstallerURL();
+				String strURL = updateChecker.getDownloadURL();
+				String strInstaller = updateChecker.getWindowsInstallerURL();
 
 				lStatus.setText(NullpoMinoSwing.getUIText("UpdateCheck_Label_Status_Complete"));
-				txtfldLatestVersion.setText(UpdateChecker.getLatestVersionFullString());
-				txtfldReleaseDate.setText(UpdateChecker.getReleaseDate());
+				txtfldLatestVersion.setText(updateChecker.getLatestVersion().toString());
+				txtfldReleaseDate.setText(updateChecker.getReleaseDate());
 				txtfldDownloadURL.setText(strURL);
 				txtfldWindowsInstallerURL.setText(strInstaller);
 
-				if (UpdateChecker.isNewVersionAvailable()) {
+				if (updateChecker.isNewVersionAvailable()) {
 					txtfldLatestVersion.setForeground(Color.red);
 					txtfldWindowsInstallerURL.setForeground(Color.red);
 				}
-
 				btnOpenDownloadURL.setEnabled(strURL != null && !strURL.isEmpty());
 				btnOpenInstallerURL.setEnabled(strInstaller != null && !strInstaller.isEmpty());
 			});

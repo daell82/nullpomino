@@ -28,13 +28,13 @@
 */
 package mu.nu.nullpo.gui.slick.states;
 
-import org.apache.log4j.Logger;
 import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
+import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.gui.net.UpdateChecker;
 import mu.nu.nullpo.gui.slick.DummyMenuChooseState;
@@ -42,10 +42,12 @@ import mu.nu.nullpo.gui.slick.NormalFontSlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.ResourceHolderSlick;
 import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.Sounds;
 
 /**
  * Title screen state
  */
+@Log4j
 public class StateTitle extends DummyMenuChooseState {
 	/** This state's ID */
 	public static final int ID = 1;
@@ -57,8 +59,7 @@ public class StateTitle extends DummyMenuChooseState {
 	private static final String[] UI_TEXT = { "Title_Start", "Title_Replay", "Title_NetPlay", "Title_Config",
 			"Title_Exit" };
 
-	/** Log */
-	static Logger log = Logger.getLogger(StateTitle.class);
+	private UpdateChecker updateChecker;
 
 	/** true when new version is already checked */
 	protected boolean isNewVersionChecked = false;
@@ -66,6 +67,7 @@ public class StateTitle extends DummyMenuChooseState {
 	public StateTitle() {
 		maxCursor = 4;
 		minChoiceY = 4;
+		updateChecker = new UpdateChecker();
 	}
 
 	/*
@@ -90,8 +92,6 @@ public class StateTitle extends DummyMenuChooseState {
 	public void enter(GameContainer container, StateBasedGame game) throws SlickException {
 		// Observer start
 		NullpoMinoSlick.startObserverClient();
-		// Call GC
-		System.gc();
 
 		// Update title bar
 		if (container instanceof AppGameContainer appContainer) {
@@ -108,7 +108,7 @@ public class StateTitle extends DummyMenuChooseState {
 
 			if (startupCount >= startupMax) {
 				String strURL = NullpoMinoSlick.propGlobal.getProperty("updatechecker.url", "");
-				UpdateChecker.startCheckForUpdates(strURL);
+				updateChecker.startCheckForUpdates(strURL);
 				startupCount = 0;
 			} else {
 				startupCount++;
@@ -137,34 +137,29 @@ public class StateTitle extends DummyMenuChooseState {
 
 		NormalFontSlick.printTTFFont(16, 432, NullpoMinoSlick.getUIText(UI_TEXT[cursor]));
 
-		if (UpdateChecker.isNewVersionAvailable()) {
+		if (updateChecker.isNewVersionAvailable()) {
 			String strTemp = String.format(NullpoMinoSlick.getUIText("Title_NewVersion"),
-					UpdateChecker.getLatestVersionFullString(), UpdateChecker.getReleaseDate());
+					updateChecker.getLatestVersion(), updateChecker.getReleaseDate());
 			NormalFontSlick.printTTFFont(16, 416, strTemp);
 		}
 	}
 
 	@Override
 	protected boolean onDecide(GameContainer container, StateBasedGame game, int delta) {
-		ResourceHolderSlick.soundManager.play("decide");
+		ResourceHolderSlick.soundManager.play(Sounds.DECIDE);
 
 		switch (cursor) {
-		case 0:
+		case 0 -> {
 			StateSelectMode.isTopLevel = true;
 			game.enterState(StateSelectMode.ID);
-			break;
-		case 1:
-			game.enterState(StateReplaySelect.ID);
-			break;
-		case 2:
-			game.enterState(StateNetGame.ID);
-			break;
-		case 3:
-			game.enterState(StateConfigMainMenu.ID);
-			break;
-		case 4:
-			container.exit();
-			break;
+		}
+		case 1 -> game.enterState(StateReplaySelect.ID);
+		case 2 -> game.enterState(StateNetGame.ID);
+		case 3 -> game.enterState(StateConfigMainMenu.ID);
+		case 4 -> container.exit();
+		default -> {
+			// nothing
+		}
 		}
 
 		return false;

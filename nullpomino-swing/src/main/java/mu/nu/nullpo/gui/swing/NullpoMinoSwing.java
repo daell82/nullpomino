@@ -90,6 +90,7 @@ import mu.nu.nullpo.game.types.Version;
 import mu.nu.nullpo.gui.net.NetLobbyFrame;
 import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.gui.net.UpdateChecker;
+import mu.nu.nullpo.gui.net.UpdateChecker.Status;
 import mu.nu.nullpo.gui.net.UpdateCheckerListener;
 import mu.nu.nullpo.util.CustomProperties;
 import mu.nu.nullpo.util.GeneralUtil;
@@ -122,6 +123,10 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 	/** Tuning Settings screen frame */
 	private GameTuningFrame gameTuningFrame;
+
+	/** Check for updates */
+	@Getter
+	private UpdateChecker updateChecker;
 
 	/** Update check Setting screen frame */
 	private UpdateCheckFrame updateCheckFrame;
@@ -415,6 +420,9 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		modeManager.loadGameModes("config/list/mode.lst");
 		modeList = modeManager.getNormalModeNames();
 
+		updateChecker = new UpdateChecker();
+		updateChecker.addListener(this);
+
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -444,8 +452,8 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 			if (startupCount >= startupMax) {
 				String strURL = propGlobal.getProperty("updatechecker.url", "");
-				UpdateChecker.addListener(this);
-				UpdateChecker.startCheckForUpdates(strURL);
+				updateChecker.addListener(this);
+				updateChecker.startCheckForUpdates(strURL);
 				startupCount = 0;
 			} else {
 				startupCount++;
@@ -1206,15 +1214,16 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 
 	@Override
 	public void onUpdateCheckerStart() {
+		// nothing
 	}
 
 	@Override
-	public void onUpdateCheckerEnd(int status) {
-		if (UpdateChecker.isNewVersionAvailable()) {
+	public void onUpdateCheckerEnd(Status status) {
+		if (updateChecker.isNewVersionAvailable()) {
 			SwingUtilities.invokeLater(() -> {
 				if (lModeSelect != null) {
 					String strTemp = String.format(getUIText("Top_NewVersion"),
-							UpdateChecker.getLatestVersionFullString(), UpdateChecker.getReleaseDate());
+							updateChecker.getLatestVersion(), updateChecker.getReleaseDate());
 					lModeSelect.setText(strTemp);
 				}
 			});

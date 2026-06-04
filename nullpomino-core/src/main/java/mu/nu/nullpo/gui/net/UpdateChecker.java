@@ -30,7 +30,9 @@ package mu.nu.nullpo.gui.net;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -38,6 +40,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import mu.nu.nullpo.game.types.Version;
 
@@ -60,44 +63,51 @@ public class UpdateChecker implements Runnable {
 	private static final Pattern TAG_INSTALLER = Pattern.compile("<WindowsInstallerURL>(?<content>.*)</WindowsInstallerURL>");
 
 
-	/** Constant statecount */
-	public static final int STATUS_INACTIVE = 0;
-	public static final int STATUS_LOADING = 1;
-	public static final int STATUS_ERROR = 2;
-	public static final int STATUS_COMPLETE = 3;
+	/** Constant state count */
+	public enum Status {
+		INACTIVE, LOADING, COMPLETE, ERROR;
+	}
 
 	/** Current State */
-	private static volatile int status = 0;
+	@Getter
+	private volatile Status status = Status.INACTIVE;
 
 	/** event Listener */
-	private static final List<UpdateCheckerListener> listeners = new LinkedList<>();
+	private final List<UpdateCheckerListener> listeners = new LinkedList<>();
 
 	/** Update information has been writtenXMLOfURL */
-	private static String strURLofXML = null;
+	private String strURLofXML = null;
 
 	/** The latest version ofVersion number */
-	private static Version latestVersion = Version.of("0");
+	@Getter
+	private Version latestVersion = Version.of("0");
 
 	/** Release Date */
-	private static String releaseDate = null;
+	@Getter
+	private String releaseDate = null;
 
 	/** DownloadURL */
-	private static String downloadURL = null;
+	@Getter
+	private String downloadURL = null;
 
-	/** Installer for Windows URL */
-	private static String windowsInstallerURL = null;
+	/** URL of Installer (*.exe) for Windows */
+	@Getter
+	private String windowsInstallerURL = null;
 
 	/**
 	 * XMLDownload theVersion numberAcquisition and
 	 *
 	 * @return true if successful
 	 */
-	private static boolean checkUpdate() {
+	private Status checkUpdate() {
+		URL url;
 		try {
-			URL url = new URI(strURLofXML).toURL();
-			var httpCon = url.openStream();
-			BufferedReader httpIn = new BufferedReader(new InputStreamReader(httpCon));
-
+			url = new URI(strURLofXML).toURL();
+		} catch (URISyntaxException | MalformedURLException e) {
+			log.error("invalid URL", e);
+			return Status.ERROR;
+		}
+		try (var httpIn = new BufferedReader(new InputStreamReader(url.openStream()))) {
 			String line;
 			while ((line = httpIn.readLine()) != null) {
 				checkTag(line, TAG_VERSION).ifPresent(version -> latestVersion = Version.of(version.replace('_', '.')));
@@ -105,13 +115,11 @@ public class UpdateChecker implements Runnable {
 				checkTag(line, TAG_DOWNLOAD_URL).ifPresent(value -> downloadURL = value);
 				checkTag(line, TAG_INSTALLER).ifPresent(value -> windowsInstallerURL = value);
 			}
-
-			httpIn.close();
 		} catch (Exception e) {
 			log.error("Failed to get latest version data", e);
-			return false;
+			return Status.ERROR;
 		}
-		return true;
+		return Status.COMPLETE;
 	}
 
 	private static Optional<String> checkTag(String data, Pattern pattern) {
@@ -123,16 +131,6 @@ public class UpdateChecker implements Runnable {
 	}
 
 	/**
-	 * The latest version ofVersion numberOfStringGets the type representation
-	 *
-	 * @return The latest version ofVersion numberOfStringType
-	 *         representation("7.0.0"Such as)
-	 */
-	public static String getLatestVersionFullString() {
-		return latestVersion.toString();
-	}
-
-	/**
 	 * Current versionThan the latest version ofVersionWho will determine whether
 	 * the new
 	 *
@@ -140,7 +138,7 @@ public class UpdateChecker implements Runnable {
 	 * @param nowMinor Current MinorVersion
 	 * @return The latest edition of the new and bettertrue
 	 */
-	public static boolean isNewVersionAvailable() {
+	public boolean isNewVersionAvailable() {
 		if (!isCompleted() || latestVersion == null) {
 			return false;
 		}
@@ -153,13 +151,13 @@ public class UpdateChecker implements Runnable {
 	 * @param strURL Latest information entersXMLIn the fileURL(nullWhen I or an
 	 *               empty string default Using the value)
 	 */
-	public static void startCheckForUpdates(String strURL) {
+	public void startCheckForUpdates(String strURL) {
 		if (strURL == null || strURL.isEmpty()) {
 			strURLofXML = DEFAULT_XML_URL;
 		} else {
 			strURLofXML = strURL;
 		}
-		Thread thread = new Thread(new UpdateChecker());
+		Thread thread = new Thread(this);
 		thread.setDaemon(true);
 		thread.start();
 	}
@@ -167,51 +165,15 @@ public class UpdateChecker implements Runnable {
 	/**
 	 * @return Thread is running(Loading)Iftrue
 	 */
-	public static boolean isRunning() {
-		return status == STATUS_LOADING;
+	public boolean isRunning() {
+		return status == Status.LOADING;
 	}
 
 	/**
 	 * @return Completed readingtrue
 	 */
-	public static boolean isCompleted() {
-		return status == STATUS_COMPLETE;
-	}
-
-	/**
-	 * Current Gets the state
-	 *
-	 * @return Current State
-	 */
-	public static int getStatus() {
-		return status;
-	}
-
-	/**
-	 * Gets the date on which the latest version has been released
-	 *
-	 * @return Sun has released the latest version
-	 */
-	public static String getReleaseDate() {
-		return releaseDate;
-	}
-
-	/**
-	 * Where to download the latest versionURLGet the
-	 *
-	 * @return Where to download the latest versionURL
-	 */
-	public static String getDownloadURL() {
-		return downloadURL;
-	}
-
-	/**
-	 * Get the URL of Installer (*.exe) for Windows
-	 *
-	 * @return URL of Installer (*.exe) for Windows
-	 */
-	public static String getWindowsInstallerURL() {
-		return windowsInstallerURL;
+	public boolean isCompleted() {
+		return status == Status.COMPLETE;
 	}
 
 	/**
@@ -219,7 +181,7 @@ public class UpdateChecker implements Runnable {
 	 *
 	 * @param l Add event Listener
 	 */
-	public static void addListener(UpdateCheckerListener l) {
+	public void addListener(UpdateCheckerListener l) {
 		if (listeners.contains(l)) {
 			return;
 		}
@@ -233,7 +195,7 @@ public class UpdateChecker implements Runnable {
 	 * @return Has been deletedtrue, It has not been registered from the
 	 *         beginningfalse
 	 */
-	public static boolean removeListener(UpdateCheckerListener l) {
+	public boolean removeListener(UpdateCheckerListener l) {
 		return listeners.remove(l);
 	}
 
@@ -243,21 +205,17 @@ public class UpdateChecker implements Runnable {
 	@Override
 	public void run() {
 		// Start
-		status = STATUS_LOADING;
-		for (UpdateCheckerListener l : listeners) {
-			l.onUpdateCheckerStart();
+		status = Status.LOADING;
+		for (UpdateCheckerListener listener : listeners) {
+			listener.onUpdateCheckerStart();
 		}
 
 		// Update check
-		if (checkUpdate()) {
-			status = STATUS_COMPLETE;
-		} else {
-			status = STATUS_ERROR;
-		}
+		status = checkUpdate();
 
 		// End
-		for (UpdateCheckerListener l : listeners) {
-			l.onUpdateCheckerEnd(status);
+		for (UpdateCheckerListener listener : listeners) {
+			listener.onUpdateCheckerEnd(status);
 		}
 	}
 }

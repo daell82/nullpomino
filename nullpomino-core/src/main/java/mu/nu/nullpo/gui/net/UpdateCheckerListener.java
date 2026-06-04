@@ -28,6 +28,8 @@
 */
 package mu.nu.nullpo.gui.net;
 
+import mu.nu.nullpo.gui.net.UpdateChecker.Status;
+
 /**
  * NewVersionChecker forListener
  */
@@ -39,8 +41,8 @@ public interface UpdateCheckerListener {
 
 	/**
 	 * Update check When finished
-	 * 
+	 *
 	 * @param status State(FailureSTATUS_ERROR, The successSTATUS_COMPLETE)
 	 */
-	public void onUpdateCheckerEnd(int status);
+	public void onUpdateCheckerEnd(Status status);
 }

@@ -30,9 +30,9 @@ package mu.nu.nullpo.game.subsystem.ai;
 
 import lombok.Getter;
 import lombok.Setter;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.play.GameEngine;
 
 /**
  * DummyAI - Base class for AI players

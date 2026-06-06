@@ -1,0 +1,1506 @@
+package mu.nu.nullpo.game.net.modes;
+
+import java.util.Calendar;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.TimeZone;
+import java.util.zip.Adler32;
+
+import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.GameManager;
+import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Field;
+import mu.nu.nullpo.game.component.Piece;
+import mu.nu.nullpo.game.component.RuleOptions;
+import mu.nu.nullpo.game.component.Statistics;
+import mu.nu.nullpo.game.event.Renderer;
+import mu.nu.nullpo.game.modes.AbstractMode;
+import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
+import mu.nu.nullpo.game.net.NetPlayerInfo;
+import mu.nu.nullpo.game.net.NetRoomInfo;
+import mu.nu.nullpo.game.net.client.NetPlayerClient;
+import mu.nu.nullpo.game.net.gui.NetLobbyFrame;
+import mu.nu.nullpo.game.net.gui.NetLobbyListener;
+import mu.nu.nullpo.game.net.ranking.NetSPRecord;
+import mu.nu.nullpo.game.net.ranking.NetSPRecord.RankingType;
+import mu.nu.nullpo.game.net.NetUtil;
+import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
+import net.omegaboshi.nullpomino.game.subsystem.randomizer.Randomizer;
+
+/**
+ * Special base class for netplay
+ */
+@Log4j
+public class NetplayMode extends AbstractMode implements NetLobbyListener {
+
+	/** NET: Lobby (Declared in NetDummyMode) */
+	protected NetLobbyFrame netLobby;
+
+	/** NET: true if netplay (Declared in NetDummyMode) */
+	protected boolean netIsNetPlay;
+
+	/** NET: true if watch mode (Declared in NetDummyMode) */
+	protected boolean netIsWatch;
+
+	/** NET: Current room info. Sometimes null. (Declared in NetDummyMode) */
+	protected NetRoomInfo netCurrentRoomInfo;
+
+	/** NET: Number of spectators (Declared in NetDummyMode) */
+	protected int netNumSpectators;
+
+	/** NET: Send all movements even if there are no spectators */
+	protected boolean netForceSendMovements;
+
+	/** NET: Previous piece informations (Declared in NetDummyMode) */
+	protected int netPrevPieceID;
+	protected int netPrevPieceX;
+	protected int netPrevPieceY;
+	protected int netPrevPieceDir;
+
+	/** NET: The skin player using (Declared in NetDummyMode) */
+	protected int netPlayerSkin;
+
+	/**
+	 * NET: If true, NetDummyMode will always send attributes when sending the field
+	 * (Declared in NetDummyMode)
+	 */
+	protected boolean netAlwaysSendFieldAttributes;
+
+	/** NET: Player name (Declared in NetDummyMode) */
+	protected String netPlayerName;
+
+	/**
+	 * NET: Replay send status (0:Before Send 1:Sending 2:Sent) (Declared in
+	 * NetDummyMode)
+	 */
+	protected int netReplaySendStatus;
+
+	/** NET: Current round's online ranking rank (Declared in NetDummyMode) */
+	protected int[] netRankingRank;
+
+	/** NET: True if new personal record (Declared in NetDummyMode) */
+	protected boolean netIsPB;
+
+	/** NET: True if net ranking display mode (Declared in NetDummyMode) */
+	protected boolean netIsNetRankingDisplayMode;
+
+	/** NET: Net ranking cursor position (Declared in NetDummyMode) */
+	protected int[] netRankingCursor;
+
+	/** NET: Net ranking player's current rank (Declared in NetDummyMode) */
+	protected int[] netRankingMyRank;
+
+	/**
+	 * NET: 0 if viewing all-time ranking, 1 if viewing daily ranking (Declared in
+	 * NetDummyMode)
+	 */
+	protected int netRankingView;
+
+	/** NET: Net ranking type (Declared in NetDummyMode) */
+	protected RankingType netRankingType;
+
+	/**
+	 * NET: True if no data is present. [0] for all-time and [1] for daily.
+	 * (Declared in NetDummyMode)
+	 */
+	protected boolean[] netRankingNoDataFlag;
+
+	/**
+	 * NET: True if loading is complete. [0] for all-time and [1] for daily.
+	 * (Declared in NetDummyMode)
+	 */
+	protected boolean[] netRankingReady;
+
+	/** NET: Net Rankings' rank (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingPlace;
+
+	/** NET: Net Rankings' names (Declared in NetDummyMode) */
+	protected List<String>[] netRankingName;
+
+	/** NET: Net Rankings' timestamps (Declared in NetDummyMode) */
+	protected List<Calendar>[] netRankingDate;
+
+	/** NET: Net Rankings' gamerates (Declared in NetDummyMode) */
+	protected List<Float>[] netRankingGamerate;
+
+	/** NET: Net Rankings' times (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingTime;
+
+	/** NET: Net Rankings' score (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingScore;
+
+	/** NET: Net Rankings' piece counts (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingPiece;
+
+	/** NET: Net Rankings' PPS values (Declared in NetDummyMode) */
+	protected List<Float>[] netRankingPPS;
+
+	/** NET: Net Rankings' line counts (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingLines;
+
+	/** NET: Net Rankings' score/line (Declared in NetDummyMode) */
+	protected List<Double>[] netRankingSPL;
+
+	/** NET: Net Rankings' roll completed flag (Declared in NetDummyMode) */
+	protected List<Integer>[] netRankingRollclear;
+
+	/*
+	 * NET: Mode name
+	 */
+	@Override
+	public String getName() {
+		return "NET-DUMMY";
+	}
+
+	/**
+	 * NET: Netplay Initialization. NetDummyMode will set the lobby's current mode
+	 * to this.
+	 */
+	@Override
+	public void netplayInit(Object obj) {
+		if (obj instanceof NetLobbyFrame frame) {
+			netLobby = frame;
+			netLobby.setNetDummyMode(this);
+
+			try {
+				netLobby.ruleOptPlayer = new RuleOptions(owner.engines[0].ruleopt);
+			} catch (NullPointerException e) {
+				log.error("NPE on netplayInit; Most likely the mode is overriding 'owner' variable", e);
+			}
+
+			if (netLobby != null && netLobby.netPlayerClient != null
+					&& netLobby.netPlayerClient.getCurrentRoomInfo() != null) {
+				netOnJoin(netLobby, netLobby.netPlayerClient, netLobby.netPlayerClient.getCurrentRoomInfo());
+			}
+		}
+	}
+
+	/**
+	 * NET: Netplay Unload. NetDummyMode will set the lobby's current mode to null.
+	 */
+	@Override
+	public void netplayUnload(Object obj) {
+		if (netLobby != null) {
+			netLobby.setNetDummyMode(null);
+			netLobby = null;
+		}
+	}
+
+	/**
+	 * NET: Mode Initialization. NetDummyMode will set the "owner" variable.
+	 */
+	@Override
+	public void modeInit(GameManager manager) {
+		super.modeInit(manager);
+		log.debug("modeInit() on NetDummyMode");
+		owner = manager;
+		netIsNetPlay = false;
+		netIsWatch = false;
+		netNumSpectators = 0;
+		netForceSendMovements = false;
+		netPlayerName = "";
+
+		netRankingView = 0;
+
+		netRankingCursor = new int[2];
+		netRankingMyRank = new int[2];
+		netRankingNoDataFlag = new boolean[2];
+		netRankingReady = new boolean[2];
+		netRankingPlace = new LinkedList[2];
+		netRankingName = new LinkedList[2];
+		netRankingDate = new LinkedList[2];
+		netRankingGamerate = new LinkedList[2];
+		netRankingTime = new LinkedList[2];
+		netRankingScore = new LinkedList[2];
+		netRankingPiece = new LinkedList[2];
+		netRankingPPS = new LinkedList[2];
+		netRankingLines = new LinkedList[2];
+		netRankingSPL = new LinkedList[2];
+		netRankingRollclear = new LinkedList[2];
+	}
+
+	/**
+	 * NET: Initialization for each player. NetDummyMode will stop and hide all
+	 * players. Call netPlayerInit if you want to init NetPlay variables.
+	 */
+	@Override
+	public void playerInit(GameEngine engine, int playerID) {
+		engine.stat = GameEngine.Status.NOTHING;
+		engine.isVisible = false;
+	}
+
+	/**
+	 * NET: Initialize various NetPlay variables. Usually called from playerInit.
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 */
+	protected void netPlayerInit(GameEngine engine, int playerID) {
+		netPrevPieceID = Piece.PIECE_NONE;
+		netPrevPieceX = 0;
+		netPrevPieceY = 0;
+		netPrevPieceDir = 0;
+		netPlayerSkin = 0;
+		netReplaySendStatus = 0;
+		netRankingRank = new int[2];
+		netRankingRank[0] = -1;
+		netRankingRank[1] = -1;
+		netIsPB = false;
+		netIsNetRankingDisplayMode = false;
+		netAlwaysSendFieldAttributes = false;
+
+		if (netIsWatch) {
+			engine.isNextVisible = false;
+			engine.isHoldVisible = false;
+		}
+	}
+
+	/**
+	 * NET: When the pieces can move. NetDummyMode will send field/next/stats/piece
+	 * movements.
+	 */
+	@Override
+	public boolean onMove(GameEngine engine, int playerID) {
+		// NET: Send field, next, and stats
+		if (engine.ending == 0 && engine.statc_0() == 0 && !engine.holdDisable && netIsNetPlay && !netIsWatch
+				&& (netNumSpectators > 0 || netForceSendMovements)) {
+			netSendField(engine);
+			netSendStats(engine);
+		}
+		// NET: Send piece movement
+		if (engine.ending == 0 && netIsNetPlay && !netIsWatch && engine.nowPieceObject != null
+				&& (netNumSpectators > 0 || netForceSendMovements)) {
+			if (netSendPieceMovement(engine, false)) {
+				netSendNextAndHold(engine);
+			}
+		}
+		// NET: Stop game in watch mode
+		return netIsWatch;
+	}
+
+	/**
+	 * NET: When the piece locked. NetDummyMode will send field and stats.
+	 */
+	@Override
+	public void pieceLocked(GameEngine engine, int playerID, int lines) {
+		// NET: Send field and stats
+		if (engine.ending == 0 && netIsNetPlay && !netIsWatch && (netNumSpectators > 0 || netForceSendMovements)) {
+			netSendField(engine);
+			netSendStats(engine);
+		}
+	}
+
+	/**
+	 * NET: Line clear. NetDummyMode will send field and stats.
+	 */
+	@Override
+	public boolean onLineClear(GameEngine engine, int playerID) {
+		// NET: Send field and stats
+		if (engine.statc_0() == 1 && engine.ending == 0 && netIsNetPlay && !netIsWatch
+				&& (netNumSpectators > 0 || netForceSendMovements)) {
+			netSendField(engine);
+			netSendStats(engine);
+		}
+		return false;
+	}
+
+	/**
+	 * NET: ARE. NetDummyMode will send field, next and stats.
+	 */
+	@Override
+	public boolean onARE(GameEngine engine, int playerID) {
+		// NET: Send field, next, and stats
+		if (engine.statc_0() == 0 && engine.ending == 0 && netIsNetPlay && !netIsWatch
+				&& (netNumSpectators > 0 || netForceSendMovements)) {
+			netSendField(engine);
+			netSendNextAndHold(engine);
+			netSendStats(engine);
+		}
+		return false;
+	}
+
+	/**
+	 * NET: Ending start. NetDummyMode will send ending start messages.
+	 */
+	@Override
+	public boolean onEndingStart(GameEngine engine, int playerID) {
+		if (menuCursor == 0) {
+			// NET: Send game completed messages
+			if (netIsNetPlay && !netIsWatch && (netNumSpectators > 0 || netForceSendMovements)) {
+				netSendField(engine);
+				netSendNextAndHold(engine);
+				netSendStats(engine);
+				netLobby.netPlayerClient.send(NetCmd.GAME, "ending");
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * NET: "Excellent!" screen
+	 */
+	@Override
+	public boolean onExcellent(GameEngine engine, int playerID) {
+		if (engine.statc_0() == 0) {
+			// NET: Send game completed messages
+			if (netIsNetPlay && !netIsWatch && (netNumSpectators > 0 || netForceSendMovements)) {
+				netSendField(engine);
+				netSendNextAndHold(engine);
+				netSendStats(engine);
+				netLobby.netPlayerClient.send(NetCmd.GAME, "excellent");
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * NET: Game Over
+	 */
+	@Override
+	public boolean onGameOver(GameEngine engine, int playerID) {
+		// NET: Send messages / Wait for messages
+		if (netIsNetPlay) {
+			if (!netIsWatch) {
+				if (engine.statc_0() == 0) {
+					// Send end-of-game messages
+					if (netNumSpectators > 0 || netForceSendMovements) {
+						netSendField(engine);
+						netSendNextAndHold(engine);
+						netSendStats(engine);
+					}
+					netSendEndGameStats(engine);
+					netLobby.netPlayerClient.send(NetCmd.DEAD, -1);
+				} else if (engine.statc_0() >= engine.field.getHeight() + 1 + 180) {
+					// To results screen
+					netLobby.netPlayerClient.send(NetCmd.GAME, "resultsscreen");
+				}
+			} else if (engine.statc_0() < engine.field.getHeight() + 1 + 180) {
+				return false;
+			} else {
+				engine.field.reset();
+				engine.stat = GameEngine.Status.RESULT;
+				engine.resetStatc();
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * NET: Results screen
+	 */
+	@Override
+	public boolean onResult(GameEngine engine, int playerID) {
+		// NET: Retry
+		if (netIsNetPlay) {
+			engine.allowTextRenderByReceiver = false;
+
+			// Replay Send
+			if (netIsWatch || owner.replayMode) {
+				netReplaySendStatus = 2;
+			} else if (netReplaySendStatus == 0) {
+				netReplaySendStatus = 1;
+				netSendReplay(engine);
+			}
+
+			// Retry
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && !netIsWatch && netReplaySendStatus == 2) {
+				engine.playSE(Sounds.DECIDE);
+				if (netNumSpectators > 0 || netForceSendMovements) {
+					netLobby.netPlayerClient.send(NetCmd.GAME, "retry");
+					netSendOptions(engine);
+				}
+				owner.reset();
+			}
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * NET: Render something such as HUD. NetDummyMode will render the number of
+	 * players to bottom-right of the screen.
+	 */
+	@Override
+	public void renderLast(GameEngine engine, int playerID) {
+		if (playerID == getPlayers() - 1) {
+			netDrawAllPlayersCount(engine);
+		}
+	}
+
+	/**
+	 * NET: Update menu cursor. NetDummyMode will signal cursor movement to all
+	 * spectators.
+	 */
+	@Override
+	protected int updateCursor(GameEngine engine, int maxCursor, int playerID) {
+		// NET: Don't execute in watch mode
+		if (netIsWatch) {
+			return 0;
+		}
+
+		int change = super.updateCursor(engine, maxCursor, playerID);
+
+		// NET: Signal cursor change
+		if ((engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP) || engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN))
+				&& netIsNetPlay && (netNumSpectators > 0 || netForceSendMovements)) {
+			netLobby.netPlayerClient.send(NetCmd.GAME, "cursor", menuCursor);
+		}
+
+		return change;
+	}
+
+	/**
+	 * NET: Retry key
+	 */
+	@Override
+	public void netplayOnRetryKey(GameEngine engine, int playerID) {
+		if (netIsNetPlay && !netIsWatch) {
+			owner.reset();
+			netLobby.netPlayerClient.send(NetCmd.RESET_SP);
+			netSendOptions(engine);
+		}
+	}
+
+	/**
+	 * NET: Initialization Completed (Never called)
+	 */
+	@Override
+	public void netlobbyOnInit(NetLobbyFrame lobby) {
+	}
+
+	/**
+	 * NET: Login completed (Never called)
+	 */
+	@Override
+	public void netlobbyOnLoginOK(NetLobbyFrame lobby, NetPlayerClient client) {
+	}
+
+	/**
+	 * NET: When you enter a room (Never called)
+	 */
+	@Override
+	public void netlobbyOnRoomJoin(NetLobbyFrame lobby, NetPlayerClient client, NetRoomInfo roomInfo) {
+	}
+
+	/**
+	 * NET: When you returned to lobby (Never called)
+	 */
+	@Override
+	public void netlobbyOnRoomLeave(NetLobbyFrame lobby, NetPlayerClient client) {
+	}
+
+	/*
+	 * NET: When disconnected
+	 */
+	@Override
+	public void netlobbyOnDisconnect(NetLobbyFrame lobby, NetPlayerClient client, Throwable ex) {
+	}
+
+	/*
+	 * NET: Message received
+	 */
+	@Override
+	public void netlobbyOnMessage(NetMessage message) {
+		switch (message.command()) {
+		// Player status update
+		case PLAYER_UPDATE -> netUpdatePlayerExist();
+		// When someone logout
+		case PLAYER_LOGOUT -> {
+			NetPlayerInfo pInfo = new NetPlayerInfo(message.text(0));
+			if (netCurrentRoomInfo != null && pInfo.roomID == netCurrentRoomInfo.roomID) {
+				netUpdatePlayerExist();
+			}
+		}
+		// Game started
+		case START -> {
+			log.debug("NET: Game started");
+			if (netIsWatch) {
+				owner.reset();
+				owner.engines[0].stat = GameEngine.Status.READY;
+				owner.engines[0].resetStatc();
+			}
+		}
+		case DEAD -> {
+			// Dead
+			log.debug("NET: Dead");
+
+			if (netIsWatch) {
+				owner.engines[0].gameEnded();
+
+				if (owner.engines[0].stat != GameEngine.Status.GAMEOVER
+						&& owner.engines[0].stat != GameEngine.Status.RESULT) {
+					owner.engines[0].stat = GameEngine.Status.GAMEOVER;
+					owner.engines[0].resetStatc();
+				}
+			}
+		}
+		case SP_SEND_NG -> { // Replay send fail
+			netReplaySendStatus = 1;
+			netSendReplay(owner.engines[0]);
+		}
+		case SP_SEND_OK -> { // Replay send complete
+			netReplaySendStatus = 2;
+			netRankingRank[0] = message.asInt(0);
+			netIsPB = message.asBool(1);
+			netRankingRank[1] = message.asInt(2);
+		}
+		// Netplay Ranking
+		case SP_RANKING -> netRecvNetPlayRanking(owner.engines[0], message);
+		// Reset
+		case RESET_SP -> {
+			if (netIsWatch) { // NOSONAR
+				owner.reset();
+			}
+		}
+		// Game messages
+		case GAME -> {
+			if (netIsWatch) { // NOSONAR
+				GameEngine engine = owner.engines[0];
+				if (engine.field == null) {
+					engine.field = new Field();
+				}
+				String subCommand = message.text(2);
+				switch (subCommand) {
+				// Move cursor
+				case "cursor" -> {
+					if (engine.stat == GameEngine.Status.SETTING) { // NOSONAR
+						menuCursor = message.asInt(3);
+						engine.playSE(Sounds.CURSOR);
+					}
+				}
+				// Change game options
+				case "option" -> netRecvOptions(engine, message);
+				// field update
+				case "field", "fieldattr" -> netRecvField(engine, message);
+				// Stats
+				case "stats" -> netRecvStats(engine, message);
+				// Current Piece
+				case "piece" -> netRecvPieceMovement(engine, message);
+				// Next and Hold
+				case "next" -> netRecvNextAndHold(engine, message);
+				// Ending
+				case "ending" -> {
+					engine.ending = 1;
+					if (!engine.staffrollEnable) {
+						engine.gameEnded();
+					}
+					engine.stat = GameEngine.Status.ENDINGSTART;
+					engine.resetStatc();
+				}
+				// Excellent
+				case "excellent" -> {
+					engine.stat = GameEngine.Status.EXCELLENT;
+					engine.resetStatc();
+				}
+				// Retry
+				case "retry" -> {
+					engine.ending = 0;
+					engine.gameEnded();
+					engine.stat = GameEngine.Status.SETTING;
+					engine.resetStatc();
+					engine.playSE(Sounds.DECIDE);
+				}
+				// Display results screen
+				case "resultsscreen" -> {
+					engine.field.reset();
+					engine.stat = GameEngine.Status.RESULT;
+					engine.resetStatc();
+				}
+				default -> log.debug("unknown game update: " + subCommand);
+				}
+			}
+		}
+		default -> {
+			// nothing
+		}
+		}
+	}
+
+	/*
+	 * NET: When the lobby window is closed
+	 */
+	@Override
+	public void netlobbyOnExit(NetLobbyFrame lobby) {
+		try {
+			for (int i = 0; i < owner.engines.length; i++) {
+				owner.engines[i].quitflag = true;
+			}
+		} catch (Exception e) {
+		}
+	}
+
+	/**
+	 * NET: When you join the room
+	 *
+	 * @param lobby    NetLobbyFrame
+	 * @param client   NetPlayerClient
+	 * @param roomInfo NetRoomInfo
+	 */
+	protected void netOnJoin(NetLobbyFrame lobby, NetPlayerClient client, NetRoomInfo roomInfo) {
+		log.debug("onJoin on NetDummyMode");
+
+		netCurrentRoomInfo = roomInfo;
+		netIsNetPlay = true;
+		netIsWatch = netLobby.netPlayerClient.getYourPlayerInfo().seatID == -1;
+		netNumSpectators = 0;
+		netUpdatePlayerExist();
+
+		if (netIsWatch) {
+			owner.engines[0].isNextVisible = false;
+			owner.engines[0].isHoldVisible = false;
+		}
+
+		if (roomInfo == null) {
+			return;
+		}
+		// Set to locked rule
+		if (roomInfo.ruleLock && netLobby != null && netLobby.ruleOptLock != null) {
+			log.info("Set locked rule");
+			Randomizer randomizer = GeneralUtil.loadRandomizer(netLobby.ruleOptLock.strRandomizer);
+			Wallkick wallkick = GeneralUtil.loadWallkick(netLobby.ruleOptLock.strWallkick);
+			owner.engines[0].ruleopt.copy(netLobby.ruleOptLock);
+			owner.engines[0].randomizer = randomizer;
+			owner.engines[0].wallkick = wallkick;
+			loadRanking(owner.modeConfig, owner.engines[0].ruleopt.strRuleName);
+		}
+	}
+
+	/**
+	 * NET: Read rankings from property file. This is used from netOnJoin.
+	 *
+	 * @param prop     Property file
+	 * @param ruleName Rule name
+	 */
+	protected void loadRanking(CustomProperties prop, String ruleName) {
+	}
+
+	/**
+	 * NET: Update player count
+	 */
+	protected void netUpdatePlayerExist() {
+		netNumSpectators = 0;
+		netPlayerName = "";
+		if (netCurrentRoomInfo == null || netCurrentRoomInfo.roomID == -1 || netLobby == null) {
+			return;
+		}
+		for (NetPlayerInfo pInfo : netLobby.updateSameRoomPlayerInfoList()) {
+			if (pInfo.roomID == netCurrentRoomInfo.roomID) {
+				if (pInfo.seatID == 0) {
+					netPlayerName = pInfo.getPlayerName();
+				} else if (pInfo.seatID == -1) {
+					netNumSpectators++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * NET: Draw number of players to bottom-right of screen. This subroutine uses
+	 * "netLobby" and "owner" variables.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netDrawAllPlayersCount(GameEngine engine) {
+		if (netLobby != null && netLobby.netPlayerClient != null && netLobby.netPlayerClient.isConnected()) {
+			int fontcolor = Colors.FONT_BLUE;
+			if (netLobby.netPlayerClient.getObserverCount() > 0) {
+				fontcolor = Colors.FONT_GREEN;
+			}
+			if (netLobby.netPlayerClient.getPlayerCount() > 1) {
+				fontcolor = Colors.FONT_RED;
+			}
+			String strObserverInfo = String.format("%d/%d", netLobby.netPlayerClient.getObserverCount(),
+					netLobby.netPlayerClient.getPlayerCount());
+			String strObserverString = String.format("%40s", strObserverInfo);
+			owner.renderer.drawDirectFont(engine, 0, 0, 480 - 16, strObserverString, fontcolor);
+		}
+	}
+
+	/**
+	 * NET: Draw game-rate to bottom-right of screen.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netDrawGameRate(GameEngine engine) {
+		if (netIsNetPlay && !netIsWatch && engine.gameStarted && engine.startTime != 0) {
+			float gamerate;
+			if (engine.endTime != 0) {
+				gamerate = engine.statistics.gamerate;
+			} else {
+				long nowtime = System.nanoTime();
+				gamerate = (float) (engine.replayTimer / (0.00000006 * (nowtime - engine.startTime)));
+			}
+
+			String strTemp = String.format("%.0f%%", gamerate * 100f);
+			String strTemp2 = String.format("%40s", strTemp);
+
+			int fontcolor = Colors.FONT_BLUE;
+			if (gamerate < 1f) {
+				fontcolor = Colors.FONT_YELLOW;
+			}
+			if (gamerate < 0.9f) {
+				fontcolor = Colors.FONT_ORANGE;
+			}
+			if (gamerate < 0.8f) {
+				fontcolor = Colors.FONT_RED;
+			}
+			owner.renderer.drawDirectFont(engine, 0, 0, 480 - 32, strTemp2, fontcolor);
+		}
+	}
+
+	/**
+	 * NET: Draw spectator count in score area.
+	 *
+	 * @param engine GameEngine
+	 * @param x      X offset
+	 * @param y      Y offset
+	 */
+	protected void netDrawSpectatorsCount(GameEngine engine, int x, int y) {
+		if (netIsNetPlay) {
+			int fontcolor = netIsWatch ? Colors.FONT_GREEN : Colors.FONT_RED;
+			owner.renderer.drawScoreFont(engine, engine.playerID, x, y + 0, "SPECTATORS", fontcolor);
+			owner.renderer.drawScoreFont(engine, engine.playerID, x, y + 1, "" + netNumSpectators, Colors.FONT_WHITE);
+
+			if (engine.stat == GameEngine.Status.SETTING && !netIsWatch && netIsNetRankingViewOK(engine)) {
+				int y2 = y + 2;
+				if (y2 > 24) {
+					y2 = 24;
+				}
+				String strBtnD = engine.owner.renderer.getKeyNameByButtonID(engine, Controller.BUTTON_D);
+				owner.renderer.drawScoreFont(engine, engine.playerID, x, y2, "D(" + strBtnD + " KEY):\n NET RANKING",
+						Colors.FONT_GREEN);
+			}
+		}
+	}
+
+	/**
+	 * NET: Draw player's name. It may also appear in offline replay.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netDrawPlayerName(GameEngine engine) {
+		if (netPlayerName == null || netPlayerName.isBlank()) {
+			return;
+		}
+		String name = netPlayerName;
+		owner.renderer.drawTTFDirectFont(engine, engine.playerID,
+				owner.renderer.getFieldDisplayPositionX(engine, engine.playerID),
+				owner.renderer.getFieldDisplayPositionY(engine, engine.playerID) - 20, name);
+	}
+
+	/**
+	 * NET: Send the current piece's movement to all spectators.
+	 *
+	 * @param engine    GameEngine
+	 * @param forceSend <code>true</code> to force send a message (if
+	 *                  <code>false</code>, it won't send a message unless there is
+	 *                  a movement)
+	 * @return <code>true</code> if the message is sent
+	 */
+	protected boolean netSendPieceMovement(GameEngine engine, boolean forceSend) {
+		if (engine.nowPieceObject == null && netPrevPieceID != Piece.PIECE_NONE || engine.manualLock) {
+			netPrevPieceID = Piece.PIECE_NONE;
+			netLobby.netPlayerClient.send(NetCmd.GAME, "piece\t" + netPrevPieceID + "\t" + netPrevPieceX + "\t"
+					+ netPrevPieceY + "\t" + netPrevPieceDir + "\t" + 0 + "\t" + engine.getSkin() + "\t" + false);
+			return true;
+		} else if (engine.nowPieceObject.id != netPrevPieceID || engine.nowPieceX != netPrevPieceX
+				|| engine.nowPieceY != netPrevPieceY || engine.nowPieceObject.direction != netPrevPieceDir
+				|| forceSend) {
+			netPrevPieceID = engine.nowPieceObject.id;
+			netPrevPieceX = engine.nowPieceX;
+			netPrevPieceY = engine.nowPieceY;
+			netPrevPieceDir = engine.nowPieceObject.direction;
+
+			int x = netPrevPieceX + engine.nowPieceObject.dataOffsetX[netPrevPieceDir];
+			int y = netPrevPieceY + engine.nowPieceObject.dataOffsetY[netPrevPieceDir];
+			netLobby.netPlayerClient.send(NetCmd.GAME,
+					"piece\t" + netPrevPieceID + "\t" + x + "\t" + y + "\t" + netPrevPieceDir + "\t"
+							+ engine.nowPieceBottomY + "\t" + engine.ruleopt.pieceColor[netPrevPieceID] + "\t"
+							+ engine.getSkin() + "\t" + engine.nowPieceObject.big);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * NET: Receive the current piece's movement. You can override it if you
+	 * customize "piece" message.
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message
+	 */
+	protected void netRecvPieceMovement(GameEngine engine, NetMessage message) {
+		int id = message.asInt(3);
+		if (id >= 0) {
+			int pieceX = message.asInt(4);
+			int pieceY = message.asInt(5);
+			int pieceDir = message.asInt(6);
+			// int pieceBottomY = Integer.parseInt(message[7])
+			int pieceColor = message.asInt(8);
+			int pieceSkin = message.asInt(9);
+			boolean pieceBig = message.length() > 10 && message.asBool(10);
+
+			engine.nowPieceObject = new Piece(id);
+			engine.nowPieceObject.direction = pieceDir;
+			engine.nowPieceObject.setAttribute(Block.BLOCK_ATTRIBUTE_VISIBLE, true);
+			engine.nowPieceObject.setColor(pieceColor);
+			engine.nowPieceObject.setSkin(pieceSkin);
+			engine.nowPieceX = pieceX;
+			engine.nowPieceY = pieceY;
+			// engine.nowPieceBottomY = pieceBottomY
+			engine.nowPieceObject.big = pieceBig;
+			engine.nowPieceObject.updateConnectData();
+			engine.nowPieceBottomY = engine.nowPieceObject.getBottom(pieceX, pieceY, engine.field);
+
+			if (engine.stat != GameEngine.Status.EXCELLENT && engine.stat != GameEngine.Status.GAMEOVER
+					&& engine.stat != GameEngine.Status.RESULT) {
+				engine.gameActive = true;
+				engine.timerActive = true;
+				engine.stat = GameEngine.Status.MOVE;
+				engine.statc_0(2);
+			}
+
+			netPlayerSkin = pieceSkin;
+		} else {
+			engine.nowPieceObject = null;
+		}
+	}
+
+	/**
+	 * NET: Send field to all spectators
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendField(GameEngine engine) {
+		if (owner.renderer.isStickySkin(engine) || netAlwaysSendFieldAttributes) {
+			// Send with attributes
+			String strSrcFieldData = engine.field.attrFieldToString();
+			int nocompSize = strSrcFieldData.length();
+
+			String strCompFieldData = NetUtil.compressString(strSrcFieldData);
+			int compSize = strCompFieldData.length();
+
+			String strFieldData = strSrcFieldData;
+			boolean isCompressed = false;
+			if (compSize < nocompSize) {
+				strFieldData = strCompFieldData;
+				isCompressed = true;
+			}
+
+			String msg = "fieldattr\t";
+			msg += engine.getSkin() + "\t";
+			msg += strFieldData + "\t" + isCompressed;
+			netLobby.netPlayerClient.send(NetCmd.GAME, msg);
+		} else {
+			// Send without attributes
+			String strSrcFieldData = engine.field.fieldToString();
+			int nocompSize = strSrcFieldData.length();
+
+			String strCompFieldData = NetUtil.compressString(strSrcFieldData);
+			int compSize = strCompFieldData.length();
+
+			String strFieldData = strSrcFieldData;
+			boolean isCompressed = false;
+			if (compSize < nocompSize) {
+				strFieldData = strCompFieldData;
+				isCompressed = true;
+			}
+
+			String msg = "field\t";
+			msg += engine.getSkin() + "\t";
+			msg += engine.field.getHeightWithoutHurryupFloor() + "\t";
+			msg += strFieldData + "\t" + isCompressed;
+			netLobby.netPlayerClient.send(NetCmd.GAME, msg);
+		}
+	}
+
+	/**
+	 * NET: Receive field message
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message array
+	 */
+	protected void netRecvField(GameEngine engine, NetMessage message) {
+		if ("fieldattr".equals(message.text(2))) {
+			// With attributes
+			if (message.length() > 3) {
+				engine.nowPieceObject = null;
+				engine.holdDisable = false;
+				if (engine.stat == GameEngine.Status.SETTING) {
+					engine.stat = GameEngine.Status.MOVE;
+				}
+				int skin = message.asInt(3);
+				netPlayerSkin = skin;
+				if (message.length() > 5) {
+					String strFieldData = message.text(4);
+					boolean isCompressed = message.asBool(5);
+					if (isCompressed) {
+						strFieldData = NetUtil.decompressString(strFieldData);
+					}
+					engine.field.attrStringToField(strFieldData, skin);
+				}
+			}
+		} else // Without attributes
+		if (message.length() > 4) {
+			engine.nowPieceObject = null;
+			engine.holdDisable = false;
+			if (engine.stat == GameEngine.Status.SETTING) {
+				engine.stat = GameEngine.Status.MOVE;
+			}
+			int skin = message.asInt(3);
+			int highestWallY = message.asInt(4);
+			netPlayerSkin = skin;
+			if (message.length() > 6) {
+				String strFieldData = message.text(5);
+				boolean isCompressed = message.asBool(6);
+				if (isCompressed) {
+					strFieldData = NetUtil.decompressString(strFieldData);
+				}
+				engine.field.stringToField(strFieldData, skin, highestWallY, highestWallY);
+			} else {
+				engine.field.reset();
+			}
+		}
+	}
+
+	/**
+	 * NET: Send next and hold piece informations to all spectators
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendNextAndHold(GameEngine engine) {
+		int holdID = Piece.PIECE_NONE;
+		int holdDirection = Piece.DIRECTION_UP;
+		int holdColor = Colors.BLOCK_COLOR_GRAY;
+		if (engine.holdPieceObject != null) {
+			holdID = engine.holdPieceObject.id;
+			holdDirection = engine.holdPieceObject.direction;
+			holdColor = engine.ruleopt.pieceColor[engine.holdPieceObject.id];
+		}
+
+		String msg = "next\t" + engine.ruleopt.nextDisplay + "\t" + engine.holdDisable + "\t";
+
+		for (int i = -1; i < engine.ruleopt.nextDisplay; i++) {
+			if (i < 0) {
+				msg += holdID + ";" + holdDirection + ";" + holdColor;
+			} else {
+				Piece nextObj = engine.getNextObject(engine.nextPieceCount + i);
+				msg += nextObj.id + ";" + nextObj.direction + ";" + engine.ruleopt.pieceColor[nextObj.id];
+			}
+			if (i < engine.ruleopt.nextDisplay - 1) {
+				msg += "\t";
+			}
+		}
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
+	}
+
+	/**
+	 * NET: Receive next and hold piece informations
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message array
+	 */
+	protected void netRecvNextAndHold(GameEngine engine, NetMessage message) {
+		int maxNext = message.asInt(3);
+		engine.ruleopt.nextDisplay = maxNext;
+		engine.holdDisable = message.asBool(4);
+
+		for (int i = 0; i < maxNext + 1; i++) {
+			if (i + 5 < message.length()) {
+				String[] strPieceData = message.text(i + 5).split(";");
+				int pieceID = Integer.parseInt(strPieceData[0]);
+				int pieceDirection = Integer.parseInt(strPieceData[1]);
+				int pieceColor = Integer.parseInt(strPieceData[2]);
+
+				if (i == 0) {
+					if (pieceID == Piece.PIECE_NONE) {
+						engine.holdPieceObject = null;
+					} else {
+						engine.holdPieceObject = new Piece(pieceID);
+						engine.holdPieceObject.direction = pieceDirection;
+						engine.holdPieceObject.setColor(pieceColor);
+						engine.holdPieceObject.setSkin(netPlayerSkin);
+						engine.holdPieceObject.updateConnectData();
+					}
+				} else {
+					if (engine.nextPieces == null || engine.nextPieces.length < maxNext) {
+						engine.nextPieces = new Piece[maxNext];
+					}
+					engine.nextPieces[i - 1] = new Piece(pieceID);
+					engine.nextPieces[i - 1].direction = pieceDirection;
+					engine.nextPieces[i - 1].setColor(pieceColor);
+					engine.nextPieces[i - 1].setSkin(netPlayerSkin);
+					engine.nextPieces[i - 1].updateConnectData();
+				}
+			}
+		}
+
+		engine.isNextVisible = true;
+		engine.isHoldVisible = true;
+	}
+
+	/**
+	 * Menu routine for 1P NetPlay online ranking screen. Usually called from
+	 * onSetting(engine, playerID).
+	 *
+	 * @param engine   GameEngine
+	 * @param goaltype Goal Type
+	 */
+	protected void netOnUpdateNetPlayRanking(GameEngine engine, int goaltype) {
+		if (netIsNetRankingDisplayMode) {
+			int d = netRankingView;
+
+			if (!netRankingNoDataFlag[d] && netRankingReady[d] && netRankingPlace != null
+					&& netRankingPlace[d] != null) {
+				// Up
+				if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_UP)) {
+					netRankingCursor[d]--;
+					if (netRankingCursor[d] < 0) {
+						netRankingCursor[d] = netRankingPlace[d].size() - 1;
+					}
+					engine.playSE(Sounds.CURSOR);
+				}
+				// Down
+				if (engine.ctrl.isMenuRepeatKey(Controller.BUTTON_DOWN)) {
+					netRankingCursor[d]++;
+					if (netRankingCursor[d] > netRankingPlace[d].size() - 1) {
+						netRankingCursor[d] = 0;
+					}
+					engine.playSE(Sounds.CURSOR);
+				}
+				// Download
+				if (engine.ctrl.isPush(Controller.BUTTON_A)) {
+					engine.playSE(Sounds.DECIDE);
+					String strMsg = NetUtil.urlEncode(netCurrentRoomInfo.ruleName) + "\t" + NetUtil.urlEncode(getName())
+							+ "\t" + goaltype + "\t" + (netRankingView != 0) + "\t"
+							+ NetUtil.urlEncode(netRankingName[d].get(netRankingCursor[d]));
+					netLobby.netPlayerClient.send(NetCmd.SP_DOWNLOAD, strMsg);
+					netIsNetRankingDisplayMode = false;
+					owner.menuOnly = false;
+				}
+			}
+
+			// Left/Right
+			if (engine.ctrl.isPush(Controller.BUTTON_LEFT) || engine.ctrl.isPush(Controller.BUTTON_RIGHT)) {
+				if (netRankingView == 0) {
+					netRankingView = 1;
+				} else {
+					netRankingView = 0;
+				}
+				engine.playSE(Sounds.CHANGE);
+			}
+
+			// Exit
+			if (engine.ctrl.isPush(Controller.BUTTON_B)) {
+				netIsNetRankingDisplayMode = false;
+				owner.menuOnly = false;
+			}
+		}
+	}
+
+	/**
+	 * Render 1P NetPlay online ranking screen. Usually called from
+	 * renderSetting(engine, playerID).
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @param renderer Eventrenderer
+	 */
+	protected void netOnRenderNetPlayRanking(GameEngine engine, int playerID, Renderer<?> renderer) {
+		if (!netIsNetRankingDisplayMode) {
+			return;
+		}
+		String strBtnA = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_A);
+		String strBtnB = renderer.getKeyNameByButtonID(engine, Controller.BUTTON_B);
+
+		int d = netRankingView;
+
+		if (!netRankingNoDataFlag[d] && netRankingReady[d] && netRankingPlace != null && netRankingPlace[d] != null) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING ("
+					+ (netRankingCursor[d] + 1) + "/" + netRankingPlace[d].size() + ")", Colors.FONT_GREEN);
+
+			int startIndex = netRankingCursor[d] / 20 * 20;
+			int endIndex = startIndex + 20;
+			if (endIndex > netRankingPlace[d].size()) {
+				endIndex = netRankingPlace[d].size();
+			}
+
+			// @formatter:off
+			String headers = switch (netRankingType) {
+			case GENERIC_SCORE -> "    SCORE   LINE TIME     NAME";
+			case GENERIC_TIME ->  "    TIME     PIECE PPS    NAME";
+			case SCORERACE ->     "    TIME     LINE SPL     NAME";
+			case DIGRACE ->       "    TIME     LINE PIECE   NAME";
+			case ULTRA ->         "    SCORE   LINE PIECE    NAME";
+			case COMBORACE ->     "    COMBO TIME     PPS    NAME";
+			case DIGCHALLENGE ->  "    SCORE   LINE TIME     NAME";
+			case TIMEATTACK ->    "    LINE  TIME     PPS    NAME";
+			};
+			// @formatter:on
+
+			if (headers != null) {
+				renderer.drawMenuFont(engine, playerID, 1, 3, headers, Colors.FONT_BLUE);
+			}
+
+			int c = 0;
+			for (int i = startIndex; i < endIndex; i++) {
+				boolean cursor = i == netRankingCursor[d];
+				if (cursor) {
+					renderer.drawMenuFont(engine, playerID, 0, 4 + c, "b", Colors.FONT_RED);
+				}
+
+				int rankColor = i == netRankingMyRank[d] ? Colors.FONT_PINK : Colors.FONT_YELLOW;
+				if (netRankingPlace[d].get(i) == -1) {
+					renderer.drawMenuFont(engine, playerID, 1, 4 + c, "N/A", rankColor);
+				} else {
+					renderer.drawMenuFont(engine, playerID, 1, 4 + c,
+							String.format("%3d", netRankingPlace[d].get(i) + 1), rankColor);
+				}
+
+				switch (netRankingType) {
+				case GENERIC_SCORE, DIGCHALLENGE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 18, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case GENERIC_TIME:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.5g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case SCORERACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 19, 4 + c, String.format("%.5g", netRankingSPL[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case DIGRACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 14, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 19, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 26, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case ULTRA:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingScore[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 13, 4 + c, "" + netRankingLines[d].get(i), cursor);
+					renderer.drawMenuFont(engine, playerID, 18, 4 + c, "" + netRankingPiece[d].get(i), cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case COMBORACE:
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + (netRankingScore[d].get(i) - 1), cursor);
+					renderer.drawMenuFont(engine, playerID, 11, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.4g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				case TIMEATTACK: {
+					int fontcolor = Colors.FONT_WHITE;
+					if (netRankingRollclear[d].get(i) == 1) {
+						fontcolor = Colors.FONT_GREEN;
+					}
+					if (netRankingRollclear[d].get(i) == 2) {
+						fontcolor = Colors.FONT_ORANGE;
+					}
+					renderer.drawMenuFont(engine, playerID, 5, 4 + c, "" + netRankingLines[d].get(i), fontcolor);
+					renderer.drawMenuFont(engine, playerID, 11, 4 + c, GeneralUtil.getTime(netRankingTime[d].get(i)),
+							cursor);
+					renderer.drawMenuFont(engine, playerID, 20, 4 + c, String.format("%.4g", netRankingPPS[d].get(i)),
+							cursor);
+					renderer.drawTTFMenuFont(engine, playerID, 27, 4 + c, netRankingName[d].get(i), cursor);
+					break;
+				}
+				default:
+					break;
+				}
+
+				c++;
+			}
+
+			if (netRankingCursor[d] >= 0 && netRankingCursor[d] < netRankingDate[d].size()) {
+				String strDate = "----/--/-- --:--:--";
+				Calendar calendar = netRankingDate[d].get(netRankingCursor[d]);
+				if (calendar != null) {
+					strDate = GeneralUtil.getCalendarString(calendar, TimeZone.getDefault());
+				}
+				renderer.drawMenuFont(engine, playerID, 1, 25, "DATE:" + strDate, Colors.FONT_CYAN);
+
+				float gamerate = netRankingGamerate[d].get(netRankingCursor[d]);
+				renderer.drawMenuFont(engine, playerID, 1, 26,
+						"GAMERATE:" + (gamerate == 0f ? "UNKNOWN" : 100 * gamerate + "%"), Colors.FONT_CYAN);
+			}
+			renderer.drawMenuFont(engine, playerID, 1, 27, "A(" + strBtnA + " KEY):DOWNLOAD\nB(" + strBtnB
+					+ " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
+		} else if (netRankingNoDataFlag[d]) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
+					Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 3, "NO DATA", Colors.FONT_DARKBLUE);
+			renderer.drawMenuFont(engine, playerID, 1, 28,
+					"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
+		} else if (!netRankingReady[d] && netRankingPlace == null || netRankingPlace[d] == null) {
+			renderer.drawMenuFont(engine, playerID, 0, 1, "<<", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 38, 1, ">>", Colors.FONT_ORANGE);
+			renderer.drawMenuFont(engine, playerID, 3, 1, (d != 0 ? "DAILY" : "ALL-TIME") + " RANKING",
+					Colors.FONT_GREEN);
+			renderer.drawMenuFont(engine, playerID, 1, 3, "LOADING...", Colors.FONT_CYAN);
+			renderer.drawMenuFont(engine, playerID, 1, 28,
+					"B(" + strBtnB + " KEY):BACK LEFT/RIGHT:" + (d == 0 ? "DAILY" : "ALL-TIME"), Colors.FONT_ORANGE);
+		}
+	}
+
+	/**
+	 * Enter the netplay ranking screen
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @param goaltype Game Type
+	 */
+	protected void netEnterNetPlayRankingScreen(GameEngine engine, int playerID, int goaltype) {
+		if (netRankingPlace != null) {
+			netRankingPlace[0] = null;
+			netRankingPlace[1] = null;
+		}
+		netRankingCursor[0] = 0;
+		netRankingCursor[1] = 0;
+		netRankingMyRank[0] = -1;
+		netRankingMyRank[1] = -1;
+		netIsNetRankingDisplayMode = true;
+		owner.menuOnly = true;
+		String rule = NetUtil.urlEncode(netCurrentRoomInfo.isRated() ? netCurrentRoomInfo.ruleName : "all");
+		String name = NetUtil.urlEncode(getName());
+		netLobby.netPlayerClient.send(NetCmd.SP_RANKING, rule, name, goaltype, false);
+		netLobby.netPlayerClient.send(NetCmd.SP_RANKING, rule, name, goaltype, true);
+	}
+
+	/**
+	 * Receive 1P NetPlay ranking.
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message array
+	 */
+	protected void netRecvNetPlayRanking(GameEngine engine, NetMessage message) {
+		log.debug("NetPlay ranking:\n" + message);
+
+		if (message.length() > 6) {
+			boolean isDaily = message.asBool(3);
+			int d = isDaily ? 1 : 0;
+
+			netRankingType = RankingType.values()[message.asInt(4)];
+			int maxRecords = message.asInt(5);
+			String[] arrayRow = message.text(6).split(";");
+			maxRecords = Math.min(maxRecords, arrayRow.length);
+			netRankingNoDataFlag[d] = false;
+			netRankingReady[d] = false;
+			netRankingPlace[d] = new LinkedList<>();
+			netRankingName[d] = new LinkedList<>();
+			netRankingDate[d] = new LinkedList<>();
+			netRankingGamerate[d] = new LinkedList<>();
+			netRankingTime[d] = new LinkedList<>();
+			netRankingScore[d] = new LinkedList<>();
+			netRankingPiece[d] = new LinkedList<>();
+			netRankingPPS[d] = new LinkedList<>();
+			netRankingLines[d] = new LinkedList<>();
+			netRankingSPL[d] = new LinkedList<>();
+			netRankingRollclear[d] = new LinkedList<>();
+
+			for (int i = 0; i < maxRecords; i++) {
+				String[] arrayData = arrayRow[i].split(",");
+				netRankingPlace[d].add(Integer.parseInt(arrayData[0]));
+				String pName = NetUtil.urlDecode(arrayData[1]);
+				netRankingName[d].add(pName);
+				netRankingDate[d].add(GeneralUtil.importCalendarString(arrayData[2]));
+				netRankingGamerate[d].add(Float.parseFloat(arrayData[3]));
+
+				switch (netRankingType) {
+				case GENERIC_SCORE -> {
+					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
+					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
+					netRankingTime[d].add(Integer.parseInt(arrayData[6]));
+				}
+				case GENERIC_TIME -> {
+					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
+					netRankingPiece[d].add(Integer.parseInt(arrayData[5]));
+					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
+				}
+				case SCORERACE -> {
+					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
+					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
+					netRankingSPL[d].add(Double.parseDouble(arrayData[6]));
+				}
+				case DIGRACE -> {
+					netRankingTime[d].add(Integer.parseInt(arrayData[4]));
+					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
+					netRankingPiece[d].add(Integer.parseInt(arrayData[6]));
+				}
+				case ULTRA -> {
+					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
+					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
+					netRankingPiece[d].add(Integer.parseInt(arrayData[6]));
+				}
+				case COMBORACE -> {
+					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
+					netRankingTime[d].add(Integer.parseInt(arrayData[5]));
+					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
+				}
+				case DIGCHALLENGE -> {
+					netRankingScore[d].add(Integer.parseInt(arrayData[4]));
+					netRankingLines[d].add(Integer.parseInt(arrayData[5]));
+					netRankingTime[d].add(Integer.parseInt(arrayData[6]));
+				}
+				case TIMEATTACK -> {
+					netRankingLines[d].add(Integer.parseInt(arrayData[4]));
+					netRankingTime[d].add(Integer.parseInt(arrayData[5]));
+					netRankingPPS[d].add(Float.parseFloat(arrayData[6]));
+					netRankingRollclear[d].add(Integer.parseInt(arrayData[7]));
+				}
+				default -> log.error("Unknown ranking type:" + netRankingType);
+				}
+
+				if (pName.equals(netPlayerName)) {
+					netRankingCursor[d] = i;
+					netRankingMyRank[d] = i;
+				}
+			}
+
+			netRankingReady[d] = true;
+		} else if (message.length() > 3) {
+			boolean isDaily = message.asBool(3);
+			int d = isDaily ? 1 : 0;
+			netRankingNoDataFlag[d] = true;
+			netRankingReady[d] = false;
+		}
+	}
+
+	/**
+	 * NET: Send various in-game stats (as well as goaltype)<br>
+	 * Game modes should implement this.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendStats(GameEngine engine) {
+	}
+
+	/**
+	 * NET: Receive various in-game stats (as well as goaltype)<br>
+	 * Game modes should implement this.
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message
+	 */
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+	}
+
+	/**
+	 * NET: Send end-of-game stats<br>
+	 * Game modes should implement this.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendEndGameStats(GameEngine engine) {
+	}
+
+	/**
+	 * NET: Send game options to all spectators<br>
+	 * Game modes should implement this.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendOptions(GameEngine engine) {
+	}
+
+	/**
+	 * NET: Receive game options.<br>
+	 * Game modes should implement this.
+	 *
+	 * @param engine  GameEngine
+	 * @param message Message
+	 */
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+	}
+
+	/**
+	 * NET: Send replay data<br>
+	 * Game modes should implement this. However, some basic codes are already
+	 * implemented in NetDummyMode.
+	 *
+	 * @param engine GameEngine
+	 */
+	protected void netSendReplay(GameEngine engine) {
+		if (netIsNetRankingSendOK(engine)) {
+			NetSPRecord netRecord = new NetSPRecord();
+			netRecord.setReplayProp(owner.replayProp);
+			netRecord.stats = new Statistics(engine.statistics);
+			netRecord.gameType = netGetGoalType();
+
+			String strData = NetUtil.compressString(netRecord.exportString());
+
+			Adler32 checksumObj = new Adler32();
+			checksumObj.update(NetUtil.stringToBytes(strData));
+			long sChecksum = checksumObj.getValue();
+
+			netLobby.netPlayerClient.send(NetCmd.SP_SEND, sChecksum, strData);
+		} else {
+			netReplaySendStatus = 2;
+		}
+	}
+
+	/**
+	 * NET: Get goal type (used from the default implementation of
+	 * netSendReplay)<br>
+	 * Game modes should implement this, unless there is only 1 goal type.
+	 *
+	 * @return Goal type (default implementation will return 0)
+	 */
+	protected int netGetGoalType() {
+		return 0;
+	}
+
+	/**
+	 * NET: It returns <code>true</code> when the current settings doesn't prevent
+	 * leaderboard screen from showing. Game modes should implement this. By
+	 * default, this always returns false.
+	 *
+	 * @param engine GameEngine
+	 * @return <code>true</code> when the current settings doesn't prevent
+	 *         leaderboard screen from showing.
+	 */
+	protected boolean netIsNetRankingViewOK(GameEngine engine) {
+		return false;
+	}
+
+	/**
+	 * NET: It returns <code>true</code> when the current settings doesn't prevent
+	 * replay data from sending. By default, it just calls netIsNetRankingViewOK,
+	 * but you should override it if you make "race" modes.
+	 *
+	 * @param engine GameEngine
+	 * @return <code>true</code> when the current settings doesn't prevent replay
+	 *         data from sending.
+	 */
+	protected boolean netIsNetRankingSendOK(GameEngine engine) {
+		return netIsNetRankingViewOK(engine);
+	}
+}

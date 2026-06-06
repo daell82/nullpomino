@@ -1,0 +1,1063 @@
+/*
+    Copyright (c) 2010, NullNoname
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of NullNoname nor the names of its
+          contributors may be used to endorse or promote products derived from
+          this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+*/
+package mu.nu.nullpo.game.subsystem.mode;
+
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.component.BGMusicStatus;
+import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Piece;
+import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
+import mu.nu.nullpo.game.net.NetUtil;
+import mu.nu.nullpo.game.net.modes.NetplayMode;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
+
+/**
+ * COMBO RACE Mode
+ */
+public class ComboRaceMode extends NetplayMode {
+	/** Current version */
+	private static final int CURRENT_VERSION = 1;
+
+	/** HindranceLinescountConstantcount */
+	private static final int[] GOAL_TABLE = { 20, 40, 100, -1 };
+
+	/** Number of starting shapes */
+	private static final int SHAPETYPE_MAX = 9;
+
+	/** Names of starting shapes */
+	private static final String[] SHAPE_NAME_TABLE = { "NONE", "LEFT I", "RIGHT I", "LEFT Z", "RIGHT S", "LEFT S",
+			"RIGHT Z", "LEFT J", "RIGHT L", };
+
+	/** Starting shape table */
+	private static final int[][] SHAPE_TABLE = { { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+			{ 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0 },
+			{ 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 0, 0 },
+			{ 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1 } };
+
+	/** Starting shape colour */
+	private static final int[] SHAPE_COLOUR_TABLE = { Colors.BLOCK_COLOR_NONE, Colors.BLOCK_COLOR_CYAN,
+			Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_GREEN,
+			Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_BLUE, Colors.BLOCK_COLOR_ORANGE };
+
+	/** Stack colour order */
+	private static final int[] STACK_COLOUR_TABLE = { Colors.BLOCK_COLOR_RED, Colors.BLOCK_COLOR_ORANGE,
+			Colors.BLOCK_COLOR_YELLOW, Colors.BLOCK_COLOR_GREEN, Colors.BLOCK_COLOR_CYAN, Colors.BLOCK_COLOR_BLUE,
+			Colors.BLOCK_COLOR_PURPLE, };
+
+	/** Meter colors for really high combos in Endless */
+	private static final int[] METER_COLOUR_TABLE = { Colors.METER_COLOR_GREEN, Colors.METER_COLOR_YELLOW,
+			Colors.METER_COLOR_ORANGE, Colors.METER_COLOR_RED, Colors.METER_COLOR_PINK, Colors.METER_COLOR_PURPLE,
+			Colors.METER_COLOR_DARKBLUE, Colors.METER_COLOR_BLUE, Colors.METER_COLOR_CYAN,
+			Colors.METER_COLOR_DARKGREEN, };
+
+	/**
+	 * Elapsed time from last line clear (lastscore is displayed to screen until
+	 * this reaches to 120)
+	 */
+	private int scgettime;
+
+	/** Most recent scoring eventInB2BIf it&#39;s the casetrue */
+	private boolean lastb2b;
+
+	/** Most recent scoring eventInCombocount */
+	private int lastcombo;
+
+	/** Most recent scoring eventPeace inID */
+	private int lastpiece;
+
+	/** BGM number */
+	private int bgmno;
+
+	/** Big */
+	private boolean big;
+
+	/** HindranceLinescount type (0=5,1=10,2=18) */
+	private int goaltype;
+
+	/** Current version */
+	private int version;
+
+	/** Last preset number used */
+	private int presetNumber;
+
+	/** Current round's ranking rank */
+	private int rankingRank;
+
+	/** Rankings' times */
+	private int[][] rankingTime;
+
+	/** Rankings' Combo */
+	private int[][] rankingCombo;
+
+	/** Shape type */
+	private int shapetype;
+
+	/** Stack colour */
+	private int stackColour;
+
+	/** Column number of combo well (starts from 1) */
+	private int comboColumn;
+
+	/** Width of combo well */
+	private int comboWidth;
+
+	/**
+	 * Height difference between ceiling and stack (negative number lowers the stack
+	 * height)
+	 */
+	private int ceilingAdjust;
+
+	/** Piece spawns above field if true */
+	private boolean spawnAboveField;
+
+	/**
+	 * Number of remaining stack lines that need to be added when lines are cleared
+	 */
+	private int remainStack;
+
+	/** Next section lines */
+	private int nextseclines;
+
+	/**
+	 * Returns the name of this mode
+	 */
+	@Override
+	public String getName() {
+		return "COMBO RACE";
+	}
+
+	/**
+	 * This function will be called when the game enters the main game screen.
+	 */
+	@Override
+	public void playerInit(GameEngine engine, int playerID) {
+		owner = engine.owner;
+		renderer = engine.owner.renderer;
+
+		scgettime = 0;
+		lastevent = LineClearEvent.NONE;
+		lastb2b = false;
+		lastcombo = 0;
+		lastpiece = 0;
+		bgmno = 0;
+		big = false;
+		goaltype = 0;
+		shapetype = 1;
+		presetNumber = 0;
+		remainStack = 0;
+		stackColour = 0;
+		nextseclines = 10;
+
+		rankingRank = -1;
+		rankingTime = new int[GOAL_TABLE.length][RANKING_MAX];
+		rankingCombo = new int[GOAL_TABLE.length][RANKING_MAX];
+
+		engine.framecolor = Colors.FRAME_COLOR_RED;
+
+		netPlayerInit(engine, playerID);
+
+		if (!engine.owner.replayMode) {
+			version = CURRENT_VERSION;
+			presetNumber = engine.owner.modeConfig.getProperty("comborace.presetNumber", 0);
+			loadPreset(engine, engine.owner.modeConfig, -1);
+			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+		} else {
+			version = engine.owner.replayProp.getProperty("comborace.version", 0);
+			presetNumber = 0;
+			loadPreset(engine, engine.owner.replayProp, -1);
+
+			// NET: Load name
+			netPlayerName = engine.owner.replayProp.getProperty(playerID + ".net.netPlayerName", "");
+		}
+	}
+
+	/**
+	 * Load the settings
+	 */
+	private void loadPreset(GameEngine engine, CustomProperties prop, int preset) {
+		engine.speed.gravity = prop.getProperty("comborace.gravity." + preset, 4);
+		engine.speed.denominator = prop.getProperty("comborace.denominator." + preset, 256);
+		engine.speed.are = prop.getProperty("comborace.are." + preset, 0);
+		engine.speed.areLine = prop.getProperty("comborace.areLine." + preset, 0);
+		engine.speed.lineDelay = prop.getProperty("comborace.lineDelay." + preset, 0);
+		engine.speed.lockDelay = prop.getProperty("comborace.lockDelay." + preset, 30);
+		engine.speed.das = prop.getProperty("comborace.das." + preset, 14);
+		bgmno = prop.getProperty("comborace.bgmno." + preset, 0);
+		big = prop.getProperty("comborace.big." + preset, false);
+		goaltype = prop.getProperty("comborace.goaltype." + preset, 1);
+		shapetype = prop.getProperty("comborace.shapetype." + preset, 1);
+		comboWidth = prop.getProperty("comborace.comboWidth." + preset, 4);
+		comboColumn = prop.getProperty("comborace.comboColumn." + preset, 4);
+		ceilingAdjust = prop.getProperty("comborace.ceilingAdjust." + preset, -2);
+		spawnAboveField = prop.getProperty("comborace.spawnAboveField." + preset, true);
+	}
+
+	/**
+	 * Save the settings
+	 */
+	private void savePreset(GameEngine engine, CustomProperties prop, int preset) {
+		prop.setProperty("comborace.gravity." + preset, engine.speed.gravity);
+		prop.setProperty("comborace.denominator." + preset, engine.speed.denominator);
+		prop.setProperty("comborace.are." + preset, engine.speed.are);
+		prop.setProperty("comborace.areLine." + preset, engine.speed.areLine);
+		prop.setProperty("comborace.lineDelay." + preset, engine.speed.lineDelay);
+		prop.setProperty("comborace.lockDelay." + preset, engine.speed.lockDelay);
+		prop.setProperty("comborace.das." + preset, engine.speed.das);
+		prop.setProperty("comborace.bgmno." + preset, bgmno);
+		prop.setProperty("comborace.big." + preset, big);
+		prop.setProperty("comborace.goaltype." + preset, goaltype);
+		prop.setProperty("comborace.shapetype." + preset, shapetype);
+		prop.setProperty("comborace.comboWidth." + preset, comboWidth);
+		prop.setProperty("comborace.comboColumn." + preset, comboColumn);
+		prop.setProperty("comborace.ceilingAdjust." + preset, ceilingAdjust);
+		prop.setProperty("comborace.spawnAboveField." + preset, spawnAboveField);
+	}
+
+	/**
+	 * Main routine for game setup screen
+	 */
+	@Override
+	public boolean onSetting(GameEngine engine, int playerID) {
+		// NET: Net Ranking
+		if (netIsNetRankingDisplayMode) {
+			netOnUpdateNetPlayRanking(engine, goaltype);
+		}
+		// Menu
+		else if (!engine.owner.replayMode) {
+			// Configuration changes
+			int change = updateCursor(engine, 15);
+
+			if (change != 0) {
+				engine.playSE("change");
+
+				int m = 1;
+				if (engine.ctrl.isPress(Controller.BUTTON_E)) {
+					m = 100;
+				}
+				if (engine.ctrl.isPress(Controller.BUTTON_F)) {
+					m = 1000;
+				}
+
+				switch (menuCursor) {
+				case 0:
+					goaltype += change;
+					if (goaltype < 0) {
+						goaltype = GOAL_TABLE.length - 1;
+					}
+					if (goaltype > GOAL_TABLE.length - 1) {
+						goaltype = 0;
+					}
+					break;
+				case 1:
+					shapetype += change;
+					if (shapetype < 0) {
+						shapetype = SHAPETYPE_MAX - 1;
+					}
+					if (shapetype > SHAPETYPE_MAX - 1) {
+						shapetype = 0;
+					}
+					break;
+				case 2:
+					comboColumn += change;
+					if (comboColumn > 10) {
+						comboColumn = 1;
+					}
+					if (comboColumn < 1) {
+						comboColumn = 10;
+					}
+					while (comboColumn + comboWidth - 1 > 10) {
+						comboWidth--;
+					}
+					break;
+				case 3:
+					comboWidth += change;
+					if (comboWidth > 10) {
+						comboWidth = 1;
+					}
+					if (comboWidth < 1) {
+						comboWidth = 10;
+					}
+					while (comboColumn + comboWidth - 1 > 10) {
+						comboColumn--;
+					}
+					break;
+				case 4:
+					ceilingAdjust += change;
+					if (ceilingAdjust > 10) {
+						ceilingAdjust = -10;
+					}
+					if (ceilingAdjust < -10) {
+						ceilingAdjust = 10;
+					}
+					break;
+				case 5:
+					spawnAboveField = !spawnAboveField;
+					break;
+				case 6:
+					engine.speed.gravity += change * m;
+					if (engine.speed.gravity < -1) {
+						engine.speed.gravity = 99999;
+					}
+					if (engine.speed.gravity > 99999) {
+						engine.speed.gravity = -1;
+					}
+					break;
+				case 7:
+					engine.speed.denominator += change * m;
+					if (engine.speed.denominator < -1) {
+						engine.speed.denominator = 99999;
+					}
+					if (engine.speed.denominator > 99999) {
+						engine.speed.denominator = -1;
+					}
+					break;
+				case 8:
+					engine.speed.are += change;
+					if (engine.speed.are < 0) {
+						engine.speed.are = 99;
+					}
+					if (engine.speed.are > 99) {
+						engine.speed.are = 0;
+					}
+					break;
+				case 9:
+					engine.speed.areLine += change;
+					if (engine.speed.areLine < 0) {
+						engine.speed.areLine = 99;
+					}
+					if (engine.speed.areLine > 99) {
+						engine.speed.areLine = 0;
+					}
+					break;
+				case 10:
+					engine.speed.lineDelay += change;
+					if (engine.speed.lineDelay < 0) {
+						engine.speed.lineDelay = 99;
+					}
+					if (engine.speed.lineDelay > 99) {
+						engine.speed.lineDelay = 0;
+					}
+					break;
+				case 11:
+					engine.speed.lockDelay += change;
+					if (engine.speed.lockDelay < 0) {
+						engine.speed.lockDelay = 99;
+					}
+					if (engine.speed.lockDelay > 99) {
+						engine.speed.lockDelay = 0;
+					}
+					break;
+				case 12:
+					engine.speed.das += change;
+					if (engine.speed.das < 0) {
+						engine.speed.das = 99;
+					}
+					if (engine.speed.das > 99) {
+						engine.speed.das = 0;
+					}
+					break;
+				case 13:
+					bgmno += change;
+					if (bgmno < 0) {
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
+					}
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
+						bgmno = 0;
+					}
+					break;
+				case 14:
+				case 15:
+					presetNumber += change;
+					if (presetNumber < 0) {
+						presetNumber = 99;
+					}
+					if (presetNumber > 99) {
+						presetNumber = 0;
+					}
+					break;
+				}
+
+				// NET: Signal options change
+				if (netIsNetPlay && netNumSpectators > 0) {
+					netSendOptions(engine);
+				}
+			}
+
+			// Confirm
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
+				engine.playSE(Sounds.DECIDE);
+
+				if (menuCursor == 14) {
+					loadPreset(engine, owner.modeConfig, presetNumber);
+
+					// NET: Signal options change
+					if (netIsNetPlay && netNumSpectators > 0) {
+						netSendOptions(engine);
+					}
+				} else if (menuCursor == 15) {
+					savePreset(engine, owner.modeConfig, presetNumber);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
+				} else {
+					owner.modeConfig.setProperty("comborace.presetNumber", presetNumber);
+					savePreset(engine, owner.modeConfig, -1);
+					GeneralUtil.saveModeConfig(owner.modeConfig);
+
+					// NET: Signal start of the game
+					if (netIsNetPlay) {
+						netLobby.netPlayerClient.send(NetCmd.START_1P);
+					}
+
+					return false;
+				}
+			}
+
+			// Cancel
+			if (engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
+				engine.quitflag = true;
+			}
+
+			// NET: Netplay Ranking
+			if (engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && netIsNetRankingViewOK(engine)) {
+				netEnterNetPlayRankingScreen(engine, playerID, goaltype);
+			}
+
+			menuTime++;
+		}
+		// Replay
+		else {
+			menuTime++;
+			menuCursor = -1;
+
+			if (menuTime >= 60) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Renders game setup screen
+	 */
+	@Override
+	public void renderSetting(GameEngine engine, int playerID) {
+		if (netIsNetRankingDisplayMode) {
+			// NET: Netplay Ranking
+			netOnRenderNetPlayRanking(engine, playerID, renderer);
+			// @formatter:off
+		} else if (menuCursor < 6) {
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0,
+					"GOAL", GOAL_TABLE[goaltype] == -1 ? "ENDLESS" : String.valueOf(GOAL_TABLE[goaltype]));
+			drawMenu(engine, playerID, 2, comboWidth == 4 ? Colors.FONT_BLUE : Colors.FONT_WHITE, 1,
+					"STARTSHAPE", SHAPE_NAME_TABLE[shapetype]);
+			drawMenu(engine, playerID, 4, Colors.FONT_BLUE, 2,
+					"COLUMN", String.valueOf(comboColumn),
+					"WIDTH", String.valueOf(comboWidth),
+					"CEILING", String.valueOf(ceilingAdjust),
+					"PIECESPAWN", spawnAboveField ? "ABOVE" : "BELOW");
+		} else {
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 6,
+					"GRAVITY", String.valueOf(engine.speed.gravity),
+					"G-MAX", String.valueOf(engine.speed.denominator),
+					"ARE", String.valueOf(engine.speed.are),
+					"ARE LINE", String.valueOf(engine.speed.areLine),
+					"LINE DELAY", String.valueOf(engine.speed.lineDelay),
+					"LOCK DELAY", String.valueOf(engine.speed.lockDelay),
+					"DAS", String.valueOf(engine.speed.das),
+					"BGM", String.valueOf(bgmno));
+			drawMenu(engine, playerID, 16, Colors.FONT_GREEN, 14,
+					"LOAD", String.valueOf(presetNumber),
+					"SAVE",	String.valueOf(presetNumber));
+			// @formatter:on
+		}
+	}
+
+	/**
+	 * Ready
+	 */
+	@Override
+	public boolean onReady(GameEngine engine, int playerID) {
+		if (engine.statc_0() == 0) {
+			engine.createFieldIfNeeded();
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			engine.meterValue = GOAL_TABLE[goaltype] == -1 ? 0 : renderer.getMeterMax(engine);
+
+			if (!netIsWatch) {
+				fillStack(engine, goaltype);
+
+				// NET: Send field
+				if (netNumSpectators > 0) {
+					netSendField(engine);
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * This function will be called before the game actually begins (after Ready&Go
+	 * screen disappears)
+	 */
+	@Override
+	public void startGame(GameEngine engine, int playerID) {
+		if (version <= 0) {
+			engine.big = big;
+		}
+		if (netIsWatch) {
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
+		} else {
+			owner.bgmStatus.bgm = bgmno;
+		}
+		engine.comboType = GameEngine.COMBO_TYPE_NORMAL;
+		engine.tspinEnable = true;
+		engine.tspinAllowKick = true;
+		engine.ruleopt.pieceEnterAboveField = spawnAboveField;
+	}
+
+	/**
+	 * Fill the playfield with stack
+	 *
+	 * @param engine GameEngine
+	 * @param height Stack height level number
+	 */
+	private void fillStack(GameEngine engine, int height) {
+		int w = engine.field.getWidth();
+		int h = engine.field.getHeight();
+		int stackHeight;
+
+		/*
+		 * set initial stack height and remaining stack lines depending on the goal
+		 * lines and ceiling height adjustment
+		 */
+		if (GOAL_TABLE[height] > h + ceilingAdjust || GOAL_TABLE[height] == -1) {
+			stackHeight = h + ceilingAdjust;
+			remainStack = GOAL_TABLE[height] - h - ceilingAdjust;
+		} else {
+			stackHeight = GOAL_TABLE[height];
+			remainStack = 0;
+		}
+
+		// fill stack from the bottom to the top
+		for (int y = h - 1; y >= h - stackHeight; y--) {
+			for (int x = 0; x < w; x++) {
+				if (x < comboColumn - 1 || x > comboColumn - 2 + comboWidth) {
+					engine.field.setBlock(x, y, new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length],
+							engine.getSkin(), Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+				}
+			}
+			stackColour++;
+		}
+
+		// insert starting shape
+		if (comboWidth == 4) {
+			for (int i = 0; i < 12; i++) {
+				if (SHAPE_TABLE[shapetype][i] == 1) {
+					engine.field.setBlock(i % 4 + comboColumn - 1, h - 1 - i / 4,
+							new Block(SHAPE_COLOUR_TABLE[shapetype], engine.getSkin(),
+									Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+				}
+			}
+		}
+	}
+
+	/**
+	 * Renders HUD (leaderboard or game statistics)
+	 */
+	@Override
+	public void renderLast(GameEngine engine, int playerID) {
+		if (owner.menuOnly) {
+			return;
+		}
+
+		renderer.drawScoreFont(engine, playerID, 0, 0, "COMBO RACE", Colors.FONT_RED);
+		if (GOAL_TABLE[goaltype] == -1) {
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(ENDLESS GAME)", Colors.FONT_WHITE);
+		} else {
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(" + GOAL_TABLE[goaltype] + " LINES GAME)",
+					Colors.FONT_WHITE);
+		}
+
+		if (engine.stat == GameEngine.Status.SETTING
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && !big && engine.ai == null) {
+				renderer.drawScoreFont(engine, playerID, 3, 3, "COMBO TIME", Colors.FONT_BLUE);
+
+				for (int i = 0; i < RANKING_MAX; i++) {
+					renderer.drawScoreFont(engine, playerID, 0, 4 + i, String.format("%2d", i + 1), Colors.FONT_YELLOW);
+					renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingCombo[goaltype][i]),
+							rankingRank == i);
+					renderer.drawScoreFont(engine, playerID, 9, 4 + i, GeneralUtil.getTime(rankingTime[goaltype][i]),
+							rankingRank == i);
+				}
+			}
+		} else {
+			renderer.drawScoreFont(engine, playerID, 0, 3, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 4, String.valueOf(engine.statistics.lines));
+
+			renderer.drawScoreFont(engine, playerID, 0, 6, "PIECE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.totalPieceLocked));
+
+			renderer.drawScoreFont(engine, playerID, 0, 9, "LINE/MIN", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(engine.statistics.lpm));
+
+			renderer.drawScoreFont(engine, playerID, 0, 12, "PIECE/SEC", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.pps));
+
+			renderer.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
+
+			if (lastevent != LineClearEvent.NONE && scgettime < 120) {
+				String piece = Piece.getPieceName(lastpiece);
+				final int color = lastb2b ? Colors.FONT_RED : Colors.FONT_ORANGE;
+				switch (lastevent) {
+				case LineClearEvent.SINGLE ->
+					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+				case LineClearEvent.DOUBLE ->
+					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+				case LineClearEvent.TRIPLE ->
+					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+				case LineClearEvent.FOUR -> renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", color);
+				case LineClearEvent.TSPIN_SINGLE_MINI ->
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-S", color);
+				case LineClearEvent.TSPIN_SINGLE ->
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-SINGLE", color);
+				case LineClearEvent.TSPIN_DOUBLE_MINI ->
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-MINI-D", color);
+				case LineClearEvent.TSPIN_DOUBLE ->
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-DOUBLE", color);
+				case LineClearEvent.TSPIN_TRIPLE ->
+					renderer.drawMenuFont(engine, playerID, 1, 21, piece + "-TRIPLE", color);
+				default -> {
+					// nothing
+				}
+				}
+
+				if (lastcombo >= 2) {
+					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+				}
+			} else if (engine.combo >= 2 && engine.gameActive) {
+				renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+			} else if ((engine.combo == 0 || !engine.gameActive) && engine.statistics.maxCombo >= 2) {
+				renderer.drawMenuFont(engine, playerID, 2, 22, engine.statistics.maxCombo - 1 + "COMBO",
+						Colors.FONT_WHITE);
+			}
+		}
+
+		// NET: Number of spectators
+		netDrawSpectatorsCount(engine, 0, 18);
+		// NET: All number of players
+		if (playerID == getPlayers() - 1) {
+			netDrawAllPlayersCount(engine);
+			netDrawGameRate(engine);
+		}
+		// NET: Player name (It may also appear in offline replay)
+		netDrawPlayerName(engine);
+	}
+
+	/**
+	 * Calculates line-clear score (This function will be called even if no lines
+	 * are cleared)
+	 */
+	@Override
+	public void calcScore(GameEngine engine, int playerID, int lines) {
+		// Attack
+		if (lines > 0) {
+			scgettime = 0;
+
+			if (engine.tspin) {
+				// T-Spin 1 line
+				if (lines == 1) {
+					if (engine.tspinmini) {
+						lastevent = LineClearEvent.TSPIN_SINGLE_MINI;
+					} else {
+						lastevent = LineClearEvent.TSPIN_SINGLE;
+					}
+				}
+				// T-Spin 2 lines
+				else if (lines == 2) {
+					if (engine.tspinmini && engine.useAllSpinBonus) {
+						lastevent = LineClearEvent.TSPIN_DOUBLE_MINI;
+					} else {
+						lastevent = LineClearEvent.TSPIN_DOUBLE;
+					}
+				}
+				// T-Spin 3 lines
+				else if (lines >= 3) {
+					lastevent = LineClearEvent.TSPIN_TRIPLE;
+				}
+			} else {
+				switch (lines) {
+				case 1:
+					lastevent = LineClearEvent.SINGLE;
+					break;
+				case 2:
+					lastevent = LineClearEvent.DOUBLE;
+					break;
+				case 3:
+					lastevent = LineClearEvent.TRIPLE;
+					break;
+				default:
+					if (lines >= 4) {
+						lastevent = LineClearEvent.FOUR;
+					}
+					break;
+				}
+			}
+
+			// B2B
+			lastb2b = engine.b2b;
+
+			// Combo
+			lastcombo = engine.combo;
+
+			// All clear
+			if (lines >= 1 && engine.field.isEmpty()) {
+				engine.playSE(Sounds.BRAVO);
+			}
+
+			lastpiece = engine.nowPieceObject.id;
+
+			// add any remaining stack lines
+			if (GOAL_TABLE[goaltype] == -1) {
+				remainStack = Integer.MAX_VALUE;
+			}
+			for (int tmplines = 1; tmplines <= lines && remainStack > 0; tmplines++, remainStack--) {
+				for (int x = 0; x < engine.field.getWidth(); x++) {
+					if (x < comboColumn - 1 || x > comboColumn - 2 + comboWidth) {
+						engine.field.setBlock(x, -ceilingAdjust - tmplines,
+								new Block(STACK_COLOUR_TABLE[stackColour % STACK_COLOUR_TABLE.length], engine.getSkin(),
+										Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+					}
+				}
+				stackColour++;
+			}
+
+			if (GOAL_TABLE[goaltype] == -1) {
+				int meterMax = renderer.getMeterMax(engine);
+				int colorIndex = (engine.statistics.maxCombo - 1) / meterMax;
+				engine.meterValue = (engine.statistics.maxCombo - 1) % meterMax;
+				engine.meterColor = METER_COLOUR_TABLE[colorIndex % METER_COLOUR_TABLE.length];
+				engine.meterValueSub = colorIndex > 0 ? meterMax : 0;
+				engine.meterColorSub = METER_COLOUR_TABLE[Math.max(colorIndex - 1, 0) % METER_COLOUR_TABLE.length];
+			} else {
+				int remainLines = GOAL_TABLE[goaltype] - engine.statistics.lines;
+				engine.meterValue = remainLines * renderer.getMeterMax(engine) / GOAL_TABLE[goaltype];
+
+				if (remainLines <= 30) {
+					engine.meterColor = Colors.METER_COLOR_YELLOW;
+				}
+				if (remainLines <= 20) {
+					engine.meterColor = Colors.METER_COLOR_ORANGE;
+				}
+				if (remainLines <= 10) {
+					engine.meterColor = Colors.METER_COLOR_RED;
+				}
+
+				// Goal
+				if (engine.statistics.lines >= GOAL_TABLE[goaltype]) {
+					engine.ending = 1;
+					engine.gameEnded();
+				} else if (engine.statistics.lines >= GOAL_TABLE[goaltype] - 5) {
+					owner.bgmStatus.fadesw = true;
+				} else if (engine.statistics.lines >= nextseclines) {
+					owner.backgroundStatus.fadesw = true;
+					owner.backgroundStatus.fadecount = 0;
+					owner.backgroundStatus.fadebg = nextseclines / 10;
+					nextseclines += 10;
+				}
+			}
+		} else if (GOAL_TABLE[goaltype] == -1 && engine.statistics.maxCombo >= 2) {
+			engine.ending = 1;
+			engine.gameEnded();
+			engine.resetStatc();
+			engine.stat = engine.statistics.maxCombo > 40 ? GameEngine.Status.EXCELLENT : GameEngine.Status.GAMEOVER;
+		}
+	}
+
+	/**
+	 * This function will be called when the game timer updates
+	 */
+	@Override
+	public void onLast(GameEngine engine, int playerID) {
+		scgettime++;
+	}
+
+	/**
+	 * Renders game result screen
+	 */
+	@Override
+	public void renderResult(GameEngine engine, int playerID) {
+		drawResultStats(engine, playerID, 0, Colors.FONT_CYAN, Statistic.MAXCOMBO, Statistic.TIME);
+		drawResultStats(engine, playerID, 4, Colors.FONT_BLUE, Statistic.LINES, Statistic.PIECE, Statistic.LPM,
+				Statistic.PPS);
+		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
+
+		if (netIsPB) {
+			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
+		}
+
+		if (netIsNetPlay && netReplaySendStatus == 1) {
+			renderer.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
+			renderer.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
+		}
+	}
+
+	/**
+	 * This function will be called when the replay data is going to be saved
+	 */
+	@Override
+	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+		engine.owner.replayProp.setProperty("comborace.version", version);
+		savePreset(engine, engine.owner.replayProp, -1);
+
+		// NET: Save name
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
+			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
+		}
+
+		// Update rankings
+		if (!owner.replayMode && !big && engine.ai == null) {
+			updateRanking(engine.statistics.maxCombo - 1, engine.ending == 0 ? -1 : engine.statistics.time);
+
+			if (rankingRank != -1) {
+				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
+			}
+		}
+	}
+
+	/**
+	 * Load the ranking
+	 */
+	@Override
+	protected void loadRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < GOAL_TABLE.length; i++) {
+			for (int j = 0; j < RANKING_MAX; j++) {
+				rankingCombo[i][j] = prop.getProperty("comborace.ranking." + ruleName + "." + i + ".maxcombo." + j, 0);
+				rankingTime[i][j] = prop.getProperty("comborace.ranking." + ruleName + "." + i + ".time." + j, -1);
+			}
+		}
+	}
+
+	/**
+	 * Save the ranking
+	 */
+	private void saveRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < GOAL_TABLE.length; i++) {
+			for (int j = 0; j < RANKING_MAX; j++) {
+				prop.setProperty("comborace.ranking." + ruleName + "." + i + ".maxcombo." + j, rankingCombo[i][j]);
+				prop.setProperty("comborace.ranking." + ruleName + "." + i + ".time." + j, rankingTime[i][j]);
+			}
+		}
+	}
+
+	/**
+	 * Update the ranking
+	 */
+	private void updateRanking(int maxcombo, int time) {
+		rankingRank = checkRanking(maxcombo, time);
+
+		if (rankingRank != -1) {
+			// Shift down ranking entries
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
+				rankingCombo[goaltype][i] = rankingCombo[goaltype][i - 1];
+				rankingTime[goaltype][i] = rankingTime[goaltype][i - 1];
+			}
+
+			// Add new data
+			rankingCombo[goaltype][rankingRank] = maxcombo;
+			rankingTime[goaltype][rankingRank] = time;
+		}
+	}
+
+	/**
+	 * This function will check the ranking and returns which place you are. (-1:
+	 * Out of rank)
+	 */
+	private int checkRanking(int maxcombo, int time) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (maxcombo > rankingCombo[goaltype][i]) {
+				return i;
+			}
+			if (maxcombo == rankingCombo[goaltype][i] && time >= 0
+					&& (time < rankingTime[goaltype][i] || rankingTime[goaltype][i] == -1)) {
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	/**
+	 * NET: Send various in-game stats (as well as goaltype)
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendStats(GameEngine engine) {
+		int bg = owner.backgroundStatus.fadesw ? owner.backgroundStatus.fadebg : owner.backgroundStatus.bg;
+		String stats = "stats\t";
+		stats += engine.statistics.lines + "\t";
+		stats += engine.statistics.totalPieceLocked + "\t";
+		stats += engine.statistics.time + "\t";
+		stats += engine.statistics.lpm + "\t";
+		stats += engine.statistics.pps + "\t";
+		stats += goaltype + "\t";
+		stats += engine.gameActive + "\t";
+		stats += engine.timerActive + "\t";
+		stats += engine.meterColor + "\t";
+		stats += engine.meterValue + "\t";
+		stats += bg + "\t";
+		stats += scgettime + "\t";
+		stats += lastevent.ordinal() + "\t";
+		stats += lastb2b + "\t";
+		stats += lastcombo + "\t";
+		stats += lastpiece + "\t";
+		stats += engine.statistics.maxCombo + "\t";
+		stats += engine.combo;
+		netLobby.netPlayerClient.send(NetCmd.GAME, stats);
+	}
+
+	/**
+	 * NET: Receive various in-game stats (as well as goaltype)
+	 */
+	@Override
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.lines = message.asInt(3);
+		engine.statistics.totalPieceLocked = message.asInt(3);
+		engine.statistics.time = message.asInt(5);
+		engine.statistics.lpm = message.asFloat(6);
+		engine.statistics.pps = message.asFloat(7);
+		goaltype = message.asInt(8);
+		engine.gameActive = message.asBool(9);
+		engine.timerActive = message.asBool(10);
+		engine.meterColor = message.asInt(11);
+		engine.meterValue = message.asInt(12);
+		owner.backgroundStatus.bg = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(17);
+		engine.statistics.maxCombo = message.asInt(19);
+		engine.combo = message.asInt(20);
+	}
+
+	/**
+	 * NET: Send end-of-game stats
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendEndGameStats(GameEngine engine) {
+		String stats = "";
+		stats += "MAX COMBO;" + (engine.statistics.maxCombo - 1) + "\t";
+		stats += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		stats += "LINE;" + engine.statistics.lines + "\t";
+		stats += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		stats += "LINE/MIN;" + engine.statistics.lpm + "\t";
+		stats += "PIECE/SEC;" + engine.statistics.pps + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(stats));
+	}
+
+	/**
+	 * NET: Send game options to all spectators
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendOptions(GameEngine engine) {
+		String options = "option\t";
+		options += engine.speed.gravity + "\t";
+		options += engine.speed.denominator + "\t";
+		options += engine.speed.are + "\t";
+		options += engine.speed.areLine + "\t";
+		options += engine.speed.lineDelay + "\t";
+		options += engine.speed.lockDelay + "\t";
+		options += engine.speed.das + "\t";
+		options += bgmno + "\t";
+		options += goaltype + "\t";
+		options += presetNumber + "\t";
+		options += shapetype + "\t";
+		options += comboColumn + "\t";
+		options += comboWidth + "\t";
+		options += ceilingAdjust + "\t";
+		options += spawnAboveField;
+		netLobby.netPlayerClient.send(NetCmd.GAME, options);
+	}
+
+	/**
+	 * NET: Receive game options
+	 */
+	@Override
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		engine.speed.gravity = message.asInt(3);
+		engine.speed.denominator = message.asInt(4);
+		engine.speed.are = message.asInt(5);
+		engine.speed.areLine = message.asInt(6);
+		engine.speed.lineDelay = message.asInt(7);
+		engine.speed.lockDelay = message.asInt(8);
+		engine.speed.das = message.asInt(9);
+		bgmno = message.asInt(10);
+		goaltype = message.asInt(11);
+		presetNumber = message.asInt(12);
+		shapetype = message.asInt(13);
+		comboColumn = message.asInt(14);
+		comboWidth = message.asInt(15);
+		ceilingAdjust = message.asInt(16);
+		spawnAboveField = message.asBool(17);
+	}
+
+	/**
+	 * NET: Get goal type
+	 */
+	@Override
+	protected int netGetGoalType() {
+		return goaltype;
+	}
+
+	/**
+	 * NET: It returns true when the current settings doesn't prevent leaderboard
+	 * screen from showing.
+	 */
+	@Override
+	protected boolean netIsNetRankingViewOK(GameEngine engine) {
+		return !big && engine.ai == null;
+	}
+}

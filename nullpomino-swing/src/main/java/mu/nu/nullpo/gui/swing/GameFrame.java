@@ -52,8 +52,8 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.net.NetObserverClient;
-import mu.nu.nullpo.game.play.GameManager;
+import mu.nu.nullpo.game.GameManager;
+import mu.nu.nullpo.game.net.client.NetObserverClient;
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.Sounds;

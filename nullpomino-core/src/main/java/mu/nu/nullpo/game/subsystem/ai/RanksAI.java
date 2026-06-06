@@ -35,11 +35,11 @@ import java.io.ObjectInputStream;
 import java.util.Arrays;
 
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.GameManager;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.ai.util.AIRanksConstants;
 import mu.nu.nullpo.game.subsystem.ai.util.Ranks;
 import mu.nu.nullpo.util.CustomProperties;

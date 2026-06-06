@@ -6,9 +6,9 @@ package mu.nu.nullpo.util;
 import java.util.Random;
 
 import lombok.experimental.UtilityClass;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
-import mu.nu.nullpo.game.play.GameEngine;
 
 /**
  * Contains various methods for modifying a {@link Field}

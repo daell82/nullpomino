@@ -1,2 +1,2 @@
 @echo off
-java -cp lib\* mu.nu.nullpo.tool.netadmin.NetAdmin
+javaw -cp lib\* mu.nu.nullpo.game.net.server.NetAdmin

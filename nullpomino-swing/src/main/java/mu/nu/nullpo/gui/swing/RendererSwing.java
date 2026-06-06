@@ -39,10 +39,10 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Block;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.types.DisplaySize;
 import mu.nu.nullpo.gui.EffectObject;
 import mu.nu.nullpo.gui.common.AbstractRenderer;

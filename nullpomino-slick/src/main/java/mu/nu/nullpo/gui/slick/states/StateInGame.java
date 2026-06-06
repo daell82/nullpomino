@@ -36,8 +36,8 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import mu.nu.nullpo.game.GameManager;
 import mu.nu.nullpo.game.component.RuleOptions;
-import mu.nu.nullpo.game.play.GameManager;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.gui.GameKeyDummy;
 import mu.nu.nullpo.gui.slick.GameKeySlick;

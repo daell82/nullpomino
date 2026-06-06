@@ -11,6 +11,8 @@
 
 	<modules>
 		<module>nullpomino-core</module>
+		<module>nullpomino-netplay</module>
+		<module>nullpomino-modes</module>
 		<module>nullpomino-swing</module>
 		<module>nullpomino-slick</module>
 		<module>nullpomino-tools</module>

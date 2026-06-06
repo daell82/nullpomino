@@ -28,8 +28,8 @@
 */
 package mu.nu.nullpo.game.subsystem.ai;
 
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Controller;
-import mu.nu.nullpo.game.play.GameEngine;
 
 /**
  * AI Interface

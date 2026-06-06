@@ -1,0 +1,1200 @@
+package mu.nu.nullpo.game.subsystem.mode;
+
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.component.BGMusicStatus;
+import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Field;
+import mu.nu.nullpo.game.component.Piece;
+import mu.nu.nullpo.game.component.Statistics.Statistic;
+import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
+import mu.nu.nullpo.game.net.NetUtil;
+import mu.nu.nullpo.game.net.modes.NetplayMode;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
+
+/**
+ * DIG CHALLENGE mode
+ */
+public class DigChallengeMode extends NetplayMode {
+	/** Current version */
+	private static final int CURRENT_VERSION = 2;
+
+	/** Number of goal type */
+	private static final int GOALTYPE_MAX = 2;
+
+	/** Number of garbage lines for each level */
+	private static final int LEVEL_GARBAGE_LINES = 10;
+
+	/** Goal type constants */
+	private static final int GOALTYPE_NORMAL = 0;
+	private static final int GOALTYPE_REALTIME = 1;
+
+	/** Combo bonus table */
+	private static final int[] COMBO_ATTACK_TABLE = { 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5 };
+
+	/** Garbage speed table */
+	private static final int[][] GARBAGE_TIMER_TABLE = {
+			{ 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 40, 30, 20, 10, 5, 0 }, // Normal (OLD)
+			{ 180, 170, 160, 150, 140, 130, 120, 110, 100, 90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20 }, // Realtime
+	};
+
+	/** Fall velocity table (numerators) */
+	private static final int[] tableGravity = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 465, 731, 1280, 1707, -1, -1,
+			-1 };
+
+	/** Fall velocity table (denominators) */
+	private static final int[] tableDenominator = { 63, 50, 39, 30, 22, 16, 12, 8, 6, 4, 3, 2, 1, 256, 256, 256, 256,
+			256, 256, 256 };
+
+	/** Most recent increase in score */
+	private int lastscore;
+
+	/** Most recent increase in bonus score */
+	private int lastbonusscore;
+
+	/** Time to display the most recent increase in score */
+	private int scgettime;
+
+	/** True if most recent scoring event is a B2B */
+	private boolean lastb2b;
+
+	/** Combo count for most recent scoring event */
+	private int lastcombo;
+
+	/** Piece ID for most recent scoring event */
+	private int lastpiece;
+
+	/** Previous garbage hole */
+	private int garbageHole;
+
+	/** Garbage timer */
+	private int garbageTimer;
+
+	/** Number of total garbage lines rised */
+	private int garbageTotal;
+
+	/** Number of garbage lines needed for next level */
+	private int garbageNextLevelLines;
+
+	/** Number of garbage lines waiting to appear (Normal type) */
+	private int garbagePending;
+
+	/** Game type */
+	private int goaltype;
+
+	/** Level at the start of the game */
+	private int startlevel;
+
+	/** BGM number */
+	private int bgmno;
+
+	/** Flag for types of T-Spins allowed (0=none, 1=normal, 2=all spin) */
+	private int tspinEnableType;
+
+	/** Flag for enabling wallkick T-Spins */
+	private boolean enableTSpinKick;
+
+	/** Spin check type (4Point or Immobile) */
+	private int spinCheckType;
+
+	/** Immobile EZ spin */
+	private boolean tspinEnableEZ;
+
+	/** Flag for enabling B2B */
+	private boolean enableB2B;
+
+	/** Flag for enabling combos */
+	private boolean enableCombo;
+
+	/** Version */
+	private int version;
+
+	/** Current round's ranking rank */
+	private int rankingRank;
+
+	/** Rankings' scores */
+	private int[][] rankingScore;
+
+	/** Rankings' line counts */
+	private int[][] rankingLines;
+
+	/** Rankings' times */
+	private int[][] rankingTime;
+
+	/*
+	 * Mode name
+	 */
+	@Override
+	public String getName() {
+		return "DIG CHALLENGE";
+	}
+
+	/*
+	 * Initialization for each player
+	 */
+	@Override
+	public void playerInit(GameEngine engine, int playerID) {
+		owner = engine.owner;
+		renderer = engine.owner.renderer;
+
+		lastscore = 0;
+		lastbonusscore = 0;
+		scgettime = 0;
+		lastevent = LineClearEvent.NONE;
+		lastb2b = false;
+		lastcombo = 0;
+		lastpiece = 0;
+
+		garbageHole = -1;
+		garbageTimer = 0;
+		garbageTotal = 0;
+		garbageNextLevelLines = 0;
+		garbagePending = 0;
+
+		rankingRank = -1;
+		rankingScore = new int[GOALTYPE_MAX][RANKING_MAX];
+		rankingLines = new int[GOALTYPE_MAX][RANKING_MAX];
+		rankingTime = new int[GOALTYPE_MAX][RANKING_MAX];
+
+		engine.framecolor = Colors.FRAME_COLOR_GREEN;
+		engine.statistics.levelDispAdd = 1;
+
+		netPlayerInit(engine, playerID);
+
+		if (!owner.replayMode) {
+			loadSetting(owner.modeConfig);
+			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+			version = CURRENT_VERSION;
+		} else {
+			loadSetting(owner.replayProp);
+
+			// NET: Load name
+			netPlayerName = engine.owner.replayProp.getProperty(playerID + ".net.netPlayerName", "");
+		}
+
+		engine.owner.backgroundStatus.bg = startlevel;
+	}
+
+	/**
+	 * Set the gravity rate
+	 *
+	 * @param engine GameEngine
+	 */
+	public void setSpeed(GameEngine engine) {
+		if (goaltype == GOALTYPE_REALTIME) {
+			engine.speed.gravity = 0;
+			engine.speed.denominator = 60;
+		} else {
+			int lv = engine.statistics.level;
+
+			if (lv < 0) {
+				lv = 0;
+			}
+			if (lv >= tableGravity.length) {
+				lv = tableGravity.length - 1;
+			}
+
+			engine.speed.gravity = tableGravity[lv];
+			engine.speed.denominator = tableDenominator[lv];
+		}
+
+		engine.speed.are = 0;
+		engine.speed.areLine = 0;
+		engine.speed.lineDelay = 0;
+		engine.speed.lockDelay = 30;
+	}
+
+	/*
+	 * Called at settings screen
+	 */
+	@Override
+	public boolean onSetting(GameEngine engine, int playerID) {
+		// NET: Net Ranking
+		if (netIsNetRankingDisplayMode) {
+			netOnUpdateNetPlayRanking(engine, goaltype);
+		}
+		// Menu
+		else if (!engine.owner.replayMode) {
+			// Configuration changes
+			int change = updateCursor(engine, 9, playerID);
+
+			if (change != 0) {
+				engine.playSE(Sounds.CHANGE);
+
+				switch (menuCursor) {
+				case 0:
+					goaltype += change;
+					if (goaltype < 0) {
+						goaltype = GOALTYPE_MAX - 1;
+					}
+					if (goaltype > GOALTYPE_MAX - 1) {
+						goaltype = 0;
+					}
+					break;
+				case 1:
+					startlevel += change;
+					if (startlevel < 0) {
+						startlevel = 19;
+					}
+					if (startlevel > 19) {
+						startlevel = 0;
+					}
+					engine.owner.backgroundStatus.bg = startlevel;
+					break;
+				case 2:
+					bgmno += change;
+					if (bgmno < -1) {
+						bgmno = BGMusicStatus.BGM_COUNT - 1;
+					}
+					if (bgmno > BGMusicStatus.BGM_COUNT - 1) {
+						bgmno = -1;
+					}
+					break;
+				case 3:
+					tspinEnableType += change;
+					if (tspinEnableType < 0) {
+						tspinEnableType = 2;
+					}
+					if (tspinEnableType > 2) {
+						tspinEnableType = 0;
+					}
+					break;
+				case 4:
+					enableTSpinKick = !enableTSpinKick;
+					break;
+				case 5:
+					spinCheckType += change;
+					if (spinCheckType < 0) {
+						spinCheckType = 1;
+					}
+					if (spinCheckType > 1) {
+						spinCheckType = 0;
+					}
+					break;
+				case 6:
+					tspinEnableEZ = !tspinEnableEZ;
+					break;
+				case 7:
+					enableB2B = !enableB2B;
+					break;
+				case 8:
+					enableCombo = !enableCombo;
+					break;
+				case 9:
+					engine.speed.das += change;
+					if (engine.speed.das < 0) {
+						engine.speed.das = 99;
+					}
+					if (engine.speed.das > 99) {
+						engine.speed.das = 0;
+					}
+					break;
+				}
+
+				// NET: Signal options change
+				if (netIsNetPlay && netNumSpectators > 0) {
+					netSendOptions(engine);
+				}
+			}
+
+			// Confirm
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
+				engine.playSE(Sounds.DECIDE);
+
+				// Save settings
+				saveSetting(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
+
+				// NET: Signal start of the game
+				if (netIsNetPlay) {
+					netLobby.netPlayerClient.send(NetCmd.START_1P);
+				}
+
+				return false;
+			}
+
+			// Cancel
+			if (engine.ctrl.isPush(Controller.BUTTON_B) && !netIsNetPlay) {
+				engine.quitflag = true;
+			}
+
+			// NET: Netplay Ranking
+			if (engine.ctrl.isPush(Controller.BUTTON_D) && netIsNetPlay && netIsNetRankingViewOK(engine)) {
+				netEnterNetPlayRankingScreen(engine, playerID, goaltype);
+			}
+
+			menuTime++;
+		}
+		// Replay
+		else {
+			menuTime++;
+			menuCursor = -1;
+
+			if (menuTime >= 60) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/*
+	 * Render settings screen
+	 */
+	@Override
+	public void renderSetting(GameEngine engine, int playerID) {
+		if (netIsNetRankingDisplayMode) {
+			// NET: Netplay Ranking
+			netOnRenderNetPlayRanking(engine, playerID, renderer);
+		} else {
+			String strTSpinEnable = "";
+			if (tspinEnableType == 0) {
+				strTSpinEnable = "OFF";
+			}
+			if (tspinEnableType == 1) {
+				strTSpinEnable = "T-ONLY";
+			}
+			if (tspinEnableType == 2) {
+				strTSpinEnable = "ALL";
+			}
+
+			drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE", goaltype == 0 ? "NORMAL" : "REALTIME",
+					"LEVEL", String.valueOf(startlevel + 1), "BGM", String.valueOf(bgmno), "SPIN BONUS", strTSpinEnable,
+					"EZ SPIN", GeneralUtil.getONorOFF(enableTSpinKick), "SPIN TYPE",
+					spinCheckType == 0 ? "4POINT" : "IMMOBILE", "EZIMMOBILE", GeneralUtil.getONorOFF(tspinEnableEZ),
+					"B2B", GeneralUtil.getONorOFF(enableB2B), "COMBO", GeneralUtil.getONorOFF(enableCombo), "DAS",
+					String.valueOf(engine.speed.das));
+		}
+	}
+
+	/*
+	 * This function will be called before the game actually begins (after Ready&Go
+	 * screen disappears)
+	 */
+	@Override
+	public void startGame(GameEngine engine, int playerID) {
+		engine.statistics.level = startlevel;
+		engine.b2bEnable = enableB2B;
+		if (enableCombo) {
+			engine.comboType = GameEngine.COMBO_TYPE_NORMAL;
+		} else {
+			engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
+		}
+
+		engine.tspinAllowKick = enableTSpinKick;
+		if (tspinEnableType == 0) {
+			engine.tspinEnable = false;
+		} else if (tspinEnableType == 1) {
+			engine.tspinEnable = true;
+		} else {
+			engine.tspinEnable = true;
+			engine.useAllSpinBonus = true;
+		}
+
+		if (version >= 1) {
+			engine.spinCheckType = spinCheckType;
+			engine.tspinEnableEZ = tspinEnableEZ;
+		}
+
+		garbageTotal = LEVEL_GARBAGE_LINES * startlevel;
+		garbageNextLevelLines = LEVEL_GARBAGE_LINES * (startlevel + 1);
+
+		setSpeed(engine);
+
+		if (netIsWatch) {
+			owner.bgmStatus.bgm = BGMusicStatus.BGM_NOTHING;
+		} else {
+			owner.bgmStatus.bgm = bgmno;
+		}
+	}
+
+	/*
+	 * Render score
+	 */
+	@Override
+	public void renderLast(GameEngine engine, int playerID) {
+		if (owner.menuOnly) {
+			return;
+		}
+
+		renderer.drawScoreFont(engine, playerID, 0, 0, "DIG CHALLENGE", Colors.FONT_GREEN);
+		if (goaltype == 0) {
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(NORMAL GAME)", Colors.FONT_GREEN);
+		} else {
+			renderer.drawScoreFont(engine, playerID, 0, 1, "(REALTIME GAME)", Colors.FONT_GREEN);
+		}
+
+		if (engine.stat == GameEngine.Status.SETTING || engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && startlevel == 0 && engine.ai == null) {
+				float scale = renderer.getNextDisplayType() == 2 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 ? 6 : 4;
+				renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE  LINE TIME", Colors.FONT_BLUE, scale);
+
+				for (int i = 0; i < RANKING_MAX; i++) {
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+							Colors.FONT_YELLOW, scale);
+					renderer.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[goaltype][i]),
+							i == rankingRank, scale);
+					renderer.drawScoreFont(engine, playerID, 10, topY + i, String.valueOf(rankingLines[goaltype][i]),
+							i == rankingRank, scale);
+					renderer.drawScoreFont(engine, playerID, 15, topY + i,
+							GeneralUtil.getTime(rankingTime[goaltype][i]), i == rankingRank, scale);
+				}
+			}
+		} else {
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			String strScore = null;
+			if (lastscore == 0 || scgettime >= 120) {
+				strScore = String.valueOf(engine.statistics.score);
+			} else if (lastbonusscore == 0) {
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
+			} else {
+				strScore = engine.statistics.score + "(+" + lastscore + "+" + lastbonusscore + ")";
+			}
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
+
+			renderer.drawScoreFont(engine, playerID, 0, 6, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.lines));
+
+			renderer.drawScoreFont(engine, playerID, 0, 9, "GARBAGE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(garbageTotal));
+
+			renderer.drawScoreFont(engine, playerID, 0, 12, "LEVEL", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 13, String.valueOf(engine.statistics.level + 1));
+
+			renderer.drawScoreFont(engine, playerID, 0, 15, "TIME", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 16, GeneralUtil.getTime(engine.statistics.time));
+
+			if (lastevent != LineClearEvent.NONE && scgettime < 120) {
+				String strPieceName = Piece.getPieceName(lastpiece);
+
+				switch (lastevent) {
+				case LineClearEvent.SINGLE:
+					renderer.drawMenuFont(engine, playerID, 2, 21, "SINGLE", Colors.FONT_DARKBLUE);
+					break;
+				case LineClearEvent.DOUBLE:
+					renderer.drawMenuFont(engine, playerID, 2, 21, "DOUBLE", Colors.FONT_BLUE);
+					break;
+				case LineClearEvent.TRIPLE:
+					renderer.drawMenuFont(engine, playerID, 2, 21, "TRIPLE", Colors.FONT_GREEN);
+					break;
+				case LineClearEvent.FOUR:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 3, 21, "FOUR", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_SINGLE_MINI:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-S", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_SINGLE:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-SINGLE", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_DOUBLE_MINI:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-MINI-D", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_DOUBLE:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-DOUBLE", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_TRIPLE:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 1, 21, strPieceName + "-TRIPLE", Colors.FONT_ORANGE);
+					}
+					break;
+				case LineClearEvent.TSPIN_EZ:
+					if (lastb2b) {
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_RED);
+					} else {
+						renderer.drawMenuFont(engine, playerID, 3, 21, "EZ-" + strPieceName, Colors.FONT_ORANGE);
+					}
+					break;
+				default:
+					break;
+				}
+
+				if (lastcombo >= 2) {
+					renderer.drawMenuFont(engine, playerID, 2, 22, lastcombo - 1 + "COMBO", Colors.FONT_CYAN);
+				}
+			}
+
+			if (garbagePending > 0) {
+				int x = renderer.getFieldDisplayPositionX(engine, playerID);
+				int y = renderer.getFieldDisplayPositionY(engine, playerID);
+				int fontColor = Colors.FONT_WHITE;
+
+				if (garbagePending >= 1) {
+					fontColor = Colors.FONT_YELLOW;
+				}
+				if (garbagePending >= 3) {
+					fontColor = Colors.FONT_ORANGE;
+				}
+				if (garbagePending >= 4) {
+					fontColor = Colors.FONT_RED;
+				}
+
+				String strTempGarbage = String.format("%5d", garbagePending);
+				renderer.drawDirectFont(engine, playerID, x + 96, y + 372, strTempGarbage, fontColor);
+			}
+		}
+
+		// NET: Number of spectators
+		netDrawSpectatorsCount(engine, 0, 18);
+		// NET: All number of players
+		if (playerID == getPlayers() - 1) {
+			netDrawAllPlayersCount(engine);
+			netDrawGameRate(engine);
+		}
+		// NET: Player name (It may also appear in offline replay)
+		netDrawPlayerName(engine);
+	}
+
+	/*
+	 * Called after every frame
+	 */
+	@Override
+	public void onLast(GameEngine engine, int playerID) {
+		scgettime++;
+
+		if (!engine.gameActive || !engine.timerActive) {
+			return;
+		}
+		garbageTimer++;
+
+		// Update meter
+		updateMeter(engine);
+
+		// Add pending garbage (Normal)
+		if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_NORMAL && !netIsWatch) {
+			if (version >= 1) {
+				garbagePending++;
+				garbageTimer = 0;
+
+				// NET: Send stats
+				if (netIsNetPlay && netNumSpectators > 0) {
+					netSendStats(engine);
+				}
+			} else {
+				garbagePending = 1;
+			}
+		}
+
+		// Add Garbage (Realtime)
+		if (garbageTimer >= getGarbageMaxTime(engine.statistics.level) && goaltype == GOALTYPE_REALTIME
+				&& engine.stat != GameEngine.Status.LINECLEAR && !netIsWatch) {
+			addGarbage(engine);
+			garbageTimer = 0;
+
+			// NET: Send field and stats
+			if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
+				netSendField(engine);
+				netSendStats(engine);
+			}
+
+			if (engine.stat == GameEngine.Status.MOVE && engine.nowPieceObject != null) {
+				if (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+					// Push up the current piece
+					while (engine.nowPieceObject.checkCollision(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+						engine.nowPieceY--;
+					}
+
+					// Pushed out from the visible part of the field
+					if (engine.nowPieceObject.isPartialLockOut(engine.nowPieceX, engine.nowPieceY, engine.field)) {
+						engine.stat = GameEngine.Status.GAMEOVER;
+						engine.resetStatc();
+						engine.gameEnded();
+					}
+				}
+
+				// Update ghost position
+				engine.nowPieceBottomY = engine.nowPieceObject.getBottom(engine.nowPieceX, engine.nowPieceY,
+						engine.field);
+
+				// NET: Send piece movement
+				if (netIsNetPlay && !netIsWatch && netNumSpectators > 0) {
+					netSendPieceMovement(engine, true);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update timer meter
+	 *
+	 * @param engine GameEngine
+	 */
+	private void updateMeter(GameEngine engine) {
+		int limitTime = getGarbageMaxTime(engine.statistics.level);
+		int remainTime = limitTime - garbageTimer;
+		if (remainTime < 0) {
+			remainTime = 0;
+		}
+		if (limitTime > 0) {
+			engine.meterValue = remainTime * renderer.getMeterMax(engine) / limitTime;
+		} else {
+			engine.meterValue = 0;
+		}
+		engine.meterColor = Colors.METER_COLOR_GREEN;
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 2) {
+			engine.meterColor = Colors.METER_COLOR_YELLOW;
+		}
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 3) {
+			engine.meterColor = Colors.METER_COLOR_ORANGE;
+		}
+		if (engine.meterValue <= renderer.getMeterMax(engine) / 4) {
+			engine.meterColor = Colors.METER_COLOR_RED;
+		}
+	}
+
+	/*
+	 * Calculate score
+	 */
+	@Override
+	public void calcScore(GameEngine engine, int playerID, int lines) {
+		// Add Garbage (Normal)
+		if (goaltype == GOALTYPE_NORMAL && garbagePending > 0 && (version <= 1 || lines <= 0)) {
+			addGarbage(engine, garbagePending);
+			garbagePending = 0;
+		}
+
+		// Line clear bonus
+		if (lines > 0) {
+			int pts = 0;
+			scgettime = 0;
+
+			if (engine.tspin) {
+				// Immobile EZ Spin
+				if (engine.tspinez) {
+					if (!engine.useAllSpinBonus) {
+						pts += 1;
+					}
+					lastevent = LineClearEvent.TSPIN_EZ;
+				}
+				// T-Spin 1 line
+				if (lines == 1) {
+					if (engine.tspinmini) {
+						if (!engine.useAllSpinBonus) {
+							pts += 1;
+						}
+						lastevent = LineClearEvent.TSPIN_SINGLE_MINI;
+					} else {
+						pts += 2;
+						lastevent = LineClearEvent.TSPIN_SINGLE;
+					}
+				}
+				// T-Spin 2 lines
+				else if (lines == 2) {
+					if (engine.tspinmini && engine.useAllSpinBonus) {
+						pts += 3;
+						lastevent = LineClearEvent.TSPIN_DOUBLE_MINI;
+					} else {
+						pts += 4;
+						lastevent = LineClearEvent.TSPIN_DOUBLE;
+					}
+				}
+				// T-Spin 3 lines
+				else if (lines >= 3) {
+					pts += 6;
+					lastevent = LineClearEvent.TSPIN_TRIPLE;
+				}
+			} else {
+				switch (lines) {
+				case 1:
+					lastevent = LineClearEvent.SINGLE; // 1 line
+					break;
+				case 2:
+					pts += 1;
+					lastevent = LineClearEvent.DOUBLE; // 2 lines
+					break;
+				case 3:
+					pts += 2;
+					lastevent = LineClearEvent.TRIPLE; // 3 lines
+					break;
+				default:
+					if (lines >= 4) {
+						pts += 4;
+						lastevent = LineClearEvent.FOUR; // 4 lines
+					}
+					break;
+				}
+			}
+
+			// B2B
+			if (engine.b2b) {
+				lastb2b = true;
+				if (pts > 0) {
+					if (lastevent == LineClearEvent.TSPIN_TRIPLE && !engine.useAllSpinBonus) {
+						pts += 2;
+					} else {
+						pts += 1;
+					}
+				}
+			} else {
+				lastb2b = false;
+			}
+
+			// Combo
+			if (engine.comboType != GameEngine.COMBO_TYPE_DISABLE) {
+				int cmbindex = engine.combo - 1;
+				if (cmbindex < 0) {
+					cmbindex = 0;
+				}
+				if (cmbindex >= COMBO_ATTACK_TABLE.length) {
+					cmbindex = COMBO_ATTACK_TABLE.length - 1;
+				}
+				pts += COMBO_ATTACK_TABLE[cmbindex];
+				lastcombo = engine.combo;
+			}
+
+			// All clear
+			if (lines >= 1 && engine.field.isEmpty()) {
+				engine.playSE(Sounds.BRAVO);
+				pts += 6;
+			}
+
+			// Add to score
+			lastscore = pts;
+			lastpiece = engine.nowPieceObject.id;
+			lastbonusscore = 0;
+			if (pts > 0) {
+				if (lines >= 1) {
+					engine.statistics.scoreFromLineClear += pts;
+				} else {
+					engine.statistics.scoreFromOtherBonus += pts;
+				}
+				engine.statistics.score += pts;
+			}
+
+			// Decrease waiting garbage lines (normal type)
+			if (goaltype == GOALTYPE_NORMAL && version >= 2) {
+				garbagePending -= pts;
+				if (garbagePending < 0) {
+					int bonus = Math.abs(garbagePending);
+					lastbonusscore = bonus;
+					if (lines >= 1) {
+						engine.statistics.scoreFromLineClear += bonus;
+					} else {
+						engine.statistics.scoreFromOtherBonus += bonus;
+					}
+					engine.statistics.score += bonus;
+					garbagePending = 0;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get garbage time limit
+	 *
+	 * @param lv Level
+	 * @return Garbage time limit
+	 */
+	private int getGarbageMaxTime(int lv) {
+		int t = 1;
+		if (version <= 1) {
+			t = goaltype;
+		}
+
+		if (lv > GARBAGE_TIMER_TABLE[t].length - 1) {
+			lv = GARBAGE_TIMER_TABLE[t].length - 1;
+		}
+		return GARBAGE_TIMER_TABLE[t][lv];
+	}
+
+	/**
+	 * Add an new garbage line
+	 *
+	 * @param engine GameEngine
+	 */
+	private void addGarbage(GameEngine engine) {
+		addGarbage(engine, 1);
+	}
+
+	/**
+	 * Add garbage line(s)
+	 *
+	 * @param engine GameEngine
+	 * @param lines  Number of garbage lines to add
+	 */
+	private void addGarbage(GameEngine engine, int lines) {
+		// Add garbages
+		Field field = engine.field;
+		int width = field.getWidth();
+		int height = field.getHeight();
+
+		engine.playSE(Sounds.GARBAGE);
+
+		int prevHole = garbageHole;
+
+		for (int i = 0; i < lines; i++) {
+			do {
+				garbageHole = engine.random.nextInt(width);
+			} while (garbageHole == prevHole);
+
+			field.pushUp();
+
+			for (int x = 0; x < width; x++) {
+				if (x != garbageHole) {
+					field.setBlock(x, height - 1, new Block(Colors.BLOCK_COLOR_GRAY, engine.getSkin(),
+							Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+				}
+			}
+
+			// Set connections
+			if (renderer.isStickySkin(engine)) {
+				for (int x = 0; x < width; x++) {
+					if (x != garbageHole) {
+						Block block = field.getBlock(x, height - 1);
+						if (block != null) {
+							if (!field.getBlockEmpty(x - 1, height - 1)) {
+								block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (!field.getBlockEmpty(x + 1, height - 1)) {
+								block.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Levelup
+		boolean lvupflag = false;
+		garbageTotal += lines;
+
+		while (garbageTotal >= garbageNextLevelLines && engine.statistics.level < 19) {
+			garbageNextLevelLines += LEVEL_GARBAGE_LINES;
+			engine.statistics.level++;
+			lvupflag = true;
+		}
+
+		if (lvupflag) {
+			owner.backgroundStatus.fadesw = true;
+			owner.backgroundStatus.fadecount = 0;
+			owner.backgroundStatus.fadebg = engine.statistics.level;
+			setSpeed(engine);
+			engine.playSE(Sounds.LEVEL_UP);
+		}
+	}
+
+	/*
+	 * Results screen
+	 */
+	@Override
+	public void renderResult(GameEngine engine, int playerID) {
+		drawResultStats(engine, playerID, 0, Colors.FONT_BLUE, Statistic.SCORE, Statistic.LINES);
+		drawResult(engine, playerID, 4, Colors.FONT_BLUE, "GARBAGE", String.format("%10d", garbageTotal));
+		drawResultStats(engine, playerID, 6, Colors.FONT_BLUE, Statistic.PIECE, Statistic.LEVEL, Statistic.TIME);
+		drawResultRank(engine, playerID, 12, Colors.FONT_BLUE, rankingRank);
+		drawResultNetRank(engine, playerID, 14, Colors.FONT_BLUE, netRankingRank[0]);
+		drawResultNetRankDaily(engine, playerID, 16, Colors.FONT_BLUE, netRankingRank[1]);
+
+		if (netIsPB) {
+			renderer.drawMenuFont(engine, playerID, 2, 18, "NEW PB", Colors.FONT_ORANGE);
+		}
+
+		if (netIsNetPlay && netReplaySendStatus == 1) {
+			renderer.drawMenuFont(engine, playerID, 0, 19, "SENDING...", Colors.FONT_PINK);
+		} else if (netIsNetPlay && !netIsWatch && netReplaySendStatus == 2) {
+			renderer.drawMenuFont(engine, playerID, 1, 19, "A: RETRY", Colors.FONT_RED);
+		}
+	}
+
+	/*
+	 * Called when saving replay
+	 */
+	@Override
+	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+		saveSetting(prop);
+
+		// NET: Save name
+		if (netPlayerName != null && !netPlayerName.isEmpty()) {
+			prop.setProperty(playerID + ".net.netPlayerName", netPlayerName);
+		}
+
+		// Update rankings
+		if (!owner.replayMode && startlevel == 0 && engine.ai == null) {
+			updateRanking(engine.statistics.score, engine.statistics.lines, engine.statistics.time, goaltype);
+
+			if (rankingRank != -1) {
+				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
+			}
+		}
+	}
+
+	/**
+	 * Load settings from property file
+	 *
+	 * @param prop Property file
+	 */
+	@Override
+	protected void loadSetting(CustomProperties prop) {
+		goaltype = prop.getProperty("digchallenge.goaltype", GOALTYPE_NORMAL);
+		startlevel = prop.getProperty("digchallenge.startlevel", 0);
+		bgmno = prop.getProperty("digchallenge.bgmno", 0);
+		tspinEnableType = prop.getProperty("digchallenge.tspinEnableType", 2);
+		enableTSpinKick = prop.getProperty("digchallenge.enableTSpinKick", true);
+		spinCheckType = prop.getProperty("digchallenge.spinCheckType", 0);
+		tspinEnableEZ = prop.getProperty("digchallenge.tspinEnableEZ", false);
+		enableB2B = prop.getProperty("digchallenge.enableB2B", true);
+		enableCombo = prop.getProperty("digchallenge.enableCombo", true);
+		owner.engines[0].speed.das = prop.getProperty("digchallenge.das", 11);
+		version = prop.getProperty("digchallenge.version", 0);
+	}
+
+	/**
+	 * Save settings to property file
+	 *
+	 * @param prop Property file
+	 */
+	@Override
+	protected void saveSetting(CustomProperties prop) {
+		prop.setProperty("digchallenge.goaltype", goaltype);
+		prop.setProperty("digchallenge.startlevel", startlevel);
+		prop.setProperty("digchallenge.bgmno", bgmno);
+		prop.setProperty("digchallenge.tspinEnableType", tspinEnableType);
+		prop.setProperty("digchallenge.spinCheckType", spinCheckType);
+		prop.setProperty("digchallenge.tspinEnableEZ", tspinEnableEZ);
+		prop.setProperty("digchallenge.enableTSpinKick", enableTSpinKick);
+		prop.setProperty("digchallenge.enableB2B", enableB2B);
+		prop.setProperty("digchallenge.enableCombo", enableCombo);
+		prop.setProperty("digchallenge.das", owner.engines[0].speed.das);
+		prop.setProperty("digchallenge.version", version);
+	}
+
+	/**
+	 * Read rankings from property file
+	 *
+	 * @param prop     Property file
+	 * @param ruleName Rule name
+	 */
+	@Override
+	protected void loadRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < GOALTYPE_MAX; j++) {
+				rankingScore[j][i] = prop.getProperty("digchallenge.ranking." + ruleName + "." + j + ".score." + i, 0);
+				rankingLines[j][i] = prop.getProperty("digchallenge.ranking." + ruleName + "." + j + ".lines." + i, 0);
+				rankingTime[j][i] = prop.getProperty("digchallenge.ranking." + ruleName + "." + j + ".time." + i, 0);
+			}
+		}
+	}
+
+	/**
+	 * Save rankings to property file
+	 *
+	 * @param prop     Property file
+	 * @param ruleName Rule name
+	 */
+	private void saveRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < GOALTYPE_MAX; j++) {
+				prop.setProperty("digchallenge.ranking." + ruleName + "." + j + ".score." + i, rankingScore[j][i]);
+				prop.setProperty("digchallenge.ranking." + ruleName + "." + j + ".lines." + i, rankingLines[j][i]);
+				prop.setProperty("digchallenge.ranking." + ruleName + "." + j + ".time." + i, rankingTime[j][i]);
+			}
+		}
+	}
+
+	/**
+	 * Update rankings
+	 *
+	 * @param sc   Score
+	 * @param li   Lines
+	 * @param time Time
+	 */
+	private void updateRanking(int sc, int li, int time, int type) {
+		rankingRank = checkRanking(sc, li, time, type);
+
+		if (rankingRank != -1) {
+			// Shift down ranking entries
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
+				rankingScore[type][i] = rankingScore[type][i - 1];
+				rankingLines[type][i] = rankingLines[type][i - 1];
+				rankingTime[type][i] = rankingTime[type][i - 1];
+			}
+
+			// Add new data
+			rankingScore[type][rankingRank] = sc;
+			rankingLines[type][rankingRank] = li;
+			rankingTime[type][rankingRank] = time;
+		}
+	}
+
+	/**
+	 * Calculate ranking position
+	 *
+	 * @param sc   Score
+	 * @param li   Lines
+	 * @param time Time
+	 * @return Position (-1 if unranked)
+	 */
+	private int checkRanking(int sc, int li, int time, int type) {
+		int ranking = -1;
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (sc > rankingScore[type][i]) {
+				ranking = i;
+			}
+			if (sc == rankingScore[type][i] && li > rankingLines[type][i]) {
+				ranking = i;
+			}
+			if (sc == rankingScore[type][i] && li == rankingLines[type][i] && time > rankingTime[type][i]) {
+				ranking = i;
+			}
+		}
+		return ranking;
+	}
+
+	/**
+	 * NET: Send various in-game stats (as well as goaltype)
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendStats(GameEngine engine) {
+		int bg = engine.owner.backgroundStatus.fadesw ? engine.owner.backgroundStatus.fadebg
+				: engine.owner.backgroundStatus.bg;
+		StringBuilder msg = new StringBuilder("stats\t");
+		msg.append(engine.statistics.score).append('\t');
+		msg.append(engine.statistics.lines).append("\t");
+		msg.append(engine.statistics.totalPieceLocked).append("\t");
+		msg.append(engine.statistics.time).append("\t");
+		msg.append(engine.statistics.level).append("\t");
+		msg.append(garbageTimer).append("\t");
+		msg.append(garbageTotal).append("\t");
+		msg.append(goaltype).append("\t");
+		msg.append(engine.gameActive).append("\t");
+		msg.append(engine.timerActive).append("\t");
+		msg.append(lastscore).append("\t");
+		msg.append(scgettime).append("\t");
+		msg.append(lastevent.ordinal()).append("\t");
+		msg.append(lastb2b).append("\t");
+		msg.append(lastcombo).append("\t");
+		msg.append(lastpiece).append("\t");
+		msg.append(bg).append("\t");
+		msg.append(garbagePending);
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
+	}
+
+	/**
+	 * NET: Receive various in-game stats (as well as goaltype)
+	 */
+	@Override
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		engine.statistics.score = message.asInt(3);
+		engine.statistics.lines = message.asInt(4);
+		engine.statistics.totalPieceLocked = message.asInt(5);
+		engine.statistics.time = message.asInt(6);
+		engine.statistics.level = message.asInt(7);
+		garbageTimer = message.asInt(8);
+		garbageTotal = message.asInt(9);
+		goaltype = message.asInt(10);
+		engine.gameActive = message.asBool(11);
+		engine.timerActive = message.asBool(12);
+		lastscore = message.asInt(13);
+		scgettime = message.asInt(14);
+		lastevent = LineClearEvent.values()[message.asInt(15)];
+		lastb2b = message.asBool(16);
+		lastcombo = message.asInt(17);
+		lastpiece = message.asInt(18);
+		engine.owner.backgroundStatus.bg = message.asInt(19);
+		garbagePending = message.asInt(20);
+
+		// Meter
+		updateMeter(engine);
+	}
+
+	/**
+	 * NET: Send end-of-game stats
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendEndGameStats(GameEngine engine) {
+		String subMsg = "";
+		subMsg += "SCORE;" + engine.statistics.score + "\t";
+		subMsg += "LINE;" + engine.statistics.lines + "\t";
+		subMsg += "GARBAGE;" + garbageTotal + "\t";
+		subMsg += "PIECE;" + engine.statistics.totalPieceLocked + "\t";
+		subMsg += "LEVEL;" + (engine.statistics.level + engine.statistics.levelDispAdd) + "\t";
+		subMsg += "TIME;" + GeneralUtil.getTime(engine.statistics.time) + "\t";
+		netLobby.netPlayerClient.send(NetCmd.GSTAT_1P, NetUtil.urlEncode(subMsg));
+	}
+
+	/**
+	 * NET: Send game options to all spectators
+	 *
+	 * @param engine GameEngine
+	 */
+	@Override
+	protected void netSendOptions(GameEngine engine) {
+		String msg = "option\t";
+		msg += goaltype + "\t";
+		msg += startlevel + "\t";
+		msg += bgmno + "\t";
+		msg += tspinEnableType + "\t";
+		msg += enableTSpinKick + "\t";
+		msg += spinCheckType + "\t";
+		msg += tspinEnableEZ + "\t";
+		msg += enableB2B + "\t";
+		msg += enableCombo + "\t";
+		msg += engine.speed.das;
+		netLobby.netPlayerClient.send(NetCmd.GAME, msg);
+	}
+
+	/**
+	 * NET: Receive game options
+	 */
+	@Override
+	protected void netRecvOptions(GameEngine engine, NetMessage message) {
+		goaltype = message.asInt(3);
+		startlevel = message.asInt(4);
+		bgmno = message.asInt(5);
+		tspinEnableType = message.asInt(6);
+		enableTSpinKick = message.asBool(7);
+		spinCheckType = message.asInt(8);
+		tspinEnableEZ = message.asBool(9);
+		enableB2B = message.asBool(10);
+		enableCombo = message.asBool(11);
+		engine.speed.das = message.asInt(12);
+	}
+
+	/**
+	 * NET: Get goal type
+	 */
+	@Override
+	protected int netGetGoalType() {
+		return goaltype;
+	}
+
+	/**
+	 * NET: It returns true when the current settings doesn't prevent leaderboard
+	 * screen from showing.
+	 */
+	@Override
+	protected boolean netIsNetRankingViewOK(GameEngine engine) {
+		return startlevel == 0 && engine.ai == null;
+	}
+}

@@ -55,9 +55,9 @@ import org.newdawn.slick.imageout.ImageOut;
 import org.newdawn.slick.state.StateBasedGame;
 import org.newdawn.slick.util.Log;
 
-import mu.nu.nullpo.game.net.NetBaseClient;
 import mu.nu.nullpo.game.net.NetCmd;
-import mu.nu.nullpo.game.net.NetObserverClient;
+import mu.nu.nullpo.game.net.client.NetBaseClient;
+import mu.nu.nullpo.game.net.client.NetObserverClient;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.gui.slick.states.StateConfigAISelect;
 import mu.nu.nullpo.gui.slick.states.StateConfigGameTuning;

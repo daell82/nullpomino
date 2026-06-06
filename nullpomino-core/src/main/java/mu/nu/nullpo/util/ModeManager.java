@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.subsystem.mode.GameMode;
+import mu.nu.nullpo.game.modes.GameMode;
 
 /**
  * Mode Management class

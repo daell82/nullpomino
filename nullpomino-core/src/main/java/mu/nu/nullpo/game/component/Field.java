@@ -38,7 +38,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.util.Colors;
 import mu.nu.nullpo.util.CustomProperties;
 

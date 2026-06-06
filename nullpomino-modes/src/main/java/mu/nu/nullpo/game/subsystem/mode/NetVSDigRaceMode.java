@@ -1,0 +1,503 @@
+package mu.nu.nullpo.game.subsystem.mode;
+
+import java.util.LinkedList;
+import java.util.List;
+
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.GameManager;
+import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.net.NetCmd;
+import mu.nu.nullpo.game.net.NetMessage;
+import mu.nu.nullpo.game.net.modes.NetplayVSMode;
+import mu.nu.nullpo.game.types.DisplaySize;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.GeneralUtil;
+
+/**
+ * NET-VS-DIG RACE mode
+ */
+public class NetVSDigRaceMode extends NetplayVSMode {
+
+	/** Number of garbage lines to clear */
+	private int goalLines; // TODO: Add option to change this
+
+	/** Number of garbage lines left */
+	private int[] playerRemainLines;
+
+	/** Number of gems available at the start of the game (for map game) */
+	private int[] playerStartGems;
+
+	/*
+	 * Mode name
+	 */
+	@Override
+	public String getName() {
+		return "NET-VS-DIG RACE";
+	}
+
+	/*
+	 * Mode init
+	 */
+	@Override
+	public void modeInit(GameManager manager) {
+		super.modeInit(manager);
+		goalLines = 18;
+		playerRemainLines = new int[NETVS_MAX_PLAYERS];
+		playerStartGems = new int[NETVS_MAX_PLAYERS];
+	}
+
+	/**
+	 * Apply room settings, but ignore non-speed settings
+	 */
+	@Override
+	protected void netvsApplyRoomSettings(GameEngine engine) {
+		if (netCurrentRoomInfo != null) {
+			engine.speed.gravity = netCurrentRoomInfo.gravity;
+			engine.speed.denominator = netCurrentRoomInfo.denominator;
+			engine.speed.are = netCurrentRoomInfo.are;
+			engine.speed.areLine = netCurrentRoomInfo.areLine;
+			engine.speed.lineDelay = netCurrentRoomInfo.lineDelay;
+			engine.speed.lockDelay = netCurrentRoomInfo.lockDelay;
+			engine.speed.das = netCurrentRoomInfo.das;
+		}
+	}
+
+	/**
+	 * Fill the playfield with garbage
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 */
+	private void fillGarbage(GameEngine engine, int playerID) {
+		int w = engine.field.getWidth();
+		int h = engine.field.getHeight();
+		int hole = -1;
+		int skin = engine.getSkin();
+		if (playerID != 0 || netvsIsWatch()) {
+			skin = netvsPlayerSkin[playerID];
+		}
+		if (skin < 0) {
+			skin = 0;
+		}
+
+		for (int y = h - 1; y >= h - goalLines; y--) {
+			if (hole == -1 || engine.random.nextInt(100) < netCurrentRoomInfo.garbagePercent) {
+				int newhole = -1;
+				do {
+					newhole = engine.random.nextInt(w);
+				} while (newhole == hole);
+				hole = newhole;
+			}
+
+			int prevColor = -1;
+			for (int x = 0; x < w; x++) {
+				if (x != hole) {
+					int color = Colors.BLOCK_COLOR_GRAY;
+					if (y == h - 1) {
+						do {
+							color = Colors.BLOCK_COLOR_GEM_RED + engine.random.nextInt(7);
+						} while (color == prevColor);
+						prevColor = color;
+					}
+					engine.field.setBlock(x, y,
+							new Block(color, skin, Block.BLOCK_ATTRIBUTE_VISIBLE | Block.BLOCK_ATTRIBUTE_GARBAGE));
+				}
+			}
+
+			// Set connections
+			if (y != h - 1) {
+				for (int x = 0; x < w; x++) {
+					if (x != hole) {
+						Block blk = engine.field.getBlock(x, y);
+						if (blk != null) {
+							if (!engine.field.getBlockEmpty(x - 1, y)) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (!engine.field.getBlockEmpty(x + 1, y)) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Get number of garbage lines left
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @return Number of garbage lines left
+	 */
+	private int getRemainGarbageLines(GameEngine engine, int playerID) {
+		if (engine.field == null) {
+			return -1;
+		}
+
+		int w = engine.field.getWidth();
+		int h = engine.field.getHeight();
+		int lines = 0;
+		boolean hasGemBlock = false;
+
+		for (int y = h - 1; y >= h - goalLines; y--) {
+			if (!engine.field.getLineFlag(y)) {
+				for (int x = 0; x < w; x++) {
+					Block blk = engine.field.getBlock(x, y);
+
+					if (blk != null && blk.isGemBlock()) {
+						hasGemBlock = true;
+					}
+					if (blk != null && blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
+						lines++;
+						break;
+					}
+				}
+			}
+		}
+
+		if (!hasGemBlock) {
+			return 0;
+		}
+
+		return lines;
+	}
+
+	/**
+	 * Turn all normal blocks to gem (for map game)
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 */
+	private void turnAllBlocksToGem(GameEngine engine, int playerID) {
+		int w = engine.field.getWidth();
+		int h = engine.field.getHeight();
+
+		for (int y = engine.field.getHighestBlockY(); y < h; y++) {
+			for (int x = 0; x < w; x++) {
+				Block blk = engine.field.getBlock(x, y);
+				if (blk != null && blk.color >= Colors.BLOCK_COLOR_RED && blk.color <= Colors.BLOCK_COLOR_PURPLE) {
+					blk.color = Colors.BLOCK_COLOR_GEM_RED + blk.color - 2;
+				}
+			}
+		}
+	}
+
+	/*
+	 * Ready
+	 */
+	@Override
+	public boolean onReady(GameEngine engine, int playerID) {
+		super.onReady(engine, playerID);
+
+		if (engine.statc_0() == 0 && netvsPlayerExist[playerID]) {
+			if (netCurrentRoomInfo == null || !netCurrentRoomInfo.useMap) {
+				// Fill the field with garbage
+				engine.createFieldIfNeeded();
+				fillGarbage(engine, playerID);
+
+				// Update meter
+				int remainLines = getRemainGarbageLines(engine, playerID);
+				playerRemainLines[playerID] = remainLines;
+				engine.meterValue = remainLines * owner.renderer.getBlockGraphicsHeight(engine, playerID);
+				engine.meterColor = Colors.METER_COLOR_GREEN;
+			} else {
+				// Map game
+				engine.createFieldIfNeeded();
+				turnAllBlocksToGem(engine, playerID);
+				playerStartGems[playerID] = engine.field.getHowManyGems();
+				playerRemainLines[playerID] = playerStartGems[playerID];
+				engine.meterValue = owner.renderer.getMeterMax(engine);
+				engine.meterColor = Colors.METER_COLOR_GREEN;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Get player's place
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @return Player's place
+	 */
+	private int getNowPlayerPlace(GameEngine engine, int playerID) {
+		if (!netvsPlayerExist[playerID] || netvsPlayerDead[playerID]) {
+			return -1;
+		}
+
+		int place = 0;
+
+		for (int i = 0; i < getPlayers(); i++) {
+			if (i != playerID && netvsPlayerExist[i] && !netvsPlayerDead[i] && owner.engines[i].field != null) {
+				if (playerRemainLines[playerID] > playerRemainLines[i]) {
+					place++;
+				} else if (playerRemainLines[playerID] == playerRemainLines[i]
+						&& engine.field.getHighestBlockY() < owner.engines[i].field.getHighestBlockY()) {
+					place++;
+				}
+			}
+		}
+
+		return place;
+	}
+
+	/**
+	 * Update progress meter
+	 *
+	 * @param engine GameEngine
+	 */
+	private void updateMeter(GameEngine engine) {
+		int playerID = engine.playerID;
+		int remainLines = 0;
+
+		if (netCurrentRoomInfo == null || !netCurrentRoomInfo.useMap) {
+			// Normal game
+			remainLines = playerRemainLines[playerID];
+			engine.meterValue = remainLines * owner.renderer.getBlockGraphicsHeight(engine, playerID);
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainLines <= 14) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainLines <= 8) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainLines <= 4) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
+		} else if (engine.field != null && playerStartGems[playerID] > 0) {
+			// Map game
+			remainLines = engine.field.getHowManyGems() - engine.field.getHowManyGemClears();
+			engine.meterValue = remainLines * owner.renderer.getMeterMax(engine) / playerStartGems[playerID];
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainLines <= playerStartGems[playerID] / 2) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainLines <= playerStartGems[playerID] / 3) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainLines <= playerStartGems[playerID] / 4) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
+		}
+	}
+
+	@Override
+	public void calcScore(GameEngine engine, int playerID, int lines) {
+		if (lines > 0 && playerID == 0) {
+			if (netCurrentRoomInfo == null || !netCurrentRoomInfo.useMap) {
+				playerRemainLines[playerID] = getRemainGarbageLines(engine, playerID);
+			} else if (engine.field != null) {
+				playerRemainLines[playerID] = engine.field.getHowManyGems() - engine.field.getHowManyGemClears();
+			}
+			updateMeter(engine);
+
+			// Game Completed
+			if (playerRemainLines[playerID] > 0) {
+				return;
+			}
+			if (netvsIsPractice) {
+				engine.stat = GameEngine.Status.EXCELLENT;
+				engine.resetStatc();
+			} else {
+				// Send game end message
+				int[] places = new int[NETVS_MAX_PLAYERS];
+				int[] uidArray = new int[NETVS_MAX_PLAYERS];
+				for (int i = 0; i < getPlayers(); i++) {
+					places[i] = getNowPlayerPlace(owner.engines[i], i);
+					uidArray[i] = -1;
+				}
+				for (int i = 0; i < getPlayers(); i++) {
+					if (places[i] >= 0 && places[i] < NETVS_MAX_PLAYERS) {
+						uidArray[places[i]] = netvsPlayerUID[i];
+					}
+				}
+
+				List<Integer> ids = new LinkedList<>();
+				for (int i = 0; i < getPlayers(); i++) {
+					if (uidArray[i] != -1) {
+						ids.add(uidArray[i]);
+					}
+				}
+				netLobby.netPlayerClient.send(NetCmd.RACE_WIN, ids.toArray());
+
+				// Wait until everyone dies
+				engine.stat = GameEngine.Status.NOTHING;
+				engine.resetStatc();
+			}
+		}
+	}
+
+	/*
+	 * Drawing processing at the end of every frame
+	 */
+	@Override
+	public void renderLast(GameEngine engine, int playerID) {
+		super.renderLast(engine, playerID);
+
+		int x = owner.renderer.getFieldDisplayPositionX(engine, playerID);
+		int y = owner.renderer.getFieldDisplayPositionY(engine, playerID);
+
+		if (!netvsPlayerExist[playerID] || !engine.isVisible) {
+			return;
+		}
+		if ((netvsIsGameActive || netvsIsPractice && playerID == 0) && engine.stat != GameEngine.Status.RESULT) {
+			int fontColor = Colors.FONT_WHITE;
+			// Lines left
+			int remainLines = Math.max(0, playerRemainLines[playerID]);
+			if (remainLines <= 14 && remainLines > 0) {
+				fontColor = Colors.FONT_YELLOW;
+			}
+			if (remainLines <= 8 && remainLines > 0) {
+				fontColor = Colors.FONT_ORANGE;
+			}
+			if (remainLines <= 4 && remainLines > 0) {
+				fontColor = Colors.FONT_RED;
+			}
+
+			String strLines = String.valueOf(remainLines);
+
+			if (engine.displaySize != DisplaySize.SMALL) {
+				if (strLines.length() == 1) {
+					owner.renderer.drawMenuFont(engine, playerID, 4, 21, strLines, fontColor, 2.0f);
+				} else if (strLines.length() == 2) {
+					owner.renderer.drawMenuFont(engine, playerID, 3, 21, strLines, fontColor, 2.0f);
+				} else if (strLines.length() == 3) {
+					owner.renderer.drawMenuFont(engine, playerID, 2, 21, strLines, fontColor, 2.0f);
+				}
+			} else if (strLines.length() == 1) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 32, y + 168, strLines, fontColor, 1.0f);
+			} else if (strLines.length() == 2) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 24, y + 168, strLines, fontColor, 1.0f);
+			} else if (strLines.length() == 3) {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4 + 16, y + 168, strLines, fontColor, 1.0f);
+			}
+		}
+
+		if (netvsIsGameActive && engine.stat != GameEngine.Status.RESULT) {
+			// Place
+			int place = getNowPlayerPlace(engine, playerID);
+			if (netvsPlayerDead[playerID]) {
+				place = netvsPlayerPlace[playerID];
+			}
+
+			if (engine.displaySize != DisplaySize.SMALL) {
+				switch (place) {
+				case 0 -> renderer.drawMenuFont(engine, playerID, -2, 22, "1ST", Colors.FONT_ORANGE);
+				case 1 -> renderer.drawMenuFont(engine, playerID, -2, 22, "2ND", Colors.FONT_WHITE);
+				case 2 -> renderer.drawMenuFont(engine, playerID, -2, 22, "3RD", Colors.FONT_RED);
+				case 3 -> renderer.drawMenuFont(engine, playerID, -2, 22, "4TH", Colors.FONT_GREEN);
+				case 4 -> renderer.drawMenuFont(engine, playerID, -2, 22, "5TH", Colors.FONT_BLUE);
+				case 5 -> renderer.drawMenuFont(engine, playerID, -2, 22, "6TH", Colors.FONT_PURPLE);
+				default -> { // nothing
+				}
+				}
+			} else {
+				switch (place) {
+				case 0 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "1ST", Colors.FONT_ORANGE, 0.5f);
+				case 1 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "2ND", Colors.FONT_WHITE, 0.5f);
+				case 2 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "3RD", Colors.FONT_RED, 0.5f);
+				case 3 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "4TH", Colors.FONT_GREEN, 0.5f);
+				case 4 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "5TH", Colors.FONT_BLUE, 0.5f);
+				case 5 -> renderer.drawDirectFont(engine, playerID, x, y + 168, "6TH", Colors.FONT_PURPLE, 0.5f);
+				default -> { // nothing
+				}
+				}
+			}
+		}
+		// Games count
+		else if (!netvsIsPractice || playerID != 0) {
+			String message = netvsPlayerWinCount[playerID] + "/" + netvsPlayerPlayCount[playerID];
+			if (engine.displaySize != DisplaySize.SMALL) {
+				int y2 = 21;
+				if (engine.stat == GameEngine.Status.RESULT) {
+					y2 = 22;
+				}
+				owner.renderer.drawMenuFont(engine, playerID, 0, y2, message, Colors.FONT_WHITE);
+			} else {
+				owner.renderer.drawDirectFont(engine, playerID, x + 4, y + 168, message, Colors.FONT_WHITE, 0.5f);
+			}
+		}
+	}
+
+	/*
+	 * Render results screen
+	 */
+	@Override
+	public void renderResult(GameEngine engine, int playerID) {
+		super.renderResult(engine, playerID);
+
+		float scale = 1.0f;
+		if (engine.displaySize == DisplaySize.SMALL) {
+			scale = 0.5f;
+		}
+
+		drawResultScale(engine, playerID, 2, Colors.FONT_ORANGE, scale, //
+				"LINE", String.format("%10d", engine.statistics.lines), //
+				"PIECE", String.format("%10d", engine.statistics.totalPieceLocked), //
+				"LINE/MIN", String.format("%10g", engine.statistics.lpm), //
+				"PIECE/SEC", String.format("%10g", engine.statistics.pps), //
+				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+	}
+
+	/*
+	 * Send stats
+	 */
+	@Override
+	protected void netSendStats(GameEngine engine) {
+		int playerID = engine.playerID;
+
+		if (playerID == 0 && !netvsIsPractice && !netvsIsWatch()) {
+			int remainLines = playerRemainLines[playerID];
+			netLobby.netPlayerClient.send(NetCmd.GAME, "stats", remainLines);
+		}
+	}
+
+	/*
+	 * Receive stats
+	 */
+	@Override
+	protected void netRecvStats(GameEngine engine, NetMessage message) {
+		int playerID = engine.playerID;
+		if (message.length() > 3) {
+			playerRemainLines[playerID] = message.asInt(3);
+		}
+		updateMeter(engine);
+	}
+
+	/*
+	 * Send end-of-game stats
+	 */
+	@Override
+	protected void netSendEndGameStats(GameEngine engine) {
+		int playerID = engine.playerID;
+		String msg = "";
+		msg += netvsPlayerPlace[playerID] + "\t";
+		msg += 0 + "\t" + 0 + "\t" + 0 + "\t";
+		msg += engine.statistics.lines + "\t" + engine.statistics.lpm + "\t";
+		msg += engine.statistics.totalPieceLocked + "\t" + engine.statistics.pps + "\t";
+		msg += netvsPlayTimer + "\t" + 0 + "\t" + netvsPlayerWinCount[playerID] + "\t" + netvsPlayerPlayCount[playerID];
+		netLobby.netPlayerClient.send(NetCmd.GSTAT, msg);
+	}
+
+	/*
+	 * Receive end-of-game stats
+	 */
+	@Override
+	protected void netvsRecvEndGameStats(NetMessage message) {
+		int seatID = message.asInt(1);
+		int playerID = netvsGetPlayerIDbySeatID(seatID);
+
+		if (playerID != 0 || netvsIsWatch()) {
+			GameEngine engine = owner.engines[playerID];
+
+			engine.statistics.lines = message.asInt(7);
+			engine.statistics.lpm = message.asFloat(8);
+			engine.statistics.totalPieceLocked = message.asInt(9);
+			engine.statistics.pps = message.asFloat(10);
+			engine.statistics.time = message.asInt(11);
+
+			netvsPlayerResultReceived[playerID] = true;
+		}
+	}
+}

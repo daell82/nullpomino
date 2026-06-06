@@ -32,7 +32,7 @@ import java.io.Serializable;
 
 import lombok.Getter;
 import lombok.Setter;
-import mu.nu.nullpo.game.play.GameEngine;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.util.Colors;
 
 /**

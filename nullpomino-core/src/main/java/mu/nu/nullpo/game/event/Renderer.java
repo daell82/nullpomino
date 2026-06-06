@@ -3,8 +3,8 @@
  */
 package mu.nu.nullpo.game.event;
 
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Block;
-import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.Colors;
 
 /**

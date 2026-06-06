@@ -28,9 +28,9 @@
 */
 package mu.nu.nullpo.game.subsystem.ai;
 
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
-import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.util.FieldUtil;
 
 /**

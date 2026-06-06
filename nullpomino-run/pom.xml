@@ -14,7 +14,12 @@
 	<dependencies>
 		<dependency>
 			<groupId>mu.nu.nullpo</groupId>
-			<artifactId>nullpomino-core</artifactId>
+			<artifactId>nullpomino-netplay</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>mu.nu.nullpo</groupId>
+			<artifactId>nullpomino-modes</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

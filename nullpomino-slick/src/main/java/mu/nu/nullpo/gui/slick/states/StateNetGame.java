@@ -36,17 +36,17 @@ import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import mu.nu.nullpo.game.GameManager;
 import mu.nu.nullpo.game.component.RuleOptions;
+import mu.nu.nullpo.game.modes.GameMode;
 import mu.nu.nullpo.game.net.NetMessage;
-import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
-import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.mode.GameMode;
-import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
+import mu.nu.nullpo.game.net.client.NetPlayerClient;
+import mu.nu.nullpo.game.net.gui.NetLobbyFrame;
+import mu.nu.nullpo.game.net.gui.NetLobbyListener;
+import mu.nu.nullpo.game.net.modes.NetplayMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.gui.GameKeyDummy;
-import mu.nu.nullpo.gui.net.NetLobbyFrame;
-import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.gui.slick.GameKeySlick;
 import mu.nu.nullpo.gui.slick.NullpoMinoSlick;
 import mu.nu.nullpo.gui.slick.RendererSlick;
@@ -321,9 +321,9 @@ public class StateNetGame extends BasicGameState implements NetLobbyListener {
 		NullpoMinoSlick.loadGlobalConfig();	// Reload global config file
 
 		GameMode previousMode = gameManager.mode;
-		GameMode newModeTemp = NullpoMinoSlick.modeManager.getMode(newModeName).orElse(new NetDummyMode());
+		GameMode newModeTemp = NullpoMinoSlick.modeManager.getMode(newModeName).orElse(new NetplayMode());
 
-		if (newModeTemp instanceof NetDummyMode newMode) {
+		if (newModeTemp instanceof NetplayMode newMode) {
 			log.info("Enter new mode:" + newModeTemp.getName());
 
 			modeName = newMode.getName();

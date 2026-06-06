@@ -29,11 +29,11 @@
 package mu.nu.nullpo.game.subsystem.ai;
 
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.component.Controller;
 import mu.nu.nullpo.game.component.Field;
 import mu.nu.nullpo.game.component.Piece;
 import mu.nu.nullpo.game.component.WallkickResult;
-import mu.nu.nullpo.game.play.GameEngine;
 
 /**
  * CommonAI

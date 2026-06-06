@@ -1,8 +1,8 @@
 package mu.nu.nullpo.gui.common;
 
 import lombok.Setter;
+import mu.nu.nullpo.game.GameEngine;
 import mu.nu.nullpo.game.event.Renderer;
-import mu.nu.nullpo.game.play.GameEngine;
 import mu.nu.nullpo.game.types.DisplaySize;
 
 public abstract class AbstractRenderer<T> implements Renderer<T> {

@@ -74,21 +74,21 @@ import org.apache.log4j.PropertyConfigurator;
 
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.GameManager;
 import mu.nu.nullpo.game.component.RuleOptions;
-import mu.nu.nullpo.game.net.NetBaseClient;
+import mu.nu.nullpo.game.modes.GameMode;
 import mu.nu.nullpo.game.net.NetCmd;
 import mu.nu.nullpo.game.net.NetMessage;
-import mu.nu.nullpo.game.net.NetObserverClient;
-import mu.nu.nullpo.game.net.NetPlayerClient;
 import mu.nu.nullpo.game.net.NetRoomInfo;
-import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.mode.GameMode;
-import mu.nu.nullpo.game.subsystem.mode.NetDummyMode;
+import mu.nu.nullpo.game.net.client.NetBaseClient;
+import mu.nu.nullpo.game.net.client.NetObserverClient;
+import mu.nu.nullpo.game.net.client.NetPlayerClient;
+import mu.nu.nullpo.game.net.gui.NetLobbyFrame;
+import mu.nu.nullpo.game.net.gui.NetLobbyListener;
+import mu.nu.nullpo.game.net.modes.NetplayMode;
 import mu.nu.nullpo.game.subsystem.wallkick.Wallkick;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.game.types.Version;
-import mu.nu.nullpo.gui.net.NetLobbyFrame;
-import mu.nu.nullpo.gui.net.NetLobbyListener;
 import mu.nu.nullpo.gui.net.UpdateChecker;
 import mu.nu.nullpo.gui.net.UpdateChecker.Status;
 import mu.nu.nullpo.gui.net.UpdateCheckerListener;
@@ -1044,9 +1044,9 @@ public class NullpoMinoSwing extends JFrame implements ActionListener, NetLobbyL
 		loadGlobalConfig(); // Reload global config file
 
 		GameMode previousMode = gameManager.mode;
-		GameMode newModeTemp = modeManager.getMode(modeName).orElse(new NetDummyMode());
+		GameMode newModeTemp = modeManager.getMode(modeName).orElse(new NetplayMode());
 
-		if (newModeTemp instanceof NetDummyMode newMode) {
+		if (newModeTemp instanceof NetplayMode newMode) {
 			log.info("Enter new mode:" + newModeTemp.getName());
 
 			if (previousMode != null) {

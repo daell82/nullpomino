@@ -29,11 +29,11 @@
 package mu.nu.nullpo.game.event;
 
 import lombok.extern.log4j.Log4j;
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.GameManager;
 import mu.nu.nullpo.game.component.Block;
-import mu.nu.nullpo.game.play.GameEngine;
-import mu.nu.nullpo.game.play.GameManager;
-import mu.nu.nullpo.game.subsystem.mode.AbstractMode;
-import mu.nu.nullpo.game.subsystem.mode.GameMode;
+import mu.nu.nullpo.game.modes.AbstractMode;
+import mu.nu.nullpo.game.modes.GameMode;
 import mu.nu.nullpo.game.types.GameStyle;
 import mu.nu.nullpo.util.CustomProperties;
 

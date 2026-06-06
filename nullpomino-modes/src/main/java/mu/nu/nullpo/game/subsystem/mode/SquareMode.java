@@ -1,0 +1,1091 @@
+/*
+    Copyright (c) 2010, NullNoname
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+
+        * Redistributions of source code must retain the above copyright
+          notice, this list of conditions and the following disclaimer.
+        * Redistributions in binary form must reproduce the above copyright
+          notice, this list of conditions and the following disclaimer in the
+          documentation and/or other materials provided with the distribution.
+        * Neither the name of NullNoname nor the names of its
+          contributors may be used to endorse or promote products derived from
+          this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+    AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+    ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+    LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+    CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+    SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+    INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+    CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+    ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+*/
+package mu.nu.nullpo.game.subsystem.mode;
+
+import mu.nu.nullpo.game.GameEngine;
+import mu.nu.nullpo.game.component.Block;
+import mu.nu.nullpo.game.component.Controller;
+import mu.nu.nullpo.game.component.Field;
+import mu.nu.nullpo.game.modes.AbstractMode;
+import mu.nu.nullpo.util.Colors;
+import mu.nu.nullpo.util.CustomProperties;
+import mu.nu.nullpo.util.GeneralUtil;
+import mu.nu.nullpo.util.Sounds;
+
+/**
+ * SQUARE Mode
+ */
+public class SquareMode extends AbstractMode {
+	/** Current version */
+	private static final int CURRENT_VERSION = 1;
+
+	private static final int[] tableGravityChangeScore = { 150, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2500,
+			4000, 5000 };
+
+	private static final int[] tableGravityValue = { 1, 2, 3, 4, 6, 8, 10, 20, 30, 60, 120, 180, 300, -1 };
+
+	/** Number of ranking records */
+	private static final int RANKING_MAX = 10;
+
+	/** Number of ranking types */
+	private static final int RANKING_TYPE = 3;
+
+	/** Name of game types */
+	private static final String[] GAMETYPE_NAME = { "MARATHON", "ULTRA", "SPRINT" };
+
+	/** Number of game types */
+	private static final int GAMETYPE_MAX = 3;
+
+	/** Max time in Ultra */
+	private static final int ULTRA_MAX_TIME = 10800;
+
+	/** Max score in Sprint */
+	private static final int SPRINT_MAX_SCORE = 150;
+
+	/**
+	 * Current gravity number (When the point reaches tableGravityChangeScore's
+	 * value, this variable will increase)
+	 */
+	private int gravityindex;
+
+	/** Amount of points you just get from line clears */
+	private int lastscore;
+
+	/**
+	 * Elapsed time from last line clear (lastscore is displayed to screen until
+	 * this reaches to 120)
+	 */
+	private int scgettime;
+
+	/** Number of squares created */
+	private int squares;
+
+	/** Selected game type */
+	private int gametype;
+
+	/** Outline type */
+	private int outlinetype;
+
+	/** Type of spins allowed (0=off 1=t-only 2=all) */
+	private int tspinEnableType;
+
+	/** Use TNT64 avalanche (native+cascade) */
+	private boolean tntAvalanche;
+
+	/** Grayout broken blocks */
+	private int grayoutEnable;
+
+	/** Version number */
+	private int version;
+
+	/** Your place on leaderboard (-1: out of rank) */
+	private int rankingRank;
+
+	/** Score records */
+	private int[][] rankingScore;
+
+	/** Time records */
+	private int[][] rankingTime;
+
+	/** Squares records */
+	private int[][] rankingSquares;
+
+	/*
+	 * Returns the name of this mode
+	 */
+	@Override
+	public String getName() {
+		return "SQUARE";
+	}
+
+	/*
+	 * This function will be called when the game enters the main game screen.
+	 */
+	@Override
+	public void playerInit(GameEngine engine, int playerID) {
+		owner = engine.owner;
+		renderer = engine.owner.renderer;
+		lastscore = 0;
+		scgettime = 0;
+		squares = 0;
+
+		outlinetype = 0;
+		tspinEnableType = 2;
+		grayoutEnable = 1;
+
+		rankingRank = -1;
+		rankingScore = new int[RANKING_TYPE][RANKING_MAX];
+		rankingTime = new int[RANKING_TYPE][RANKING_MAX];
+		rankingSquares = new int[RANKING_TYPE][RANKING_MAX];
+
+		if (!owner.replayMode) {
+			loadSetting(owner.modeConfig);
+			loadRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+			version = CURRENT_VERSION;
+		} else {
+			loadSetting(owner.replayProp);
+		}
+
+		engine.framecolor = Colors.FRAME_COLOR_PURPLE;
+	}
+
+	/**
+	 * Set the gravity speed
+	 *
+	 * @param engine GameEngine
+	 */
+	public void setSpeed(GameEngine engine) {
+		if (gametype == 0) {
+			int speedlv = engine.statistics.score;
+			if (speedlv < 0) {
+				speedlv = 0;
+			}
+			if (speedlv > 5000) {
+				speedlv = 5000;
+			}
+
+			while (speedlv >= tableGravityChangeScore[gravityindex]) {
+				gravityindex++;
+			}
+			engine.speed.gravity = tableGravityValue[gravityindex];
+		} else {
+			engine.speed.gravity = 1;
+		}
+		engine.speed.denominator = 60;
+	}
+
+	/*
+	 * Main routine for game setup screen
+	 */
+	@Override
+	public boolean onSetting(GameEngine engine, int playerID) {
+		// Main menu
+		if (!engine.owner.replayMode) {
+			// Configuration changes
+			int change = updateCursor(engine, 4);
+
+			if (change != 0) {
+				engine.playSE(Sounds.CHANGE);
+
+				switch (menuCursor) {
+				case 0:
+					gametype += change;
+					if (gametype < 0) {
+						gametype = GAMETYPE_MAX - 1;
+					}
+					if (gametype > GAMETYPE_MAX - 1) {
+						gametype = 0;
+					}
+					break;
+				case 1:
+					outlinetype += change;
+					if (outlinetype < 0) {
+						outlinetype = 2;
+					}
+					if (outlinetype > 2) {
+						outlinetype = 0;
+					}
+					break;
+				case 2:
+					tspinEnableType += change;
+					if (tspinEnableType < 0) {
+						tspinEnableType = 2;
+					}
+					if (tspinEnableType > 2) {
+						tspinEnableType = 0;
+					}
+					break;
+				case 3:
+					tntAvalanche = !tntAvalanche;
+					break;
+				case 4:
+					grayoutEnable += change;
+					if (grayoutEnable < 0) {
+						grayoutEnable = 2;
+					}
+					if (grayoutEnable > 2) {
+						grayoutEnable = 0;
+					}
+					break;
+				}
+			}
+
+			// A button (confirm)
+			if (engine.ctrl.isPush(Controller.BUTTON_A) && menuTime >= 5) {
+				engine.playSE(Sounds.DECIDE);
+				saveSetting(owner.modeConfig);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
+				return false;
+			}
+
+			// B button (cancel)
+			if (engine.ctrl.isPush(Controller.BUTTON_B)) {
+				engine.quitflag = true;
+			}
+
+			menuTime++;
+		} else {
+			menuTime++;
+			menuCursor = -1;
+
+			if (menuTime >= 60) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/*
+	 * Renders game setup screen
+	 */
+	@Override
+	public void renderSetting(GameEngine engine, int playerID) {
+		String strOutline = "";
+		if (outlinetype == 0) {
+			strOutline = "NORMAL";
+		}
+		if (outlinetype == 1) {
+			strOutline = "CONNECT";
+		}
+		if (outlinetype == 2) {
+			strOutline = "NONE";
+		}
+		String strTSpinEnable = "";
+		if (tspinEnableType == 0) {
+			strTSpinEnable = "OFF";
+		}
+		if (tspinEnableType == 1) {
+			strTSpinEnable = "T-ONLY";
+		}
+		if (tspinEnableType == 2) {
+			strTSpinEnable = "ALL";
+		}
+		String grayoutStr = "";
+		if (grayoutEnable == 0) {
+			grayoutStr = "OFF";
+		}
+		if (grayoutEnable == 1) {
+			grayoutStr = "SPIN ONLY";
+		}
+		if (grayoutEnable == 2) {
+			grayoutStr = "ALL";
+		}
+		drawMenu(engine, playerID, 0, Colors.FONT_BLUE, 0, "GAME TYPE", GAMETYPE_NAME[gametype], "OUTLINE", strOutline,
+				"AVALANCHE", strTSpinEnable, "AVALANCHE", tntAvalanche ? "TNT" : "WORLDS", "GRAYOUT", grayoutStr);
+	}
+
+	/*
+	 * This function will be called before the game actually begins (after Ready&Go
+	 * screen disappears)
+	 */
+	@Override
+	public void startGame(GameEngine engine, int playerID) {
+		engine.comboType = GameEngine.COMBO_TYPE_DISABLE;
+
+		if (outlinetype == 0) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NORMAL;
+		}
+		if (outlinetype == 1) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_CONNECT;
+		}
+		if (outlinetype == 2) {
+			engine.blockOutlineType = GameEngine.BLOCK_OUTLINE_NONE;
+		}
+
+		if (tspinEnableType == 0) {
+			engine.tspinEnable = false;
+		} else if (tspinEnableType == 1) {
+			engine.tspinEnable = true;
+		} else {
+			engine.tspinEnable = true;
+			engine.useAllSpinBonus = true;
+		}
+
+		engine.speed.are = 30;
+		engine.speed.areLine = 30;
+		engine.speed.das = 10;
+		engine.speed.lockDelay = 30;
+
+		setSpeed(engine);
+	}
+
+	/*
+	 * Piece movement
+	 */
+	@Override
+	public boolean onMove(GameEngine engine, int playerID) {
+		// Disable cascade
+		engine.lineGravityType = GameEngine.LineGravity.NATIVE;
+		return false;
+	}
+
+	/*
+	 * Renders HUD (leaderboard or game statistics)
+	 */
+	@Override
+	public void renderLast(GameEngine engine, int playerID) {
+		renderer.drawScoreFont(engine, playerID, 0, 0, "SQUARE (" + GAMETYPE_NAME[gametype] + ")",
+				Colors.FONT_DARKBLUE);
+
+		if (engine.stat == GameEngine.Status.SETTING
+				|| engine.stat == GameEngine.Status.RESULT && !owner.replayMode) {
+			if (!owner.replayMode && engine.ai == null) {
+				float scale = renderer.getNextDisplayType() == 2 && gametype == 0 ? 0.5f : 1.0f;
+				int topY = renderer.getNextDisplayType() == 2 && gametype == 0 ? 6 : 4;
+
+				switch (gametype) {
+				case 0:
+					renderer.drawScoreFont(engine, playerID, 3, topY - 1, "SCORE SQUARE TIME", Colors.FONT_BLUE, scale);
+					break;
+				case 1:
+					renderer.drawScoreFont(engine, playerID, 3, 3, "SCORE SQUARE", Colors.FONT_BLUE);
+					break;
+				case 2:
+					renderer.drawScoreFont(engine, playerID, 3, 3, "TIME     SQUARE", Colors.FONT_BLUE);
+					break;
+				default:
+					break;
+				}
+
+				for (int i = 0; i < RANKING_MAX; i++) {
+					renderer.drawScoreFont(engine, playerID, 0, topY + i, String.format("%2d", i + 1),
+							Colors.FONT_YELLOW, scale);
+					switch (gametype) {
+					case 0:
+						renderer.drawScoreFont(engine, playerID, 3, topY + i, String.valueOf(rankingScore[gametype][i]),
+								i == rankingRank, scale);
+						renderer.drawScoreFont(engine, playerID, 9, topY + i,
+								String.valueOf(rankingSquares[gametype][i]), i == rankingRank, scale);
+						renderer.drawScoreFont(engine, playerID, 16, topY + i,
+								GeneralUtil.getTime(rankingTime[gametype][i]), i == rankingRank, scale);
+						break;
+					case 1:
+						renderer.drawScoreFont(engine, playerID, 3, 4 + i, String.valueOf(rankingScore[gametype][i]),
+								i == rankingRank);
+						renderer.drawScoreFont(engine, playerID, 9, 4 + i, String.valueOf(rankingSquares[gametype][i]),
+								i == rankingRank);
+						break;
+					case 2:
+						renderer.drawScoreFont(engine, playerID, 3, 4 + i,
+								GeneralUtil.getTime(rankingTime[gametype][i]), i == rankingRank);
+						renderer.drawScoreFont(engine, playerID, 12, 4 + i, String.valueOf(rankingSquares[gametype][i]),
+								i == rankingRank);
+						break;
+					default:
+						break;
+					}
+				}
+			}
+		} else {
+			renderer.drawScoreFont(engine, playerID, 0, 3, "SCORE", Colors.FONT_BLUE);
+			String strScore;
+			if (lastscore == 0 || scgettime <= 0) {
+				strScore = String.valueOf(engine.statistics.score);
+			} else {
+				strScore = String.valueOf(engine.statistics.score) + "(+" + lastscore + ")";
+			}
+			renderer.drawScoreFont(engine, playerID, 0, 4, strScore);
+
+			renderer.drawScoreFont(engine, playerID, 0, 6, "LINE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 7, String.valueOf(engine.statistics.lines));
+
+			renderer.drawScoreFont(engine, playerID, 0, 9, "SQUARE", Colors.FONT_BLUE);
+			renderer.drawScoreFont(engine, playerID, 0, 10, String.valueOf(squares));
+
+			renderer.drawScoreFont(engine, playerID, 0, 12, "TIME", Colors.FONT_BLUE);
+			if (gametype == 1) {
+				// Ultra timer
+				int time = ULTRA_MAX_TIME - engine.statistics.time;
+				if (time < 0) {
+					time = 0;
+				}
+				int fontcolor = Colors.FONT_WHITE;
+				if (time < 30 * 60 && time > 0) {
+					fontcolor = Colors.FONT_YELLOW;
+				}
+				if (time < 20 * 60 && time > 0) {
+					fontcolor = Colors.FONT_ORANGE;
+				}
+				if (time < 10 * 60 && time > 0) {
+					fontcolor = Colors.FONT_RED;
+				}
+				renderer.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(time), fontcolor);
+			} else {
+				// Normal timer
+				renderer.drawScoreFont(engine, playerID, 0, 13, GeneralUtil.getTime(engine.statistics.time));
+			}
+		}
+	}
+
+	/*
+	 * This function will be called when the game timer updates
+	 */
+	@Override
+	public void onLast(GameEngine engine, int playerID) {
+		if (scgettime > 0) {
+			scgettime--;
+		}
+
+		if (gametype == 1) {
+			int remainTime = ULTRA_MAX_TIME - engine.statistics.time;
+			// Timer meter
+			engine.meterValue = remainTime * renderer.getMeterMax(engine) / ULTRA_MAX_TIME;
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainTime <= 3600) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainTime <= 1800) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainTime <= 600) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
+
+			// Countdown
+			if (remainTime > 0 && remainTime <= 10 * 60 && engine.statistics.time % 60 == 0 && engine.timerActive) {
+				engine.playSE(Sounds.COUNTDOWN);
+			}
+
+			// BGM fadeout
+			if (remainTime <= 5 * 60 && engine.timerActive) {
+				owner.bgmStatus.fadesw = true;
+			}
+
+			// Time up!
+			if (engine.statistics.time >= ULTRA_MAX_TIME && engine.timerActive) {
+				engine.gameEnded();
+				engine.resetStatc();
+				engine.stat = GameEngine.Status.ENDINGSTART;
+			}
+		} else if (gametype == 2) {
+			int remainScore = SPRINT_MAX_SCORE - engine.statistics.score;
+			if (!engine.timerActive) {
+				remainScore = 0;
+			}
+			engine.meterValue = remainScore * renderer.getMeterMax(engine) / SPRINT_MAX_SCORE;
+			engine.meterColor = Colors.METER_COLOR_GREEN;
+			if (remainScore <= 50) {
+				engine.meterColor = Colors.METER_COLOR_YELLOW;
+			}
+			if (remainScore <= 30) {
+				engine.meterColor = Colors.METER_COLOR_ORANGE;
+			}
+			if (remainScore <= 10) {
+				engine.meterColor = Colors.METER_COLOR_RED;
+			}
+
+			// Goal
+			if (engine.statistics.score >= SPRINT_MAX_SCORE && engine.timerActive) {
+				engine.gameEnded();
+				engine.resetStatc();
+				engine.stat = GameEngine.Status.ENDINGSTART;
+			}
+		}
+	}
+
+	/*
+	 * Line clear
+	 */
+	@Override
+	public boolean onLineClear(GameEngine engine, int playerID) {
+		if (engine.statc_0() == 1 && grayoutEnable == 2) {
+			grayoutBrokenBlocks(engine.field);
+		}
+		return false;
+	}
+
+	/**
+	 * Make all broken blocks gray.
+	 *
+	 * @param field Field
+	 */
+	private void grayoutBrokenBlocks(Field field) {
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor(); i++) {
+			for (int j = 0; j < field.getWidth(); j++) {
+				Block blk = field.getBlock(j, i);
+				if (blk != null && !blk.isEmpty() && blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)) {
+					blk.color = Colors.BLOCK_COLOR_GRAY;
+				}
+			}
+		}
+	}
+
+	/*
+	 * Calculates line-clear score (This function will be called even if no lines
+	 * are cleared)
+	 */
+	@Override
+	public void calcScore(GameEngine engine, int playerID, int lines) {
+		if (lines > 0 && engine.tspin) {
+			if (version == 0) {
+				avalancheOld(engine, playerID, lines);
+			} else {
+				avalanche(engine, playerID, lines);
+			}
+			return;
+		}
+
+		// Line clear bonus
+		int pts = lines;
+
+		if (lines > 0) {
+			engine.lineGravityType = GameEngine.LineGravity.NATIVE;
+			if (engine.field.isEmpty()) {
+				engine.playSE(Sounds.BRAVO);
+			}
+
+			if (lines > 3) {
+				pts = 3 + (lines - 3) * 2;
+			}
+
+			int[] squareClears = getHowManySquareClears(engine.field);
+			pts += 10 * squareClears[0] + 5 * squareClears[1];
+
+			lastscore = pts;
+			scgettime = 120;
+			engine.statistics.scoreFromLineClear += pts;
+			engine.statistics.score += pts;
+			setSpeed(engine);
+
+		}
+	}
+
+	/**
+	 * Checks the lines that are currently being cleared to see how many strips of
+	 * squares are present in them.
+	 *
+	 * @return +1 for every 1x4 strip of gold (index 0) or silver (index 1)
+	 */
+	public int[] getHowManySquareClears(Field field) {
+		int[] squares = { 0, 0 };
+		for (int y = field.getHiddenHeight() * -1; y < field.getHeightWithoutHurryupFloor(); y++) {
+			// Check the lines we are clearing.
+			if (!field.getLineFlag(y)) {
+				continue;
+			}
+			for (int x = 0; x < field.getWidth(); x++) {
+				Block blk = field.getBlock(x, y);
+
+				// Silver blocks are worth 1, gold are worth 2, but not if they are garbage
+				// (avalanche)
+				if (blk != null && !blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)) {
+					if (blk.isGoldSquareBlock()) {
+						squares[0]++;
+					} else if (blk.isSilverSquareBlock()) {
+						squares[1]++;
+					}
+				}
+			}
+		}
+		// We have to divide the amount by 4 because it's based on 1x4 strips, not
+		// single blocks.
+		squares[0] /= 4;
+		squares[1] /= 4;
+
+		return squares;
+	}
+
+	/**
+	 * Spin avalanche routine.
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @param lines    Number of lines cleared
+	 */
+	private void avalanche(GameEngine engine, int playerID, int lines) {
+		Field field = engine.field;
+		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
+
+		int hiddenHeight = field.getHiddenHeight();
+		int height = field.getHeight();
+		boolean[] affectY = new boolean[height + hiddenHeight];
+		for (int i = 0; i < affectY.length; i++) {
+			affectY[i] = false;
+		}
+		int minY = engine.nowPieceObject.getMinimumBlockY() + engine.nowPieceY;
+		if (field.getLineFlag(minY)) {
+			for (int i = minY + hiddenHeight; i >= 0; i--) {
+				affectY[i] = true;
+			}
+		}
+
+		int testY = minY + 1;
+
+		while (!field.getLineFlag(testY) && testY < height) {
+			testY++;
+		}
+		for (int y = testY + hiddenHeight; y < affectY.length; y++) {
+			affectY[y] = true;
+		}
+
+		for (int y = hiddenHeight * -1; y < height; y++) {
+			if (affectY[y + hiddenHeight]) {
+				for (int x = 0; x < field.getWidth(); x++) {
+					Block blk = field.getBlock(x, y);
+					if (blk != null && !blk.isEmpty()) {
+						// Change each affected block to broken and garbage, and break connections.
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+						if (grayoutEnable != 0) {
+							blk.color = Colors.BLOCK_COLOR_GRAY;
+						}
+					}
+				}
+			} else if (tntAvalanche) {
+				// Set anti-gravity when TNT avalanche is used
+				for (int x = 0; x < field.getWidth(); x++) {
+					Block blk = field.getBlock(x, y);
+					if (blk != null && !blk.isEmpty()) {
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
+					}
+					blk = field.getBlock(x, y - 1);
+					if (blk != null && !blk.isEmpty()) {
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
+					}
+				}
+			}
+		}
+		// Reset line flags
+		for (int y = -1 * hiddenHeight; y < height; y++) {
+			engine.field.setLineFlag(y, false);
+		}
+		// Set cascade flag
+		engine.lineGravityType = GameEngine.LineGravity.CASCADE;
+	}
+
+	/**
+	 * Old T-Spin avalanche routine.
+	 *
+	 * @param engine   GameEngine
+	 * @param playerID Player ID
+	 * @param lines    Number of lines cleared
+	 */
+	@Deprecated(since = "7.6")
+	private void avalancheOld(GameEngine engine, int playerID, int lines) {
+		Field field = engine.field;
+		field.setAllAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, false);
+
+		// This sets the highest line that will be affected by the avalanche.
+		int topLine = field.getHiddenHeight() * -1;
+		if (lines == 1) {
+			for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor(); i++) {
+				if (field.getLineFlag(i)) {
+					// Found a line
+					topLine = i + 1;
+					break;
+				} else if (tntAvalanche) {
+					// Set anti-gravity when TNT avalanche is used
+					for (int j = 0; j < field.getWidth(); j++) {
+						Block blk = field.getBlock(j, i);
+						if (blk != null && !blk.isEmpty()) {
+							blk.setAttribute(Block.BLOCK_ATTRIBUTE_ANTIGRAVITY, true);
+						}
+					}
+				}
+			}
+		}
+
+		for (int i = field.getHeightWithoutHurryupFloor() - 1; i >= topLine; i--) {
+			// There can be lines cleared underneath, in case of a spin hurdle or such.
+			if (!field.getLineFlag(i)) {
+				for (int j = 0; j < field.getWidth(); j++) {
+					Block blk = field.getBlock(j, i);
+					if (blk != null && !blk.isEmpty()) {
+						// Change each affected block to broken and garbage, and break connections.
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE, true);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_BROKEN, true);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, false);
+						blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, false);
+						if (grayoutEnable != 0) {
+							blk.color = Colors.BLOCK_COLOR_GRAY;
+						}
+					}
+				}
+			}
+		}
+
+		// Set cascade flag
+		engine.lineGravityType = GameEngine.LineGravity.CASCADE;
+	}
+
+	/*
+	 * When the line clear ends
+	 */
+	@Override
+	public boolean lineClearEnd(GameEngine engine, int playerID) {
+		if (engine.lineGravityType == GameEngine.LineGravity.CASCADE && engine.lineGravityTotalLines > 0
+				&& tntAvalanche) {
+			Field field = engine.field;
+			for (int i = field.getHeightWithoutHurryupFloor() - 1; i >= field.getHiddenHeight() * -1; i--) {
+				if (field.isEmptyLine(i)) {
+					field.cutLine(i, 1);
+					engine.lineGravityTotalLines--;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks for 4x4 square formations and converts blocks to square blocks if
+	 * needed.
+	 *
+	 * @return Number of square formations (index 0 is gold, index 1 is silver)
+	 */
+	public int[] checkForSquares(Field field) {
+		int[] squares = { 0, 0 };
+
+		// Check for gold squares
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor() - 3; i++) {
+			for (int j = 0; j < field.getWidth() - 3; j++) {
+				// rootBlk is the upper-left square
+				Block rootBlk = field.getBlock(j, i);
+				boolean squareCheck = false;
+
+				/*
+				 * id is the color of the top-left square: if it is a monosquare, every block in
+				 * the 4x4 area will have this color.
+				 */
+				int id = Colors.BLOCK_COLOR_NONE;
+				if (!(rootBlk == null || rootBlk.isEmpty())) {
+					id = rootBlk.color;
+				}
+
+				// This can't be a square if rootBlk doesn't exist or is part of another square.
+				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
+						|| rootBlk.isSilverSquareBlock())) {
+					// A square is innocent until proven guilty.
+					squareCheck = true;
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							// blk is the current block
+							Block blk = field.getBlock(j + l, i + k);
+							/*
+							 * Reasons why the entire area would not be a monosquare: this block does not
+							 * exist, it is part of another square, it has been broken by line clears, is a
+							 * garbage block, is not the same color as id, or has connections outside the
+							 * area.
+							 */
+							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE) || blk.color != id
+									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
+									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
+									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
+									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+								squareCheck = false;
+								break;
+							}
+						}
+						if (!squareCheck) {
+							break;
+						}
+					}
+				}
+				// We found a square! Set all the blocks equal to gold blocks.
+				if (squareCheck) {
+					squares[0]++;
+					int[] squareX = new int[] { 0, 1, 1, 2 };
+					int[] squareY = new int[] { 0, 3, 3, 6 };
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							blk.color = Colors.BLOCK_COLOR_SQUARE_GOLD_1 + squareX[l] + squareY[k];
+							// For stylistic concerns, we attach all blocks in the square together.
+							if (k > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
+							}
+							if (k < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
+							}
+							if (l > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (l < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+		// Check for silver squares
+		for (int i = field.getHiddenHeight() * -1; i < field.getHeightWithoutHurryupFloor() - 3; i++) {
+			for (int j = 0; j < field.getWidth() - 3; j++) {
+				Block rootBlk = field.getBlock(j, i);
+				boolean squareCheck = false;
+				// We don't have to check colors because this loop checks for multisquares.
+				if (!(rootBlk == null || rootBlk.isEmpty() || rootBlk.isGoldSquareBlock()
+						|| rootBlk.isSilverSquareBlock())) {
+					// A square is innocent until proven guilty
+					squareCheck = true;
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							// See above, but without the color checking.
+							if (blk == null || blk.isEmpty() || blk.isGoldSquareBlock() || blk.isSilverSquareBlock()
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_BROKEN)
+									|| blk.getAttribute(Block.BLOCK_ATTRIBUTE_GARBAGE)
+									|| l == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT)
+									|| l == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT)
+									|| k == 0 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP)
+									|| k == 3 && blk.getAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN)) {
+								squareCheck = false;
+								break;
+							}
+						}
+						if (!squareCheck) {
+							break;
+						}
+					}
+				}
+				// We found a square! Set all the blocks equal to silver blocks.
+				if (squareCheck) {
+					squares[1]++;
+					int[] squareX = new int[] { 0, 1, 1, 2 };
+					int[] squareY = new int[] { 0, 3, 3, 6 };
+					for (int k = 0; k < 4; k++) {
+						for (int l = 0; l < 4; l++) {
+							Block blk = field.getBlock(j + l, i + k);
+							blk.color = Colors.BLOCK_COLOR_SQUARE_SILVER_1 + squareX[l] + squareY[k];
+							if (k > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_UP, true);
+							}
+							if (k < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_DOWN, true);
+							}
+							if (l > 0) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_LEFT, true);
+							}
+							if (l < 3) {
+								blk.setAttribute(Block.BLOCK_ATTRIBUTE_CONNECT_RIGHT, true);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return squares;
+	}
+
+	/*
+	 * Check for squares when piece locks
+	 */
+	@Override
+	public void pieceLocked(GameEngine engine, int playerID, int lines) {
+		int[] sq = checkForSquares(engine.field);
+		squares += sq[0] + sq[1];
+		if (sq[0] == 0 && sq[1] > 0) {
+			engine.playSE(Sounds.SQUARE_SILVER);
+		} else if (sq[0] > 0) {
+			engine.playSE(Sounds.SQUARE_GOLD);
+		}
+	}
+
+	/*
+	 * Results screen
+	 */
+	@Override
+	public void renderResult(GameEngine engine, int playerID) {
+		renderer.drawMenuFont(engine, playerID, 0, 1, "PLAY DATA", Colors.FONT_ORANGE);
+		// @formatter:off
+		drawResult(engine, playerID, 3, Colors.FONT_BLUE,
+				"SCORE", String.format("%10d", engine.statistics.score),
+				"LINE", String.format("%10d", engine.statistics.lines),
+				"SQUARE", String.format("%10d", squares),
+				"TIME", String.format("%10s", GeneralUtil.getTime(engine.statistics.time)));
+		// @formatter:on
+		drawResultRank(engine, playerID, 11, Colors.FONT_BLUE, rankingRank);
+	}
+
+	/*
+	 * This function will be called when the replay data is going to be saved
+	 */
+	@Override
+	public void saveReplay(GameEngine engine, int playerID, CustomProperties prop) {
+		saveSetting(prop);
+		prop.setProperty("square.squares", squares);
+
+		// Update the ranking
+		if (!owner.replayMode && engine.ai == null) {
+			updateRanking(engine.statistics.score, engine.statistics.time, squares, gametype);
+
+			if (rankingRank != -1) {
+				saveRanking(owner.modeConfig, engine.ruleopt.strRuleName);
+				GeneralUtil.saveModeConfig(owner.modeConfig);
+			}
+		}
+	}
+
+	/**
+	 * Load the settings from CustomProperties
+	 *
+	 * @param prop CustomProperties to read
+	 */
+	@Override
+	protected void loadSetting(CustomProperties prop) {
+		gametype = prop.getProperty("square.gametype", 0);
+		outlinetype = prop.getProperty("square.outlinetype", 0);
+		tspinEnableType = prop.getProperty("square.tspinEnableType", 2);
+		tntAvalanche = prop.getProperty("square.tntAvalanche", false);
+		if (version == 0) {
+			grayoutEnable = prop.getProperty("square.grayoutEnable", false) ? 2 : 0;
+		} else {
+			grayoutEnable = prop.getProperty("square.grayoutEnable", 2);
+		}
+		version = prop.getProperty("square.version", 0);
+	}
+
+	/**
+	 * Save the settings to CustomProperties
+	 *
+	 * @param prop CustomProperties to write
+	 */
+	@Override
+	protected void saveSetting(CustomProperties prop) {
+		prop.setProperty("square.gametype", gametype);
+		prop.setProperty("square.outlinetype", outlinetype);
+		prop.setProperty("square.tspinEnableType", tspinEnableType);
+		prop.setProperty("square.tntAvalanche", tntAvalanche);
+		prop.setProperty("square.grayoutEnable", grayoutEnable);
+		prop.setProperty("square.version", version);
+	}
+
+	/**
+	 * Load the ranking from CustomProperties
+	 *
+	 * @param prop     CustomProperties to read
+	 * @param ruleName Rule name
+	 */
+	private void loadRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < GAMETYPE_MAX; j++) {
+				rankingScore[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".score." + i, 0);
+				rankingTime[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".time." + i, -1);
+				rankingSquares[j][i] = prop.getProperty("square.ranking." + ruleName + "." + j + ".squares." + i, 0);
+			}
+		}
+	}
+
+	/**
+	 * Save the ranking to CustomProperties
+	 *
+	 * @param prop     CustomProperties to write
+	 * @param ruleName Rule name
+	 */
+	private void saveRanking(CustomProperties prop, String ruleName) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			for (int j = 0; j < GAMETYPE_MAX; j++) {
+				prop.setProperty("square.ranking." + ruleName + "." + j + ".score." + i, rankingScore[j][i]);
+				prop.setProperty("square.ranking." + ruleName + "." + j + ".time." + i, rankingTime[j][i]);
+				prop.setProperty("square.ranking." + ruleName + "." + j + ".squares." + i, rankingSquares[j][i]);
+			}
+		}
+	}
+
+	/**
+	 * Update the ranking
+	 *
+	 * @param sc   Score
+	 * @param time Time
+	 * @param sq   Squares
+	 * @param type GameType
+	 */
+	private void updateRanking(int sc, int time, int sq, int type) {
+		rankingRank = checkRanking(sc, time, sq, type);
+
+		if (rankingRank != -1) {
+			// Shift the old records
+			for (int i = RANKING_MAX - 1; i > rankingRank; i--) {
+				rankingScore[type][i] = rankingScore[type][i - 1];
+				rankingTime[type][i] = rankingTime[type][i - 1];
+				rankingSquares[type][i] = rankingSquares[type][i - 1];
+			}
+
+			// Register new record
+			rankingScore[type][rankingRank] = sc;
+			rankingTime[type][rankingRank] = time;
+			rankingSquares[type][rankingRank] = sq;
+		}
+	}
+
+	/**
+	 * This function will check the ranking and returns which place you are. (-1:
+	 * Out of rank)
+	 *
+	 * @param sc   Score
+	 * @param time Time
+	 * @param sq   Squares
+	 * @param type GameType
+	 * @return Place (-1: Out of rank)
+	 */
+	private int checkRanking(int sc, int time, int sq, int type) {
+		for (int i = 0; i < RANKING_MAX; i++) {
+			if (gametype == 0) {
+				// Marathon
+				if (sc > rankingScore[type][i]) {
+					return i;
+				}
+				if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
+					return i;
+				}
+				if (sc == rankingScore[type][i] && sq == rankingSquares[type][i] && time < rankingTime[type][i]) {
+					return i;
+				}
+			} else if (gametype == 1 && time >= ULTRA_MAX_TIME) {
+				// Ultra
+				if (sc > rankingScore[type][i]) {
+					return i;
+				}
+				if (sc == rankingScore[type][i] && sq > rankingSquares[type][i]) {
+					return i;
+				}
+			} else if (gametype == 2 && sc >= SPRINT_MAX_SCORE) {
+				// Sprint
+				if (time < rankingTime[type][i] || rankingTime[type][i] < 0) {
+					return i;
+				}
+				if (time == rankingTime[type][i] && sq > rankingSquares[type][i]) {
+					return i;
+				}
+			}
+		}
+
+		return -1;
+	}
+}

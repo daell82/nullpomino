@@ -1,2 +1,2 @@
 @echo off
-java -cp lib\* mu.nu.nullpo.game.net.NetServer %1
+java -cp lib\* mu.nu.nullpo.game.net.server.NetServer %1
